@@ -24,10 +24,15 @@ public class SampleHandler extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 
 		try {
-			Repository repo = Repository.get("000000000003");
-			openDialogWindow(repo.getDevclass(), "Title");
+//			Repository repo = Repository.get("000000000003");
+//			openDialogWindow(repo.getDevclass(), "Title");
+			
+			Repository[] list = Repository.list();
+			for (Repository repo : list) {
+				System.out.println(repo.toString());
+			}
 		} catch (ResourceNotFoundException e) {
-			displayError("Error");
+			displayError("Error, ResourceNotFound");
 		} catch (RuntimeException e) {
 			displayError(e.getMessage());
 		}

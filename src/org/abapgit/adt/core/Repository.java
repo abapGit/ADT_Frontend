@@ -27,9 +27,12 @@ public class Repository {
 	public String getKey() {
 		return key;
 	}
-	
+
 	public String getDevclass() {
 		return devclass;
 	}
 
+	public String toString() {
+		return getKey() + " " + getDevclass() + " " + getURL();
+	}
 }
