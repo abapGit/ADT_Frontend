@@ -9,7 +9,8 @@ Require-Bundle: org.eclipse.ui,
  com.sap.adt.compatibility;bundle-version="2.89.1",
  com.sap.adt.destinations;bundle-version="2.89.1",
  com.sap.adt.destinations.ui;bundle-version="2.89.1",
- com.sap.adt.tools.core;bundle-version="2.89.1"
+ com.sap.adt.tools.core;bundle-version="2.89.1",
+ org.eclipse.core.runtime
 Automatic-Module-Name: org.abapgit.adt
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.eclipse.core.runtime

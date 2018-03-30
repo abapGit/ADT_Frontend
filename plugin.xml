@@ -3,60 +3,37 @@
 <plugin>
 
    <extension
-         point="org.eclipse.ui.commands">
+         point="org.eclipse.ui.views">
       <category
-            name="abapGit Category"
-            id="org.abapgit.adt.commands.category">
+            id="org.abapgit.adt"
+            name="abapGit">
       </category>
-      <command
-            name="abapGit Command"
-            categoryId="org.abapgit.adt.commands.category"
-            id="org.abapgit.adt.commands.sampleCommand">
-      </command>
+      <view
+            category="org.abapgit.adt"
+            class="org.abapgit.adt.views.SampleView"
+            icon="icons/sample.png"
+            id="org.abapgit.adt.views.SampleView"
+            inject="true"
+            name="abapGit">
+      </view>
    </extension>
    <extension
-         point="org.eclipse.ui.handlers">
-      <handler
-            commandId="org.abapgit.adt.commands.sampleCommand"
-            class="org.abapgit.adt.handlers.SampleHandler">
-      </handler>
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="org.eclipse.jdt.ui.JavaPerspective">
+         <view
+               id="org.abapgit.adt.views.SampleView"
+               ratio="0.5"
+               relationship="right"
+               relative="org.eclipse.ui.views.ProblemView">
+         </view>
+      </perspectiveExtension>
    </extension>
    <extension
-         point="org.eclipse.ui.bindings">
-      <key
-            commandId="org.abapgit.adt.commands.sampleCommand"
-            contextId="org.eclipse.ui.contexts.window"
-            sequence="M1+6"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
-      </key>
-   </extension>
-   <extension
-         point="org.eclipse.ui.menus">
-      <menuContribution
-            locationURI="menu:org.eclipse.ui.main.menu?after=additions">
-         <menu
-               label="abapGit Menu"
-               mnemonic="M"
-               id="org.abapgit.adt.menus.sampleMenu">
-            <command
-                  commandId="org.abapgit.adt.commands.sampleCommand"
-                  mnemonic="S"
-                  id="org.abapgit.adt.menus.sampleCommand">
-            </command>
-         </menu>
-      </menuContribution>
-      <menuContribution
-            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
-         <toolbar
-               id="org.abapgit.adt.toolbars.sampleToolbar">
-            <command
-                  commandId="org.abapgit.adt.commands.sampleCommand"
-                  icon="icons/sample.png"
-                  tooltip="Say hello world"
-                  id="org.abapgit.adt.toolbars.sampleCommand">
-            </command>
-         </toolbar>
-      </menuContribution>
+         point="org.eclipse.help.contexts">
+      <contexts
+            file="contexts.xml">
+      </contexts>
    </extension>
 
 </plugin>
