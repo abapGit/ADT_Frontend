@@ -60,14 +60,14 @@ public class MainView extends ViewPart {
 
 	private void setupViewer(Composite parent) {
 		viewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
-		createColumns(viewer);
+		createColumns();
 		viewer.getTable().setHeaderVisible(true);
 
 		viewer.setContentProvider(ArrayContentProvider.getInstance());
 	}
 
-	private void createColumns(final TableViewer viewer) {
-		createTableViewerColumn("Key", 100, 0).setLabelProvider(new ColumnLabelProvider() {
+	private void createColumns() {
+		createTableViewerColumn("Key", 100).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				Repository p = (Repository) element;
@@ -75,7 +75,7 @@ public class MainView extends ViewPart {
 			}
 		});
 
-		createTableViewerColumn("URL", 300, 1).setLabelProvider(new ColumnLabelProvider() {
+		createTableViewerColumn("URL", 300).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				Repository p = (Repository) element;
@@ -83,7 +83,7 @@ public class MainView extends ViewPart {
 			}
 		});
 
-		createTableViewerColumn("Package", 150, 2).setLabelProvider(new ColumnLabelProvider() {
+		createTableViewerColumn("Package", 150).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				Repository p = (Repository) element;
@@ -92,7 +92,7 @@ public class MainView extends ViewPart {
 		});
 	}
 
-	private TableViewerColumn createTableViewerColumn(String title, int bound, final int colNumber) {
+	private TableViewerColumn createTableViewerColumn(String title, int bound) {
 		final TableViewerColumn viewerColumn = new TableViewerColumn(viewer, SWT.NONE);
 		final TableColumn column = viewerColumn.getColumn();
 		column.setText(title);

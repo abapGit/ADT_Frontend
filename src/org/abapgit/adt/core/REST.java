@@ -31,6 +31,8 @@ import com.sap.adt.tools.core.project.IAbapProject;
 
 class REST {
 
+	private static final String ABAPGIT_URI = "/sap/bc/adt/abapgit/repos";
+	
 	// TODO, use discovery service and proper templates/parameters
 	// TODO, split class?
 
@@ -60,8 +62,6 @@ class REST {
 			return this.map.get(path).toArray(new String[0]);
 		}
 	}
-
-	private static final String ABAPGIT_URI = "/sap/bc/adt/abapgit/repos";
 
 	private static IResponse getURL(String URL) {
 		return findResource(URL).get(null, IResponse.class);
