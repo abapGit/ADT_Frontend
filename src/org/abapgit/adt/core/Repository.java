@@ -1,12 +1,14 @@
 package org.abapgit.adt.core;
 
+import java.util.List;
+
 public class Repository {
 
 	private String key;
 	private String URL;
 	private String devclass;
 
-	public static Repository[] list() {
+	public static List<Repository> list() {
 		return REST.listRepositories();
 	}
 

@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
@@ -103,7 +105,7 @@ class REST {
 		return repo;
 	}
 
-	private static Repository[] parseListRepositories(IResponse response) throws IOException, XMLStreamException {
+	private static List<Repository> parseListRepositories(IResponse response) throws IOException, XMLStreamException {
 		int responseStatus = response.getStatus();
 		if (responseStatus != HttpURLConnection.HTTP_OK) {
 			// TODO, error
@@ -117,9 +119,9 @@ class REST {
 		String[] urls = xml.findAll("/abap/values/ROOT/item/URL");
 		String[] packages = xml.findAll("/abap/values/ROOT/item/PACKAGE");
 
-		Repository[] list = new Repository[keys.length];
+		List<Repository> list = new ArrayList<Repository>();
 		for (int i = 0; i < keys.length; i++) {
-			list[i] = new Repository(keys[i], urls[i], packages[i]);
+			list.add(new Repository(keys[i], urls[i], packages[i]));
 		}
 
 		return list;
@@ -163,10 +165,10 @@ class REST {
 		return result;
 	}
 
-	public static Repository[] listRepositories() {
+	public static List<Repository> listRepositories() {
 		final IResponse response = callURL(ABAPGIT_URI);
 
-		Repository[] list = null;
+		List<Repository> list = null;
 		try {
 			list = parseListRepositories(response);
 		} catch (IOException | XMLStreamException e) {

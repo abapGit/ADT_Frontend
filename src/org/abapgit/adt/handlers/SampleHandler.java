@@ -1,5 +1,11 @@
 package org.abapgit.adt.handlers;
 
+//////////////////////////////////
+// OBSOLETE
+//////////////////////////////////
+
+import java.util.List;
+
 import org.abapgit.adt.core.Repository;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -27,7 +33,7 @@ public class SampleHandler extends AbstractHandler {
 //			Repository repo = Repository.get("000000000003");
 //			openDialogWindow(repo.getDevclass(), "Title");
 			
-			Repository[] list = Repository.list();
+			List<Repository> list = Repository.list();
 			for (Repository repo : list) {
 				System.out.println(repo.toString());
 			}
