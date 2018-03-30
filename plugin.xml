@@ -10,9 +10,9 @@
       </category>
       <view
             category="org.abapgit.adt"
-            class="org.abapgit.adt.views.SampleView"
-            icon="icons/sample.png"
-            id="org.abapgit.adt.views.SampleView"
+            class="org.abapgit.adt.views.MainView"
+            icon="icons/abapgit.png"
+            id="org.abapgit.adt.views.MainView"
             inject="true"
             name="abapGit">
       </view>
@@ -22,7 +22,7 @@
       <perspectiveExtension
             targetID="org.eclipse.jdt.ui.JavaPerspective">
          <view
-               id="org.abapgit.adt.views.SampleView"
+               id="org.abapgit.adt.views.MainView"
                ratio="0.5"
                relationship="right"
                relative="org.eclipse.ui.views.ProblemView">

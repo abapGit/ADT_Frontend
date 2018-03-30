@@ -15,12 +15,9 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.SWT;
 import javax.inject.Inject;
 
-public class SampleView extends ViewPart {
+public class MainView extends ViewPart {
 
-	/**
-	 * The ID of the view as specified by the extension.
-	 */
-	public static final String ID = "org.abapgit.adt.views.SampleView";
+	public static final String ID = "org.abapgit.adt.views.MainView";
 
 	@Inject
 	IWorkbench workbench;
@@ -34,7 +31,6 @@ public class SampleView extends ViewPart {
 	class ViewLabelProvider extends LabelProvider implements ITableLabelProvider {
 		@Override
 		public String getColumnText(Object obj, int index) {
-			// return "blah";
 			return getText(obj);
 		}
 
@@ -114,7 +110,7 @@ public class SampleView extends ViewPart {
 				if (viewer.getStructuredSelection().size() == 0) {
 					return;
 				}
-				SampleView.this.fillContextMenu(manager);
+				MainView.this.fillContextMenu(manager);
 			}
 		});
 		Menu menu = menuMgr.createContextMenu(viewer.getControl());
@@ -177,7 +173,7 @@ public class SampleView extends ViewPart {
 	}
 
 	private void showMessage(String message) {
-		MessageDialog.openInformation(viewer.getControl().getShell(), "Sample View", message);
+		MessageDialog.openInformation(viewer.getControl().getShell(), "Info", message);
 	}
 
 	@Override
