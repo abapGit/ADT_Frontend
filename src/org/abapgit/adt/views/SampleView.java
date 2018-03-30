@@ -3,8 +3,10 @@ package org.abapgit.adt.views;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.*;
 import org.eclipse.jface.viewers.*;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.graphics.Image;
 import org.abapgit.adt.core.Repository;
+import org.abapgit.adt.dialogs.CreateDialog;
 import org.eclipse.jface.action.*;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.*;
@@ -12,21 +14,6 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.SWT;
 import javax.inject.Inject;
-
-/**
- * This sample class demonstrates how to plug-in a new workbench view. The view
- * shows data obtained from the model. The sample creates a dummy model on the
- * fly, but a real implementation would connect to the model available either in
- * this or another plug-in (e.g. the workspace). The view is connected to the
- * model using a content provider.
- * <p>
- * The view uses a label provider to define how model objects should be
- * presented in the view. Each view can present the same model objects using
- * different labels and icons, if needed. Alternatively, a single label provider
- * can be shared between views in order to ensure that objects of the same type
- * are presented in the same way everywhere.
- * <p>
- */
 
 public class SampleView extends ViewPart {
 
@@ -40,8 +27,9 @@ public class SampleView extends ViewPart {
 
 	private TableViewer viewer;
 	private Action actionPull;
+	private Action actionDelete;
 	private Action actionRefresh;
-	private Action actionAdd;
+	private Action actionCreate;
 
 	class ViewLabelProvider extends LabelProvider implements ITableLabelProvider {
 		@Override
@@ -80,9 +68,6 @@ public class SampleView extends ViewPart {
 		viewer.getTable().setHeaderVisible(true);
 
 		viewer.setContentProvider(ArrayContentProvider.getInstance());
-//		viewer.setInput(Repository.list());
-		// viewer.setInput(new String[] { "One", "Two", "Three" });
-		// viewer.setLabelProvider(new ViewLabelProvider());
 	}
 
 	private void createColumns(final TableViewer viewer) {
@@ -94,7 +79,7 @@ public class SampleView extends ViewPart {
 			}
 		});
 
-		createTableViewerColumn("URL", 100, 1).setLabelProvider(new ColumnLabelProvider() {
+		createTableViewerColumn("URL", 300, 1).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				Repository p = (Repository) element;
@@ -102,7 +87,7 @@ public class SampleView extends ViewPart {
 			}
 		});
 
-		createTableViewerColumn("Package", 100, 2).setLabelProvider(new ColumnLabelProvider() {
+		createTableViewerColumn("Package", 150, 2).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				Repository p = (Repository) element;
@@ -126,6 +111,9 @@ public class SampleView extends ViewPart {
 		menuMgr.setRemoveAllWhenShown(true);
 		menuMgr.addMenuListener(new IMenuListener() {
 			public void menuAboutToShow(IMenuManager manager) {
+				if (viewer.getStructuredSelection().size() == 0) {
+					return;
+				}
 				SampleView.this.fillContextMenu(manager);
 			}
 		});
@@ -135,29 +123,35 @@ public class SampleView extends ViewPart {
 	}
 
 	private void contributeToActionBars() {
-		IActionBars bars = getViewSite().getActionBars();
-		fillLocalToolBar(bars.getToolBarManager());
+		IToolBarManager manager = getViewSite().getActionBars().getToolBarManager();
+		manager.add(actionRefresh);
+		manager.add(actionCreate);
 	}
 
 	private void fillContextMenu(IMenuManager manager) {
 		manager.add(actionPull);
-	}
-
-	private void fillLocalToolBar(IToolBarManager manager) {
-		manager.add(actionRefresh);
-		manager.add(actionAdd);
+		manager.add(actionDelete);
 	}
 
 	private void makeActions() {
 		actionPull = new Action() {
 			public void run() {
-				System.out.println(viewer.getStructuredSelection().size());
-				showMessage("pull, todo");
+				Repository repo = (Repository) viewer.getStructuredSelection().getFirstElement();
+				repo.pull();
 			}
 		};
 		actionPull.setText("Pull");
 		actionPull.setToolTipText("Pull");
 		actionPull.setImageDescriptor(workbench.getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_UP));
+
+		actionDelete = new Action() {
+			public void run() {
+				showMessage("delete, todo");
+			}
+		};
+		actionDelete.setText("Delete");
+		actionDelete.setToolTipText("Delete");
+		actionDelete.setImageDescriptor(workbench.getSharedImages().getImageDescriptor(ISharedImages.IMG_ETOOL_DELETE));
 
 		actionRefresh = new Action() {
 			public void run() {
@@ -167,15 +161,19 @@ public class SampleView extends ViewPart {
 		actionRefresh.setText("Refresh");
 		actionRefresh.setToolTipText("Refresh");
 		actionRefresh.setImageDescriptor(workbench.getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_REDO));
-		
-		actionAdd = new Action() {
+
+		actionCreate = new Action() {
 			public void run() {
-				showMessage("add, todo");
+				CreateDialog dialog = new CreateDialog(viewer.getControl().getShell());
+				dialog.create();
+				if (dialog.open() == Window.OK) {
+					Repository.create(dialog.getUrl(), dialog.getBranch(), dialog.getDevclass());
+				}
 			}
 		};
-		actionAdd.setText("Add");
-		actionAdd.setToolTipText("Add");
-		actionAdd.setImageDescriptor(workbench.getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJ_ADD));
+		actionCreate.setText("Create");
+		actionCreate.setToolTipText("Create");
+		actionCreate.setImageDescriptor(workbench.getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJ_ADD));
 	}
 
 	private void showMessage(String message) {

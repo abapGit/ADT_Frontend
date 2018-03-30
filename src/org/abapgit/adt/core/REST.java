@@ -7,7 +7,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -44,7 +44,7 @@ class REST {
 		public void add(String path, String value) {
 			Collection<String> coll = this.map.get(path);
 			if (coll == null) {
-				coll = new HashSet<String>();
+				coll = new LinkedList<String>();
 				coll.add(value);
 				this.map.put(path, coll);
 			} else {
@@ -63,20 +63,26 @@ class REST {
 
 	private static final String ABAPGIT_URI = "/sap/bc/adt/abapgit/repos";
 
-	private static IResponse callURL(String URL) {
+	private static IResponse getURL(String URL) {
+		return findResource(URL).get(null, IResponse.class);
+	}
+
+	private static IResponse postURL(String URL, String body) {
+		return findResource(URL).post(null, IResponse.class, body);
+	}
+
+	private static IRestResource findResource(String URL) {
 		IAbapProject abapProject = findProject();
 
 		String destination = abapProject.getDestinationId();
 		URI abapGitUri = URI.create(URL);
 
-		IRestResource abapGitResource = AdtRestResourceFactory.createRestResourceFactory()
-				.createResourceWithStatelessSession(abapGitUri, destination);
-
-		return abapGitResource.get(null, IResponse.class);
+		return AdtRestResourceFactory.createRestResourceFactory().createResourceWithStatelessSession(abapGitUri,
+				destination);
 	}
 
 	public static Repository getRepository(String key) {
-		final IResponse response = callURL(ABAPGIT_URI + "/" + key);
+		final IResponse response = getURL(ABAPGIT_URI + "/" + key);
 
 		Repository repo = null;
 		try {
@@ -166,7 +172,7 @@ class REST {
 	}
 
 	public static List<Repository> listRepositories() {
-		final IResponse response = callURL(ABAPGIT_URI);
+		final IResponse response = getURL(ABAPGIT_URI);
 
 		List<Repository> list = null;
 		try {
@@ -189,6 +195,20 @@ class REST {
 				PlatformUI.getWorkbench().getProgressService());
 
 		return abapProject;
+	}
+
+	public static void create(String url, String branch, String devclass) {
+		// quick and dirty
+		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+				+ "<asx:abap xmlns:asx=\"http://www.sap.com/abapxml\" version=\"1.0\">" + "<asx:values>" + "<ROOT>"
+				+ "<URL>" + url + "</URL>" + "<BRANCH_NAME>" + branch + "</BRANCH_NAME>" + "<PACKAGE>" + devclass
+				+ "</PACKAGE>" + "</ROOT>" + "</asx:values></asx:abap>";
+
+		postURL(ABAPGIT_URI, xml);
+	}
+
+	public static void pull(String key) {
+		postURL(ABAPGIT_URI + "/" + key + "/pull", "");
 	}
 
 }

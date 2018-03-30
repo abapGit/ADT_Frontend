@@ -12,6 +12,10 @@ public class Repository {
 		return REST.listRepositories();
 	}
 
+	public static void create(String url, String branch, String devclass) {
+		REST.create(url, branch, devclass);
+	}
+	
 	public static Repository get(String key) {
 		return REST.getRepository(key);
 	}
@@ -22,6 +26,10 @@ public class Repository {
 		this.devclass = devclass;
 	}
 
+	public void pull() {
+		REST.pull(this.key);
+	}
+	
 	public String getURL() {
 		return URL;
 	}
