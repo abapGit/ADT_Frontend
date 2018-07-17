@@ -107,7 +107,7 @@ class REST {
 		XMLResult xml = parseXML(responseContent);
 
 		Repository repo = new Repository(xml.findSingle("/abap/values/ROOT/KEY"),
-				xml.findSingle("/abap/values/ROOT/URL"), xml.findSingle("/abap/values/ROOT/PACKAGE"));
+				xml.findSingle("/abap/values/ROOT/URL"), xml.findSingle("/abap/values/ROOT/PACKAGE"), xml.findSingle("/abap/values/ROOT/COMMITS"));
 		return repo;
 	}
 
@@ -124,10 +124,11 @@ class REST {
 		String[] keys = xml.findAll("/abap/values/ROOT/item/KEY");
 		String[] urls = xml.findAll("/abap/values/ROOT/item/URL");
 		String[] packages = xml.findAll("/abap/values/ROOT/item/PACKAGE");
+		String[] commits = xml.findAll("/abap/values/ROOT/item/COMMIT");
 
 		List<Repository> list = new ArrayList<Repository>();
 		for (int i = 0; i < keys.length; i++) {
-			list.add(new Repository(keys[i], urls[i], packages[i]));
+			list.add(new Repository(keys[i], urls[i], packages[i], commits[i]));
 		}
 
 		return list;

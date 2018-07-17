@@ -1,48 +1,73 @@
 package org.abapgit.adt.core;
 
 import java.util.List;
+import java.util.ArrayList;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class Repository {
 
-	private String key;
+	private String User;
 	private String URL;
-	private String devclass;
+	private String Package;
+	private String LastCommit;
 
 	public static List<Repository> list() {
-		return REST.listRepositories();
+//		return REST.listRepositories();
+		
+        ArrayList<Repository> repositories = new ArrayList<Repository>();
+        // Image here some fancy database access to read the repositories and to
+        // put them into the model
+        repositories.add(new Repository("$AGIT_DEMO", "https://github.com/OleksiiMalikov/ADT_Frontend", "_SAPD069613", "18.08.18"));
+        repositories.add(new Repository("$TEST1", "https://github.com/abapGit/ADT_Backend", "_SAPD069614", "12.02.17"));
+        repositories.add(new Repository("$DEMO_ABAPGIT", "https://github.com/abapGit/online_installer", "_SAPD069615", "07.04.18"));
+        
+		return repositories;
 	}
 
-	public static void create(String url, String branch, String devclass) {
-		REST.create(url, branch, devclass);
-	}
+
+// JSON Object import
 	
-	public static Repository get(String key) {
-		return REST.getRepository(key);
-	}
-
-	Repository(String key, String URL, String devclass) {
-		this.key = key;
+//
+//	public static void create(String url, String branch, String Package) {
+//		REST.create(url, branch, Package);
+//	}
+	
+//	public static Repository get(String key) {
+//		
+//		//return REST.getRepository(key);
+//		
+//	}
+	
+	Repository(String Package, String URL, String User, String LastCommit) {
+		this.Package = Package;
 		this.URL = URL;
-		this.devclass = devclass;
+		this.User = User;
+		this.LastCommit = LastCommit;
 	}
 
-	public void pull() {
-		REST.pull(this.key);
-	}
+//	public void pull() {
+//		REST.pull(this.User);
+//	}
 	
 	public String getURL() {
 		return URL;
 	}
 
-	public String getKey() {
-		return key;
+	public String getUser() {
+		return User;
+	}
+	
+	public String getLastCommit() {
+		return LastCommit;
 	}
 
-	public String getDevclass() {
-		return devclass;
+	public String getPackage() {
+		return Package;
 	}
 
 	public String toString() {
-		return getKey() + " " + getDevclass() + " " + getURL();
+		return getUser() + " " + getPackage() + " " + getURL();
 	}
 }

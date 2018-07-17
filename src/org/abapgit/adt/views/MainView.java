@@ -7,6 +7,7 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.swt.graphics.Image;
 import org.abapgit.adt.core.Repository;
 import org.abapgit.adt.dialogs.CreateDialog;
+import org.abapgit.adt.dialogs.PullDialog;
 import org.eclipse.jface.action.*;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.*;
@@ -21,10 +22,11 @@ public class MainView extends ViewPart {
 
 	@Inject
 	IWorkbench workbench;
-
+ 
 	private TableViewer viewer;
 	private Action actionPull;
 	private Action actionDelete;
+	private Action actionChangeBranch;
 	private Action actionRefresh;
 	private Action actionCreate;
 
@@ -67,27 +69,35 @@ public class MainView extends ViewPart {
 	}
 
 	private void createColumns() {
-		createTableViewerColumn("Key", 100).setLabelProvider(new ColumnLabelProvider() {
+		createTableViewerColumn("Package", 200).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				Repository p = (Repository) element;
-				return p.getKey();
+				return p.getPackage();
 			}
 		});
 
-		createTableViewerColumn("URL", 300).setLabelProvider(new ColumnLabelProvider() {
+		createTableViewerColumn("URL", 400).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				Repository p = (Repository) element;
 				return p.getURL();
 			}
 		});
-
-		createTableViewerColumn("Package", 150).setLabelProvider(new ColumnLabelProvider() {
+		
+		createTableViewerColumn("User", 100).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				Repository p = (Repository) element;
-				return p.getDevclass();
+				return p.getUser();
+			}
+		});
+		
+		createTableViewerColumn("Last commit", 100).setLabelProvider(new ColumnLabelProvider() {
+			@Override
+			public String getText(Object element) {
+				Repository p = (Repository) element;
+				return p.getLastCommit();
 			}
 		});
 	}
@@ -127,27 +137,43 @@ public class MainView extends ViewPart {
 	private void fillContextMenu(IMenuManager manager) {
 		manager.add(actionPull);
 		manager.add(actionDelete);
+		manager.add(actionChangeBranch);
 	}
 
 	private void makeActions() {
 		actionPull = new Action() {
 			public void run() {
-				Repository repo = (Repository) viewer.getStructuredSelection().getFirstElement();
-				repo.pull();
+//				Repository repo = (Repository) viewer.getStructuredSelection().getFirstElement();
+//				repo.pull();				
+				
+				PullDialog dialog = new PullDialog(viewer.getControl().getShell());
+				dialog.create();
+				if (dialog.open() == Window.OK) {
+					
+				}
 			}
 		};
 		actionPull.setText("Pull");
-		actionPull.setToolTipText("Pull");
+		actionPull.setToolTipText("Pull from Git repository");
 		actionPull.setImageDescriptor(workbench.getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_UP));
 
 		actionDelete = new Action() {
 			public void run() {
-				showMessage("delete, todo");
+				showMessage("Removal confirmation, todo");
 			}
 		};
 		actionDelete.setText("Delete");
-		actionDelete.setToolTipText("Delete");
+		actionDelete.setToolTipText("Delete package");
 		actionDelete.setImageDescriptor(workbench.getSharedImages().getImageDescriptor(ISharedImages.IMG_ETOOL_DELETE));
+
+		actionChangeBranch = new Action() {
+			public void run() {
+				showMessage("Branch change confirmation, todo");
+			}
+		};
+		actionChangeBranch.setText("Change branch");
+		actionChangeBranch.setToolTipText("Change branch for package");
+		actionChangeBranch.setImageDescriptor(workbench.getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
 
 		actionRefresh = new Action() {
 			public void run() {
@@ -155,7 +181,7 @@ public class MainView extends ViewPart {
 			}
 		};
 		actionRefresh.setText("Refresh");
-		actionRefresh.setToolTipText("Refresh");
+		actionRefresh.setToolTipText("Refresh package list");
 		actionRefresh.setImageDescriptor(workbench.getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_REDO));
 
 		actionCreate = new Action() {
@@ -163,12 +189,12 @@ public class MainView extends ViewPart {
 				CreateDialog dialog = new CreateDialog(viewer.getControl().getShell());
 				dialog.create();
 				if (dialog.open() == Window.OK) {
-					Repository.create(dialog.getUrl(), dialog.getBranch(), dialog.getDevclass());
+//					Repository.create(dialog.getUrl(), dialog.getBranch(), dialog.getDevclass());
 				}
 			}
 		};
-		actionCreate.setText("Create");
-		actionCreate.setToolTipText("Create");
+		actionCreate.setText("Clone");
+		actionCreate.setToolTipText("Clone Git repository");
 		actionCreate.setImageDescriptor(workbench.getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJ_ADD));
 	}
 
@@ -179,5 +205,6 @@ public class MainView extends ViewPart {
 	@Override
 	public void setFocus() {
 		viewer.getControl().setFocus();
+		viewer.setInput(Repository.list());
 	}
 }
