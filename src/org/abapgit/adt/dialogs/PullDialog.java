@@ -17,8 +17,6 @@ public class PullDialog extends TitleAreaDialog {
 	private Text txtURL;
 	private Text txtBranch;
 	private Text txtDevclass;
-	private Text txtUser;
-	private Text txtPwd;
 
 	private String url;
 	private String branch;
@@ -103,7 +101,7 @@ public class PullDialog extends TitleAreaDialog {
 		GridData dataUser = new GridData();
 		dataUser.grabExcessHorizontalSpace = true;
 		dataUser.horizontalAlignment = GridData.FILL;
-		txtUser = new Text(container, SWT.BORDER);
+		Text txtUser = new Text(container, SWT.BORDER);
 		txtUser.setLayoutData(dataUser);
 		txtUser.setText(Repository.list().get(0).getUser());
 //		txtUser.setText("_SAPD012345");
@@ -116,7 +114,7 @@ public class PullDialog extends TitleAreaDialog {
 		GridData dataPwd = new GridData();
 		dataPwd.grabExcessHorizontalSpace = true;
 		dataPwd.horizontalAlignment = GridData.FILL;
-		txtPwd = new Text(container, SWT.BORDER);
+		Text txtPwd = new Text(container, SWT.BORDER);
 		txtPwd.setLayoutData(dataPwd);
 		txtPwd.setText("123456ADMIN");
 		txtPwd.setEchoChar('*');
