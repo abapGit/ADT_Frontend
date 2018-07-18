@@ -157,7 +157,8 @@ public class MainView extends ViewPart {
 				PullDialog dialog = new PullDialog(viewer.getControl().getShell());
 				dialog.create();
 				if (dialog.open() == Window.OK) {
-//					Repository.pull(dialog.getUrl(), dialog.getBranch(), dialog.getDevclass());
+					Repository repo = (Repository) viewer.getStructuredSelection().getFirstElement();
+					repo.pull();
 				}
 			}
 		};

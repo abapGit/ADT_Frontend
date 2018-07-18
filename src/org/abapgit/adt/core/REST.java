@@ -252,7 +252,7 @@ class REST {
 	}
 
 	public static void pull(String key) {
-		postURL(ABAPGIT_URI + "/" + key + "/pull", "");
+//		postURL(ABAPGIT_URI + "/" + key + "/pull", "");
 	}
 
 }

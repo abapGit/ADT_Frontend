@@ -33,9 +33,9 @@ public class Repository {
 		this.LastCommit = LastCommit;
 	}
 
-//	public void pull() {
-//		REST.pull(this.User);
-//	}
+	public void pull() {
+		REST.pull(this.User);
+	}
 	
 	public String getURL() {
 		return URL;
