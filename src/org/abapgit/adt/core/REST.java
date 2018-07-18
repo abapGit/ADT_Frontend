@@ -22,6 +22,9 @@ import javax.xml.stream.events.XMLEvent;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.ui.PlatformUI;
 
+import org.eclipse.json.provisonnal.com.eclipsesource.json.JsonArray;
+import org.eclipse.json.provisonnal.com.eclipsesource.json.JsonObject;
+
 import com.sap.adt.communication.message.IResponse;
 import com.sap.adt.communication.resources.AdtRestResourceFactory;
 import com.sap.adt.communication.resources.IRestResource;
@@ -58,13 +61,22 @@ class REST {
 			return this.map.get(path).toArray(new String[0])[0];
 		}
 
-		public String[] findAll(String path) {
-			return this.map.get(path).toArray(new String[0]);
-		}
+//		public String[] findAll(String path) {
+//			return this.map.get(path).toArray(new String[0]);
+//		}
 	}
 
 	private static IResponse getURL(String URL) {
 		return findResource(URL).get(null, IResponse.class);
+	}
+	
+	private static JsonArray getResponse(){
+		
+		String jsonString = "{ \"repositories\": [ { \"package\": \"$AGIT_DEMO\", \"url\": \"https://github.com/OleksiiMalikov/ADT_Frontend\", \"branch\": \"refs/heads/master\", \"user\": \"_SAPD069613\", \"lastcommit\": \"18.08.18\" }, { \"package\": \"$AGIT_TEST\", \"url\": \"https://github.com/OleksiiMalikov/ADT_Frontend\", \"branch\": \"refs/heads/development\", \"user\": \"_SAPD069614\", \"lastcommit\": \"17.07.17\" }, { \"package\": \"$AGIT_EXAMPLE\", \"url\": \"https://github.com/OleksiiMalikov/ADT_Frontend\", \"branch\": \"refs/heads/feature3\", \"user\": \"_SAPD069615\", \"lastcommit\": \"16.06.16\" } ] }";
+		JsonObject responseObject = JsonObject.readFrom(jsonString);
+		JsonArray responseArray = responseObject.get( "repositories" ).asArray();
+        
+		return responseArray;
 	}
 
 	private static IResponse postURL(String URL, String body) {
@@ -107,29 +119,53 @@ class REST {
 		XMLResult xml = parseXML(responseContent);
 
 		Repository repo = new Repository(xml.findSingle("/abap/values/ROOT/KEY"),
-				xml.findSingle("/abap/values/ROOT/URL"), xml.findSingle("/abap/values/ROOT/PACKAGE"), xml.findSingle("/abap/values/ROOT/COMMITS"));
+				xml.findSingle("/abap/values/ROOT/URL"), xml.findSingle("/abap/values/ROOT/BRANCH"), xml.findSingle("/abap/values/ROOT/PACKAGE"), xml.findSingle("/abap/values/ROOT/COMMITS"));
 		return repo;
 	}
 
-	private static List<Repository> parseListRepositories(IResponse response) throws IOException, XMLStreamException {
-		int responseStatus = response.getStatus();
-		if (responseStatus != HttpURLConnection.HTTP_OK) {
-			// TODO, error
-			System.out.println("http not ok");
-		}
-
-		InputStream responseContent = response.getBody().getContent();
-		XMLResult xml = parseXML(responseContent);
-
-		String[] keys = xml.findAll("/abap/values/ROOT/item/KEY");
-		String[] urls = xml.findAll("/abap/values/ROOT/item/URL");
-		String[] packages = xml.findAll("/abap/values/ROOT/item/PACKAGE");
-		String[] commits = xml.findAll("/abap/values/ROOT/item/COMMIT");
+//	private static List<Repository> parseListRepositories(IResponse response) throws IOException, XMLStreamException {
+//		int responseStatus = response.getStatus();
+//		if (responseStatus != HttpURLConnection.HTTP_OK) {
+//			// TODO, error
+//			System.out.println("http not ok");
+//		}
+//
+//		InputStream responseContent = response.getBody().getContent();
+//		XMLResult xml = parseXML(responseContent);
+//
+//		String[] keys = xml.findAll("/abap/values/ROOT/item/KEY");
+//		String[] urls = xml.findAll("/abap/values/ROOT/item/URL");
+//		String[] packages = xml.findAll("/abap/values/ROOT/item/PACKAGE");
+//		String[] commits = xml.findAll("/abap/values/ROOT/item/COMMIT");
+//
+//		List<Repository> list = new ArrayList<Repository>();
+//		for (int i = 0; i < keys.length; i++) {
+//			list.add(new Repository(keys[i], urls[i], packages[i], commits[i]));
+//		}
+//
+//		return list;
+//	}
+	
+	private static List<Repository> parseJsonListRepositories(JsonArray responseObject){
 
 		List<Repository> list = new ArrayList<Repository>();
-		for (int i = 0; i < keys.length; i++) {
-			list.add(new Repository(keys[i], urls[i], packages[i], commits[i]));
+		for (int i=0; i<responseObject.size(); i++) {
+								
+			JsonObject nestedObject = responseObject.get( i ).asObject();
+			String o_package = nestedObject.get( "package" ).asString();
+			String o_url = nestedObject.get( "url" ).asString();
+			String o_branch = nestedObject.get( "branch" ).asString();
+			String o_user = nestedObject.get( "user" ).asString();
+			String o_lastcommit = nestedObject.get( "lastcommit" ).asString();
+			
+			Repository Repo = new Repository(o_package, o_url, o_branch, o_user, o_lastcommit);
+			list.add(Repo);
+			
 		}
+		
+//		for (int i = 0; i < keys.length; i++) {
+//			list.add(new Repository(keys[i], urls[i], packages[i], commits[i]));
+//		}
 
 		return list;
 	}
@@ -173,17 +209,24 @@ class REST {
 	}
 
 	public static List<Repository> listRepositories() {
-		final IResponse response = getURL(ABAPGIT_URI);
+//		final IResponse response = getURL(ABAPGIT_URI);
 
+		JsonArray responseObject = null;
+		responseObject = getResponse();
+//		System.out.print(responseObject);
+		
 		List<Repository> list = null;
-		try {
-			list = parseListRepositories(response);
-		} catch (IOException | XMLStreamException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			System.out.println("error parsing!");
-		}
-
+		
+		list = parseJsonListRepositories(responseObject);	
+		
+//		try {
+//			list = parseListRepositories(response);
+//		} catch (IOException | XMLStreamException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//			System.out.println("error parsing json!");
+//		}
+		
 		return list;
 	}
 

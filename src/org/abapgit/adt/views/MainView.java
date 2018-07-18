@@ -84,6 +84,14 @@ public class MainView extends ViewPart {
 				return p.getURL();
 			}
 		});
+
+		createTableViewerColumn("Branch", 200).setLabelProvider(new ColumnLabelProvider() {
+			@Override
+			public String getText(Object element) {
+				Repository p = (Repository) element;
+				return p.getBranch();
+			}
+		});
 		
 		createTableViewerColumn("User", 100).setLabelProvider(new ColumnLabelProvider() {
 			@Override
@@ -149,7 +157,7 @@ public class MainView extends ViewPart {
 				PullDialog dialog = new PullDialog(viewer.getControl().getShell());
 				dialog.create();
 				if (dialog.open() == Window.OK) {
-					
+//					Repository.pull(dialog.getUrl(), dialog.getBranch(), dialog.getDevclass());
 				}
 			}
 		};

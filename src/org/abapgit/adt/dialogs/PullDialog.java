@@ -22,8 +22,6 @@ public class PullDialog extends TitleAreaDialog {
 
 	private String url;
 	private String branch;
-	private String user;
-	private String pwd;
 	private String devclass;
 
 	public PullDialog(Shell parentShell) {
@@ -134,8 +132,8 @@ public class PullDialog extends TitleAreaDialog {
 	private void saveInput() {
 		url = txtURL.getText();
 		branch = txtBranch.getText();
-		user = txtUser.getText();
-		pwd = txtPwd.getText();
+//		String user = txtUser.getText();
+//		String pwd = txtPwd.getText();
 		devclass = txtDevclass.getText();
 	}
 
