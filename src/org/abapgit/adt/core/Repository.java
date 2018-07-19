@@ -4,45 +4,60 @@ import java.util.List;
 
 public class Repository {
 
-	private String key;
+	private String User;
 	private String URL;
-	private String devclass;
+	private String Branch;
+	private String Package;
+	private String LastCommit;
 
 	public static List<Repository> list() {
-		return REST.listRepositories();
+		return REST.listRepositories();		
 	}
 
-	public static void create(String url, String branch, String devclass) {
-		REST.create(url, branch, devclass);
-	}
+//
+//	public static void create(String url, String branch, String Package) {
+//		REST.create(url, branch, Package);
+//	}
 	
-	public static Repository get(String key) {
-		return REST.getRepository(key);
-	}
-
-	Repository(String key, String URL, String devclass) {
-		this.key = key;
+//	public static Repository get(String key) {
+//		
+//		//return REST.getRepository(key);
+//		
+//	}
+	
+	Repository(String Package, String URL, String Branch, String User, String LastCommit) {
+		this.Package = Package;
 		this.URL = URL;
-		this.devclass = devclass;
+		this.Branch = Branch;
+		this.User = User;
+		this.LastCommit = LastCommit;
 	}
 
 	public void pull() {
-		REST.pull(this.key);
+		REST.pull(this.User);
 	}
 	
 	public String getURL() {
 		return URL;
 	}
 
-	public String getKey() {
-		return key;
+	public String getUser() {
+		return User;
+	}
+	
+	public String getBranch() {
+		return Branch;
+	}
+	
+	public String getLastCommit() {
+		return LastCommit;
 	}
 
-	public String getDevclass() {
-		return devclass;
+	public String getPackage() {
+		return Package;
 	}
 
 	public String toString() {
-		return getKey() + " " + getDevclass() + " " + getURL();
+		return getUser() + " " + getPackage() + " " + getURL() + " " + getBranch() + " " + getLastCommit();
 	}
 }
