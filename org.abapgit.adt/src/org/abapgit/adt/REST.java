@@ -236,14 +236,16 @@ class REST {
 		return abapProject;
 	}
 
-	public static void create(String url, String branch, String devclass) {
+	public static void create(String url, String branch, String devclass, String user, String pwd, String trname) {
 		// quick and dirty
 		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
 				+ "<asx:abap xmlns:asx=\"http://www.sap.com/abapxml\" version=\"1.0\">" + "<asx:values>" + "<ROOT>"
 				+ "<URL>" + url + "</URL>" + "<BRANCH_NAME>" + branch + "</BRANCH_NAME>" + "<PACKAGE>" + devclass
-				+ "</PACKAGE>" + "</ROOT>" + "</asx:values></asx:abap>";
+				+ "</PACKAGE>" + "<USER>" + user + "</USER>" + "<PWD>" + pwd + "</PWD>" + "<TR_NAME>" + trname + "</TR_NAME>" + "</ROOT>" + "</asx:values></asx:abap>";
 
-		postURL(ABAPGIT_URI, xml);
+
+		System.out.print(xml);
+//		postURL(ABAPGIT_URI, xml);
 	}
 
 	public static void pull(String key) {
