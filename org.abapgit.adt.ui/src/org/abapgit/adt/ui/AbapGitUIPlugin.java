@@ -1,6 +1,7 @@
 package org.abapgit.adt.ui;
 
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -14,6 +15,12 @@ public class AbapGitUIPlugin extends AbstractUIPlugin {
 
 	// The shared instance
 	private static AbapGitUIPlugin plugin;
+
+	/**
+	 * The constructor
+	 */
+	public AbapGitUIPlugin() {
+	}
 
 	/*
 	 * (non-Javadoc)

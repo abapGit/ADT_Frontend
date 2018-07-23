@@ -8,26 +8,26 @@ public class Repository {
 	private String URL;
 	private String Branch;
 	private String Package;
-	private String FirstCommit;
+	private String LastCommit;
 
 	public static List<Repository> list() {
 		return REST.listRepositories();
 	}
 
-	public static void create(String url, String branch, String devclass, String user, String pwd, String trname) {
-		REST.create(url, branch, devclass, user, pwd, trname);
-	}
+//	public static void create(String url, String branch, String devclass) {
+//		REST.create(url, branch, devclass);
+//	}
 //	
 //	public static Repository get(String key) {
 //		return REST.getRepository(key);
 //	}
 
-	public Repository(String Package, String URL, String Branch, String User, String FirstCommit) {
+	Repository(String Package, String URL, String Branch, String User, String LastCommit) {
 		this.Package = Package;
 		this.URL = URL;
 		this.Branch = Branch;
 		this.User = User;
-		this.FirstCommit = FirstCommit;
+		this.LastCommit = LastCommit;
 	}
 
 	public void pull() {
@@ -46,8 +46,8 @@ public class Repository {
 		return Branch;
 	}
 	
-	public String getFirstCommit() {
-		return FirstCommit;
+	public String getLastCommit() {
+		return LastCommit;
 	}
 
 	public String getPackage() {
@@ -55,6 +55,6 @@ public class Repository {
 	}
 
 	public String toString() {
-		return getUser() + " " + getPackage() + " " + getURL() + " " + getBranch() + " " + getFirstCommit();
+		return getUser() + " " + getPackage() + " " + getURL() + " " + getBranch() + " " + getLastCommit();
 	}
 }

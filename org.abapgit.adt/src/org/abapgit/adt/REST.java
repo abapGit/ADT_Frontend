@@ -69,18 +69,17 @@ class REST {
 		return findResource(URL).get(null, IResponse.class);
 	}
 	
-//	private static JsonArray getResponse(){
-//		
-//		String jsonString = "{ \"repositories\": [ { \"package\": \"$AGIT_DEMO\", \"url\": \"https://github.com/OleksiiMalikov/ADT_Frontend\", \"branch\": \"refs/heads/master\", \"user\": \"_SAPD069613\", \"lastcommit\": \"18.08.18\" }, { \"package\": \"$AGIT_TEST\", \"url\": \"https://github.com/OleksiiMalikov/ADT_Frontend\", \"branch\": \"refs/heads/development\", \"user\": \"_SAPD069614\", \"lastcommit\": \"17.07.17\" }, { \"package\": \"$AGIT_EXAMPLE\", \"url\": \"https://github.com/OleksiiMalikov/ADT_Frontend\", \"branch\": \"refs/heads/feature3\", \"user\": \"_SAPD069615\", \"lastcommit\": \"16.06.16\" } ] }";
-//		JsonObject responseObject = JsonObject.readFrom(jsonString);
-//		JsonArray responseArray = responseObject.get( "repositories" ).asArray();
-//        
-//		return responseArray;
-//	}
+	private static JsonArray getResponse(){
+		
+		String jsonString = "{ \"repositories\": [ { \"package\": \"$AGIT_DEMO\", \"url\": \"https://github.com/OleksiiMalikov/ADT_Frontend\", \"branch\": \"refs/heads/master\", \"user\": \"_SAPD069613\", \"lastcommit\": \"18.08.18\" }, { \"package\": \"$AGIT_TEST\", \"url\": \"https://github.com/OleksiiMalikov/ADT_Frontend\", \"branch\": \"refs/heads/development\", \"user\": \"_SAPD069614\", \"lastcommit\": \"17.07.17\" }, { \"package\": \"$AGIT_EXAMPLE\", \"url\": \"https://github.com/OleksiiMalikov/ADT_Frontend\", \"branch\": \"refs/heads/feature3\", \"user\": \"_SAPD069615\", \"lastcommit\": \"16.06.16\" } ] }";
+		JsonObject responseObject = JsonObject.readFrom(jsonString);
+		JsonArray responseArray = responseObject.get( "repositories" ).asArray();
+        
+		return responseArray;
+	}
 
 	private static IResponse postURL(String URL, String body) {
-			return findResource(URL).post(null, IResponse.class, body);
-
+		return findResource(URL).post(null, IResponse.class, body);
 	}
 
 	private static IRestResource findResource(String URL) {
@@ -123,59 +122,51 @@ class REST {
  		return repo;
 	}
 
-	private static List<Repository> parseListRepositories(IResponse response) throws IOException, XMLStreamException {
-		int responseStatus = response.getStatus();
-		if (responseStatus != HttpURLConnection.HTTP_OK) {
-			// TODO, error
-			System.out.println("http not ok");
-		}
-
-		List<Repository> list = new ArrayList<Repository>();
-		
-		if(response.getBody().getContentLength() == 53){
-			list.add(new Repository("No packages found...", "", "", "", ""));
-			return list;
-		}
-		
-		InputStream responseContent = response.getBody().getContent();
-		
-		
-		XMLResult xml = parseXML(responseContent);
-
-		String[] keys = xml.findAll("/repositories/repository/key");
-		String[] packages = xml.findAll("/repositories/repository/package");
-		String[] urls = xml.findAll("/repositories/repository/url");
-		String[] branches = xml.findAll("/repositories/repository/branch_name");
-		String[] users = xml.findAll("/repositories/repository/created_by");
-		String[] timestamps = xml.findAll("/repositories/repository/created_at");
-		
-
- 		for (int i = 0; i < keys.length; i++) {
-			list.add(new Repository(packages[i], urls[i], branches[i], users[i], timestamps[i]));
- 		}
-
-		return list;
-	}
-	
-//	private static List<Repository> parseJsonListRepositories(JsonArray responseObject){
+//	private static List<Repository> parseListRepositories(IResponse response) throws IOException, XMLStreamException {
+//		int responseStatus = response.getStatus();
+//		if (responseStatus != HttpURLConnection.HTTP_OK) {
+//			// TODO, error
+//			System.out.println("http not ok");
+//		}
+//
+//		InputStream responseContent = response.getBody().getContent();
+//		XMLResult xml = parseXML(responseContent);
+//
+//		String[] keys = xml.findAll("/abap/values/ROOT/item/KEY");
+//		String[] urls = xml.findAll("/abap/values/ROOT/item/URL");
+//		String[] packages = xml.findAll("/abap/values/ROOT/item/PACKAGE");
 //
 //		List<Repository> list = new ArrayList<Repository>();
-//		for (int i=0; i<responseObject.size(); i++) {
-//								
-//			JsonObject nestedObject = responseObject.get( i ).asObject();
-//			String o_package = nestedObject.get( "package" ).asString();
-//			String o_url = nestedObject.get( "url" ).asString();
-//			String o_branch = nestedObject.get( "branch" ).asString();
-//			String o_user = nestedObject.get( "user" ).asString();
-//			String o_lastcommit = nestedObject.get( "lastcommit" ).asString();
-//			
-//			Repository Repo = new Repository(o_package, o_url, o_branch, o_user, o_lastcommit);
-//			list.add(Repo);
-//			
+//		for (int i = 0; i < keys.length; i++) {
+//			list.add(new Repository(keys[i], urls[i], packages[i]));
 //		}
 //
 //		return list;
 //	}
+	
+	private static List<Repository> parseJsonListRepositories(JsonArray responseObject){
+
+		List<Repository> list = new ArrayList<Repository>();
+		for (int i=0; i<responseObject.size(); i++) {
+								
+			JsonObject nestedObject = responseObject.get( i ).asObject();
+			String o_package = nestedObject.get( "package" ).asString();
+			String o_url = nestedObject.get( "url" ).asString();
+			String o_branch = nestedObject.get( "branch" ).asString();
+			String o_user = nestedObject.get( "user" ).asString();
+			String o_lastcommit = nestedObject.get( "lastcommit" ).asString();
+			
+			Repository Repo = new Repository(o_package, o_url, o_branch, o_user, o_lastcommit);
+			list.add(Repo);
+			
+		}
+		
+//		for (int i = 0; i < keys.length; i++) {
+//			list.add(new Repository(keys[i], urls[i], packages[i], commits[i]));
+//		}
+
+		return list;
+	}
 
 	private static XMLResult parseXML(InputStream stream) throws XMLStreamException {
 		XMLResult result = new XMLResult();
@@ -216,24 +207,22 @@ class REST {
 	}
 
 	public static List<Repository> listRepositories() {
-
+//		final IResponse response = getURL(ABAPGIT_URI);
+//
+//		List<Repository> list = null;
+//		try {
+//			list = parseListRepositories(response);
+//		} catch (IOException | XMLStreamException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//			System.out.println("error parsing!");
+//		}
+//
+		JsonArray responseObject = null;
+		responseObject = getResponse();
 		
-		final IResponse response = getURL(ABAPGIT_URI);
-	
-		List<Repository> list = null;
-		try {
-			list = parseListRepositories(response);
-		} catch (IOException | XMLStreamException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			System.out.println("error parsing!");
-		}
-		
-//		JsonArray responseObject = null;
-//		responseObject = getResponse();
-//		
-//		List<Repository> list = null;		
-//		list = parseJsonListRepositories(responseObject);	
+		List<Repository> list = null;		
+		list = parseJsonListRepositories(responseObject);	
 		
 		return list;
 	}
@@ -243,23 +232,20 @@ class REST {
 		IProject[] abapProjects = AdtProjectServiceFactory.createProjectService().getAvailableAbapProjects();
 		IAbapProject abapProject = (IAbapProject) abapProjects[0].getAdapter(IAbapProject.class);
 
-//		AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(abapProject.getDestinationData(),
-//				PlatformUI.getWorkbench().getProgressService());
+		//AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(abapProject.getDestinationData(),
+				//PlatformUI.getWorkbench().getProgressService());
 
 		return abapProject;
 	}
 
-	public static void create(String url, String branch, String devclass, String user, String pwd, String trname) {
+	public static void create(String url, String branch, String devclass) {
 		// quick and dirty
 		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
 				+ "<asx:abap xmlns:asx=\"http://www.sap.com/abapxml\" version=\"1.0\">" + "<asx:values>" + "<ROOT>"
 				+ "<URL>" + url + "</URL>" + "<BRANCH_NAME>" + branch + "</BRANCH_NAME>" + "<PACKAGE>" + devclass
-				+ "</PACKAGE>" + "<USER>" + user + "</USER>" + "<PWD>" + pwd + "</PWD>" + "<TR_NAME>" + trname + "</TR_NAME>" + "</ROOT>" + "</asx:values></asx:abap>";
+				+ "</PACKAGE>" + "</ROOT>" + "</asx:values></asx:abap>";
 
 		postURL(ABAPGIT_URI, xml);
-
-//		IResponse resp = postURL(ABAPGIT_URI, xml);
-		
 	}
 
 	public static void pull(String key) {
