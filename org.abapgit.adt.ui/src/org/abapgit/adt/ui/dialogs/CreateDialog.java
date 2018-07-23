@@ -16,10 +16,16 @@ public class CreateDialog extends TitleAreaDialog {
 	private Text txtURL;
 	private Text txtBranch;
 	private Text txtDevclass;
+	private Text txtUser;
+	private Text txtPwd;
+	private Text txtTrname;
 
 	private String url;
 	private String branch;
 	private String devclass;
+	private String user;
+	private String pwd;
+	private String trname;
 
 	public CreateDialog(Shell parentShell) {
 		super(parentShell);
@@ -47,6 +53,9 @@ public class CreateDialog extends TitleAreaDialog {
 		createURL(container);
 		createBranch(container);
 		createDevclass(container);
+		createTrname(container);
+		createUser(container);
+		createPwd(container);
 
 		return area;
 	}
@@ -90,6 +99,43 @@ public class CreateDialog extends TitleAreaDialog {
 		txtDevclass = new Text(container, SWT.BORDER);
 		txtDevclass.setLayoutData(dataLastName);
 		txtDevclass.setText("$ONLINE");
+	}	
+	
+	private void createTrname(Composite container) {
+		Label lbl = new Label(container, SWT.NONE);
+		lbl.setText("Transport request");
+
+		GridData dataTrname = new GridData();
+		dataTrname.grabExcessHorizontalSpace = true;
+		dataTrname.horizontalAlignment = GridData.FILL;
+		txtTrname = new Text(container, SWT.BORDER);
+		txtTrname.setLayoutData(dataTrname);
+		txtTrname.setText("DEVK900001");
+	}
+	
+	private void createUser(Composite container) {
+		Label lbl = new Label(container, SWT.NONE);
+		lbl.setText("User");
+		
+		GridData dataUser = new GridData();
+		dataUser.grabExcessHorizontalSpace = true;
+		dataUser.horizontalAlignment = GridData.FILL;
+		txtUser = new Text(container, SWT.BORDER);
+		txtUser.setLayoutData(dataUser);
+		txtUser.setText("John_Smith");
+	}
+	
+	private void createPwd(Composite container) {
+		Label lbl = new Label(container, SWT.NONE);
+		lbl.setText("Password");
+
+		GridData dataPwd = new GridData();
+		dataPwd.grabExcessHorizontalSpace = true;
+		dataPwd.horizontalAlignment = GridData.FILL;
+		txtPwd = new Text(container, SWT.BORDER);
+		txtPwd.setLayoutData(dataPwd);
+		txtPwd.setText("123456ADMIN");
+		txtPwd.setEchoChar('*');
 	}
 	
 	@Override
@@ -103,6 +149,9 @@ public class CreateDialog extends TitleAreaDialog {
 		url = txtURL.getText();
 		branch = txtBranch.getText();
 		devclass = txtDevclass.getText();
+		user = txtUser.getText();
+		pwd = txtPwd.getText();
+		trname = txtTrname.getText();
 	}
 
 	@Override
@@ -122,5 +171,18 @@ public class CreateDialog extends TitleAreaDialog {
 	public String getDevclass() {
 		return devclass;
 	}
+
+	public String getUser() {
+		return user;
+	}
+
+	public String getPwd() {
+		return pwd;
+	}
+
+	public String getTrname() {
+		return trname;
+	}
+
 
 }

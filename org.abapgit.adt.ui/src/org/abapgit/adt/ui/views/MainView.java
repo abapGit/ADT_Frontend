@@ -161,8 +161,8 @@ public class MainView extends ViewPart {
 	}
 
 	private void fillContextMenu(IMenuManager manager) {
-		manager.add(actionPull);
-		manager.add(actionDelete);
+//		manager.add(actionPull);
+//		manager.add(actionDelete);
 	}
 
 	private void makeActions() {
@@ -201,7 +201,7 @@ public class MainView extends ViewPart {
 				CreateDialog dialog = new CreateDialog(viewer.getControl().getShell());
 				dialog.create();
 				if (dialog.open() == Window.OK) {
-//					Repository.create(dialog.getUrl(), dialog.getBranch(), dialog.getDevclass());
+					Repository.create(dialog.getUrl(), dialog.getBranch(), dialog.getDevclass(), dialog.getUser(), dialog.getPwd(), dialog.getTrname());
 				}
 			}
 		};

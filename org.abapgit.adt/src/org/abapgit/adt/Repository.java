@@ -14,9 +14,9 @@ public class Repository {
 		return REST.listRepositories();
 	}
 
-//	public static void create(String url, String branch, String devclass) {
-//		REST.create(url, branch, devclass);
-//	}
+	public static void create(String url, String branch, String devclass, String user, String pwd, String trname) {
+		REST.create(url, branch, devclass, user, pwd, trname);
+	}
 //	
 //	public static Repository get(String key) {
 //		return REST.getRepository(key);
