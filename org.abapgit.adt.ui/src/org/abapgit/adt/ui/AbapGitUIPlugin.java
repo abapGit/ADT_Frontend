@@ -15,12 +15,6 @@ public class AbapGitUIPlugin extends AbstractUIPlugin {
 	// The shared instance
 	private static AbapGitUIPlugin plugin;
 
-	/**
-	 * The constructor
-	 */
-	public AbapGitUIPlugin() {
-	}
-
 	/*
 	 * (non-Javadoc)
 	 *
