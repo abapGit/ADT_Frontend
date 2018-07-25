@@ -23,9 +23,12 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.json.provisonnal.com.eclipsesource.json.JsonArray;
 import org.eclipse.json.provisonnal.com.eclipsesource.json.JsonObject;
 
+import org.eclipse.ui.PlatformUI;
+
 import com.sap.adt.communication.message.IResponse;
 import com.sap.adt.communication.resources.AdtRestResourceFactory;
 import com.sap.adt.communication.resources.IRestResource;
+import com.sap.adt.destinations.ui.logon.AdtLogonServiceUIFactory;
 import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
 import com.sap.adt.tools.core.project.IAbapProject;
 
@@ -77,7 +80,8 @@ class REST {
 	}
 
 	private static IResponse postURL(String URL, String body) {
-		return findResource(URL).post(null, IResponse.class, body);
+			return findResource(URL).post(null, IResponse.class, body);
+
 	}
 
 	private static IRestResource findResource(String URL) {
@@ -120,51 +124,52 @@ class REST {
  		return repo;
 	}
 
-//	private static List<Repository> parseListRepositories(IResponse response) throws IOException, XMLStreamException {
-//		int responseStatus = response.getStatus();
-//		if (responseStatus != HttpURLConnection.HTTP_OK) {
-//			// TODO, error
-//			System.out.println("http not ok");
-//		}
-//
-//		InputStream responseContent = response.getBody().getContent();
-//		XMLResult xml = parseXML(responseContent);
-//
-//		String[] keys = xml.findAll("/abap/values/ROOT/item/KEY");
-//		String[] urls = xml.findAll("/abap/values/ROOT/item/URL");
-//		String[] packages = xml.findAll("/abap/values/ROOT/item/PACKAGE");
+	private static List<Repository> parseListRepositories(IResponse response) throws IOException, XMLStreamException {
+		int responseStatus = response.getStatus();
+		if (responseStatus != HttpURLConnection.HTTP_OK) {
+			// TODO, error
+			System.out.println("http not ok");
+		}
+
+		InputStream responseContent = response.getBody().getContent();
+
+		XMLResult xml = parseXML(responseContent);
+
+		String[] keys = xml.findAll("/repositories/repository/key");
+		String[] packages = xml.findAll("/repositories/repository/package");
+		String[] urls = xml.findAll("/repositories/repository/url");
+		String[] branches = xml.findAll("/repositories/repository/branch_name");
+		String[] users = xml.findAll("/repositories/repository/created_by");
+		String[] timestamps = xml.findAll("/repositories/repository/created_at");
+		
+
+		List<Repository> list = new ArrayList<Repository>();
+ 		for (int i = 0; i < keys.length; i++) {
+			list.add(new Repository(packages[i], urls[i], branches[i], users[i], timestamps[i]));
+ 		}
+
+		return list;
+	}
+	
+//	private static List<Repository> parseJsonListRepositories(JsonArray responseObject){
 //
 //		List<Repository> list = new ArrayList<Repository>();
-//		for (int i = 0; i < keys.length; i++) {
-//			list.add(new Repository(keys[i], urls[i], packages[i]));
+//		for (int i=0; i<responseObject.size(); i++) {
+//								
+//			JsonObject nestedObject = responseObject.get( i ).asObject();
+//			String o_package = nestedObject.get( "package" ).asString();
+//			String o_url = nestedObject.get( "url" ).asString();
+//			String o_branch = nestedObject.get( "branch" ).asString();
+//			String o_user = nestedObject.get( "user" ).asString();
+//			String o_lastcommit = nestedObject.get( "lastcommit" ).asString();
+//			
+//			Repository Repo = new Repository(o_package, o_url, o_branch, o_user, o_lastcommit);
+//			list.add(Repo);
+//			
 //		}
 //
 //		return list;
 //	}
-	
-	private static List<Repository> parseJsonListRepositories(JsonArray responseObject){
-
-		List<Repository> list = new ArrayList<Repository>();
-		for (int i=0; i<responseObject.size(); i++) {
-								
-			JsonObject nestedObject = responseObject.get( i ).asObject();
-			String o_package = nestedObject.get( "package" ).asString();
-			String o_url = nestedObject.get( "url" ).asString();
-			String o_branch = nestedObject.get( "branch" ).asString();
-			String o_user = nestedObject.get( "user" ).asString();
-			String o_lastcommit = nestedObject.get( "lastcommit" ).asString();
-			
-			Repository Repo = new Repository(o_package, o_url, o_branch, o_user, o_lastcommit);
-			list.add(Repo);
-			
-		}
-		
-//		for (int i = 0; i < keys.length; i++) {
-//			list.add(new Repository(keys[i], urls[i], packages[i], commits[i]));
-//		}
-
-		return list;
-	}
 
 	private static XMLResult parseXML(InputStream stream) throws XMLStreamException {
 		XMLResult result = new XMLResult();
@@ -205,22 +210,24 @@ class REST {
 	}
 
 	public static List<Repository> listRepositories() {
-//		final IResponse response = getURL(ABAPGIT_URI);
-//
-//		List<Repository> list = null;
-//		try {
-//			list = parseListRepositories(response);
-//		} catch (IOException | XMLStreamException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//			System.out.println("error parsing!");
-//		}
-//
-		JsonArray responseObject = null;
-		responseObject = getResponse();
+
 		
-		List<Repository> list = null;		
-		list = parseJsonListRepositories(responseObject);	
+		final IResponse response = getURL(ABAPGIT_URI);
+	
+		List<Repository> list = null;
+		try {
+			list = parseListRepositories(response);
+		} catch (IOException | XMLStreamException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.out.println("error parsing!");
+		}
+		
+//		JsonArray responseObject = null;
+//		responseObject = getResponse();
+//		
+//		List<Repository> list = null;		
+//		list = parseJsonListRepositories(responseObject);	
 		
 		return list;
 	}
@@ -230,8 +237,8 @@ class REST {
 		IProject[] abapProjects = AdtProjectServiceFactory.createProjectService().getAvailableAbapProjects();
 		IAbapProject abapProject = (IAbapProject) abapProjects[0].getAdapter(IAbapProject.class);
 
-		//AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(abapProject.getDestinationData(),
-				//PlatformUI.getWorkbench().getProgressService());
+//		AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(abapProject.getDestinationData(),
+//				PlatformUI.getWorkbench().getProgressService());
 
 		return abapProject;
 	}
@@ -243,9 +250,17 @@ class REST {
 				+ "<URL>" + url + "</URL>" + "<BRANCH_NAME>" + branch + "</BRANCH_NAME>" + "<PACKAGE>" + devclass
 				+ "</PACKAGE>" + "<USER>" + user + "</USER>" + "<PWD>" + pwd + "</PWD>" + "<TR_NAME>" + trname + "</TR_NAME>" + "</ROOT>" + "</asx:values></asx:abap>";
 
-
-		System.out.print(xml);
 //		postURL(ABAPGIT_URI, xml);
+		
+//		System.out.print(xml);
+		IResponse resp = postURL(ABAPGIT_URI, xml);
+//		resp.getBody();
+		System.out.print(resp.getHeaders());
+		System.out.print(resp.getStatus());
+		System.out.print(resp.getStatusLine());
+		System.out.print(resp.getErrorInfo());
+		System.out.print(resp.getReasonPhrase());
+		
 	}
 
 	public static void pull(String key) {
