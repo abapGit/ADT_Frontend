@@ -1,7 +1,6 @@
 package org.abapgit.adt.ui;
 
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 

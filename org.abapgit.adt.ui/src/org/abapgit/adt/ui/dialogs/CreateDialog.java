@@ -5,7 +5,6 @@ import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -24,6 +23,7 @@ public class CreateDialog extends TitleAreaDialog {
 	private Text txtUser;
 	private Text txtPwd;
 	private Text txtTrname;
+	private Group privateRepoGroup;
 
 	private String url;
 	private String branch;
@@ -60,8 +60,7 @@ public class CreateDialog extends TitleAreaDialog {
 		createDevclass(container);
 		createTrname(container);
 		checkPrivate(container);
-  		createUser(container);
-		createPwd(container);
+		createUserPwd(container);
 
 		return area;
 	}
@@ -113,34 +112,35 @@ public class CreateDialog extends TitleAreaDialog {
 		txtTrname = new Text(container, SWT.BORDER);
 		txtTrname.setLayoutData(dataTrname);
 		txtTrname.setText("DEVK900001");
-	}	
-		
-	private void createUser(Composite container) {
-		Label lbl = new Label(container, SWT.NONE);
-		lbl.setText("User");
-		
-		GridData dataUser = new GridData();
-		dataUser.grabExcessHorizontalSpace = true;
-		dataUser.horizontalAlignment = GridData.FILL;
-		txtUser = new Text(container, SWT.BORDER);
-		txtUser.setLayoutData(dataUser);
-		txtUser.setText("John_Smith");
-		txtUser.setVisible(false);
-	}
-	
-	private void createPwd(Composite container) {
-		Label lblPwd = new Label(container, SWT.NONE);
-		lblPwd.setText("Password");
+	}			
 
-		GridData dataPwd = new GridData();
-		dataPwd.grabExcessHorizontalSpace = true;
-		dataPwd.horizontalAlignment = GridData.FILL;
-		txtPwd = new Text(container, SWT.BORDER);
-		txtPwd.setLayoutData(dataPwd);
+	private void createUserPwd(Composite container) {
+
+	    GridLayout gridLayout = new GridLayout();
+	    GridData gridData = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
+	    privateRepoGroup = new Group(container, SWT.NULL);
+//	    privateRepoGroup.setText("Owner Info");
+	    gridLayout = new GridLayout();
+        gridLayout.numColumns = 2;
+        privateRepoGroup.setLayout(gridLayout);
+        gridData = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
+        gridData.horizontalSpan = 2;
+        privateRepoGroup.setLayoutData(gridData);
+        
+        
+        new Label(privateRepoGroup, SWT.NULL).setText("User");
+        txtUser = new Text(privateRepoGroup, SWT.SINGLE | SWT.BORDER);
+        txtUser.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		txtUser.setText("John_Smith");
+     
+        new Label(privateRepoGroup, SWT.NULL).setText("Password");
+        txtPwd = new Text(privateRepoGroup, SWT.SINGLE | SWT.BORDER);
+        txtPwd.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtPwd.setText("123456ADMIN");
 		txtPwd.setEchoChar('*');
-		txtPwd.setVisible(false);
-	}	
+		
+
+	}
 	
 	private void checkPrivate(Composite container) {
 		Label lbl = new Label(container, SWT.NONE);
@@ -153,17 +153,18 @@ public class CreateDialog extends TitleAreaDialog {
 		// Create private repo ceckbox
 		Button privateRepo = new Button(container, SWT.CHECK);
 		privateRepo.setLayoutData(dataCheckPrivate);
+		privateRepo.setSelection(true);
 		    
 		privateRepo.addSelectionListener(new SelectionAdapter(){
 		        @Override public void widgetSelected(    SelectionEvent e){
 		          boolean selected = privateRepo.getSelection();
-		          if(selected == true){
-		      		txtPwd.setVisible(true);
-		      		txtUser.setVisible(true);
+		          if(selected){
+		        	privateRepoGroup.setVisible(true);
 		          }
 		          else {
-			        txtPwd.setVisible(false);
-			      	txtUser.setVisible(false);
+			        privateRepoGroup.setVisible(false);
+			      	txtPwd.setText("");
+		    		txtUser.setText("");
 		          }
 		        }
 		});    
