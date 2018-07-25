@@ -20,15 +20,11 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.json.provisonnal.com.eclipsesource.json.JsonArray;
-import org.eclipse.json.provisonnal.com.eclipsesource.json.JsonObject;
 
-import org.eclipse.ui.PlatformUI;
 
 import com.sap.adt.communication.message.IResponse;
 import com.sap.adt.communication.resources.AdtRestResourceFactory;
 import com.sap.adt.communication.resources.IRestResource;
-import com.sap.adt.destinations.ui.logon.AdtLogonServiceUIFactory;
 import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
 import com.sap.adt.tools.core.project.IAbapProject;
 
@@ -70,14 +66,14 @@ class REST {
 		return findResource(URL).get(null, IResponse.class);
 	}
 	
-	private static JsonArray getResponse(){
-		
-		String jsonString = "{ \"repositories\": [ { \"package\": \"$AGIT_DEMO\", \"url\": \"https://github.com/OleksiiMalikov/ADT_Frontend\", \"branch\": \"refs/heads/master\", \"user\": \"_SAPD069613\", \"lastcommit\": \"18.08.18\" }, { \"package\": \"$AGIT_TEST\", \"url\": \"https://github.com/OleksiiMalikov/ADT_Frontend\", \"branch\": \"refs/heads/development\", \"user\": \"_SAPD069614\", \"lastcommit\": \"17.07.17\" }, { \"package\": \"$AGIT_EXAMPLE\", \"url\": \"https://github.com/OleksiiMalikov/ADT_Frontend\", \"branch\": \"refs/heads/feature3\", \"user\": \"_SAPD069615\", \"lastcommit\": \"16.06.16\" } ] }";
-		JsonObject responseObject = JsonObject.readFrom(jsonString);
-		JsonArray responseArray = responseObject.get( "repositories" ).asArray();
-        
-		return responseArray;
-	}
+//	private static JsonArray getResponse(){
+//		
+//		String jsonString = "{ \"repositories\": [ { \"package\": \"$AGIT_DEMO\", \"url\": \"https://github.com/OleksiiMalikov/ADT_Frontend\", \"branch\": \"refs/heads/master\", \"user\": \"_SAPD069613\", \"lastcommit\": \"18.08.18\" }, { \"package\": \"$AGIT_TEST\", \"url\": \"https://github.com/OleksiiMalikov/ADT_Frontend\", \"branch\": \"refs/heads/development\", \"user\": \"_SAPD069614\", \"lastcommit\": \"17.07.17\" }, { \"package\": \"$AGIT_EXAMPLE\", \"url\": \"https://github.com/OleksiiMalikov/ADT_Frontend\", \"branch\": \"refs/heads/feature3\", \"user\": \"_SAPD069615\", \"lastcommit\": \"16.06.16\" } ] }";
+//		JsonObject responseObject = JsonObject.readFrom(jsonString);
+//		JsonArray responseArray = responseObject.get( "repositories" ).asArray();
+//        
+//		return responseArray;
+//	}
 
 	private static IResponse postURL(String URL, String body) {
 			return findResource(URL).post(null, IResponse.class, body);
@@ -131,8 +127,16 @@ class REST {
 			System.out.println("http not ok");
 		}
 
+		List<Repository> list = new ArrayList<Repository>();
+		
+		if(response.getBody().getContentLength() == 53){
+			list.add(new Repository("No packages found...", "", "", "", ""));
+			return list;
+		}
+		
 		InputStream responseContent = response.getBody().getContent();
-
+		
+		
 		XMLResult xml = parseXML(responseContent);
 
 		String[] keys = xml.findAll("/repositories/repository/key");
@@ -143,7 +147,6 @@ class REST {
 		String[] timestamps = xml.findAll("/repositories/repository/created_at");
 		
 
-		List<Repository> list = new ArrayList<Repository>();
  		for (int i = 0; i < keys.length; i++) {
 			list.add(new Repository(packages[i], urls[i], branches[i], users[i], timestamps[i]));
  		}
@@ -250,16 +253,9 @@ class REST {
 				+ "<URL>" + url + "</URL>" + "<BRANCH_NAME>" + branch + "</BRANCH_NAME>" + "<PACKAGE>" + devclass
 				+ "</PACKAGE>" + "<USER>" + user + "</USER>" + "<PWD>" + pwd + "</PWD>" + "<TR_NAME>" + trname + "</TR_NAME>" + "</ROOT>" + "</asx:values></asx:abap>";
 
-//		postURL(ABAPGIT_URI, xml);
-		
-//		System.out.print(xml);
-		IResponse resp = postURL(ABAPGIT_URI, xml);
-//		resp.getBody();
-		System.out.print(resp.getHeaders());
-		System.out.print(resp.getStatus());
-		System.out.print(resp.getStatusLine());
-		System.out.print(resp.getErrorInfo());
-		System.out.print(resp.getReasonPhrase());
+		postURL(ABAPGIT_URI, xml);
+
+//		IResponse resp = postURL(ABAPGIT_URI, xml);
 		
 	}
 
