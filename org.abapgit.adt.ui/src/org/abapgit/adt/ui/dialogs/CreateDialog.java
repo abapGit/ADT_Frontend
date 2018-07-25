@@ -3,10 +3,15 @@ package org.abapgit.adt.ui.dialogs;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -54,7 +59,8 @@ public class CreateDialog extends TitleAreaDialog {
 		createBranch(container);
 		createDevclass(container);
 		createTrname(container);
-		createUser(container);
+		checkPrivate(container);
+  		createUser(container);
 		createPwd(container);
 
 		return area;
@@ -107,8 +113,8 @@ public class CreateDialog extends TitleAreaDialog {
 		txtTrname = new Text(container, SWT.BORDER);
 		txtTrname.setLayoutData(dataTrname);
 		txtTrname.setText("DEVK900001");
-	}
-	
+	}	
+		
 	private void createUser(Composite container) {
 		Label lbl = new Label(container, SWT.NONE);
 		lbl.setText("User");
@@ -119,11 +125,12 @@ public class CreateDialog extends TitleAreaDialog {
 		txtUser = new Text(container, SWT.BORDER);
 		txtUser.setLayoutData(dataUser);
 		txtUser.setText("John_Smith");
+		txtUser.setVisible(false);
 	}
 	
 	private void createPwd(Composite container) {
-		Label lbl = new Label(container, SWT.NONE);
-		lbl.setText("Password");
+		Label lblPwd = new Label(container, SWT.NONE);
+		lblPwd.setText("Password");
 
 		GridData dataPwd = new GridData();
 		dataPwd.grabExcessHorizontalSpace = true;
@@ -132,6 +139,35 @@ public class CreateDialog extends TitleAreaDialog {
 		txtPwd.setLayoutData(dataPwd);
 		txtPwd.setText("123456ADMIN");
 		txtPwd.setEchoChar('*');
+		txtPwd.setVisible(false);
+	}	
+	
+	private void checkPrivate(Composite container) {
+		Label lbl = new Label(container, SWT.NONE);
+		lbl.setText("Private repository?");
+
+		GridData dataCheckPrivate = new GridData();
+		dataCheckPrivate.grabExcessHorizontalSpace = true;
+		dataCheckPrivate.horizontalAlignment = GridData.FILL;
+
+		// Create private repo ceckbox
+		Button privateRepo = new Button(container, SWT.CHECK);
+		privateRepo.setLayoutData(dataCheckPrivate);
+		    
+		privateRepo.addSelectionListener(new SelectionAdapter(){
+		        @Override public void widgetSelected(    SelectionEvent e){
+		          boolean selected = privateRepo.getSelection();
+		          if(selected == true){
+		      		txtPwd.setVisible(true);
+		      		txtUser.setVisible(true);
+		          }
+		          else {
+			        txtPwd.setVisible(false);
+			      	txtUser.setVisible(false);
+		          }
+		        }
+		});    
+		    
 	}
 	
 	@Override
