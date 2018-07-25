@@ -16,9 +16,14 @@ import org.eclipse.jface.action.*;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.*;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.SWT;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.inject.Inject;
 
 public class MainView extends ViewPart {
@@ -117,11 +122,11 @@ public class MainView extends ViewPart {
 			}
 		});
 		
-		createTableViewerColumn("Last commit", 100).setLabelProvider(new ColumnLabelProvider() {
+		createTableViewerColumn("First commit timestamp", 100).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				Repository p = (Repository) element;
-				return p.getLastCommit();
+				return p.getFirstCommit();
 			}
 		});
 	}
@@ -200,8 +205,42 @@ public class MainView extends ViewPart {
 			public void run() {
 				CreateDialog dialog = new CreateDialog(viewer.getControl().getShell());
 				dialog.create();
+
 				if (dialog.open() == Window.OK) {
+					
+					
+//					if(dialog.getUrl().isEmpty() == true) {
+//						showInfoDialog("Empty field", "Please input git url first.");
+//						return ;
+//					}
+//					
+//					
+//					String giturl = dialog.getUrl();
+//					String branch = dialog.getBranch();
+//					String devpackage = dialog.getDevclass();
+//					String user = dialog.getUser();
+//					String pwd = dialog.getPwd();
+//					String transport = dialog.getBranch();
+					
+//					if(giturl == "") {
+//						showInfoDialog("Empty field", "CLONE MESSAGEBOX TEXT");
+//						dialog.create();
+//					}
+					
+					
+//					Map<String, String> dialogInputs = new HashMap<String, String>();
+//					dialogInputs.put("Git Url", giturl);
+//					dialogInputs.put("Branch", branch);
+//					dialogInputs.put("Package", devpackage);
+//					dialogInputs.put("Username", user);
+//					dialogInputs.put("Password", pwd);
+//					dialogInputs.put("Transport request", transport);
+					
 					Repository.create(dialog.getUrl(), dialog.getBranch(), dialog.getDevclass(), dialog.getUser(), dialog.getPwd(), dialog.getTrname());
+					viewer.setInput(Repository.list());
+					
+					
+					//showInfoDialog("CLONE MESSAGEBOX TITLE", "CLONE MESSAGEBOX TEXT");
 				}
 			}
 		};
@@ -240,6 +279,18 @@ public class MainView extends ViewPart {
 	public void setFocus() {
 		this.viewer.getControl().setFocus();
 		viewer.setInput(Repository.list());
+	}
+	
+	/** 
+	 * Show an information dialog with the title and message provided.
+	 * @param title   Dialog window title
+	 * @param message Dialog message
+	 */
+	protected void showInfoDialog(String title,String message){
+	  MessageBox mb = new MessageBox(viewer.getControl().getShell(),SWT.OK | SWT.ICON_WARNING);
+	  mb.setText(title);
+	  mb.setMessage(message);
+	  mb.open();
 	}
 
 }
