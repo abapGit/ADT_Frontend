@@ -10,7 +10,6 @@ import org.abapgit.adt.Repository;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.dialogs.CreateDialog;
 import org.eclipse.jface.action.*;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.*;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Table;
@@ -23,13 +22,12 @@ public class MainView extends ViewPart {
 	public static final String ID = "org.abapgit.adt.ui.views.MainView";
 
 	private TableViewer viewer;
-	private Action actionPull, actionDelete, actionRefresh, actionCreate;
+//	private Action actionPull, actionDelete;
+	private Action actionRefresh, actionCreate;
 
 	/**
 	 * The constructor.
 	 */
-	public MainView() {
-	}
 
 	class ViewLabelProvider extends LabelProvider implements ITableLabelProvider {
 		@Override
@@ -161,25 +159,25 @@ public class MainView extends ViewPart {
 //	}
 
 	private void makeActions() {
-		this.actionPull = new Action() {
-			public void run() {
-				Repository repo = (Repository) viewer.getStructuredSelection().getFirstElement();
-				repo.pull();
-			}
-		};
-		this.actionPull.setText("Pull");
-		this.actionPull.setToolTipText("Pull");
-		this.actionPull.setImageDescriptor(AbapGitUIPlugin.getDefault().getImageDescriptor(ISharedImages.IMG_TOOL_UP));
-
-		this.actionDelete = new Action() {
-			public void run() {
-				showMessage("delete, todo");
-			}
-		};
-		this.actionDelete.setText("Delete");
-		this.actionDelete.setToolTipText("Delete");
-		this.actionDelete
-				.setImageDescriptor(AbapGitUIPlugin.getDefault().getImageDescriptor(ISharedImages.IMG_ETOOL_DELETE));
+//		this.actionPull = new Action() {
+//			public void run() {
+//				Repository repo = (Repository) viewer.getStructuredSelection().getFirstElement();
+//				repo.pull();
+//			}
+//		};
+//		this.actionPull.setText("Pull");
+//		this.actionPull.setToolTipText("Pull");
+//		this.actionPull.setImageDescriptor(AbapGitUIPlugin.getDefault().getImageDescriptor(ISharedImages.IMG_TOOL_UP));
+//
+//		this.actionDelete = new Action() {
+//			public void run() {
+//				showMessage("delete, todo");
+//			}
+//		};
+//		this.actionDelete.setText("Delete");
+//		this.actionDelete.setToolTipText("Delete");
+//		this.actionDelete
+//				.setImageDescriptor(AbapGitUIPlugin.getDefault().getImageDescriptor(ISharedImages.IMG_ETOOL_DELETE));
 
 		this.actionRefresh = new Action() {
 			public void run() {
@@ -210,9 +208,9 @@ public class MainView extends ViewPart {
 				.setImageDescriptor(AbapGitUIPlugin.getDefault().getImageDescriptor(ISharedImages.IMG_OBJ_ADD));
 	}
 
-	private void showMessage(String message) {
-		MessageDialog.openInformation(viewer.getControl().getShell(), "Info", message);
-	}
+//	private void showMessage(String message) {
+//		MessageDialog.openInformation(viewer.getControl().getShell(), "Info", message);
+//	}
 
 	/**
 	 * Passing the focus request to the viewer's control.
