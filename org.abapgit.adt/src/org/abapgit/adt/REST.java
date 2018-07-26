@@ -20,12 +20,19 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
 import org.eclipse.core.resources.IProject;
+<<<<<<< HEAD:org.abapgit.adt/src/org/abapgit/adt/REST.java
 import org.eclipse.ui.PlatformUI;
+=======
+
+>>>>>>> Added compatibility with ABAP in SAP CP  (#9):org.abapgit.adt/src/org/abapgit/adt/REST.java
 
 import com.sap.adt.communication.message.IResponse;
 import com.sap.adt.communication.resources.AdtRestResourceFactory;
 import com.sap.adt.communication.resources.IRestResource;
+<<<<<<< HEAD:org.abapgit.adt/src/org/abapgit/adt/REST.java
 import com.sap.adt.destinations.ui.logon.AdtLogonServiceUIFactory;
+=======
+>>>>>>> Added compatibility with ABAP in SAP CP  (#9):org.abapgit.adt/src/org/abapgit/adt/REST.java
 import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
 import com.sap.adt.tools.core.project.IAbapProject;
 
@@ -241,8 +248,13 @@ class REST {
 		IProject[] abapProjects = AdtProjectServiceFactory.createProjectService().getAvailableAbapProjects();
 		IAbapProject abapProject = (IAbapProject) abapProjects[0].getAdapter(IAbapProject.class);
 
+<<<<<<< HEAD:org.abapgit.adt/src/org/abapgit/adt/REST.java
 		AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(abapProject.getDestinationData(),
 				PlatformUI.getWorkbench().getProgressService());
+=======
+//		AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(abapProject.getDestinationData(),
+//				PlatformUI.getWorkbench().getProgressService());
+>>>>>>> Added compatibility with ABAP in SAP CP  (#9):org.abapgit.adt/src/org/abapgit/adt/REST.java
 
 		return abapProject;
 	}
