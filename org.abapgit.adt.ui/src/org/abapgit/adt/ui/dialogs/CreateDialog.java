@@ -1,10 +1,14 @@
 package org.abapgit.adt.ui.dialogs;
 
+//import java.awt.FontFormatException;
+
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+//import org.eclipse.swt.events.VerifyEvent;
+//import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -76,6 +80,7 @@ public class CreateDialog extends TitleAreaDialog {
 		txtURL = new Text(container, SWT.BORDER);
 		txtURL.setLayoutData(dataFirstName);
 		txtURL.setText("https://github.com/larshp/DOMA.git");
+
 	}
 
 	private void createBranch(Composite container) {

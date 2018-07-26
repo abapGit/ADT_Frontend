@@ -20,11 +20,12 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
 import org.eclipse.core.resources.IProject;
-
+import org.eclipse.ui.PlatformUI;
 
 import com.sap.adt.communication.message.IResponse;
 import com.sap.adt.communication.resources.AdtRestResourceFactory;
 import com.sap.adt.communication.resources.IRestResource;
+import com.sap.adt.destinations.ui.logon.AdtLogonServiceUIFactory;
 import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
 import com.sap.adt.tools.core.project.IAbapProject;
 
@@ -240,8 +241,8 @@ class REST {
 		IProject[] abapProjects = AdtProjectServiceFactory.createProjectService().getAvailableAbapProjects();
 		IAbapProject abapProject = (IAbapProject) abapProjects[0].getAdapter(IAbapProject.class);
 
-//		AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(abapProject.getDestinationData(),
-//				PlatformUI.getWorkbench().getProgressService());
+		AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(abapProject.getDestinationData(),
+				PlatformUI.getWorkbench().getProgressService());
 
 		return abapProject;
 	}
