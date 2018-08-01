@@ -1,0 +1,43 @@
+# Numerous always-ignore extensions
+*.diff
+*.err
+*.orig
+*.log
+*.rej
+*.swo
+*.swp
+*.vi
+*.pyc
+*~
+~*
+*.bak
+*.tmp
+*~.nib
+mvnw*
+.DS_Store
+
+# java specifica
+*target*
+*.jar
+*.war
+*.ear
+*.class
+
+# eclipse specific git ignore
+.project
+.metadata
+bin/**
+tmp/**
+tmp/**/*
+*.swp
+*~.nib
+local.properties
+.classpath
+.settings/
+.loadpath
+
+# External tool builders
+.externalToolBuilders/
+
+# Locally stored "Eclipse launch configurations"
+*.launch
