@@ -27,6 +27,7 @@ mvnw*
 .project
 .metadata
 bin/**
+*bin*
 tmp/**
 tmp/**/*
 *.swp
@@ -35,6 +36,7 @@ local.properties
 .classpath
 .settings/
 .loadpath
+
 
 # External tool builders
 .externalToolBuilders/
