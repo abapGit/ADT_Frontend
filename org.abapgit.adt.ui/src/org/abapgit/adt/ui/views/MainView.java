@@ -5,10 +5,12 @@ import org.eclipse.ui.part.*;
 
 import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.window.Window;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.graphics.Image;
 import org.abapgit.adt.Repository;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.dialogs.CreateDialog;
+import org.abapgit.adt.ui.wizards.abapGitWizard;
 import org.eclipse.jface.action.*;
 import org.eclipse.ui.*;
 import org.eclipse.swt.widgets.Menu;
@@ -23,7 +25,7 @@ public class MainView extends ViewPart {
 
 	private TableViewer viewer;
 //	private Action actionPull, actionDelete;
-	private Action actionRefresh, actionCreate;
+	private Action actionRefresh, actionCreate, actionWizard;
 
 	/**
 	 * The constructor.
@@ -151,6 +153,8 @@ public class MainView extends ViewPart {
 		IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
 		toolBarManager.add(actionRefresh);
 		toolBarManager.add(actionCreate);
+		toolBarManager.add(actionWizard);
+		
 	}
 
 //	private void fillContextMenu(IMenuManager manager) {
@@ -206,6 +210,24 @@ public class MainView extends ViewPart {
 		this.actionCreate.setToolTipText("Create");
 		this.actionCreate
 				.setImageDescriptor(AbapGitUIPlugin.getDefault().getImageDescriptor(ISharedImages.IMG_OBJ_ADD));
+		
+		
+		this.actionWizard = new Action() {
+			public void run() {
+
+				WizardDialog wizardDialog = new WizardDialog(viewer.getControl().getShell(),
+			            new abapGitWizard());
+			        if (wizardDialog.open() == Window.OK) {
+			            System.out.println("Ok pressed");
+			        } else {
+			            System.out.println("Cancel pressed");
+			        }
+			}
+		};
+		this.actionWizard.setText("Call wizard");
+		this.actionWizard.setToolTipText("Call wizard");
+		this.actionWizard
+				.setImageDescriptor(AbapGitUIPlugin.getDefault().getImageDescriptor(ISharedImages.IMG_OBJ_FILE));
 	}
 
 //	private void showMessage(String message) {
