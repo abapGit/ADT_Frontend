@@ -24,7 +24,6 @@ mvnw*
 *.class
 
 # eclipse specific git ignore
-.project
 .metadata
 bin/**
 *bin*
@@ -33,7 +32,6 @@ tmp/**/*
 *.swp
 *~.nib
 local.properties
-.classpath
 .settings/
 .loadpath
 
