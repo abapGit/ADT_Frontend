@@ -77,7 +77,7 @@ public class CreateDialog extends TitleAreaDialog {
 
 	private void createURL(Composite container) {
 		Label lbl = new Label(container, SWT.NONE);
-		lbl.setText("URL");
+		lbl.setText("URL"); 
 
 		GridData dataFirstName = new GridData();
 		dataFirstName.grabExcessHorizontalSpace = true;

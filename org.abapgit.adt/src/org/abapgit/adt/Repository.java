@@ -22,7 +22,7 @@ public class Repository {
 //		return REST.getRepository(key);
 //	}
 
-	Repository(String Package, String URL, String Branch, String User, String FirstCommit) {
+	public Repository(String Package, String URL, String Branch, String User, String FirstCommit) {
 		this.Package = Package;
 		this.URL = URL;
 		this.Branch = Branch;
