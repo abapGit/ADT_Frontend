@@ -6,6 +6,8 @@ public class abapGitWizard extends Wizard {
 	
     protected WizardPageOne one;
     protected WizardPageTwo two;
+    protected WizardPageThree three;
+    protected WizardPageFour four;
 
     public abapGitWizard() {
         super();
@@ -20,9 +22,13 @@ public class abapGitWizard extends Wizard {
     @Override
     public void addPages() {
         one = new WizardPageOne(); 
-        two = new WizardPageTwo();
+        two = new WizardPageTwo(); 
+        three = new WizardPageThree();
+        four = new WizardPageFour();
         addPage(one);
         addPage(two);
+        addPage(three);
+        addPage(four);
     }
 
 	@Override

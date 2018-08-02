@@ -10,19 +10,20 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
-public class WizardPageOne extends WizardPage {
-    private Text txtURL;
+
+public class WizardPageFour extends WizardPage {
+    private Text txtTr;
     private Composite container;
-    
-    public WizardPageOne() {
-        super("First Page");
-        setTitle("First Page");
-        setDescription("Please define git url and package");
+	
+    public WizardPageFour() {
+        super("Last Page");
+        setTitle("Last Page"); 
+        setDescription("Select transport request");
     }
 
 	@Override
 	public void createControl(Composite parent) {
-        
+		 
 		container = new Composite(parent, SWT.NONE);
         GridLayout layout = new GridLayout();
         GridData gd = new GridData(GridData.FILL_HORIZONTAL);
@@ -31,13 +32,13 @@ public class WizardPageOne extends WizardPage {
 		
 
         /////// URL INPUT 
-        Label lblUrl = new Label(container, SWT.NONE);
-		lblUrl.setText("URL");
+        Label lblTr = new Label(container, SWT.NONE);
+		lblTr.setText("Transport request");
 
-		txtURL = new Text(container, SWT.BORDER | SWT.SINGLE);
-		txtURL.setText("");        
+		txtTr = new Text(container, SWT.BORDER | SWT.SINGLE);
+		txtTr.setText("");        
 
-		txtURL.addKeyListener(new KeyListener() {
+		txtTr.addKeyListener(new KeyListener() {
 
             @Override
             public void keyPressed(KeyEvent e) {
@@ -45,14 +46,14 @@ public class WizardPageOne extends WizardPage {
 
             @Override
             public void keyReleased(KeyEvent e) {
-                if (!txtURL.getText().isEmpty()) {
+                if (!txtTr.getText().isEmpty()) {
                     setPageComplete(true);
 
                 }
             }
 
         });
-        txtURL.setLayoutData(gd); 
+        txtTr.setLayoutData(gd); 
         
         // required to avoid an error in the system
         setControl(container);
@@ -61,7 +62,7 @@ public class WizardPageOne extends WizardPage {
 	}
 	
     public String getTxtUrl() {
-        return txtURL.getText();
+        return txtTr.getText();
     }
 
 }

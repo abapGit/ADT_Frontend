@@ -29,5 +29,6 @@ Automatic-Module-Name: org.abapgit.adt
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Eclipse-ExtensibleAPI: true
-Export-Package: src.org.abapgit.adt
+Export-Package: org.abapgit.adt,
+ src.org.abapgit.adt
 
