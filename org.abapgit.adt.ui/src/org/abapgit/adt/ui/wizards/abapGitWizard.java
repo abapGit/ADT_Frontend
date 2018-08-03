@@ -1,5 +1,6 @@
 package org.abapgit.adt.ui.wizards;
 
+import org.abapgit.adt.Repository;
 import org.eclipse.jface.wizard.Wizard;
 
 public class abapGitWizard extends Wizard {
@@ -34,7 +35,10 @@ public class abapGitWizard extends Wizard {
 	@Override
 	public boolean performFinish() {
 		// TODO Auto-generated method stub
-		return false;
+////		this.four.getTxtUrl();
+//
+//    	System.out.println(Repository.list());
+    	return false;
 	}
 
 }
