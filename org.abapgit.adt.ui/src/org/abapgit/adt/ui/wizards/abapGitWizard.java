@@ -31,12 +31,12 @@ public class abapGitWizard extends Wizard {
         addPage(three);
         addPage(four);
     }
-
+   
 	@Override
 	public boolean performFinish() {
 		// TODO Auto-generated method stub
-////		this.four.getTxtUrl();
-//
+//		this.four.getTxtUrl();
+//		System.out.println(this.four.getTxtUrl());
 //    	System.out.println(Repository.list());
     	return false;
 	}
