@@ -1,6 +1,5 @@
 package org.abapgit.adt.ui.wizards;
 
-import org.abapgit.adt.Repository;
 import org.eclipse.jface.wizard.Wizard;
 
 public class abapGitWizard extends Wizard {
