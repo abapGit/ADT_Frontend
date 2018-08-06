@@ -1,16 +1,5 @@
 package org.abapgit.adt;
 
-import java.util.List;
-
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.ui.PlatformUI;
-
-import com.sap.adt.destinations.ui.logon.AdtLogonServiceUIFactory;
-import com.sap.adt.project.IAdtCoreProject;
-import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
-import com.sap.adt.tools.core.project.IAbapProject;
-
 public class RepoService {
 
 	private RepoService() {
