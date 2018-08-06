@@ -77,5 +77,11 @@ public class WizardPageOne extends WizardPage {
 
 		return txtURL.getText();
 	}
+	
+	public Boolean getRepoPrivate() {
+		return true;
+		
+	}
+	
 
 }
