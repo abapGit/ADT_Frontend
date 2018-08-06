@@ -17,8 +17,8 @@ public class WizardPageFour extends WizardPage {
 	
     public WizardPageFour() {
         super("Last Page");
-        setTitle("Last Page"); 
-        setDescription("Select transport request");
+        setTitle("Transport request"); 
+        setDescription("Define transport request below");
     }
 
 	@Override
@@ -61,7 +61,7 @@ public class WizardPageFour extends WizardPage {
 		
 	}
 	
-    public String getTxtUrl() {
+    public String getTxtTr() {
         return txtTr.getText();
     }
 

@@ -74,7 +74,6 @@ public class WizardPageOne extends WizardPage {
 	}
 
 	public String getTxtUrl() {
-
 		return txtURL.getText();
 	}
 	

@@ -1,5 +1,8 @@
 package org.abapgit.adt.ui.wizards;
 
+import java.util.List;
+
+import org.abapgit.adt.Repository;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
@@ -12,21 +15,22 @@ import org.eclipse.swt.widgets.Text;
 
 public class WizardPageThree extends WizardPage {
 
-	private Text text1;
     private Text txtBranch;
     private Text txtPackage;
     private Composite container;
+	private List<Repository> avRepos;
     
     public WizardPageThree() {
         super("Third Page");
-        setTitle("Third Page");
-        setDescription("Now this is the third page");
-        setControl(text1);
+        setTitle("Branch and package selection");
+        setDescription("Please define repository branch and abap package below");
+        setControl(txtBranch);
     }
 
 	@Override
 	public void createControl(Composite parent) {
 		
+		 avRepos = Repository.list();
 		 container = new Composite(parent, SWT.NONE);
 	        GridLayout layout = new GridLayout();
 	        GridData gd = new GridData(GridData.FILL_HORIZONTAL);
@@ -71,10 +75,26 @@ public class WizardPageThree extends WizardPage {
 
 	            @Override
 	            public void keyReleased(KeyEvent e) {
-	                if (!txtPackage.getText().isEmpty()) {
-	                    setPageComplete(true);
+	            	
+	    			setPageComplete(false);
+					setMessage("", NONE);
+					if (!txtPackage.getText().isEmpty()) {
 
-	                }
+						setMessage("You can use this package", INFORMATION);
+						setPageComplete(true);
+
+						
+						String SearchString = avRepos.toString();
+						String[] parts = SearchString.split(" ");
+						for(int i = 0; i < parts.length; i++) {
+						    if(parts[i].equals(txtPackage.getText())) {
+						    	setMessage("This package is already in use", WARNING);
+								setPageComplete(false);						    	
+						    }
+						}
+
+					}
+	            	
 	            }
 
 	        });
@@ -86,7 +106,11 @@ public class WizardPageThree extends WizardPage {
 		
 	}
 	
-    public String getText1() {
-        return text1.getText();
+    public String getTxtBranch() {
+        return txtBranch.getText();
+    }
+    
+    public String getTxtPackage() {
+        return txtPackage.getText();
     }
 }

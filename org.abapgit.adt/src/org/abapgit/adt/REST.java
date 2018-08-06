@@ -144,6 +144,9 @@ class REST {
 		
 		InputStream responseContent = response.getBody().getContent();
 		
+
+//		System.out.println(responseContent);
+		
 		
 		XMLResult xml = parseXML(responseContent);
 
@@ -224,6 +227,7 @@ class REST {
 
 		
 		final IResponse response = getURL(ABAPGIT_URI);
+//		System.out.println(response);
 	
 		List<Repository> list = null;
 		try {
@@ -233,6 +237,9 @@ class REST {
 			e.printStackTrace();
 			System.out.println("error parsing!");
 		}
+		
+
+//		System.out.println(list);
 		
 //		JsonArray responseObject = null;
 //		responseObject = getResponse();

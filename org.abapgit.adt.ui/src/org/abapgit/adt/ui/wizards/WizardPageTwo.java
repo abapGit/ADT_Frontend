@@ -86,5 +86,9 @@ public class WizardPageTwo extends WizardPage {
     public String getTxtUser() {
         return txtUser.getText();
     }
+    
+    public String getTxtPwd() {
+        return txtPwd.getText();
+    }
 
 }

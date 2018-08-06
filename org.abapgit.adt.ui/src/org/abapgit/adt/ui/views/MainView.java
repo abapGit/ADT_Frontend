@@ -1,5 +1,6 @@
 package org.abapgit.adt.ui.views;
 
+
 import org.abapgit.adt.Repository;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.dialogs.CreateDialog;
@@ -25,7 +26,6 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.part.ViewPart;
-
 
 public class MainView extends ViewPart {
 
@@ -209,6 +209,7 @@ public class MainView extends ViewPart {
 				if (dialog.open() == Window.OK) {
 					
 					Repository.create(dialog.getUrl(), dialog.getBranch(), dialog.getDevclass(), dialog.getUser(), dialog.getPwd(), dialog.getTrname());
+					
 					viewer.setInput(Repository.list());					
 					
 				}
@@ -225,9 +226,10 @@ public class MainView extends ViewPart {
 
 				WizardDialog wizardDialog = new WizardDialog(viewer.getControl().getShell(),
 			            new abapGitWizard());
-			        if (wizardDialog.open() == Window.OK) {
+				
+			        if (wizardDialog.open() == Window.OK) {			        		
 			            System.out.println("Ok pressed");
-			        } else {
+			        } else {			        	
 			            System.out.println("Cancel pressed");
 			        }
 			}
@@ -237,11 +239,8 @@ public class MainView extends ViewPart {
 		this.actionWizard
 				.setImageDescriptor(AbapGitUIPlugin.getDefault().getImageDescriptor(ISharedImages.IMG_OBJ_FILE));
 	}
-
-//	private void showMessage(String message) {
-//		MessageDialog.openInformation(viewer.getControl().getShell(), "Info", message);
-//	}
-
+	
+	
 	/**
 	 * Passing the focus request to the viewer's control.
 	 */
