@@ -10,7 +10,7 @@ import com.sap.adt.compatibility.discovery.IAdtDiscoveryCollectionMember;
 
 public class AbapGitDiscovery {
 
-	private static final String SCHEME = "http://.../abapgit"; //$NON-NLS-1$
+	private static final String SCHEME = "http://www.sap.com/adt/categories/abapgit"; //$NON-NLS-1$
 	private static final String TERM_REPOS = "repos"; //$NON-NLS-1$
 
 	public URI getReposUri(String destination, IProgressMonitor monitor) {
