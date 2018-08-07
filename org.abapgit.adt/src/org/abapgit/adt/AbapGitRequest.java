@@ -1,9 +1,8 @@
-package org.abapgit.adt.ui.wizards;
+package org.abapgit.adt;
 
 import java.net.HttpURLConnection;
 import java.net.URI;
 
-import org.abapgit.adt.IAdtAbapGitConstants;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ITreeSelection;
@@ -53,14 +52,14 @@ public class AbapGitRequest {
 //		}
 //	}
 	
-	private URI getResourceUri(String destination) {
+	private URI getResourceUri() {
 		URI abapGitUri = URI.create("/sap/bc/adt/abapgit/repos");
 		return abapGitUri;	
 	}
 	
 	public void executePost() {
 		String destination = this.getAbapProjectDestination();
-		URI agitResourceUri = this.getResourceUri(destination);
+		URI agitResourceUri = this.getResourceUri();
 		
 		if (agitResourceUri != null) {
 			this.executePost(destination, agitResourceUri, body);

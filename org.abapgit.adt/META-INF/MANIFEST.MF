@@ -23,3 +23,4 @@ Bundle-ActivationPolicy: lazy
 Eclipse-ExtensibleAPI: true
 Export-Package: org.abapgit.adt,
  src.org.abapgit.adt
+Import-Package: com.sap.adt.project.ui.util

@@ -13,7 +13,6 @@ import org.eclipse.swt.widgets.Text;
 
 public class WizardPageFour extends WizardPage {
     private Text txtTr;
-    private Composite container;
 	
     public WizardPageFour() {
         super("Last Page");
@@ -24,7 +23,7 @@ public class WizardPageFour extends WizardPage {
 	@Override
 	public void createControl(Composite parent) {
 		 
-		container = new Composite(parent, SWT.NONE);
+		Composite container = new Composite(parent, SWT.NONE);
         GridLayout layout = new GridLayout();
         GridData gd = new GridData(GridData.FILL_HORIZONTAL);
         container.setLayout(layout);
@@ -42,6 +41,7 @@ public class WizardPageFour extends WizardPage {
 
             @Override
             public void keyPressed(KeyEvent e) {
+                // TODO Auto-generated method stub
             }
 
             @Override

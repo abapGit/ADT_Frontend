@@ -1,11 +1,12 @@
 package org.abapgit.adt.ui.wizards;
 
+import org.abapgit.adt.AbapGitRequest;
 import org.eclipse.jface.viewers.ITreeSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
-public class abapGitWizard extends Wizard {
+public class AbapGitWizard extends Wizard {
 	
     protected WizardPageOne one;
     protected WizardPageTwo two;
@@ -14,7 +15,7 @@ public class abapGitWizard extends Wizard {
     
 
 
-    public abapGitWizard() {
+    public AbapGitWizard() {
         super();
         setNeedsProgressMonitor(true);
     }
@@ -41,7 +42,7 @@ public class abapGitWizard extends Wizard {
 		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
 				+ "<asx:abap xmlns:asx=\"http://www.sap.com/abapxml\" version=\"1.0\">" + "<asx:values>" + "<ROOT>"
 				+ "<URL>" + one.getTxtUrl() + "</URL>" + "<BRANCH_NAME>" + three.getTxtBranch() + "</BRANCH_NAME>" + "<PACKAGE>" + three.getTxtPackage()
-				+ "</PACKAGE>" + "<USER>" + two.getTxtUser() + "</USER>" + "<PWD>" + two.getTxtPwd() + "</PWD>" + "<TR_NAME>" + four.getTxtTr() + "</TR_NAME>" + "</ROOT>" + "</asx:values></asx:abap>";
+				+ "</PACKAGE>" + "<TR_NAME>" + four.getTxtTr() + "</TR_NAME>" + "<USER>" + two.getTxtUser() + "</USER>" + "<PWD>" + two.getTxtPwd() + "</PWD>" + "</ROOT>" + "</asx:values></asx:abap>";
 		
 		return xml;
 

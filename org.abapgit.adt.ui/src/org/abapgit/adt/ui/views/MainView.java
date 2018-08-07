@@ -4,7 +4,7 @@ package org.abapgit.adt.ui.views;
 import org.abapgit.adt.Repository;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.dialogs.CreateDialog;
-import org.abapgit.adt.ui.wizards.abapGitWizard;
+import org.abapgit.adt.ui.wizards.AbapGitWizard;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -225,12 +225,12 @@ public class MainView extends ViewPart {
 			public void run() {
 
 				WizardDialog wizardDialog = new WizardDialog(viewer.getControl().getShell(),
-			            new abapGitWizard());
+			            new AbapGitWizard());
 				
 			        if (wizardDialog.open() == Window.OK) {			        		
-			            System.out.println("Ok pressed");
+//			            System.out.println("Ok pressed");
 			        } else {			        	
-			            System.out.println("Cancel pressed");
+//			            System.out.println("Cancel pressed");
 			        }
 			}
 		};

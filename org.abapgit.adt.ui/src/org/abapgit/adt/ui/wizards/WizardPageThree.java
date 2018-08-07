@@ -17,7 +17,6 @@ public class WizardPageThree extends WizardPage {
 
     private Text txtBranch;
     private Text txtPackage;
-    private Composite container;
 	private List<Repository> avRepos;
     
     public WizardPageThree() {
@@ -31,7 +30,7 @@ public class WizardPageThree extends WizardPage {
 	public void createControl(Composite parent) {
 		
 		 avRepos = Repository.list();
-		 container = new Composite(parent, SWT.NONE);
+		 Composite container = new Composite(parent, SWT.NONE);
 	        GridLayout layout = new GridLayout();
 	        GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 	        container.setLayout(layout);
@@ -71,6 +70,7 @@ public class WizardPageThree extends WizardPage {
 
 	            @Override
 	            public void keyPressed(KeyEvent e) {
+	                // TODO Auto-generated method stub
 	            }
 
 	            @Override

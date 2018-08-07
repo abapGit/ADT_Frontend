@@ -13,18 +13,18 @@ import org.eclipse.swt.widgets.Text;
 public class WizardPageTwo extends WizardPage {
     private Text txtUser;
     private Text txtPwd;
-    private Composite container;
 
     public WizardPageTwo() {
         super("Second Page");
-        setTitle("Second Page");
-        setDescription("Now this is the second page");
+        setTitle("Git credentials");
+        setDescription("Please input your git credentials if the repo is private");
         setControl(txtUser);
     }
 
     @Override
     public void createControl(Composite parent) {
-        container = new Composite(parent, SWT.NONE);
+    	
+        Composite container = new Composite(parent, SWT.NONE);
         GridLayout layout = new GridLayout();
         GridData gd = new GridData(GridData.FILL_HORIZONTAL);
         container.setLayout(layout);
@@ -80,7 +80,8 @@ public class WizardPageTwo extends WizardPage {
 
         // required to avoid an error in the system
         setControl(container);
-        setPageComplete(false);
+//        setPageComplete(false);
+        setPageComplete(true);
     }
     
     public String getTxtUser() {
