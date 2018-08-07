@@ -33,7 +33,7 @@ public class MainView extends ViewPart {
 
 	private TableViewer viewer;
 //	private Action actionPull, actionDelete;
-	private Action actionRefresh, actionCreate;
+	private Action actionRefresh, actionCreate, actionWizard;
 
 	/**
 	 * The constructor.
