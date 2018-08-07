@@ -1,6 +1,8 @@
 package org.abapgit.adt.ui.views;
 
 
+import java.util.List;
+import org.abapgit.adt.AbapGitRequest;
 import org.abapgit.adt.Repository;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.dialogs.CreateDialog;
@@ -13,6 +15,7 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
+import org.eclipse.jface.viewers.ITreeSelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
@@ -22,10 +25,14 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
+
 
 public class MainView extends ViewPart {
 
@@ -193,7 +200,8 @@ public class MainView extends ViewPart {
 
 		this.actionRefresh = new Action() {
 			public void run() {
-				viewer.setInput(Repository.list());
+				//viewer.setInput(Repository.list());
+				viewer.setInput(getRepoList());	
 			}
 		};
 		this.actionRefresh.setText("Refresh");
@@ -210,7 +218,8 @@ public class MainView extends ViewPart {
 					
 					Repository.create(dialog.getUrl(), dialog.getBranch(), dialog.getDevclass(), dialog.getUser(), dialog.getPwd(), dialog.getTrname());
 					
-					viewer.setInput(Repository.list());					
+//					viewer.setInput(Repository.list());
+					viewer.setInput(getRepoList());						
 					
 				}
 			}
@@ -230,9 +239,9 @@ public class MainView extends ViewPart {
 			        if (wizardDialog.open() == Window.OK) {	
 		                // TODO Auto-generated method stub		        		
 			        	// System.out.println("Ok pressed");
-			        } else {
-		                // TODO Auto-generated method stub			        	
-			        	// System.out.println("Cancel pressed");
+			        } else {	        		
+			        	System.out.println("cancel pressed");
+						viewer.setInput(getRepoList());	
 			        }
 			}
 		};
@@ -242,6 +251,18 @@ public class MainView extends ViewPart {
 				.setImageDescriptor(AbapGitUIPlugin.getDefault().getImageDescriptor(ISharedImages.IMG_OBJ_FILE));
 	}
 	
+
+	public List<Repository> getRepoList() {
+		
+		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		ITreeSelection selection = (ITreeSelection) window
+		.getSelectionService().getSelection(); 
+		Shell currShell = viewer.getControl().getShell();
+		final List<Repository> repoList = new AbapGitRequest(currShell, selection, "").executeGet();
+		
+		return repoList;
+		
+	}
 	
 	/**
 	 * Passing the focus request to the viewer's control.
@@ -249,7 +270,8 @@ public class MainView extends ViewPart {
 	@Override
 	public void setFocus() {
 		this.viewer.getControl().setFocus();
-		viewer.setInput(Repository.list());
+//		viewer.setInput(Repository.list());
+		viewer.setInput(getRepoList());	
 	}
 
 }

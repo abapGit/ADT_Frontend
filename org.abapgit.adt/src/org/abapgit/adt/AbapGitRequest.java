@@ -1,12 +1,17 @@
 package org.abapgit.adt;
 
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.xml.stream.XMLStreamException;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ITreeSelection;
-import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 import com.sap.adt.communication.message.HeadersFactory;
@@ -23,14 +28,14 @@ import com.sap.adt.tools.core.project.IAbapProject;
 
 public class AbapGitRequest {
 	
-	private IWorkbenchWindow window;
+	private Shell currShell;
 	private ITreeSelection selection;
 	private String body;
 	
-	public AbapGitRequest(IWorkbenchWindow window,
+	public AbapGitRequest(Shell currShell,
 			ITreeSelection selection, String xmlBody) {
-		this.window = window;
-		this.selection = selection;
+		this.currShell = currShell;
+//		this.selection = selection;
 		this.body = xmlBody;
 	}
 	
@@ -64,10 +69,40 @@ public class AbapGitRequest {
 		if (agitResourceUri != null) {
 			this.executePost(destination, agitResourceUri, body);
 		} else {
-			MessageDialog.openError(this.window.getShell(),
+			MessageDialog.openError(currShell,
 					"ABAP Git Utils Error",
 					"Necessary backend resource could not be found. ");
 		}
+	}
+	
+	public List<Repository> executeGet() {
+		
+		String destination = this.getAbapProjectDestination();
+		URI agitResourceUri = this.getResourceUri();
+		
+		IResponse getResponse = null;
+		if (agitResourceUri != null) {
+			getResponse = this.executeGet(destination, agitResourceUri);
+		} else {
+			MessageDialog.openError(currShell,
+					"ABAP Git Utils Error",
+					"Necessary backend resource could not be found. ");
+		}
+		
+
+		List<Repository> repoList = new ArrayList<Repository>();
+		repoList.add(new Repository("No packages found...", "", "", "", ""));
+		if(getResponse != null) {
+			try {
+				repoList = REST.parseListRepositories(getResponse);
+			} catch (IOException | XMLStreamException e) {
+				e.printStackTrace();
+				System.out.println("error parsing!");
+			}	
+		}
+		
+		return repoList;
+		
 	}
 	
 	
@@ -75,8 +110,6 @@ public class AbapGitRequest {
 		IRestResource agitRessource = AdtRestResourceFactory
 				.createRestResourceFactory()
 				.createResourceWithStatelessSession(agitResourceUri, destination);
-
-//		IRequest abapGitRequest = (IRequest) this.selection.getFirstElement();
 		
 		String xmlVersion = IAdtAbapGitConstants.QUERY_PARAMETER_XML_VERSION;
 		IField headerAccept = HeadersFactory.newField("Accept", xmlVersion);
@@ -85,10 +118,6 @@ public class AbapGitRequest {
 	    requestHeader.addField(headerAccept);
 	    requestHeader.addField(headerCT);
 		
-//        System.out.println("Request Header");
-//        System.out.println(requestHeader);   
-		
-
 		try {
 			IResponse response = agitRessource
 					.post(null, requestHeader, IResponse.class, body);
@@ -97,7 +126,7 @@ public class AbapGitRequest {
 				IErrorInfo errorInfo = response.getErrorInfo();
 				MessageDialog
 						.openError(
-								this.window.getShell(),
+								currShell,
 								"ABAP Git Utils Error",
 								"An error occured during ABAP git clone action! The error was: "
 										+ errorInfo.getMessage());
@@ -105,12 +134,53 @@ public class AbapGitRequest {
 		} catch (RuntimeException e) {
 			MessageDialog
 					.openError(
-							this.window.getShell(),
+							currShell,
 							"ABAP Git Utils Error",
 							"An exception occured during ABAP git clone action! Exception: "
 									+ e.getMessage());
 		}
 
+	}
+	
+
+	private IResponse executeGet(String destination, URI agitResourceUri) {
+		IRestResource agitRessource = AdtRestResourceFactory
+				.createRestResourceFactory()
+				.createResourceWithStatelessSession(agitResourceUri, destination);
+		
+		String xmlVersion = IAdtAbapGitConstants.QUERY_PARAMETER_XML_VERSION;
+		IField headerAccept = HeadersFactory.newField("Accept", xmlVersion);
+		IField headerCT = HeadersFactory.newField("Content-Type", xmlVersion);
+	    IHeaders requestHeader = HeadersFactory.newHeaders();
+	    requestHeader.addField(headerAccept);
+	    requestHeader.addField(headerCT);
+	    
+	    IResponse response = null;	    
+		try {
+			response = agitRessource
+					.get(null, requestHeader, IResponse.class);
+			
+			int status = response.getStatus();
+			if (status != HttpURLConnection.HTTP_OK) {
+				IErrorInfo errorInfo = response.getErrorInfo();
+				MessageDialog
+						.openError(
+								currShell,
+								"ABAP Git Utils Error",
+								"An error occured during ABAP git refresh action! The error was: "
+										+ errorInfo.getMessage());
+			}
+		} catch (RuntimeException e) {
+			MessageDialog
+					.openError(
+							currShell,
+							"ABAP Git Utils Error",
+							"An exception occured during ABAP git refresh action! Exception: "
+									+ e.getMessage());
+		}
+		
+		return response;
+		
 	}
 	
 	private String getAbapProjectDestination() {
@@ -124,5 +194,7 @@ public class AbapGitRequest {
 		String destination = abapProject.getDestinationId();
 		return destination;
 	}
+
+
 
 }

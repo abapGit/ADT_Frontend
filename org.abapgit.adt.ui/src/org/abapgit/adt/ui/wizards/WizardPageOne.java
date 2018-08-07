@@ -2,7 +2,9 @@ package org.abapgit.adt.ui.wizards;
 
 import java.util.List;
 
+import org.abapgit.adt.AbapGitRequest;
 import org.abapgit.adt.Repository;
+import org.eclipse.jface.viewers.ITreeSelection;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
@@ -11,7 +13,10 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 
 public class WizardPageOne extends WizardPage {
 	private Text txtURL;
@@ -21,12 +26,19 @@ public class WizardPageOne extends WizardPage {
 		super("First Page");
 		setTitle("Git repositroty url");
 		setDescription("Please define git url and package");
+		
+
 	}
 
 	@Override
 	public void createControl(Composite parent) {
 
-		avRepos = Repository.list();
+		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		ITreeSelection selection = (ITreeSelection) window.getSelectionService().getSelection(); 
+		Shell currShell = super.getShell();
+		
+		avRepos = new AbapGitRequest(currShell, selection, "").executeGet();
+		
 		Composite container = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout();
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);

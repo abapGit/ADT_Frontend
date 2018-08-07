@@ -30,7 +30,7 @@ import com.sap.adt.destinations.ui.logon.AdtLogonServiceUIFactory;
 import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
 import com.sap.adt.tools.core.project.IAbapProject;
 
-class REST {
+public class REST {
 
 	private static final String ABAPGIT_URI = "/sap/bc/adt/abapgit/repos";
 
@@ -122,7 +122,7 @@ class REST {
  		return repo;
 	}
 
-	private static List<Repository> parseListRepositories(IResponse response) throws IOException, XMLStreamException {
+	public static List<Repository> parseListRepositories(IResponse response) throws IOException, XMLStreamException {
 		int responseStatus = response.getStatus();
 		if (responseStatus != HttpURLConnection.HTTP_OK) {
 			// TODO, error

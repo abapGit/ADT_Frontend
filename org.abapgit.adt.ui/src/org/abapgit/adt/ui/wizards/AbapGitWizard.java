@@ -3,6 +3,7 @@ package org.abapgit.adt.ui.wizards;
 import org.abapgit.adt.AbapGitRequest;
 import org.eclipse.jface.viewers.ITreeSelection;
 import org.eclipse.jface.wizard.Wizard;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
@@ -12,8 +13,7 @@ public class AbapGitWizard extends Wizard {
     protected WizardPageTwo two;
     protected WizardPageThree three;
     protected WizardPageFour four;
-    
-
+//    avRepos = Repository.list();
 
     public AbapGitWizard() {
         super();
@@ -53,13 +53,10 @@ public class AbapGitWizard extends Wizard {
 
 		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 		ITreeSelection selection = (ITreeSelection) window
-				.getSelectionService().getSelection();
-
-//		System.out.println(window);
-//		System.out.println(selection);
+		.getSelectionService().getSelection(); 
+		Shell currShell = super.getShell();
 		
-		new AbapGitRequest(window, selection, createPostXML()).executePost();
-
+		new AbapGitRequest(currShell, selection, createPostXML()).executePost();
 		
 		return false;
 	}
