@@ -1,11 +1,9 @@
 package org.abapgit.adt.internal;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.Charset;
 
 import org.abapgit.adt.IRepositories;
-import com.sap.adt.communication.content.ContentHandlerException;
+
 import com.sap.adt.communication.content.IContentHandler;
 import com.sap.adt.communication.message.IMessageBody;
 
