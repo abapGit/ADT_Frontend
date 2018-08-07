@@ -1,20 +1,37 @@
 package org.abapgit.adt.ui.views;
 
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.part.*;
 
-import org.eclipse.jface.viewers.*;
-import org.eclipse.jface.window.Window;
-import org.eclipse.swt.graphics.Image;
+import java.util.List;
+import org.abapgit.adt.AbapGitRequest;
 import org.abapgit.adt.Repository;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.dialogs.CreateDialog;
-import org.eclipse.jface.action.*;
-import org.eclipse.ui.*;
+import org.abapgit.adt.ui.wizards.AbapGitWizard;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.ITableLabelProvider;
+import org.eclipse.jface.viewers.ITreeSelection;
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.window.Window;
+import org.eclipse.jface.wizard.WizardDialog;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.SWT;
+import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.part.ViewPart;
 
 
 public class MainView extends ViewPart {
@@ -23,7 +40,7 @@ public class MainView extends ViewPart {
 
 	private TableViewer viewer;
 //	private Action actionPull, actionDelete;
-	private Action actionRefresh, actionCreate;
+	private Action actionRefresh, actionCreate, actionWizard;
 
 	/**
 	 * The constructor.
@@ -151,6 +168,8 @@ public class MainView extends ViewPart {
 		IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
 		toolBarManager.add(actionRefresh);
 		toolBarManager.add(actionCreate);
+		toolBarManager.add(actionWizard);
+		
 	}
 
 //	private void fillContextMenu(IMenuManager manager) {
@@ -181,7 +200,8 @@ public class MainView extends ViewPart {
 
 		this.actionRefresh = new Action() {
 			public void run() {
-				viewer.setInput(Repository.list());
+				//viewer.setInput(Repository.list());
+				viewer.setInput(getRepoList());	
 			}
 		};
 		this.actionRefresh.setText("Refresh");
@@ -197,7 +217,9 @@ public class MainView extends ViewPart {
 				if (dialog.open() == Window.OK) {
 					
 					Repository.create(dialog.getUrl(), dialog.getBranch(), dialog.getDevclass(), dialog.getUser(), dialog.getPwd(), dialog.getTrname());
-					viewer.setInput(Repository.list());					
+					
+//					viewer.setInput(Repository.list());
+					viewer.setInput(getRepoList());						
 					
 				}
 			}
@@ -206,19 +228,49 @@ public class MainView extends ViewPart {
 		this.actionCreate.setToolTipText("Create");
 		this.actionCreate
 				.setImageDescriptor(AbapGitUIPlugin.getDefault().getImageDescriptor(ISharedImages.IMG_OBJ_ADD));
+		
+		
+		this.actionWizard = new Action() {
+			public void run() {
+
+				WizardDialog wizardDialog = new WizardDialog(viewer.getControl().getShell(),
+			            new AbapGitWizard());
+				
+			        if (wizardDialog.open() == Window.OK) {	
+						viewer.setInput(getRepoList());	
+			        } else {	        		
+			        	System.out.println("Cancel pressed");
+						viewer.setInput(getRepoList());	
+			        }
+			}
+		};
+		this.actionWizard.setText("Call wizard");
+		this.actionWizard.setToolTipText("Call wizard");
+		this.actionWizard
+				.setImageDescriptor(AbapGitUIPlugin.getDefault().getImageDescriptor(ISharedImages.IMG_OBJ_FILE));
 	}
+	
 
-//	private void showMessage(String message) {
-//		MessageDialog.openInformation(viewer.getControl().getShell(), "Info", message);
-//	}
-
+	public List<Repository> getRepoList() {
+		
+		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		ITreeSelection selection = (ITreeSelection) window
+		.getSelectionService().getSelection(); 
+		Shell currShell = viewer.getControl().getShell();
+		final List<Repository> repoList = new AbapGitRequest(currShell, selection, "").executeGet();
+		
+		return repoList;
+		
+	}
+	
 	/**
 	 * Passing the focus request to the viewer's control.
 	 */
 	@Override
 	public void setFocus() {
 		this.viewer.getControl().setFocus();
-		viewer.setInput(Repository.list());
+//		viewer.setInput(Repository.list());
+		viewer.setInput(getRepoList());	
 	}
 
 }

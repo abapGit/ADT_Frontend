@@ -20,15 +20,17 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.ui.PlatformUI;
 
 
 import com.sap.adt.communication.message.IResponse;
 import com.sap.adt.communication.resources.AdtRestResourceFactory;
 import com.sap.adt.communication.resources.IRestResource;
+import com.sap.adt.destinations.ui.logon.AdtLogonServiceUIFactory;
 import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
 import com.sap.adt.tools.core.project.IAbapProject;
 
-class REST {
+public class REST {
 
 	private static final String ABAPGIT_URI = "/sap/bc/adt/abapgit/repos";
 
@@ -120,7 +122,7 @@ class REST {
  		return repo;
 	}
 
-	private static List<Repository> parseListRepositories(IResponse response) throws IOException, XMLStreamException {
+	public static List<Repository> parseListRepositories(IResponse response) throws IOException, XMLStreamException {
 		int responseStatus = response.getStatus();
 		if (responseStatus != HttpURLConnection.HTTP_OK) {
 			// TODO, error
@@ -135,6 +137,9 @@ class REST {
 		}
 		
 		InputStream responseContent = response.getBody().getContent();
+		
+
+//		System.out.println(responseContent);
 		
 		
 		XMLResult xml = parseXML(responseContent);
@@ -216,6 +221,7 @@ class REST {
 
 		
 		final IResponse response = getURL(ABAPGIT_URI);
+//		System.out.println(response);
 	
 		List<Repository> list = null;
 		try {
@@ -226,10 +232,13 @@ class REST {
 			System.out.println("error parsing!");
 		}
 		
+
+//		System.out.println(list);
+		
 //		JsonArray responseObject = null;
 //		responseObject = getResponse();
 //		
-//		List<Repository> list = null;		
+//		List<Repository> list = null;		 
 //		list = parseJsonListRepositories(responseObject);	
 		
 		return list;
@@ -240,8 +249,8 @@ class REST {
 		IProject[] abapProjects = AdtProjectServiceFactory.createProjectService().getAvailableAbapProjects();
 		IAbapProject abapProject = (IAbapProject) abapProjects[0].getAdapter(IAbapProject.class);
 
-//		AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(abapProject.getDestinationData(),
-//				PlatformUI.getWorkbench().getProgressService());
+		AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(abapProject.getDestinationData(),
+				PlatformUI.getWorkbench().getProgressService());
 
 		return abapProject;
 	}

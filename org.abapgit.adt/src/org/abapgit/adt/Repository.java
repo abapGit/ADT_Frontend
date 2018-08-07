@@ -2,7 +2,7 @@ package org.abapgit.adt;
 
 import java.util.List;
 
-public class Repository implements IRepository{
+public class Repository {
 
 	private String User;
 	private String URL;

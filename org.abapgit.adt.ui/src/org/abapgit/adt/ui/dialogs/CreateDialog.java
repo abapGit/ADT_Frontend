@@ -1,10 +1,12 @@
 package org.abapgit.adt.ui.dialogs;
 
+
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -67,7 +69,7 @@ public class CreateDialog extends TitleAreaDialog {
 
 	private void createURL(Composite container) {
 		Label lbl = new Label(container, SWT.NONE);
-		lbl.setText("URL");
+		lbl.setText("URL"); 
 
 		GridData dataFirstName = new GridData();
 		dataFirstName.grabExcessHorizontalSpace = true;
@@ -76,6 +78,7 @@ public class CreateDialog extends TitleAreaDialog {
 		txtURL = new Text(container, SWT.BORDER);
 		txtURL.setLayoutData(dataFirstName);
 		txtURL.setText("https://github.com/larshp/DOMA.git");
+
 	}
 
 	private void createBranch(Composite container) {
