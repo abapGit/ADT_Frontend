@@ -227,10 +227,12 @@ public class MainView extends ViewPart {
 				WizardDialog wizardDialog = new WizardDialog(viewer.getControl().getShell(),
 			            new AbapGitWizard());
 				
-			        if (wizardDialog.open() == Window.OK) {			        		
-//			            System.out.println("Ok pressed");
-			        } else {			        	
-//			            System.out.println("Cancel pressed");
+			        if (wizardDialog.open() == Window.OK) {	
+		                // TODO Auto-generated method stub		        		
+			        	// System.out.println("Ok pressed");
+			        } else {
+		                // TODO Auto-generated method stub			        	
+			        	// System.out.println("Cancel pressed");
 			        }
 			}
 		};
