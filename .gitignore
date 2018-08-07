@@ -15,6 +15,7 @@
 *~.nib
 mvnw*
 .DS_Store
+.pmd
 
 # java specifica
 *target*
