@@ -237,10 +237,9 @@ public class MainView extends ViewPart {
 			            new AbapGitWizard());
 				
 			        if (wizardDialog.open() == Window.OK) {	
-		                // TODO Auto-generated method stub		        		
-			        	// System.out.println("Ok pressed");
+						viewer.setInput(getRepoList());	
 			        } else {	        		
-			        	System.out.println("cancel pressed");
+			        	System.out.println("Cancel pressed");
 						viewer.setInput(getRepoList());	
 			        }
 			}

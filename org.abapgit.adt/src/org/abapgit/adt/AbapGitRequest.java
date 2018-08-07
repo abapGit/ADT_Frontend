@@ -35,7 +35,7 @@ public class AbapGitRequest {
 	public AbapGitRequest(Shell currShell,
 			ITreeSelection selection, String xmlBody) {
 		this.currShell = currShell;
-//		this.selection = selection;
+		this.selection = selection;
 		this.body = xmlBody;
 	}
 	

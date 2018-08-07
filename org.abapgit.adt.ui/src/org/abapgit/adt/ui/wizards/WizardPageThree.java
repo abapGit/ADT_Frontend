@@ -89,7 +89,7 @@ public class WizardPageThree extends WizardPage {
 				public void keyPressed(KeyEvent e) {
 	                // TODO Auto-generated method stub
 				}
-
+				
 	            @Override
 	            public void keyReleased(KeyEvent e) {
 	            	
