@@ -16,8 +16,8 @@ public class RepositoriesContentHandlerV1 implements IContentHandler<IRepositori
 	public IRepositories deserialize(IMessageBody body, Class<? extends IRepositories> dataType) {
 		Repositories result = new Repositories();
 
-		try {
-			InputStream content = body.getContent();
+//		try {
+//			InputStream content = body.getContent();
 			// parse content via XML parser
 			// ...
 			
@@ -26,9 +26,9 @@ public class RepositoriesContentHandlerV1 implements IContentHandler<IRepositori
 			// ...
 
 			return result;
-		} catch (IOException e) {
-			throw new ContentHandlerException("Error parsing repositories", e);
-		}
+//		} catch (IOException e) {
+//			throw new ContentHandlerException("Error parsing repositories", e);
+//		}
 	}
 
 	@Override
