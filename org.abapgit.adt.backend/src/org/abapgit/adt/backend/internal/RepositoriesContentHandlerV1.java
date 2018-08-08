@@ -1,8 +1,8 @@
-package org.abapgit.adt.internal;
+package org.abapgit.adt.backend.internal;
 
 import java.nio.charset.Charset;
 
-import org.abapgit.adt.IRepositories;
+import org.abapgit.adt.backend.IRepositories;
 
 import com.sap.adt.communication.content.IContentHandler;
 import com.sap.adt.communication.message.IMessageBody;

@@ -1,6 +1,6 @@
 package org.abapgit.adt.ui.wizards;
 
-import org.abapgit.adt.AbapGitRequest;
+import org.abapgit.adt.backend.AbapGitRequest;
 import org.eclipse.jface.viewers.ITreeSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.swt.widgets.Shell;

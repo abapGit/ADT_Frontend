@@ -1,9 +1,9 @@
-package org.abapgit.adt;
+package org.abapgit.adt.backend;
 
 import java.net.URI;
 
-import org.abapgit.adt.internal.AbapGitDiscovery;
-import org.abapgit.adt.internal.RepositoryService;
+import org.abapgit.adt.backend.internal.AbapGitDiscovery;
+import org.abapgit.adt.backend.internal.RepositoryService;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 public class RepositoryServiceFactory {

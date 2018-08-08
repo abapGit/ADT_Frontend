@@ -1,9 +1,9 @@
-package org.abapgit.adt.internal;
+package org.abapgit.adt.backend.internal;
 
 import java.net.URI;
 
-import org.abapgit.adt.IRepositories;
-import org.abapgit.adt.IRepositoryService;
+import org.abapgit.adt.backend.IRepositories;
+import org.abapgit.adt.backend.IRepositoryService;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import com.sap.adt.communication.content.IContentHandler;
