@@ -1,4 +1,4 @@
-package org.abapgit.adt;
+package org.abapgit.adt.backend;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 

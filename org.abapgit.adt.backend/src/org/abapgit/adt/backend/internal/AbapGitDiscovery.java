@@ -1,4 +1,4 @@
-package org.abapgit.adt.internal;
+package org.abapgit.adt.backend.internal;
 
 import java.net.URI;
 

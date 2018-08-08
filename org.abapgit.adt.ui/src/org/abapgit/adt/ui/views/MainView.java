@@ -1,9 +1,9 @@
-package org.abapgit.adt.ui.views;
+ package org.abapgit.adt.ui.views;
 
 
 import java.util.List;
-import org.abapgit.adt.AbapGitRequest;
-import org.abapgit.adt.Repository;
+import org.abapgit.adt.backend.AbapGitRequest;
+import org.abapgit.adt.backend.Repository;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.dialogs.CreateDialog;
 import org.abapgit.adt.ui.wizards.AbapGitWizard;

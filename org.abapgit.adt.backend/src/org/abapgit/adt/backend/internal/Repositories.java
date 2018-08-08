@@ -1,13 +1,13 @@
-package org.abapgit.adt.internal;
+package org.abapgit.adt.backend.internal;
 
 import java.util.Collections;
 import java.util.List;
 
-import org.abapgit.adt.IRepositories;
-import org.abapgit.adt.IRepository;
-import org.abapgit.adt.Repository;
+import org.abapgit.adt.backend.IRepositories;
+import org.abapgit.adt.backend.IRepository;
+import org.abapgit.adt.backend.Repository;
 
-public class Repositories implements IRepositories{
+public class Repositories implements IRepositories {
 	private List<IRepository> repositories;
 
 	@Override
@@ -16,6 +16,6 @@ public class Repositories implements IRepositories{
 	}
 
 	public void add(Repository repository) {
-//		this.repositories.add(repository);
+		// this.repositories.add(repository);
 	}
 }

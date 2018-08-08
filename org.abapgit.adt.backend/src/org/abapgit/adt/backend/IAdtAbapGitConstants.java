@@ -1,4 +1,4 @@
-package org.abapgit.adt;
+package org.abapgit.adt.backend;
 
 public interface IAdtAbapGitConstants {
 	static final String DISCOVERY_URI = "/abapgit/repos";
