@@ -4,3 +4,6 @@
 
 Import projects into Eclipse:
 File -> Import... -> Projects from Git -> Clone URI
+
+Prerequsites:
+[Eclipse Plug-in Development Environment](http://www.eclipse.org/pde/) retrofit via https://marketplace.eclipse.org/content/eclipse-pde-plug-development-environment if needed
