@@ -4,6 +4,7 @@
 * [Eclipse Plug-in Development Environment](http://www.eclipse.org/pde/) retrofit via [Marketplace](https://marketplace.eclipse.org/content/eclipse-pde-plug-development-environment) if needed
 * Latest [ADT](https://tools.hana.ondemand.com/#abap)
 * Java 8?
+* Latest [ADT_Backend](https://github.com/abapGit/ADT_Backend) installed on backend ABAP system
 
 ### Import
 Via
