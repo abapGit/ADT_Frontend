@@ -15,7 +15,8 @@ public class AbapGitDiscovery {
 
 	public URI getReposUri(String destination, IProgressMonitor monitor) {
 		IAdtDiscovery discovery = AdtDiscoveryFactory.createDiscovery(destination,
-				AdtDiscoveryFactory.CORE_RESOURCE_URI);
+				AdtDiscoveryFactory.RESOURCE_URI);
+		
 		IAdtDiscoveryCollectionMember repoMember = discovery.getCollectionMember(SCHEME, TERM_REPOS, monitor);
 		if (repoMember == null) {
 			return null; // Alternativ z.B. throw new ServiceNotAvailableException();

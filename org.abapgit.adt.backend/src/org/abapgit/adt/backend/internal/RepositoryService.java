@@ -22,28 +22,16 @@ public class RepositoryService implements IRepositoryService {
 		this.uri = uri;
 	}
 
+	// new clone method with new handlers
+
 	@Override
 	public IRepositories getRepositories(IProgressMonitor monitor) {
 		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory()
 				.createResourceWithStatelessSession(this.uri, this.destinationId);
 
-		// Client supports 2 backends:
-		// - V1 might be XML
-		// - V2 might be JSON
-		// but both are able to create instances of IRepositories
 		IContentHandler<IRepositories> responseContentHandlerV1 = new RepositoriesContentHandlerV1();
-		// IContentHandler<IRepositories> responseContentHandlerV2 = new
-		// RepositoriesContentHandler(); // of course this would be a different class
 		restResource.addContentHandler(responseContentHandlerV1);
 
-		// The following automates:
-		// - Adding of "Accept: " header, based on the content type which the content
-		// handler supports
-		// - Handling of any ResourceException which means that the client is outdated
-		// by throwing an OutDatedClientException
-		// IAdtCompatibleRestResourceFilter compatibilityFilter =
-		// AdtCompatibleRestResourceFilterFactory.createFilter(responseContentHandlerV2,
-		// responseContentHandlerV1);
 		IAdtCompatibleRestResourceFilter compatibilityFilter = AdtCompatibleRestResourceFilterFactory
 				.createFilter(responseContentHandlerV1);
 		restResource.addRequestFilter(compatibilityFilter);

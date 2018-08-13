@@ -6,5 +6,5 @@ public interface IAdtAbapGitConstants {
 	static final String ABAPGIT_TERM = "create_repo";
 
 //	static final String QUERY_PARAMETER_ACCEPT_HEADERS = "Accept";
-	static final String QUERY_PARAMETER_XML_VERSION = "application/abapgit.adt.repo.v1+xml";
+	static final String QUERY_PARAMETER_XML_VERSION = "application/abapgit.adt.repos.v1+xml";
 }

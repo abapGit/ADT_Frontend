@@ -9,13 +9,17 @@ import org.abapgit.adt.backend.Repository;
 
 public class Repositories implements IRepositories {
 	private List<IRepository> repositories;
-
+	
+	public void addList(List<IRepository> repositories) {
+		this.repositories = repositories;
+	}
+	
 	@Override
 	public List<IRepository> getRepositories() {
 		return Collections.unmodifiableList(this.repositories);
 	}
 
 	public void add(Repository repository) {
-		// this.repositories.add(repository);
+		 this.repositories.add(repository);
 	}
 }
