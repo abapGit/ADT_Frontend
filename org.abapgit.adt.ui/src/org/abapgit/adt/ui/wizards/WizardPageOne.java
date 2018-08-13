@@ -1,9 +1,12 @@
 package org.abapgit.adt.ui.wizards;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import org.abapgit.adt.backend.AbapGitRequest;
 import org.abapgit.adt.backend.Repository;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ITreeSelection;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -83,6 +86,30 @@ public class WizardPageOne extends WizardPage {
 		setControl(container);
 		setPageComplete(false);
 
+	}
+	
+	@Override
+	public void setVisible(boolean visible) {
+		// TODO Auto-generated method stub
+		super.setVisible(visible);
+		
+		
+		try {
+			getContainer().run(true, true, new IRunnableWithProgress() {
+				
+				@Override
+				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+					// fetch repos(monitor)
+					
+				}
+			});
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public String getTxtUrl() {

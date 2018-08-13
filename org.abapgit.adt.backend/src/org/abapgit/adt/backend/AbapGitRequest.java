@@ -21,6 +21,7 @@ import com.sap.adt.communication.message.IResponse;
 import com.sap.adt.communication.message.IResponse.IErrorInfo;
 import com.sap.adt.communication.resources.AdtRestResourceFactory;
 import com.sap.adt.communication.resources.IRestResource;
+import com.sap.adt.compatibility.internal.discovery.Discovery;
 import com.sap.adt.destinations.ui.logon.AdtLogonServiceUIFactory;
 import com.sap.adt.project.IAdtCoreProject;
 import com.sap.adt.project.ui.util.ProjectUtil;
