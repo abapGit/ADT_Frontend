@@ -2,8 +2,6 @@ package org.abapgit.adt.ui.views;
 
 import java.util.List;
 
-import org.abapgit.adt.backend.AbapGitRequest;
-import org.abapgit.adt.backend.IRepositories;
 import org.abapgit.adt.backend.IRepository;
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.Repository;
@@ -21,7 +19,6 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
-import org.eclipse.jface.viewers.ITreeSelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
@@ -31,12 +28,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.ISharedImages;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import com.sap.adt.communication.content.ContentHandlerException;
@@ -311,7 +305,7 @@ public class MainView extends ViewPart {
 			System.out.println(ex.getMessage());
 		}
 	}
-
+	
 	/**
 	 * Passing the focus request to the viewer's control.
 	 */

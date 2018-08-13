@@ -12,17 +12,16 @@ import org.xml.sax.helpers.DefaultHandler;
 public class RepositoriesHandler extends DefaultHandler {
 	private List<IRepository> repositories = null;
 	private Repository repository = null;
+	private boolean isKey = false;
+	private boolean isPackage = false;
+	private boolean isUser = false;
+	private boolean isUrl = false;
+	private boolean isFirstCommit = false;
+	private boolean isBranch = false;
 
 	public List<IRepository> getRepositories() {
 		return repositories;
 	}
-
-	boolean isKey = false;
-	boolean isPackage = false;
-	boolean isUser = false;
-	boolean isUrl = false;
-	boolean isFirstCommit = false;
-	boolean isBranch = false;
 
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
