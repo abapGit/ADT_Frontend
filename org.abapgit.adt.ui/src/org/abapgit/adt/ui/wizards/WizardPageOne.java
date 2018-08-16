@@ -22,8 +22,8 @@ public class WizardPageOne extends WizardPage {
 
 	public WizardPageOne() {
 		super("First Page");
-		setTitle("Git repositroty url");
-		setDescription("Please define git url and package");
+		setTitle("Git Repositroty Url");
+		setDescription("Enter Git Repository Url");
 		
 
 	}

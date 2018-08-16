@@ -16,8 +16,8 @@ public class WizardPageTwo extends WizardPage {
 
     public WizardPageTwo() {
         super("Second Page");
-        setTitle("Git credentials");
-        setDescription("Please input your git credentials if the repo is private");
+        setTitle("Git Repository Credentials");
+        setDescription("Enter your repository credentials, if it's private");
         setControl(txtUser);
     }
 
