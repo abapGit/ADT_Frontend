@@ -1,10 +1,5 @@
 package org.abapgit.adt.ui.wizards;
 
-import java.util.List;
-
-import org.abapgit.adt.backend.AbapGitRequest;
-import org.abapgit.adt.backend.Repository;
-import org.eclipse.jface.viewers.ITreeSelection;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
@@ -13,16 +8,13 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
 
 public class WizardPageThree extends WizardPage {
 
     private Text txtBranch;
     private Text txtPackage;
-	private List<Repository> avRepos;
+//	private List<Repository> avRepos;
     
     public WizardPageThree() {
         super("Third Page");
@@ -30,22 +22,22 @@ public class WizardPageThree extends WizardPage {
         setDescription("Please define repository branch and abap package below");
         setControl(txtBranch);		
         
-        IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-		ITreeSelection selection = (ITreeSelection) window
-		.getSelectionService().getSelection(); 
-		Shell currShell = super.getShell();
+//        IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+//		ITreeSelection selection = (ITreeSelection) window
+//		.getSelectionService().getSelection(); 
+//		Shell currShell = super.getShell();
 		
-		avRepos = new AbapGitRequest(currShell, selection, "").executeGet();
+//		avRepos = new AbapGitRequest(currShell, selection, "").executeGet();
     }
 
 	@Override
 	public void createControl(Composite parent) {
 		
-		 IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-		 ITreeSelection selection = (ITreeSelection) window.getSelectionService().getSelection(); 
-		 Shell currShell = super.getShell();
+//		 IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+//		 ITreeSelection selection = (ITreeSelection) window.getSelectionService().getSelection(); 
+//		 Shell currShell = super.getShell();
 		
-		 avRepos = new AbapGitRequest(currShell, selection, "").executeGet();
+//		 avRepos = new AbapGitRequest(currShell, selection, "").executeGet();
 		
 		 Composite container = new Composite(parent, SWT.NONE);
 	        GridLayout layout = new GridLayout();
@@ -101,14 +93,14 @@ public class WizardPageThree extends WizardPage {
 						setPageComplete(true);
 
 						
-						String SearchString = avRepos.toString();
-						String[] parts = SearchString.split(" ");
-						for(int i = 0; i < parts.length; i++) {
-						    if(parts[i].equals(txtPackage.getText())) {
-						    	setMessage("This package is already in use", WARNING);
-								setPageComplete(false);						    	
-						    }
-						}
+//						String SearchString = avRepos.toString();
+//						String[] parts = SearchString.split(" ");
+//						for(int i = 0; i < parts.length; i++) {
+//						    if(parts[i].equals(txtPackage.getText())) {
+//						    	setMessage("This package is already in use", WARNING);
+//								setPageComplete(false);						    	
+//						    }
+//						}
 
 					}
 	            	

@@ -1,7 +1,5 @@
 package org.abapgit.adt.backend;
 
-import java.util.List;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
@@ -22,18 +20,6 @@ public class Repository implements IRepository {
 
 	private String transportRequest;
 
-	public static List<Repository> list() {
-		return REST.listRepositories();
-	}
-
-	public static void create(String url, String branch, String devclass, String user, String pwd, String trname) {
-		REST.create(url, branch, devclass, user, pwd, trname);
-	}
-
-	//
-	// public static Repository get(String key) {
-	// return REST.getRepository(key);
-	// }
 	public Repository() {
 
 	}
@@ -45,10 +31,6 @@ public class Repository implements IRepository {
 		this.branch = branch;
 		this.user = user;
 		this.firstCommit = firstCommit;
-	}
-
-	public void pull() {
-		REST.pull(this.pckg);
 	}
 
 	@Override
