@@ -3,11 +3,9 @@ package org.abapgit.adt.ui.wizards;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-import org.abapgit.adt.backend.AbapGitRequest;
 import org.abapgit.adt.backend.Repository;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.jface.viewers.ITreeSelection;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
@@ -16,10 +14,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
 
 public class WizardPageOne extends WizardPage {
 	private Text txtURL;
@@ -36,11 +31,11 @@ public class WizardPageOne extends WizardPage {
 	@Override
 	public void createControl(Composite parent) {
 
-		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-		ITreeSelection selection = (ITreeSelection) window.getSelectionService().getSelection(); 
-		Shell currShell = super.getShell();
+//		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+//		ITreeSelection selection = (ITreeSelection) window.getSelectionService().getSelection(); 
+//		Shell currShell = super.getShell();
 		
-		avRepos = new AbapGitRequest(currShell, selection, "").executeGet();
+//		avRepos = new AbapGitRequest(currShell, selection, "").executeGet();
 		
 		Composite container = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout();
