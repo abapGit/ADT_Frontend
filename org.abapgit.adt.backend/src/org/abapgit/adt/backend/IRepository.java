@@ -13,6 +13,10 @@ public interface IRepository {
 
 	public String getPackage();
 
+	public String getPassword();
+
+	public String getTransportRequest();
+
 	public void setKey(String key);
 
 	public void setUrl(String url);
@@ -24,4 +28,8 @@ public interface IRepository {
 	public void setFirstCommit(String firstCommit);
 
 	public void setPackage(String pckg);
+
+	public void setPassword(String password);
+
+	public void setTransportRequest(String transportRequest);
 }

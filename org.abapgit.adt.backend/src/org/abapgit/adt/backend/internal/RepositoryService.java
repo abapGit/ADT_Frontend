@@ -3,6 +3,7 @@ package org.abapgit.adt.backend.internal;
 import java.net.URI;
 
 import org.abapgit.adt.backend.IRepositories;
+import org.abapgit.adt.backend.IRepository;
 import org.abapgit.adt.backend.IRepositoryService;
 import org.eclipse.core.runtime.IProgressMonitor;
 
@@ -22,8 +23,6 @@ public class RepositoryService implements IRepositoryService {
 		this.uri = uri;
 	}
 
-	// new clone method with new handlers
-
 	@Override
 	public IRepositories getRepositories(IProgressMonitor monitor) {
 		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory()
@@ -38,6 +37,22 @@ public class RepositoryService implements IRepositoryService {
 		restResource.addResponseFilter(compatibilityFilter);
 
 		return restResource.get(monitor, IRepositories.class);
+	}
+
+	@Override
+	public void cloneRepository(IRepository repository, IProgressMonitor monitor) {
+		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory()
+				.createResourceWithStatelessSession(this.uri, this.destinationId);
+		
+		IContentHandler<IRepository> responseContentHandlerV1 = new RepositoryContentHandlerV1();
+		restResource.addContentHandler(responseContentHandlerV1);
+
+		IAdtCompatibleRestResourceFilter compatibilityFilter = AdtCompatibleRestResourceFilterFactory
+				.createFilter(responseContentHandlerV1);
+		restResource.addRequestFilter(compatibilityFilter);
+		restResource.addResponseFilter(compatibilityFilter);
+		
+		restResource.put(monitor, null, repository);
 	}
 
 }
