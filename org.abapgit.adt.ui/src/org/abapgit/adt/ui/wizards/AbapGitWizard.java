@@ -89,14 +89,6 @@ public class AbapGitWizard extends Wizard {
 
 		repoService.cloneRepository(repo, monitor);
 
-		// IWorkbenchWindow window =
-		// PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-		// ITreeSelection selection = (ITreeSelection) window
-		// .getSelectionService().getSelection();
-		// Shell currShell = super.getShell();
-		//
-		// new AbapGitRequest(currShell, selection, createPostXML()).executePost();
-		//
 		return true;
 	}
 
