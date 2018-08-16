@@ -11,7 +11,7 @@
       <view
             category="org.abapgit.adt.ui"
             class="org.abapgit.adt.ui.views.MainView"
-            icon="icons/abapgit.png"
+            icon="icons/view/abapgit.png"
             id="org.abapgit.adt.ui.views.MainView"
             inject="true"
             name="abapGit">
