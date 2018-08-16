@@ -2,14 +2,25 @@ package org.abapgit.adt.backend;
 
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement
 public class Repository implements IRepository {
 
 	private String key;
+
 	private String user;
+
 	private String url;
+
 	private String branch;
+
 	private String pckg;
 	private String firstCommit;
+
+	private String password;
+
+	private String transportRequest;
 
 	public static List<Repository> list() {
 		return REST.listRepositories();
@@ -26,7 +37,7 @@ public class Repository implements IRepository {
 	public Repository() {
 
 	}
-	
+
 	public Repository(String pckg, String url, String branch, String user, String firstCommit) {
 		// this.key = key;
 		this.pckg = pckg;
@@ -67,8 +78,9 @@ public class Repository implements IRepository {
 
 	@Override
 	public String toString() {
-		return "Repository [user=" + user + ", url=" + url + ", branch=" + branch + ", pckg=" + pckg + ", firstCommit="
-				+ firstCommit + "]";
+		return "Repository [key=" + key + ", user=" + user + ", url=" + url + ", branch=" + branch + ", pckg=" + pckg
+				+ ", firstCommit=" + firstCommit + ", password=" + password + ", transportRequest=" + transportRequest
+				+ "]";
 	}
 
 	@Override
@@ -104,5 +116,25 @@ public class Repository implements IRepository {
 	@Override
 	public void setKey(String key) {
 		this.key = key;
+	}
+
+	@Override
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	@Override
+	public void setTransportRequest(String transportRequest) {
+		this.transportRequest = transportRequest;
+	}
+
+	@Override
+	public String getPassword() {
+		return this.password;
+	}
+
+	@Override
+	public String getTransportRequest() {
+		return this.transportRequest;
 	}
 }
