@@ -53,12 +53,17 @@ public class RepositoryService implements IRepositoryService {
 		repository.setUrl(url);
 		repository.setPackage(targetPackage);
 		repository.setBranch(branch);
+		
 		if (user != null && !user.isEmpty()) {
 			repository.setRemoteUser(user);
 		}
+		
 		if (password != null && !password.isEmpty()) {
 			repository.setPassword(password);
 		}
+		
+		repository.setTransportRequest(transportRequest);
+		repository.setPackage(targetPackage);
 
 		IAdtCompatibleRestResourceFilter compatibilityFilter = AdtCompatibleRestResourceFilterFactory
 				.createFilter(responseContentHandlerV1);
