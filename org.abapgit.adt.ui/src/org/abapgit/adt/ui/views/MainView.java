@@ -17,6 +17,8 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
@@ -29,7 +31,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 
 import com.sap.adt.communication.content.ContentHandlerException;
@@ -40,7 +46,6 @@ import com.sap.adt.compatibility.exceptions.OutDatedClientException;
 import com.sap.adt.destinations.ui.logon.AdtLogonServiceUIFactory;
 import com.sap.adt.project.ui.util.ProjectUtil;
 import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
-import com.sap.adt.tools.core.project.IAbapProject;
 
 public class MainView extends ViewPart {
 
@@ -49,6 +54,69 @@ public class MainView extends ViewPart {
 	private TableViewer viewer;
 	// private Action actionPull, actionDelete;
 	private Action actionSync, actionWizard;
+	private ISelection lastSelection;
+
+	@Override
+	public void init(IViewSite site) throws PartInitException {
+		super.init(site);
+
+		ISelection selection = getSite().getPage().getSelection();
+		if (selection instanceof ISelection) {
+			lastSelection = selection;
+		}
+	}
+
+	private ISelectionListener selectionListener = new ISelectionListener() {
+		private boolean isUpdatingSelection = false;
+
+		@Override
+		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
+			if (isUpdatingSelection)
+				return;
+
+			try {
+				isUpdatingSelection = true;
+				if (MainView.this == part)
+					return;
+
+				if (selection instanceof IStructuredSelection) {
+					IStructuredSelection structSelection = (IStructuredSelection) selection;
+					// Always take the first element - this is not intended to work with multiple
+					// selection
+					// Also, hang on to this selection for future use in case the history view is
+					// not visible
+					lastSelection = structSelection;
+
+					if (!checkIfPageIsVisible()) {
+						return;
+					}
+
+					showLastSelectedElement();
+				}
+			} finally {
+				isUpdatingSelection = false;
+			}
+		}
+	};
+
+	private IProject lastProject;
+
+	private boolean checkIfPageIsVisible() {
+		return getViewSite().getPage().isPartVisible(this);
+	}
+
+	private void showLastSelectedElement() {
+		IProject currentProject = ProjectUtil.getActiveAdtCoreProject(lastSelection, null, null, null);
+		if (currentProject != lastProject) {
+			lastProject = currentProject;
+			updateView();
+		}
+
+		// reset lastSelectedElement to null to prevent updating history view if it just
+		// gets focus
+		lastSelection = null;
+
+	}
 
 	/**
 	 * The constructor.
@@ -79,20 +147,16 @@ public class MainView extends ViewPart {
 	public void createPartControl(Composite parent) {
 		setupViewer(parent);
 
-		// Create the help context id for the viewer's control
-		// this.workbench.getHelpSystem().setHelp(this.tableViewer.getControl(),
-		// "org.abapgit.adt.ui.viewer");
-
-		// getSite().setSelectionProvider(this.viewer);
-
 		makeActions();
 		hookContextMenu();
 		contributeToActionBars();
+		// add listener for selections
+		getSite().getPage().addPostSelectionListener(selectionListener);
 	}
 
 	private void setupViewer(Composite parent) {
 		this.viewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
-
+		this.viewer.getControl().setEnabled(false);
 		Table table = this.viewer.getTable();
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
@@ -155,7 +219,7 @@ public class MainView extends ViewPart {
 	}
 
 	private void hookContextMenu() {
-		MenuManager menuMgr = new MenuManager("#PopupMenu");
+		MenuManager menuMgr = new MenuManager();
 		menuMgr.setRemoveAllWhenShown(true);
 		menuMgr.addMenuListener(new IMenuListener() {
 			public void menuAboutToShow(IMenuManager manager) {
@@ -202,7 +266,7 @@ public class MainView extends ViewPart {
 
 		this.actionSync = new Action() {
 			public void run() {
-				fetchRepos();
+				updateView();
 				// viewer.setInput(Repository.list());
 				// viewer.setInput(getRepoList());
 				// viewer.setInput(getRepositories());
@@ -212,7 +276,7 @@ public class MainView extends ViewPart {
 		this.actionSync.setToolTipText("Syncronize");
 		this.actionSync
 				.setImageDescriptor(AbapGitUIPlugin.getDefault().getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
-
+		this.actionSync.setEnabled(false);
 		// this.actionCreate = new Action() {
 		// public void run() {
 		// CreateDialog dialog = new CreateDialog(viewer.getControl().getShell());
@@ -241,10 +305,10 @@ public class MainView extends ViewPart {
 				WizardDialog wizardDialog = new WizardDialog(viewer.getControl().getShell(), new AbapGitWizard());
 
 				if (wizardDialog.open() == Window.OK) {
-					fetchRepos();
+					updateView();
 				} else {
 					// System.out.println("Cancel pressed");
-					fetchRepos();
+					updateView();
 				}
 			}
 		};
@@ -252,34 +316,39 @@ public class MainView extends ViewPart {
 		this.actionWizard.setToolTipText("Clone Repository");
 		this.actionWizard
 				.setImageDescriptor(AbapGitUIPlugin.getDefault().getImageDescriptor(ISharedImages.IMG_OBJ_ADD));
+		this.actionWizard.setEnabled(false);
 	}
 
-	public List<IRepository> getRepositories() {
+	private List<IRepository> getRepositories() {
 		IProgressMonitor monitor = null;
 
-		// example
-		IProject project = ProjectUtil.getActiveAdtCoreProject(null, null, null, IAbapProject.ABAP_PROJECT_NATURE);
-
-		if (project == null) {
+		if (lastProject == null) {
 			return null;
 		}
 
-		IStatus logonStatus = AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(project);
+		IStatus logonStatus = AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(lastProject);
 		if (!logonStatus.isOK()) {
 			return null;
 		}
 
-		String destinationId = AdtProjectServiceFactory.createProjectService().getDestinationId(project);
+		String destinationId = AdtProjectServiceFactory.createProjectService().getDestinationId(lastProject);
 
 		IRepositoryService repoService = RepositoryServiceFactory.createRepositoryService(destinationId, monitor);
+
+		if (repoService == null) {
+			return null;
+		}
+
 		List<IRepository> repos = null;
 		try {
 			repos = repoService.getRepositories(monitor).getRepositories();
-		
+
 		} catch (OutDatedClientException e) {
 			// bring up popup about too old client, ...
 			System.out.println(e.getMessage());
 			return null;
+		} catch (ContentHandlerException ex) {
+			System.out.println(ex.getMessage());
 		} catch (ResourceForbiddenException e) { // 403
 			String subtype = e.getErrorInfo().getExceptionData().getSubtype();
 			System.out.println(subtype);
@@ -293,25 +362,41 @@ public class MainView extends ViewPart {
 
 	}
 
-	private void fetchRepos() {
-		try {
-			List<IRepository> repos = getRepositories();
-			
-			if (repos != null) {
-				this.viewer.setInput(repos);
-			}
-		} catch (ContentHandlerException ex) {
-			System.out.println(ex.getMessage());
+	private void updateView() {
+		List<IRepository> repos = getRepositories();
+
+		if (repos != null) {
+			this.viewer.getControl().setEnabled(true);
+			this.actionSync.setEnabled(true);
+			this.actionWizard.setEnabled(true);
+			this.viewer.setInput(repos);
+		} else {
+			this.viewer.getControl().setEnabled(false);
+			this.actionSync.setEnabled(false);
+			this.actionWizard.setEnabled(false);
+			this.viewer.setInput(null);
+
 		}
 	}
-	
+
 	/**
 	 * Passing the focus request to the viewer's control.
 	 */
 	@Override
 	public void setFocus() {
 		this.viewer.getControl().setFocus();
-		this.fetchRepos();
+
+		if (lastSelection != null) {
+			showLastSelectedElement();
+		}
 	}
+	
+	@Override
+	public void dispose() {
+		getSite().getPage().removePostSelectionListener(selectionListener);
+
+		super.dispose();
+	}
+
 
 }
