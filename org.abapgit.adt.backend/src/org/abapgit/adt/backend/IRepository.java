@@ -5,15 +5,17 @@ public interface IRepository {
 
 	public String getUrl();
 
-	public String getUser();
+	public String getRemoteUser();
 
 	public String getBranch();
 
 	public String getFirstCommit();
 
+	public String getCreatedBy();
+
 	public String getPackage();
 
-	public String getPassword();
+	public String getRemotePassword();
 
 	public String getTransportRequest();
 
@@ -21,11 +23,13 @@ public interface IRepository {
 
 	public void setUrl(String url);
 
-	public void setUser(String user);
+	public void setRemoteUser(String user);
 
 	public void setBranch(String branch);
 
 	public void setFirstCommit(String firstCommit);
+
+	public void setCreatedBy(String createdBy);
 
 	public void setPackage(String pckg);
 

@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.abapgit.adt.backend.IRepository;
 import org.abapgit.adt.backend.IRepositoryService;
-import org.abapgit.adt.backend.Repository;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.wizards.AbapGitWizard;
@@ -107,7 +106,7 @@ public class MainView extends ViewPart {
 		createTableViewerColumn("Package", 200).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				Repository p = (Repository) element;
+				IRepository p = (IRepository) element;
 				return p.getPackage();
 			}
 		});
@@ -115,7 +114,7 @@ public class MainView extends ViewPart {
 		createTableViewerColumn("URL", 400).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				Repository p = (Repository) element;
+				IRepository p = (IRepository) element;
 				return p.getUrl();
 			}
 		});
@@ -123,7 +122,7 @@ public class MainView extends ViewPart {
 		createTableViewerColumn("Branch", 200).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				Repository p = (Repository) element;
+				IRepository p = (IRepository) element;
 				return p.getBranch();
 			}
 		});
@@ -131,15 +130,15 @@ public class MainView extends ViewPart {
 		createTableViewerColumn("User", 100).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				Repository p = (Repository) element;
-				return p.getUser();
+				IRepository p = (IRepository) element;
+				return p.getCreatedBy();
 			}
 		});
 
 		createTableViewerColumn("First commit timestamp", 150).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				Repository p = (Repository) element;
+				IRepository p = (IRepository) element;
 				return p.getFirstCommit();
 			}
 		});

@@ -1,16 +1,13 @@
 package org.abapgit.adt.backend.internal;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.Charset;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 import org.abapgit.adt.backend.IRepositories;
-import org.abapgit.adt.backend.parser.RepositoriesHandler;
-import org.xml.sax.SAXException;
 
 import com.sap.adt.communication.content.ContentHandlerException;
 import com.sap.adt.communication.content.IContentHandler;
@@ -21,18 +18,11 @@ public class RepositoriesContentHandlerV1 implements IContentHandler<IRepositori
 
 	@Override
 	public IRepositories deserialize(IMessageBody body, Class<? extends IRepositories> dataType) {
-		Repositories result = new Repositories();
-
 		try {
-			InputStream content = body.getContent();
-			SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
-			SAXParser saxParser = saxParserFactory.newSAXParser();
-			RepositoriesHandler handler = new RepositoriesHandler();
-			saxParser.parse(content, handler);
-
-			result.addList(handler.getRepositories());
-			return result;
-		} catch (IOException | ParserConfigurationException | SAXException e) {
+			XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+			XMLStreamReader xmlStreamReader = xmlInputFactory.createXMLStreamReader(body.getContent());
+			return new RepositoriesSerializer().deserializeRepositories(xmlStreamReader, getSupportedContentType());
+		} catch (IOException | XMLStreamException e) {
 			throw new ContentHandlerException("Error parsing repositories", e);
 		}
 	}

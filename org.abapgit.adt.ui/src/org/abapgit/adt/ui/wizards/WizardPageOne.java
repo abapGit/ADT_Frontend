@@ -3,7 +3,7 @@ package org.abapgit.adt.ui.wizards;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-import org.abapgit.adt.backend.Repository;
+import org.abapgit.adt.backend.IRepository;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.WizardPage;
@@ -18,7 +18,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class WizardPageOne extends WizardPage {
 	private Text txtURL;
-	private List<Repository> avRepos;
+	private List<IRepository> avRepos;
 
 	public WizardPageOne() {
 		super("First Page");
