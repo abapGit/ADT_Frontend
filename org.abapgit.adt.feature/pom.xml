@@ -1,11 +1,11 @@
 <project
 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>org.abapgit.adt.ui</artifactId>
+  <artifactId>org.abapgit.adt.feature</artifactId>
   <groupId>org.abapgit.adt</groupId>
   <version>0.1.0-SNAPSHOT</version>
-  <name>org.abapgit.adt</name>
-  <packaging>eclipse-plugin</packaging>
+  <name>org.abapgit.adt.feature</name>
+  <packaging>eclipse-feature</packaging>
 
   <parent>
     <artifactId>org.abapgit.adt.parent</artifactId>

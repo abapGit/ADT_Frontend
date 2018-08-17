@@ -26,10 +26,9 @@ mvnw*
 
 # eclipse specific git ignore
 .metadata
-bin/**
-*bin*
-tmp/**
-tmp/**/*
+bin/
+target/
+tmp/
 *.swp
 *~.nib
 local.properties
