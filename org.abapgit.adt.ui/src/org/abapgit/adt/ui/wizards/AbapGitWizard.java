@@ -1,10 +1,6 @@
 package org.abapgit.adt.ui.wizards;
 
-import java.net.URL;
-
-import org.abapgit.adt.backend.IRepository;
 import org.abapgit.adt.backend.IRepositoryService;
-import org.abapgit.adt.backend.Repository;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.FileLocator;
@@ -88,18 +84,8 @@ public class AbapGitWizard extends Wizard {
 
 		IRepositoryService repoService = RepositoryServiceFactory.createRepositoryService(destinationId, monitor);
 
-		IRepository repo = new Repository();
-		repo.setUrl(one.getTxtUrl());
-		repo.setBranch(three.getTxtBranch());
-		repo.setPackage(three.getTxtPackage());
-		repo.setTransportRequest(four.getTxtTr());
-
-		if (!two.getTxtUser().isEmpty() && !two.getTxtPwd().isEmpty()) {
-			repo.setUser(two.getTxtUser());
-			repo.setPassword(two.getTxtPwd());
-		}
-
-		repoService.cloneRepository(repo, monitor);
+		repoService.cloneRepository(one.getTxtUrl(), three.getTxtBranch(), three.getTxtPackage(), four.getTxtTr(),
+				two.getTxtUser(), two.getTxtPwd(), monitor);
 
 		return true;
 	}

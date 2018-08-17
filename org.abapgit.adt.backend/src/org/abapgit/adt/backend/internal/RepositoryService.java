@@ -40,18 +40,30 @@ public class RepositoryService implements IRepositoryService {
 	}
 
 	@Override
-	public void cloneRepository(IRepository repository, IProgressMonitor monitor) {
+	public void cloneRepository(String url, String branch, String targetPackage, String transportRequest, String user,
+			String password, IProgressMonitor monitor) {
 		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory()
 				.createResourceWithStatelessSession(this.uri, this.destinationId);
-		
+
 		IContentHandler<IRepository> responseContentHandlerV1 = new RepositoryContentHandlerV1();
 		restResource.addContentHandler(responseContentHandlerV1);
+
+		IRepository repository = new Repository();
+		repository.setUrl(url);
+		repository.setPackage(targetPackage);
+		repository.setBranch(branch);
+		if (user != null && !user.isEmpty()) {
+			repository.setRemoteUser(user);
+		}
+		if (password != null && !password.isEmpty()) {
+			repository.setPassword(password);
+		}
 
 		IAdtCompatibleRestResourceFilter compatibilityFilter = AdtCompatibleRestResourceFilterFactory
 				.createFilter(responseContentHandlerV1);
 		restResource.addRequestFilter(compatibilityFilter);
 		restResource.addResponseFilter(compatibilityFilter);
-		
+
 		restResource.put(monitor, null, repository);
 	}
 
