@@ -49,6 +49,8 @@ import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
 
 public class MainView extends ViewPart {
 
+	
+
 	public static final String ID = "org.abapgit.adt.ui.views.MainView";
 
 	private TableViewer viewer;
@@ -223,8 +225,11 @@ public class MainView extends ViewPart {
 		menuMgr.setRemoveAllWhenShown(true);
 		menuMgr.addMenuListener(new IMenuListener() {
 			public void menuAboutToShow(IMenuManager manager) {
-				if (viewer.getStructuredSelection().size() == 0) {
-					return;
+				if (viewer.getStructuredSelection().size() == 1) {
+					Object firstElement = viewer.getStructuredSelection().getFirstElement();
+					if (firstElement instanceof IRepository) {
+						manager.add(new UnlinkAction(lastProject, (IRepository) firstElement));
+					}
 				}
 				// MainView.this.fillContextMenu(manager);
 			}
@@ -331,7 +336,7 @@ public class MainView extends ViewPart {
 			return null;
 		}
 
-		String destinationId = AdtProjectServiceFactory.createProjectService().getDestinationId(lastProject);
+		String destinationId = getDestination(lastProject);
 
 		IRepositoryService repoService = RepositoryServiceFactory.createRepositoryService(destinationId, monitor);
 
@@ -362,6 +367,10 @@ public class MainView extends ViewPart {
 
 	}
 
+	private static String getDestination(IProject project) {
+		return AdtProjectServiceFactory.createProjectService().getDestinationId(project);
+	}
+
 	private void updateView() {
 		List<IRepository> repos = getRepositories();
 
@@ -390,7 +399,7 @@ public class MainView extends ViewPart {
 			showLastSelectedElement();
 		}
 	}
-	
+
 	@Override
 	public void dispose() {
 		getSite().getPage().removePostSelectionListener(selectionListener);
@@ -398,5 +407,24 @@ public class MainView extends ViewPart {
 		super.dispose();
 	}
 
+	private static class UnlinkAction extends Action {
 
+		private final IProject project;
+		private final IRepository repository;
+
+		public UnlinkAction(IProject project, IRepository repository) {
+			this.project = project;
+			this.repository = repository;
+			setText("Unlink");
+		}
+		
+		@Override
+		public void run() {
+			IProgressMonitor monitor = null;
+			RepositoryServiceFactory.createRepositoryService(getDestination(project), monitor)
+					.unlinkRepository(repository.getKey(), monitor);
+		}
+
+	}
+	
 }

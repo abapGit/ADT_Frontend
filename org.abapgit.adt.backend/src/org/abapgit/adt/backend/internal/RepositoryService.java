@@ -10,6 +10,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import com.sap.adt.communication.content.IContentHandler;
 import com.sap.adt.communication.resources.AdtRestResourceFactory;
 import com.sap.adt.communication.resources.IRestResource;
+import com.sap.adt.communication.resources.UriBuilder;
 import com.sap.adt.compatibility.filter.AdtCompatibleRestResourceFilterFactory;
 import com.sap.adt.compatibility.filter.IAdtCompatibleRestResourceFilter;
 
@@ -65,6 +66,15 @@ public class RepositoryService implements IRepositoryService {
 		restResource.addResponseFilter(compatibilityFilter);
 
 		restResource.put(monitor, null, repository);
+	}
+
+	@Override
+	public void unlinkRepository(String key, IProgressMonitor monitor) {
+		URI uriToRepo = new UriBuilder(uri).addPathSegments(key).getUri();
+		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory()
+				.createResourceWithStatelessSession(uriToRepo, this.destinationId);
+		
+		restResource.delete(monitor);
 	}
 
 }
