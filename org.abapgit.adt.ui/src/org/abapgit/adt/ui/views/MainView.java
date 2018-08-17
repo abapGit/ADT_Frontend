@@ -1,5 +1,7 @@
 package org.abapgit.adt.ui.views;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.abapgit.adt.backend.IRepository;
@@ -10,11 +12,13 @@ import org.abapgit.adt.ui.wizards.AbapGitWizard;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ISelection;
@@ -36,20 +40,15 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
+import org.eclipse.ui.statushandlers.StatusManager;
 
-import com.sap.adt.communication.content.ContentHandlerException;
-import com.sap.adt.communication.exceptions.CommunicationException;
-import com.sap.adt.communication.resources.ResourceException;
-import com.sap.adt.communication.resources.ResourceForbiddenException;
-import com.sap.adt.compatibility.exceptions.OutDatedClientException;
 import com.sap.adt.destinations.ui.logon.AdtLogonServiceUIFactory;
 import com.sap.adt.project.ui.util.ProjectUtil;
 import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
 
 public class MainView extends ViewPart {
-
-	
 
 	public static final String ID = "org.abapgit.adt.ui.views.MainView";
 
@@ -325,8 +324,6 @@ public class MainView extends ViewPart {
 	}
 
 	private List<IRepository> getRepositories() {
-		IProgressMonitor monitor = null;
-
 		if (lastProject == null) {
 			return null;
 		}
@@ -337,34 +334,28 @@ public class MainView extends ViewPart {
 		}
 
 		String destinationId = getDestination(lastProject);
-
-		IRepositoryService repoService = RepositoryServiceFactory.createRepositoryService(destinationId, monitor);
-
-		if (repoService == null) {
-			return null;
-		}
-
-		List<IRepository> repos = null;
+		List<IRepository> repos = new LinkedList<>();
 		try {
-			repos = repoService.getRepositories(monitor).getRepositories();
+			PlatformUI.getWorkbench().getProgressService().busyCursorWhile(new IRunnableWithProgress() {
 
-		} catch (OutDatedClientException e) {
-			// bring up popup about too old client, ...
-			System.out.println(e.getMessage());
-			return null;
-		} catch (ContentHandlerException ex) {
-			System.out.println(ex.getMessage());
-		} catch (ResourceForbiddenException e) { // 403
-			String subtype = e.getErrorInfo().getExceptionData().getSubtype();
-			System.out.println(subtype);
-		} catch (ResourceException e) {
-			System.out.println(e.getMessage());
-		} catch (CommunicationException e) {
-			// something else went wrong (network layer)
-			System.out.println(e.getMessage());
+				@Override
+				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+					monitor.beginTask("Fetching repositories", IProgressMonitor.UNKNOWN);
+					IRepositoryService repoService = RepositoryServiceFactory.createRepositoryService(destinationId,
+							monitor);
+					if (repoService == null) {
+						return;
+					}
+					repos.addAll(repoService.getRepositories(monitor).getRepositories());
+				}
+			});
+
+		} catch (InvocationTargetException e) {
+			StatusManager.getManager().handle(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID,
+					"Error fetching repositories", e.getTargetException()), StatusManager.SHOW);
+		} catch (InterruptedException e) {
 		}
 		return repos;
-
 	}
 
 	private static String getDestination(IProject project) {
@@ -374,7 +365,7 @@ public class MainView extends ViewPart {
 	private void updateView() {
 		List<IRepository> repos = getRepositories();
 
-		if (repos != null) {
+		if (repos != null && !repos.isEmpty()) {
 			this.viewer.getControl().setEnabled(true);
 			this.actionSync.setEnabled(true);
 			this.actionWizard.setEnabled(true);
@@ -384,7 +375,6 @@ public class MainView extends ViewPart {
 			this.actionSync.setEnabled(false);
 			this.actionWizard.setEnabled(false);
 			this.viewer.setInput(null);
-
 		}
 	}
 
@@ -407,7 +397,7 @@ public class MainView extends ViewPart {
 		super.dispose();
 	}
 
-	private static class UnlinkAction extends Action {
+	private class UnlinkAction extends Action {
 
 		private final IProject project;
 		private final IRepository repository;
@@ -417,14 +407,26 @@ public class MainView extends ViewPart {
 			this.repository = repository;
 			setText("Unlink");
 		}
-		
+
 		@Override
 		public void run() {
-			IProgressMonitor monitor = null;
-			RepositoryServiceFactory.createRepositoryService(getDestination(project), monitor)
-					.unlinkRepository(repository.getKey(), monitor);
+			try {
+				PlatformUI.getWorkbench().getProgressService().busyCursorWhile(new IRunnableWithProgress() {
+
+					@Override
+					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+						RepositoryServiceFactory.createRepositoryService(getDestination(project), monitor)
+								.unlinkRepository(repository.getKey(), monitor);
+					}
+				});
+				updateView();
+			} catch (InvocationTargetException e) {
+				StatusManager.getManager().handle(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID,
+						"Error unlinking repository", e.getTargetException()), StatusManager.SHOW);
+			} catch (InterruptedException e) {
+			}
 		}
 
 	}
-	
+
 }

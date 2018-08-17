@@ -36,7 +36,7 @@ public class RepositoryService implements IRepositoryService {
 				.createFilter(responseContentHandlerV1);
 		restResource.addRequestFilter(compatibilityFilter);
 		restResource.addResponseFilter(compatibilityFilter);
-
+		
 		return restResource.get(monitor, IRepositories.class);
 	}
 
@@ -73,7 +73,7 @@ public class RepositoryService implements IRepositoryService {
 		URI uriToRepo = new UriBuilder(uri).addPathSegments(key).getUri();
 		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory()
 				.createResourceWithStatelessSession(uriToRepo, this.destinationId);
-		
+				
 		restResource.delete(monitor);
 	}
 
