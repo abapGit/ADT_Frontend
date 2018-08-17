@@ -1,0 +1,78 @@
+<project
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.abapgit.adt</groupId>
+  <artifactId>org.abapgit.adt.parent</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+  <name>abapGit</name>
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>org.abapgit.adt.backend</module>
+    <module>org.abapgit.adt.ui</module>
+    <module>org.abapgit.adt.feature</module>
+    <module>org.abapgit.adt.updatesite</module>
+  </modules>
+
+  <properties>
+    <tycho-version>1.2.0</tycho-version>
+  </properties>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-maven-plugin</artifactId>
+        <version>${tycho-version}</version>
+        <extensions>true</extensions>
+      </plugin>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>target-platform-configuration</artifactId>
+        <version>${tycho-version}</version>
+        <configuration>
+          <dependency-resolution>
+            <optionalDependencies>ignore</optionalDependencies>
+          </dependency-resolution>
+          <environments>
+            <environment>
+              <os>win32</os>
+              <ws>win32</ws>
+              <arch>x86</arch>
+            </environment>
+            <environment>
+              <os>win32</os>
+              <ws>win32</ws>
+              <arch>x86_64</arch>
+            </environment>
+            <environment>
+              <os>linux</os>
+              <ws>gtk</ws>
+              <arch>x86_64</arch>
+            </environment>
+            <environment>
+              <os>macosx</os>
+              <ws>cocoa</ws>
+              <arch>x86_64</arch>
+            </environment>
+          </environments>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <repositories>
+    <repository>
+      <id>eclipse-oxygen</id>
+      <url>http://download.eclipse.org/releases/oxygen</url>
+      <layout>p2</layout>
+    </repository>
+    <repository>
+      <id>adt-oxygen</id>
+      <url>https://tools.hana.ondemand.com/oxygen</url>
+      <layout>p2</layout>
+    </repository>
+  </repositories>
+
+</project>

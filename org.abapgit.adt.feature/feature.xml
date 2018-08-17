@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="org.abapgit.adt.feature"
-      label="abapGit ADT Feature"
-      version="0.1.0">
+      label="abapGit for ABAP Development Tools (ADT)"
+      version="0.1.0.qualifier">
 
    <description url="http://abapgit.org">
-      abapGit ADT Plugin
+      abapGit plugin for ABAP Development Tools (ADT)
    </description>
 
    <copyright>
