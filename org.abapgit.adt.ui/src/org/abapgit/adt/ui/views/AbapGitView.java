@@ -57,12 +57,11 @@ import com.sap.adt.destinations.ui.logon.AdtLogonServiceUIFactory;
 import com.sap.adt.project.ui.util.ProjectUtil;
 import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
 
-public class MainView extends ViewPart {
+public class AbapGitView extends ViewPart {
 
-	public static final String ID = "org.abapgit.adt.ui.views.MainView";
+	public static final String ID = "org.abapgit.adt.ui.views.AbapGitView";
 
 	private TableViewer viewer;
-	// private Action actionPull, actionDelete;
 	private Action actionRefresh, actionWizard;
 	private ISelection lastSelection;
 
@@ -71,9 +70,7 @@ public class MainView extends ViewPart {
 		super.init(site);
 
 		ISelection selection = getSite().getPage().getSelection();
-		if (selection instanceof ISelection) {
-			lastSelection = selection;
-		}
+		lastSelection = selection;
 	}
 
 	private ISelectionListener selectionListener = new ISelectionListener() {
@@ -86,15 +83,11 @@ public class MainView extends ViewPart {
 
 			try {
 				isUpdatingSelection = true;
-				if (MainView.this == part)
+				if (AbapGitView.this == part)
 					return;
 
 				if (selection instanceof IStructuredSelection) {
 					IStructuredSelection structSelection = (IStructuredSelection) selection;
-					// Always take the first element - this is not intended to work with multiple
-					// selection
-					// Also, hang on to this selection for future use in case the history view is
-					// not visible
 					lastSelection = structSelection;
 
 					if (!checkIfPageIsVisible()) {
@@ -122,17 +115,11 @@ public class MainView extends ViewPart {
 			updateView();
 		}
 
-		// reset lastSelectedElement to null to prevent updating history view if it just
-		// gets focus
 		lastSelection = null;
 
 	}
 
-	/**
-	 * The constructor.
-	 */
-
-	class ViewLabelProvider extends LabelProvider implements ITableLabelProvider {
+	static class ViewLabelProvider extends LabelProvider implements ITableLabelProvider {
 		@Override
 		public String getColumnText(Object obj, int index) {
 			return getText(obj);
@@ -147,7 +134,6 @@ public class MainView extends ViewPart {
 		public Image getImage(Object obj) {
 			return AbapGitUIPlugin.getDefault().getImageDescriptor(ISharedImages.IMG_TOOL_REDO).createImage();
 		}
-
 	}
 
 	/**
