@@ -249,7 +249,6 @@ public class MainView extends ViewPart {
 						manager.add(new UnlinkAction(lastProject, (IRepository) firstElement));
 					}
 				}
-				// MainView.this.fillContextMenu(manager);
 			}
 		});
 		Menu menu = menuMgr.createContextMenu(viewer.getControl());

@@ -1,10 +1,11 @@
 package org.abapgit.adt.ui.wizards;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.List;
 
-import org.abapgit.adt.backend.IRepository;
+import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -15,28 +16,24 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 public class WizardPageOne extends WizardPage {
 	private Text txtURL;
-	private List<IRepository> avRepos;
+//	List<IRepository> repos;
 
 	public WizardPageOne() {
 		super("First Page");
 		setTitle("Git Repositroty Url");
 		setDescription("Enter Git Repository Url");
-		
 
 	}
 
 	@Override
 	public void createControl(Composite parent) {
 
-//		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-//		ITreeSelection selection = (ITreeSelection) window.getSelectionService().getSelection(); 
-//		Shell currShell = super.getShell();
-		
-//		avRepos = new AbapGitRequest(currShell, selection, "").executeGet();
-		
+//		repos = new LinkedList<>();
+
 		Composite container = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout();
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
@@ -52,26 +49,24 @@ public class WizardPageOne extends WizardPage {
 		txtURL.addKeyListener(new KeyListener() {
 
 			@Override
-			public void keyPressed(KeyEvent e) {
-                // TODO Auto-generated method stub
-			}
-
-			@Override
 			public void keyReleased(KeyEvent e) {
 				setPageComplete(false);
 				setMessage("", NONE);
 				if (!txtURL.getText().isEmpty() && txtURL.getText().startsWith("https://")
 						&& txtURL.getText().endsWith(".git")) {
 
-					setMessage("You can use this repository", INFORMATION);
+					setMessage("Repository can be used", INFORMATION);
 					setPageComplete(true);
 
-					if (avRepos.toString().contains(txtURL.getText())) {
-						setMessage("This repository is already in use", WARNING);
-						setPageComplete(false);
-					}
-
+//					 if (repos.toString().contains(txtURL.getText())) {
+//						setMessage("This repository is already in use", WARNING);
+//						setPageComplete(false);
+//					 }
 				}
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e) {
 			}
 
 		});
@@ -82,39 +77,33 @@ public class WizardPageOne extends WizardPage {
 		setPageComplete(false);
 
 	}
-	
+
 	@Override
 	public void setVisible(boolean visible) {
-		// TODO Auto-generated method stub
 		super.setVisible(visible);
-		
-		
+
 		try {
 			getContainer().run(true, true, new IRunnableWithProgress() {
-				
+
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-					// fetch repos(monitor)
 					
 				}
 			});
 		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			StatusManager.getManager().handle(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID,
+					"Error fetching repositories", e.getTargetException()), StatusManager.SHOW);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 
 	public String getTxtUrl() {
 		return txtURL.getText();
 	}
-	
+
 	public Boolean getRepoPrivate() {
 		return true;
-		
+
 	}
-	
 
 }
