@@ -31,9 +31,9 @@ import com.sap.adt.tools.core.ui.packages.IAdtPackageProposalProvider;
 import com.sap.adt.tools.core.ui.packages.IAdtPackageServiceUI;
 import com.sap.adt.util.ui.swt.AdtSWTUtilFactory;
 
-public class WizardPageThree extends WizardPage {
+public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 
-	private static final String PAGE_NAME = WizardPageOne.class.getName();
+	private static final String PAGE_NAME = AbapGitWizardPageRepositoryAndCredentials.class.getName();
 
 	private final IProject project;
 	private final String destination;
@@ -42,7 +42,7 @@ public class WizardPageThree extends WizardPage {
 	private TextViewer txtPackage;
 	private ComboViewer comboBranches;
 
-	public WizardPageThree(IProject project, String destination, CloneData cloneData) {
+	public AbapGitWizardPageBranchAndPackage(IProject project, String destination, CloneData cloneData) {
 		super(PAGE_NAME);
 		this.project = project;
 		this.destination = destination;
