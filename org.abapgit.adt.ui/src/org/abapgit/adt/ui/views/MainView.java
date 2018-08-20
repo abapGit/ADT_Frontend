@@ -312,7 +312,8 @@ public class MainView extends ViewPart {
 		this.actionWizard = new Action() {
 			public void run() {
 
-				WizardDialog wizardDialog = new WizardDialog(viewer.getControl().getShell(), new AbapGitWizard());
+				WizardDialog wizardDialog = new WizardDialog(viewer.getControl().getShell(),
+						new AbapGitWizard(lastProject));
 
 				if (wizardDialog.open() == Window.OK) {
 					updateView();
