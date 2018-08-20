@@ -1,28 +1,24 @@
 package org.abapgit.adt.ui.wizards;
 
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
 
 import org.abapgit.adt.backend.IExternalRepositoryInfo;
 import org.abapgit.adt.backend.IRepositories;
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
+import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.dialogs.IPageChangingListener;
 import org.eclipse.jface.dialogs.PageChangingEvent;
 import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.wizard.IWizardContainer;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.jface.wizard.WizardPage;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.FrameworkUtil;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import com.sap.adt.tools.core.model.adtcore.IAdtCoreFactory;
 import com.sap.adt.tools.core.model.adtcore.IAdtObjectReference;
@@ -54,10 +50,8 @@ public class AbapGitWizard extends Wizard {
 
 		setNeedsProgressMonitor(true);
 
-		Bundle bundle = FrameworkUtil.getBundle(this.getClass());
-		URL url = FileLocator.find(bundle, new Path("icons/wizban/abapgit_import_wizban.png"), null);
-		ImageDescriptor imageDescriptor = ImageDescriptor.createFromURL(url);
-		setDefaultPageImageDescriptor(imageDescriptor);
+		setDefaultPageImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID,
+				"icons/wizban/abapgit_import_wizban.png"));
 	}
 
 	@Override
