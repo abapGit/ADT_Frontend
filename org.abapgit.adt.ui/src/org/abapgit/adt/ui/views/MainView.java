@@ -2,6 +2,9 @@ package org.abapgit.adt.ui.views;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -60,7 +63,7 @@ public class MainView extends ViewPart {
 
 	private TableViewer viewer;
 	// private Action actionPull, actionDelete;
-	private Action actionSync, actionWizard;
+	private Action actionRefresh, actionWizard;
 	private ISelection lastSelection;
 
 	@Override
@@ -206,11 +209,21 @@ public class MainView extends ViewPart {
 			}
 		});
 
-		createTableViewerColumn("First commit timestamp", 150).setLabelProvider(new ColumnLabelProvider() {
+		createTableViewerColumn("First Commit At", 150).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				IRepository p = (IRepository) element;
-				return p.getFirstCommit();
+
+				IRepository repo = (IRepository) element;
+
+				Date date;
+				try {
+					date = new SimpleDateFormat("yyyyMMddHHmmss").parse(repo.getFirstCommit());
+				} catch (ParseException e) {
+					return repo.getFirstCommit();
+				}
+
+				String formattedDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
+				return formattedDate;
 			}
 		});
 	}
@@ -246,68 +259,24 @@ public class MainView extends ViewPart {
 
 	private void contributeToActionBars() {
 		IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
-		toolBarManager.add(actionSync);
-		// toolBarManager.add(actionCreate);
+		toolBarManager.add(actionRefresh);
 		toolBarManager.add(actionWizard);
 
 	}
 
 	private void makeActions() {
-		// this.actionPull = new Action() {
-		// public void run() {
-		// Repository repo = (Repository)
-		// viewer.getStructuredSelection().getFirstElement();
-		// repo.pull();
-		// }
-		// };
-		// this.actionPull.setText("Pull");
-		// this.actionPull.setToolTipText("Pull");
-		// this.actionPull.setImageDescriptor(AbapGitUIPlugin.getDefault().getImageDescriptor(ISharedImages.IMG_TOOL_UP));
-		//
-		// this.actionDelete = new Action() {
-		// public void run() {
-		// showMessage("delete, todo");
-		// }
-		// };
-		// this.actionDelete.setText("Delete");
-		// this.actionDelete.setToolTipText("Delete");
-		// this.actionDelete
-		// .setImageDescriptor(AbapGitUIPlugin.getDefault().getImageDescriptor(ISharedImages.IMG_ETOOL_DELETE));
-
-		this.actionSync = new Action() {
+		this.actionRefresh = new Action() {
 			public void run() {
 				updateView();
-				// viewer.setInput(Repository.list());
-				// viewer.setInput(getRepoList());
-				// viewer.setInput(getRepositories());
 			}
 		};
-		this.actionSync.setText("Synchronize");
-		this.actionSync.setToolTipText("Synchronize");
-		this.actionSync
-				.setImageDescriptor(AbapGitUIPlugin.getDefault().getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
-		this.actionSync.setEnabled(false);
-		// this.actionCreate = new Action() {
-		// public void run() {
-		// CreateDialog dialog = new CreateDialog(viewer.getControl().getShell());
-		// dialog.create();
-		//
-		// if (dialog.open() == Window.OK) {
-		//
-		// Repository.create(dialog.getUrl(), dialog.getBranch(), dialog.getDevclass(),
-		// dialog.getUser(), dialog.getPwd(), dialog.getTrname());
-		//
-		//// viewer.setInput(Repository.list());
-		// viewer.setInput(getRepoList());
-		//// viewer.setInput(getRepositories());
-		//
-		// }
-		// }
-		// };
-		// this.actionCreate.setText("Create");
-		// this.actionCreate.setToolTipText("Create");
-		// this.actionCreate
-		// .setImageDescriptor(AbapGitUIPlugin.getDefault().getImageDescriptor(ISharedImages.IMG_OBJ_ADD));
+		this.actionRefresh.setText("Synchronize");
+		this.actionRefresh.setToolTipText("Synchronize");
+		Bundle bundle = FrameworkUtil.getBundle(this.getClass());
+		URL url = FileLocator.find(bundle, new Path("icons/etool/refresh.png"), null);
+		ImageDescriptor imageDescriptorRefresh = ImageDescriptor.createFromURL(url);
+		this.actionRefresh.setImageDescriptor(imageDescriptorRefresh);
+		this.actionRefresh.setEnabled(false);
 
 		this.actionWizard = new Action() {
 			public void run() {
@@ -317,18 +286,13 @@ public class MainView extends ViewPart {
 
 				if (wizardDialog.open() == Window.OK) {
 					updateView();
-				} else {
-					// System.out.println("Cancel pressed");
-					updateView();
 				}
 			}
 		};
 		this.actionWizard.setText("Clone Repository");
 		this.actionWizard.setToolTipText("Clone Repository");
-        Bundle bundle = FrameworkUtil.getBundle(this.getClass());
-        URL url = FileLocator.find(bundle,new Path("icons/etool/refresh.png"), null);
-        ImageDescriptor imageDescriptorRefresh = ImageDescriptor.createFromURL(url);
-		this.actionWizard.setImageDescriptor(imageDescriptorRefresh);
+		this.actionWizard
+				.setImageDescriptor(AbapGitUIPlugin.getDefault().getImageDescriptor(ISharedImages.IMG_OBJ_ADD));
 		this.actionWizard.setEnabled(false);
 	}
 
@@ -376,12 +340,12 @@ public class MainView extends ViewPart {
 
 		if (repos != null && !repos.isEmpty()) {
 			this.viewer.getControl().setEnabled(true);
-			this.actionSync.setEnabled(true);
+			this.actionRefresh.setEnabled(true);
 			this.actionWizard.setEnabled(true);
 			this.viewer.setInput(repos);
 		} else {
 			this.viewer.getControl().setEnabled(false);
-			this.actionSync.setEnabled(false);
+			this.actionRefresh.setEnabled(false);
 			this.actionWizard.setEnabled(false);
 			this.viewer.setInput(null);
 		}
