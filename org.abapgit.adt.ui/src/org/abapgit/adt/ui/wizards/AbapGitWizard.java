@@ -37,7 +37,6 @@ public class AbapGitWizard extends Wizard {
 	private WizardPageOne one;
 	private WizardPageTwo two;
 	private WizardPageThree three;
-	// private WizardPageFour four;
 	private IAdtTransportSelectionWizardPage transportPage;
 
 	public AbapGitWizard(IProject project) {
