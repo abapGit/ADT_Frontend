@@ -240,7 +240,6 @@ public class AbapGitView extends ViewPart {
 		});
 		Menu menu = menuMgr.createContextMenu(viewer.getControl());
 		this.viewer.getControl().setMenu(menu);
-		getSite().registerContextMenu(menuMgr, viewer);
 	}
 
 	private void contributeToActionBars() {
