@@ -36,8 +36,8 @@ public class AbapGitWizard extends Wizard {
 	private final CloneData cloneData;
 	private PageChangeListener pageChangeListener;
 
-	private WizardPageOne one;
-	private WizardPageThree three;
+	private AbapGitWizardPageRepositoryAndCredentials pageRepo;
+	private AbapGitWizardPageBranchAndPackage pageBranchAndPackage;
 	private IAdtTransportService transportService;
 	private IAdtTransportSelectionWizardPage transportPage;
 
@@ -56,12 +56,12 @@ public class AbapGitWizard extends Wizard {
 
 	@Override
 	public void addPages() {
-		one = new WizardPageOne(destination, cloneData);
-		three = new WizardPageThree(project, destination, cloneData);
+		pageRepo = new AbapGitWizardPageRepositoryAndCredentials(destination, cloneData);
+		pageBranchAndPackage = new AbapGitWizardPageBranchAndPackage(project, destination, cloneData);
 		transportService = AdtTransportServiceFactory.createTransportService(destination);
 		this.transportPage = AdtTransportSelectionWizardPageFactory.createTransportSelectionPage(transportService);
-		addPage(one);
-		addPage(three);
+		addPage(pageRepo);
+		addPage(pageBranchAndPackage);
 		addPage(transportPage);
 	}
 
@@ -109,13 +109,13 @@ public class AbapGitWizard extends Wizard {
 			final WizardPage currentPage = (WizardPage) event.getCurrentPage();
 			final WizardPage targetPage = (WizardPage) event.getTargetPage();
 
-			if (currentPage == one && targetPage == three) { // NOPMD
-				if (!one.validateAll()) {
+			if (currentPage == pageRepo && targetPage == pageBranchAndPackage) { // NOPMD
+				if (!pageRepo.validateAll()) {
 					event.doit = false;
 					return;
 				}
-			} else if (currentPage == three && targetPage == transportPage) { // NOPMD
-				if (!three.validateAll()) {
+			} else if (currentPage == pageBranchAndPackage && targetPage == transportPage) { // NOPMD
+				if (!pageBranchAndPackage.validateAll()) {
 					event.doit = false;
 					return;
 				}

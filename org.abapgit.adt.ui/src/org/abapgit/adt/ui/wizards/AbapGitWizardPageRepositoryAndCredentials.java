@@ -20,9 +20,9 @@ import org.eclipse.swt.widgets.Text;
 
 import com.sap.adt.util.ui.swt.AdtSWTUtilFactory;
 
-public class WizardPageOne extends WizardPage {
+public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 
-	private static final String PAGE_NAME = WizardPageOne.class.getName();
+	private static final String PAGE_NAME = AbapGitWizardPageRepositoryAndCredentials.class.getName();
 
 	private final String destination;
 	private final CloneData cloneData;
@@ -33,7 +33,7 @@ public class WizardPageOne extends WizardPage {
 	private Label lblUser;
 	private Label lblPwd;
 
-	public WizardPageOne(String destination, CloneData cloneData) {
+	public AbapGitWizardPageRepositoryAndCredentials(String destination, CloneData cloneData) {
 		super(PAGE_NAME);
 		this.destination = destination;
 		this.cloneData = cloneData;
