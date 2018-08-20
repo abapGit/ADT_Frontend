@@ -1,40 +1,45 @@
 package org.abapgit.adt.ui.wizards;
 
-import java.net.URL;
+import java.lang.reflect.InvocationTargetException;
 
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.dialogs.IPageChangingListener;
+import org.eclipse.jface.dialogs.PageChangingEvent;
+import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.wizard.IWizardContainer;
+import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
+import org.eclipse.jface.wizard.WizardDialog;
 
 import com.sap.adt.destinations.ui.logon.AdtLogonServiceUIFactory;
-import com.sap.adt.project.ui.util.ProjectUtil;
 import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
-import com.sap.adt.tools.core.project.IAbapProject;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.FrameworkUtil;
+import com.sap.adt.transport.AdtTransportServiceFactory;
+import com.sap.adt.transport.ui.wizard.AdtTransportSelectionWizardPageFactory;
+import com.sap.adt.transport.ui.wizard.IAdtTransportSelectionWizardPage;
 
 public class AbapGitWizard extends Wizard {
 
-	protected WizardPageOne one;
-	protected WizardPageTwo two;
-	protected WizardPageThree three;
-	protected WizardPageFour four;
-	// avRepos = Repository.list();
+	private final IProject project;
+	private final String destination;
+	private PageChangeListener pageChangeListener;
 
-	public AbapGitWizard() {
-		super();
+	private WizardPageOne one;
+	private WizardPageTwo two;
+	private WizardPageThree three;
+//	private WizardPageFour four;
+	private IAdtTransportSelectionWizardPage transportPage;
+
+	public AbapGitWizard(IProject project) {
+		this.project = project;
+		this.destination = AdtProjectServiceFactory.createProjectService().getDestinationId(project);
+
+		// why is the progress monitor not shown???
 		setNeedsProgressMonitor(true);
-
-		Bundle bundle = FrameworkUtil.getBundle(this.getClass());
-		URL url = FileLocator.find(bundle,new Path("icons/wizban/abapgit_import_wizban.png"), null);
-		ImageDescriptor imageDescriptor = ImageDescriptor.createFromURL(url);
-		setDefaultPageImageDescriptor(imageDescriptor);
 	}
 
 	@Override
@@ -46,50 +51,77 @@ public class AbapGitWizard extends Wizard {
 	public void addPages() {
 		one = new WizardPageOne();
 		two = new WizardPageTwo();
-		three = new WizardPageThree();
-		four = new WizardPageFour();
+		three = new WizardPageThree(project, destination);
+//		four = new WizardPageFour();
+		this.transportPage = AdtTransportSelectionWizardPageFactory
+				.createTransportSelectionPage(AdtTransportServiceFactory.createTransportService(destination));
 		addPage(one);
 		addPage(two);
 		addPage(three);
-		addPage(four);
-	}
-
-	public String createPostXML() {
-		// quick and dirty
-		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-				+ "<asx:abap xmlns:asx=\"http://www.sap.com/abapxml\" version=\"1.0\">" + "<asx:values>" + "<ROOT>"
-				+ "<URL>" + one.getTxtUrl() + "</URL>" + "<BRANCH_NAME>" + three.getTxtBranch() + "</BRANCH_NAME>"
-				+ "<PACKAGE>" + three.getTxtPackage() + "</PACKAGE>" + "<TR_NAME>" + four.getTxtTr() + "</TR_NAME>"
-				+ "<USER>" + two.getTxtUser() + "</USER>" + "<PWD>" + two.getTxtPwd() + "</PWD>" + "</ROOT>"
-				+ "</asx:values></asx:abap>";
-
-		return xml;
-
+//		addPage(four);
+		addPage(transportPage);
 	}
 
 	@Override
 	public boolean performFinish() {
-		IProgressMonitor monitor = null;
-
-		IProject project = ProjectUtil.getActiveAdtCoreProject(null, null, null, IAbapProject.ABAP_PROJECT_NATURE);
-
-		if (project == null) {
-			return false;
-		}
-
 		IStatus logonStatus = AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(project);
 		if (!logonStatus.isOK()) {
 			return false;
 		}
 
-		String destinationId = AdtProjectServiceFactory.createProjectService().getDestinationId(project);
+		try {
+			getContainer().run(true, true, new IRunnableWithProgress() {
 
-		IRepositoryService repoService = RepositoryServiceFactory.createRepositoryService(destinationId, monitor);
+				@Override
+				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+					IRepositoryService repoService = RepositoryServiceFactory.createRepositoryService(destination,
+							monitor);
 
-		repoService.cloneRepository(one.getTxtUrl(), three.getTxtBranch(), three.getTxtPackage(), four.getTxtTr(),
-				two.getTxtUser(), two.getTxtPwd(), monitor);
+					repoService.cloneRepository(one.getTxtUrl(), three.getTxtBranch(), three.getTxtPackage(),
+							transportPage.getTransportRequestNumber(), two.getTxtUser(), two.getTxtPwd(), monitor);
+				}
+			});
+			return true;
+		} catch (InvocationTargetException | InterruptedException e) {
+			// TODO
+			return false;
+		}
+	}
 
-		return true;
+	@Override
+	public void setContainer(IWizardContainer wizardContainer) {
+		super.setContainer(wizardContainer);
+
+		if (this.pageChangeListener == null && wizardContainer != null) {
+			Assert.isLegal(wizardContainer instanceof WizardDialog, "Wizard container must be of type WizardDialog"); //$NON-NLS-1$
+
+			this.pageChangeListener = new PageChangeListener();
+			((WizardDialog) wizardContainer).addPageChangingListener(this.pageChangeListener);
+		}
+	}
+
+	private final class PageChangeListener implements IPageChangingListener {
+		@Override
+		public void handlePageChanging(final PageChangingEvent event) {
+
+			final IWizardPage currentPage = (IWizardPage) event.getCurrentPage();
+			//final IWizardPage targetPage = (IWizardPage) event.getTargetPage();
+
+			try {
+				getContainer().run(true, true, new IRunnableWithProgress() {
+					@Override
+					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+						if (currentPage == three) { //NOPMD
+							three.callValidateInputFinal(monitor);
+						}
+					}
+				});
+			} catch (InvocationTargetException e) {
+				event.doit = false;
+			} catch (InterruptedException e) {
+				event.doit = false;
+			}
+		}
 	}
 
 }
