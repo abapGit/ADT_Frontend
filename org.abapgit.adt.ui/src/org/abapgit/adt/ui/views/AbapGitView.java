@@ -2,6 +2,7 @@ package org.abapgit.adt.ui.views;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -24,6 +25,7 @@ import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -366,6 +368,11 @@ public class AbapGitView extends ViewPart {
 
 		@Override
 		public void run() {
+			if (!MessageDialog.openConfirm(getSite().getShell(), "Unlink repository",
+					MessageFormat.format("Do you really want to unlink the repository {0} from package {1}?",
+							repository.getUrl(), repository.getPackage()))) {
+				return;
+			}
 			try {
 				PlatformUI.getWorkbench().getProgressService().busyCursorWhile(new IRunnableWithProgress() {
 
