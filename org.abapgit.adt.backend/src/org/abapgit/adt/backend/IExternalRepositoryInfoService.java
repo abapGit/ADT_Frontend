@@ -4,6 +4,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 public interface IExternalRepositoryInfoService {
 
-	IExternalRepositoryInfo getExternalRepositoryInfo(IProgressMonitor monitor);
+	IExternalRepositoryInfo getExternalRepositoryInfo(String url, String user, String password, IProgressMonitor monitor);
 
 }

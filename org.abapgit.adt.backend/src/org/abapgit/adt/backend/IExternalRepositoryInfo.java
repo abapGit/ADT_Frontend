@@ -1,13 +1,27 @@
 package org.abapgit.adt.backend;
 
-import java.util.Set;
+import java.util.List;
 
 public interface IExternalRepositoryInfo {
 
-	boolean requiresAuthentication();
+	public enum AccessMode {
+		PUBLIC, PRIVATE;
+	}
 
-	boolean getUri();
+	public interface IBranch {
+		String getSha1();
 
-	Set<String> getBranches();
+		String getName();
+
+		String getType();
+
+		boolean isHead();
+
+		String getDisplayName();
+	}
+
+	AccessMode getAccessMode();
+
+	List<IBranch> getBranches();
 
 }

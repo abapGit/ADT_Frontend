@@ -4,7 +4,6 @@ import java.net.URI;
 
 import org.abapgit.adt.backend.IExternalRepositoryInfo;
 import org.abapgit.adt.backend.IExternalRepositoryInfoService;
-import org.abapgit.adt.backend.IRepositories;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import com.sap.adt.communication.content.IContentHandler;
@@ -24,11 +23,20 @@ public class ExternalRepositoryInfoService implements IExternalRepositoryInfoSer
 	}
 
 	@Override
-	public IExternalRepositoryInfo getExternalRepositoryInfo(IProgressMonitor monitor) {
+	public IExternalRepositoryInfo getExternalRepositoryInfo(String url, String user, String password,
+			IProgressMonitor monitor) {
+
+		ExternalRepositoryInfoRequest externalInfoRequest = new ExternalRepositoryInfoRequest();
+		externalInfoRequest.setUrl(url);
+		externalInfoRequest.setUser(user);
+		externalInfoRequest.setPassword(password);
+
 		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory()
 				.createResourceWithStatelessSession(this.uri, this.destinationId);
 
-		IContentHandler<IRepositories> responseContentHandlerV1 = new RepositoriesContentHandlerV1();
+		IContentHandler<?> requestContentHandlerV1 = new ExternalRepositoryInfoRequestContentHandlerV1();
+		restResource.addContentHandler(requestContentHandlerV1);
+		IContentHandler<?> responseContentHandlerV1 = new ExternalRepositoryInfoResponseContentHandlerV1();
 		restResource.addContentHandler(responseContentHandlerV1);
 
 		IAdtCompatibleRestResourceFilter compatibilityFilter = AdtCompatibleRestResourceFilterFactory
@@ -36,7 +44,7 @@ public class ExternalRepositoryInfoService implements IExternalRepositoryInfoSer
 		restResource.addRequestFilter(compatibilityFilter);
 		restResource.addResponseFilter(compatibilityFilter);
 
-		return restResource.get(monitor, IExternalRepositoryInfo.class);
+		return restResource.post(monitor, IExternalRepositoryInfo.class, externalInfoRequest);
 	}
 
 }

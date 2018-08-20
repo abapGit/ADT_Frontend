@@ -70,7 +70,7 @@ public class RepositoryService implements IRepositoryService {
 		restResource.addRequestFilter(compatibilityFilter);
 		restResource.addResponseFilter(compatibilityFilter);
 
-		restResource.put(monitor, null, repository);
+		restResource.post(monitor, null, repository);
 	}
 
 	@Override
