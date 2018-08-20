@@ -1,5 +1,7 @@
 package org.abapgit.adt.ui.wizards;
 
+import java.net.URL;
+
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
 import org.eclipse.core.resources.IProject;

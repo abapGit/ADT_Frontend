@@ -1,6 +1,7 @@
 package org.abapgit.adt.ui.views;
 
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -10,8 +11,10 @@ import org.abapgit.adt.backend.RepositoryServiceFactory;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.wizards.AbapGitWizard;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
@@ -19,6 +22,7 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ISelection;
@@ -43,6 +47,8 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.statushandlers.StatusManager;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
 
 import com.sap.adt.destinations.ui.logon.AdtLogonServiceUIFactory;
 import com.sap.adt.project.ui.util.ProjectUtil;
@@ -276,8 +282,8 @@ public class MainView extends ViewPart {
 				// viewer.setInput(getRepositories());
 			}
 		};
-		this.actionSync.setText("Syncronize");
-		this.actionSync.setToolTipText("Syncronize");
+		this.actionSync.setText("Synchronize");
+		this.actionSync.setToolTipText("Synchronize");
 		this.actionSync
 				.setImageDescriptor(AbapGitUIPlugin.getDefault().getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
 		this.actionSync.setEnabled(false);
@@ -318,8 +324,10 @@ public class MainView extends ViewPart {
 		};
 		this.actionWizard.setText("Clone Repository");
 		this.actionWizard.setToolTipText("Clone Repository");
-		this.actionWizard
-				.setImageDescriptor(AbapGitUIPlugin.getDefault().getImageDescriptor(ISharedImages.IMG_OBJ_ADD));
+        Bundle bundle = FrameworkUtil.getBundle(this.getClass());
+        URL url = FileLocator.find(bundle,new Path("icons/etool/refresh.png"), null);
+        ImageDescriptor imageDescriptorRefresh = ImageDescriptor.createFromURL(url);
+		this.actionWizard.setImageDescriptor(imageDescriptorRefresh);
 		this.actionWizard.setEnabled(false);
 	}
 
