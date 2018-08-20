@@ -3,28 +3,35 @@ package org.abapgit.adt.ui.wizards;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 
+import org.abapgit.adt.backend.IExternalRepositoryInfo;
+import org.abapgit.adt.backend.IExternalRepositoryInfo.AccessMode;
+import org.abapgit.adt.backend.IExternalRepositoryInfoService;
+import org.abapgit.adt.backend.IRepositories;
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.dialogs.IPageChangingListener;
 import org.eclipse.jface.dialogs.PageChangingEvent;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.wizard.IWizardContainer;
-import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
+import org.eclipse.jface.wizard.WizardPage;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 
-import com.sap.adt.destinations.ui.logon.AdtLogonServiceUIFactory;
+import com.sap.adt.tools.core.model.adtcore.IAdtCoreFactory;
+import com.sap.adt.tools.core.model.adtcore.IAdtObjectReference;
 import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
 import com.sap.adt.transport.AdtTransportServiceFactory;
+import com.sap.adt.transport.IAdtTransportCheckData;
+import com.sap.adt.transport.IAdtTransportService;
 import com.sap.adt.transport.ui.wizard.AdtTransportSelectionWizardPageFactory;
 import com.sap.adt.transport.ui.wizard.IAdtTransportSelectionWizardPage;
 
@@ -37,6 +44,7 @@ public class AbapGitWizard extends Wizard {
 	private WizardPageOne one;
 	private WizardPageTwo two;
 	private WizardPageThree three;
+	private IAdtTransportService transportService;
 	private IAdtTransportSelectionWizardPage transportPage;
 
 	public AbapGitWizard(IProject project) {
@@ -61,8 +69,8 @@ public class AbapGitWizard extends Wizard {
 		one = new WizardPageOne();
 		two = new WizardPageTwo();
 		three = new WizardPageThree(project, destination);
-		this.transportPage = AdtTransportSelectionWizardPageFactory
-				.createTransportSelectionPage(AdtTransportServiceFactory.createTransportService(destination));
+		transportService = AdtTransportServiceFactory.createTransportService(destination);
+		this.transportPage = AdtTransportSelectionWizardPageFactory.createTransportSelectionPage(transportService);
 		addPage(one);
 		addPage(two);
 		addPage(three);
@@ -71,26 +79,29 @@ public class AbapGitWizard extends Wizard {
 
 	@Override
 	public boolean performFinish() {
-		IStatus logonStatus = AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(project);
-		if (!logonStatus.isOK()) {
-			return false;
-		}
-
 		try {
+			String url = one.getTxtUrl();
+			String branch = three.getTxtBranch();
+			String packageName = three.getTxtPackage();
+			String transportRequestNumber = transportPage.getTransportRequestNumber();
+			String user = two.getTxtUser();
+			String pass = two.getTxtPwd();
 			getContainer().run(true, true, new IRunnableWithProgress() {
 
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 					IRepositoryService repoService = RepositoryServiceFactory.createRepositoryService(destination,
 							monitor);
-
-					repoService.cloneRepository(one.getTxtUrl(), three.getTxtBranch(), three.getTxtPackage(),
-							transportPage.getTransportRequestNumber(), two.getTxtUser(), two.getTxtPwd(), monitor);
+					repoService.cloneRepository(url, branch, packageName, transportRequestNumber, user, pass, monitor);
 				}
 			});
 			return true;
-		} catch (InvocationTargetException | InterruptedException e) {
-			// TODO
+		} catch (InterruptedException e) {
+			return false;
+		} catch (InvocationTargetException e) {
+			((WizardPage) getContainer().getCurrentPage()).setPageComplete(false);
+			((WizardPage) getContainer().getCurrentPage()).setMessage(e.getTargetException().getMessage(),
+					DialogPage.ERROR);
 			return false;
 		}
 	}
@@ -111,22 +122,93 @@ public class AbapGitWizard extends Wizard {
 		@Override
 		public void handlePageChanging(final PageChangingEvent event) {
 
-			final IWizardPage currentPage = (IWizardPage) event.getCurrentPage();
-			// final IWizardPage targetPage = (IWizardPage) event.getTargetPage();
+			final WizardPage currentPage = (WizardPage) event.getCurrentPage();
+			final WizardPage targetPage = (WizardPage) event.getTargetPage();
 
-			try {
-				getContainer().run(true, true, new IRunnableWithProgress() {
-					@Override
-					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-						if (currentPage == three) { // NOPMD
-							three.callValidateInputFinal(monitor);
+			if (currentPage == one) { //NOPMD
+				try {
+					IRepositories[] repositories = new IRepositories[1];
+					getContainer().run(true, true, new IRunnableWithProgress() {
+
+						@Override
+						public void run(IProgressMonitor monitor)
+								throws InvocationTargetException, InterruptedException {
+							IRepositoryService repoService = RepositoryServiceFactory
+									.createRepositoryService(destination, monitor);
+
+							repositories[0] = repoService.getRepositories(monitor);
 						}
+					});
+					if (repositories[0].getRepositories().stream()
+							.anyMatch(r -> r.getUrl().toString().equals(one.getTxtUrl()))) {
+						currentPage.setPageComplete(false);
+						currentPage.setMessage("The repository is already in use", DialogPage.ERROR);
+						event.doit = false;
+						return;
 					}
-				});
-			} catch (InvocationTargetException e) {
-				event.doit = false;
-			} catch (InterruptedException e) {
-				event.doit = false;
+					currentPage.setPageComplete(true);
+					currentPage.setMessage(null);
+				} catch (InvocationTargetException e) {
+					currentPage.setPageComplete(false);
+					currentPage.setMessage(e.getTargetException().getMessage(), DialogPage.ERROR);
+					event.doit = false;
+					return;
+				} catch (InterruptedException e) {
+					event.doit = false;
+					return;
+				}
+			}
+			if ((currentPage == one || currentPage == two) && targetPage == three) { //NOPMD
+				try {
+					String url = one.getTxtUrl();
+					String user = two.getTxtUser();
+					String pwd = two.getTxtPwd();
+					IExternalRepositoryInfo[] externalRepoInfo = new IExternalRepositoryInfo[1];
+					getContainer().run(true, true, new IRunnableWithProgress() {
+
+						@Override
+						public void run(IProgressMonitor monitor)
+								throws InvocationTargetException, InterruptedException {
+							IExternalRepositoryInfoService externalRepoInfoService = RepositoryServiceFactory
+									.createExternalRepositoryInfoService(destination, monitor);
+							externalRepoInfo[0] = externalRepoInfoService.getExternalRepositoryInfo(url, user, pwd,
+									monitor);
+						}
+					});
+					// TODO: diable user/pw text controls (not needed)
+//					if (externalRepoInfo[0].getAccessMode() == AccessMode.PUBLIC && currentPage == one) { //NOPMD
+//					}
+					currentPage.setPageComplete(true);
+					currentPage.setMessage(null);
+					three.setBranches(externalRepoInfo[0].getBranches());
+				} catch (InvocationTargetException e) {
+					currentPage.setPageComplete(false);
+					currentPage.setMessage(e.getTargetException().getMessage(), DialogPage.ERROR);
+					event.doit = false;
+					return;
+				} catch (InterruptedException e) {
+					event.doit = false;
+					return;
+				}
+			} else if (currentPage == three && targetPage == transportPage) { //NOPMD
+				if (!three.validateInputFinal()) {
+					event.doit = false;
+					return;
+				}
+				try {
+					// The transport service requires URIs to objects we want to create in the
+					// target package.
+					// However, we do not know these URIs from the client.
+					// Instead, give it the URI of the package in which we clone.
+					IAdtObjectReference packageRef = three.getPackageRef();
+					IAdtObjectReference checkRef = IAdtCoreFactory.eINSTANCE.createAdtObjectReference();
+					checkRef.setUri(packageRef.getUri());
+					IAdtTransportCheckData checkData = transportService.check(checkRef, packageRef.getPackageName(),
+							true);
+					transportPage.setCheckData(checkData);
+				} catch (Exception e) {
+					currentPage.setMessage(e.getMessage(), DialogPage.ERROR);
+				}
 			}
 		}
 	}

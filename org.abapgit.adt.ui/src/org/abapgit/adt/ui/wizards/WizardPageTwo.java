@@ -11,85 +11,67 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 public class WizardPageTwo extends WizardPage {
-    private Text txtUser;
-    private Text txtPwd;
+	private Text txtUser;
+	private Text txtPwd;
 
-    public WizardPageTwo() {
-        super("Second Page");
-        setTitle("Git Repository Credentials");
-        setDescription("Enter your repository credentials, if it's private");
-        setControl(txtUser);
-    }
+	public WizardPageTwo() {
+		super("Second Page");
+		setTitle("Git credentials");
+		setDescription("Please input your git credentials if the repo is private");
+	}
 
-    @Override
-    public void createControl(Composite parent) {
-    	
-        Composite container = new Composite(parent, SWT.NONE);
-        GridLayout layout = new GridLayout();
-        GridData gd = new GridData(GridData.FILL_HORIZONTAL);
-        container.setLayout(layout);
-        layout.numColumns = 2;
-        
-        Label lblUser = new Label(container, SWT.NONE);
-        lblUser.setText("User");   
-        txtUser = new Text(container, SWT.BORDER | SWT.SINGLE);
-        txtUser.setText("");
-        
-        Label lblPwd = new Label(container, SWT.NONE);
-        lblPwd.setText("Password");  
-        txtPwd = new Text(container, SWT.BORDER | SWT.SINGLE);
+	@Override
+	public void createControl(Composite parent) {
+
+		Composite container = new Composite(parent, SWT.NONE);
+		GridLayout layout = new GridLayout();
+		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+		container.setLayout(layout);
+		layout.numColumns = 2;
+
+		Label lblUser = new Label(container, SWT.NONE);
+		lblUser.setText("User");
+		txtUser = new Text(container, SWT.BORDER | SWT.SINGLE);
+		txtUser.setText("");
+
+		Label lblPwd = new Label(container, SWT.NONE);
+		lblPwd.setText("Password");
+		txtPwd = new Text(container, SWT.BORDER | SWT.SINGLE);
 		txtPwd.setEchoChar('*');
-        txtPwd.setText("");      
-        
-                       
-		txtUser.addKeyListener(new KeyListener() {
+		txtPwd.setText("");
 
-            @Override
-            public void keyPressed(KeyEvent e) {
-                // TODO Auto-generated method stub
-            }
+		KeyListener mandatoryFieldKeyListener = new KeyListener() {
 
-            @Override
-            public void keyReleased(KeyEvent e) {
-                if (!txtUser.getText().isEmpty()) {
-                    setPageComplete(true);
-                }
-            }
+			@Override
+			public void keyPressed(KeyEvent e) {
+				// do nothing
+			}
 
-        });
-		
-		txtPwd.addKeyListener(new KeyListener() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				boolean pageComplete = !txtUser.getText().isEmpty() && !txtPwd.getText().isEmpty();
+				if (isPageComplete() != pageComplete) {
+					setPageComplete(pageComplete);
+				}
+			}
 
-            @Override
-            public void keyPressed(KeyEvent e) {
-                // TODO Auto-generated method stub
-            }
+		};
+		txtUser.addKeyListener(mandatoryFieldKeyListener);
+		txtPwd.addKeyListener(mandatoryFieldKeyListener);
 
-            @Override
-            public void keyReleased(KeyEvent e) {
-                if (!txtPwd.getText().isEmpty()) {
-                    setPageComplete(true);
-                }
-            }
+		txtUser.setLayoutData(gd);
+		txtPwd.setLayoutData(gd);
 
-        });
-		
-		
-        txtUser.setLayoutData(gd);
-        txtPwd.setLayoutData(gd);
+		setControl(container);
+		setPageComplete(true);
+	}
 
-        // required to avoid an error in the system
-        setControl(container);
-//        setPageComplete(false);
-        setPageComplete(true);
-    }
-    
-    public String getTxtUser() {
-        return txtUser.getText();
-    }
-    
-    public String getTxtPwd() {
-        return txtPwd.getText();
-    }
+	public String getTxtUser() {
+		return txtUser.getText();
+	}
+
+	public String getTxtPwd() {
+		return txtPwd.getText();
+	}
 
 }
