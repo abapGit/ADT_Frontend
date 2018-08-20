@@ -34,7 +34,6 @@ import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
-import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
@@ -269,9 +268,8 @@ public class AbapGitView extends ViewPart {
 				WizardDialog wizardDialog = new WizardDialog(viewer.getControl().getShell(),
 						new AbapGitWizard(lastProject));
 
-				if (wizardDialog.open() == Window.OK) {
-					updateView();
-				}
+				wizardDialog.open();
+				updateView();
 			}
 		};
 		this.actionWizard.setText("Clone Repository");
