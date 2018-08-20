@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import org.abapgit.adt.backend.IExternalRepositoryInfo.IBranch;
+import org.abapgit.adt.ui.wizards.AbapGitWizard.CloneData;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.DialogPage;
@@ -16,8 +17,6 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridLayout;
@@ -26,29 +25,31 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
 import com.sap.adt.tools.core.model.adtcore.IAdtObjectReference;
-import com.sap.adt.tools.core.project.IAbapProject;
 import com.sap.adt.tools.core.ui.packages.AdtPackageProposalProviderFactory;
 import com.sap.adt.tools.core.ui.packages.AdtPackageServiceUIFactory;
 import com.sap.adt.tools.core.ui.packages.IAdtPackageProposalProvider;
 import com.sap.adt.tools.core.ui.packages.IAdtPackageServiceUI;
+import com.sap.adt.util.ui.swt.AdtSWTUtilFactory;
 
 public class WizardPageThree extends WizardPage {
 
+	private static final String PAGE_NAME = WizardPageOne.class.getName();
+
 	private final IProject project;
 	private final String destination;
+	private final CloneData cloneData;
 
 	private TextViewer txtPackage;
 	private ComboViewer comboBranches;
 
-	private IAdtObjectReference packageRef;
-
-	public WizardPageThree(IProject project, String destination) {
-		super("");
+	public WizardPageThree(IProject project, String destination, CloneData cloneData) {
+		super(PAGE_NAME);
 		this.project = project;
 		this.destination = destination;
+		this.cloneData = cloneData;
 
 		setTitle("Branch and package selection");
-		setDescription("Please define repository branch and abap package");
+		setDescription("Select repository branch and target ABAP package");
 	}
 
 	@Override
@@ -59,20 +60,9 @@ public class WizardPageThree extends WizardPage {
 
 		/////// BRANCH INPUT
 		Label lblBranch = new Label(container, SWT.NONE);
-		lblBranch.setText("Branch");
+		lblBranch.setText("Branch:");
+		AdtSWTUtilFactory.getOrCreateSWTUtil().setMandatory(lblBranch, true);
 		GridDataFactory.swtDefaults().applyTo(lblBranch);
-
-//		txtBranch = new TextViewer(parent, SWT.SINGLE | SWT.BORDER);
-//		GridDataFactory.swtDefaults().span(2, 0).align(SWT.FILL, SWT.CENTER).grab(true, false)
-//				.applyTo(txtBranch.getTextWidget());
-//		txtBranch.getTextWidget().setText("refs/heads/master");
-//
-//		txtBranch.getTextWidget().addModifyListener(new ModifyListener() {
-//			@Override
-//			public void modifyText(ModifyEvent e) {
-//				callValidateInputOnChange();
-//			}
-//		});
 
 		this.comboBranches = new ComboViewer(container, SWT.BORDER);
 		GridDataFactory.swtDefaults().span(2, 0).align(SWT.FILL, SWT.CENTER).grab(true, false)
@@ -89,28 +79,24 @@ public class WizardPageThree extends WizardPage {
 			}
 
 		});
-		this.comboBranches.getCombo().addModifyListener(new ModifyListener() {
-
-			@Override
-			public void modifyText(ModifyEvent e) {
-				validateInputOnChange();
-			}
+		this.comboBranches.getCombo().addModifyListener(event -> {
+			cloneData.branch = comboBranches.getCombo().getText();
+			validateClientOnly();
 		});
 
 		/////// Package INPUT
 		Label lblPackage = new Label(container, SWT.NONE);
-		lblPackage.setText("Package");
+		lblPackage.setText("Package:");
+		AdtSWTUtilFactory.getOrCreateSWTUtil().setMandatory(lblPackage, true);
 		GridDataFactory.swtDefaults().applyTo(lblPackage);
 
 		txtPackage = new TextViewer(container, SWT.SINGLE | SWT.BORDER);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(txtPackage.getTextWidget());
 		txtPackage.getTextWidget().setText("");
 
-		txtPackage.getTextWidget().addModifyListener(new ModifyListener() {
-			@Override
-			public void modifyText(ModifyEvent e) {
-				validateInputOnChange();
-			}
+		txtPackage.getTextWidget().addModifyListener(event -> {
+			cloneData.packageRef = null;
+			validateClientOnly();
 		});
 
 		IAdtPackageProposalProvider packageProposalProvider = AdtPackageProposalProviderFactory
@@ -124,43 +110,32 @@ public class WizardPageThree extends WizardPage {
 		btnPackage.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				IAbapProject abapProject = project.getAdapter(IAbapProject.class);
 				IAdtPackageServiceUI packageServiceUI = AdtPackageServiceUIFactory.getOrCreateAdtPackageServiceUI();
 				IAdtObjectReference[] selectedPackages = packageServiceUI.openPackageSelectionDialog(
-						e.display.getActiveShell(), false, abapProject.getDestinationId(),
-						txtPackage.getTextWidget().getText());
+						e.display.getActiveShell(), false, destination, txtPackage.getTextWidget().getText());
 				if (selectedPackages != null && selectedPackages.length > 0) {
-					String text = selectedPackages[0].getName();
-					txtPackage.getTextWidget().setText(text);
+					txtPackage.getTextWidget().setText(selectedPackages[0].getName());
+					cloneData.packageRef = selectedPackages[0];
 				}
 			}
 		});
 
 		setControl(container);
 
-		validateInputOnChange();
+		validateClientOnly();
 	}
 
-	public String getTxtBranch() {
-		return comboBranches.getCombo().getText();
-	}
-
-	public String getTxtPackage() {
-		return txtPackage.getTextWidget().getText();
-	}
-
-	private boolean validateInputOnChange() {
+	private boolean validateClientOnly() {
 		setPageComplete(true);
 		setMessage(null);
-		packageRef = null;
 
-		if (getTxtBranch().isEmpty()) {
+		if (comboBranches.getCombo().getText().isEmpty()) {
 			setMessage("Specify a branch", DialogPage.INFORMATION);
 			setPageComplete(false);
 			return false;
 		}
 
-		if (getTxtPackage().isEmpty()) {
+		if (txtPackage.getTextWidget().getText().isEmpty()) {
 			setMessage("Specify a package", DialogPage.INFORMATION);
 			setPageComplete(false);
 			return false;
@@ -168,53 +143,58 @@ public class WizardPageThree extends WizardPage {
 		return true;
 	}
 
-	public boolean validateInputFinal() {
-		if (!validateInputOnChange()) {
+	public boolean validateAll() {
+		if (!validateClientOnly()) {
 			return false;
 		}
-		try {
-			String packageName = getTxtPackage();
-			boolean packageExists[] = new boolean[1];
-			getContainer().run(true, true, new IRunnableWithProgress() {
+		if (cloneData.packageRef == null) {
+			try {
+				String packageName = txtPackage.getTextWidget().getText();
+				getContainer().run(true, true, new IRunnableWithProgress() {
 
-				@Override
-				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-					// here perform the final, possibly long running checks
-					IAdtPackageServiceUI packageServiceUI = AdtPackageServiceUIFactory.getOrCreateAdtPackageServiceUI();
-					packageExists[0] = packageServiceUI.packageExists(destination, packageName, monitor);
-					if (packageExists[0]) {
-						List<IAdtObjectReference> packageRefs = packageServiceUI.find(destination, packageName,
-								monitor);
-						packageRef = packageRefs.stream().findFirst().orElse(null);
+					@Override
+					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+						monitor.beginTask("Validating package...", IProgressMonitor.UNKNOWN);
+						IAdtPackageServiceUI packageServiceUI = AdtPackageServiceUIFactory
+								.getOrCreateAdtPackageServiceUI();
+						if (packageServiceUI.packageExists(destination, packageName, monitor)) {
+							List<IAdtObjectReference> packageRefs = packageServiceUI.find(destination, packageName,
+									monitor);
+							cloneData.packageRef = packageRefs.stream().findFirst().orElse(null);
+						}
 					}
+				});
+				if (cloneData.packageRef == null) {
+					setMessage("Package does not exist", DialogPage.ERROR);
+					setPageComplete(false);
+					return false;
 				}
-			});
-			if (!packageExists[0]) {
-				setMessage("Package does not exist", DialogPage.ERROR);
+			} catch (InvocationTargetException e) {
+				setMessage(e.getTargetException().getMessage(), DialogPage.ERROR);
 				setPageComplete(false);
 				return false;
+			} catch (InterruptedException e) {
+				return false;
 			}
-		} catch (InvocationTargetException e) {
-			setMessage(e.getTargetException().getMessage(), DialogPage.ERROR);
-			setPageComplete(false);
-			return false;
-		} catch (InterruptedException e) {
-			return false;
 		}
 		return true;
 	}
 
-	public void setBranches(List<IBranch> branches) {
-		this.comboBranches.setInput(branches);
-		if (!branches.isEmpty()) {
-			IBranch selectedBranch = branches.stream().filter(b -> b.isHead()).findFirst()
-					.orElse(branches.stream().findFirst().get());
-			this.comboBranches.setSelection(new StructuredSelection(selectedBranch));
-		}
-	}
+	@Override
+	public void setVisible(boolean visible) {
+		super.setVisible(visible);
 
-	public IAdtObjectReference getPackageRef() {
-		return packageRef;
+		this.comboBranches.setInput(null);
+		this.comboBranches.setSelection(StructuredSelection.EMPTY);
+		if (this.cloneData.externalRepoInfo != null) {
+			List<IBranch> branches = this.cloneData.externalRepoInfo.getBranches();
+			this.comboBranches.setInput(branches);
+			if (!branches.isEmpty()) {
+				IBranch selectedBranch = branches.stream().filter(b -> b.isHead()).findFirst()
+						.orElse(branches.stream().findFirst().get());
+				this.comboBranches.setSelection(new StructuredSelection(selectedBranch));
+			}
+		}
 	}
 
 }
