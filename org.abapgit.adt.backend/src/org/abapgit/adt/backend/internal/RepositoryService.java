@@ -36,7 +36,7 @@ public class RepositoryService implements IRepositoryService {
 				.createFilter(responseContentHandlerV1);
 		restResource.addRequestFilter(compatibilityFilter);
 		restResource.addResponseFilter(compatibilityFilter);
-		
+
 		return restResource.get(monitor, IRepositories.class);
 	}
 
@@ -46,27 +46,27 @@ public class RepositoryService implements IRepositoryService {
 		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory()
 				.createResourceWithStatelessSession(this.uri, this.destinationId);
 
-		IContentHandler<IRepository> responseContentHandlerV1 = new RepositoryContentHandlerV1();
-		restResource.addContentHandler(responseContentHandlerV1);
+		IContentHandler<IRepository> requestContentHandlerV1 = new RepositoryContentHandlerV1();
+		restResource.addContentHandler(requestContentHandlerV1);
 
 		IRepository repository = new Repository();
 		repository.setUrl(url);
 		repository.setPackage(targetPackage);
 		repository.setBranch(branch);
-		
+
 		if (user != null && !user.isEmpty()) {
 			repository.setRemoteUser(user);
 		}
-		
+
 		if (password != null && !password.isEmpty()) {
 			repository.setPassword(password);
 		}
-		
+
 		repository.setTransportRequest(transportRequest);
 		repository.setPackage(targetPackage);
 
 		IAdtCompatibleRestResourceFilter compatibilityFilter = AdtCompatibleRestResourceFilterFactory
-				.createFilter(responseContentHandlerV1);
+				.createFilter(new IContentHandler[0]);
 		restResource.addRequestFilter(compatibilityFilter);
 		restResource.addResponseFilter(compatibilityFilter);
 
@@ -78,7 +78,7 @@ public class RepositoryService implements IRepositoryService {
 		URI uriToRepo = new UriBuilder(uri).addPathSegments(key).getUri();
 		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory()
 				.createResourceWithStatelessSession(uriToRepo, this.destinationId);
-				
+
 		restResource.delete(monitor);
 	}
 
