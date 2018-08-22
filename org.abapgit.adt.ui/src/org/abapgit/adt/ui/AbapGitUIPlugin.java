@@ -10,7 +10,7 @@ import org.osgi.framework.BundleContext;
 public class AbapGitUIPlugin extends AbstractUIPlugin {
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "org.abapgit.adt.ui";
+	public static final String PLUGIN_ID = "org.abapgit.adt.ui"; //$NON-NLS-1$
 
 	// The shared instance
 	private static AbapGitUIPlugin plugin;
