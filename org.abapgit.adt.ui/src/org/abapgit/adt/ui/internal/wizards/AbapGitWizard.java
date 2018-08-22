@@ -107,15 +107,13 @@ public class AbapGitWizard extends Wizard {
 		@Override
 		public void handlePageChanging(final PageChangingEvent event) {
 
-			final WizardPage currentPage = (WizardPage) event.getCurrentPage();
-			final WizardPage targetPage = (WizardPage) event.getTargetPage();
-
-			if (currentPage == AbapGitWizard.this.pageRepo && targetPage == AbapGitWizard.this.pageBranchAndPackage) { // NOPMD
+			if (event.getCurrentPage() == AbapGitWizard.this.pageRepo && event.getTargetPage() == AbapGitWizard.this.pageBranchAndPackage) {
 				if (!AbapGitWizard.this.pageRepo.validateAll()) {
 					event.doit = false;
 					return;
 				}
-			} else if (currentPage == AbapGitWizard.this.pageBranchAndPackage && targetPage == AbapGitWizard.this.transportPage) { // NOPMD
+			} else if (event.getCurrentPage() == AbapGitWizard.this.pageBranchAndPackage
+					&& event.getTargetPage() == AbapGitWizard.this.transportPage) {
 				if (!AbapGitWizard.this.pageBranchAndPackage.validateAll()) {
 					event.doit = false;
 					return;
@@ -132,7 +130,7 @@ public class AbapGitWizard extends Wizard {
 							true);
 					AbapGitWizard.this.transportPage.setCheckData(checkData);
 				} catch (Exception e) {
-					currentPage.setMessage(e.getMessage(), DialogPage.ERROR);
+					AbapGitWizard.this.pageBranchAndPackage.setMessage(e.getMessage(), DialogPage.ERROR);
 				}
 			}
 		}
