@@ -1,4 +1,4 @@
-package org.abapgit.adt.ui.wizards;
+package org.abapgit.adt.ui.internal.wizards;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -7,7 +7,7 @@ import org.abapgit.adt.backend.IRepositories;
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
-import org.abapgit.adt.ui.i18n.Messages;
+import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;

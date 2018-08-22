@@ -1,8 +1,6 @@
-package org.abapgit.adt.ui.views;
+package org.abapgit.adt.ui.internal.views;
 
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
-import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -13,13 +11,11 @@ import org.abapgit.adt.backend.IRepository;
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
-import org.abapgit.adt.ui.i18n.Messages;
-import org.abapgit.adt.ui.wizards.AbapGitWizard;
+import org.abapgit.adt.ui.internal.i18n.Messages;
+import org.abapgit.adt.ui.internal.wizards.AbapGitWizard;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
@@ -28,7 +24,6 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ISelection;
@@ -38,6 +33,7 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.wizard.WizardDialog;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
@@ -51,10 +47,10 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.statushandlers.StatusManager;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.FrameworkUtil;
 
+import com.sap.adt.destinations.logon.AdtLogonServiceFactory;
 import com.sap.adt.destinations.ui.logon.AdtLogonServiceUIFactory;
 import com.sap.adt.project.ui.util.ProjectUtil;
 import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
@@ -66,14 +62,7 @@ public class AbapGitView extends ViewPart {
 	private TableViewer viewer;
 	private Action actionRefresh, actionWizard;
 	private ISelection lastSelection;
-
-	@Override
-	public void init(IViewSite site) throws PartInitException {
-		super.init(site);
-
-		ISelection selection = getSite().getPage().getSelection();
-		this.lastSelection = selection;
-	}
+	private IProject lastProject;
 
 	private final ISelectionListener selectionListener = new ISelectionListener() {
 		private boolean isUpdatingSelection = false;
@@ -106,7 +95,13 @@ public class AbapGitView extends ViewPart {
 		}
 	};
 
-	private IProject lastProject;
+	@Override
+	public void init(IViewSite site) throws PartInitException {
+		super.init(site);
+
+		ISelection selection = getSite().getPage().getSelection();
+		this.lastSelection = selection;
+	}
 
 	private boolean checkIfPageIsVisible() {
 		return getViewSite().getPage().isPartVisible(this);
@@ -116,7 +111,7 @@ public class AbapGitView extends ViewPart {
 		IProject currentProject = ProjectUtil.getActiveAdtCoreProject(this.lastSelection, null, null, null);
 		if (currentProject != this.lastProject) {
 			this.lastProject = currentProject;
-			updateView();
+			updateView(false);
 		}
 
 		this.lastSelection = null;
@@ -136,7 +131,7 @@ public class AbapGitView extends ViewPart {
 
 		@Override
 		public Image getImage(Object obj) {
-			return AbapGitUIPlugin.getDefault().getImageDescriptor(ISharedImages.IMG_TOOL_REDO).createImage();
+			return PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_REDO).createImage();
 		}
 	}
 
@@ -150,13 +145,15 @@ public class AbapGitView extends ViewPart {
 		makeActions();
 		hookContextMenu();
 		contributeToActionBars();
+
+		updateView(false);
+
 		// add listener for selections
 		getSite().getPage().addPostSelectionListener(this.selectionListener);
 	}
 
 	private void setupViewer(Composite parent) {
 		this.viewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
-		this.viewer.getControl().setEnabled(false);
 		Table table = this.viewer.getTable();
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
@@ -255,16 +252,13 @@ public class AbapGitView extends ViewPart {
 	private void makeActions() {
 		this.actionRefresh = new Action() {
 			public void run() {
-				updateView();
+				updateView(true);
 			}
 		};
 		this.actionRefresh.setText(Messages.AbapGitView_action_refresh);
 		this.actionRefresh.setToolTipText(Messages.AbapGitView_action_refresh);
-		Bundle bundle = FrameworkUtil.getBundle(this.getClass());
-		URL url = FileLocator.find(bundle, new Path("icons/etool/refresh.png"), null); //$NON-NLS-1$
-		ImageDescriptor imageDescriptorRefresh = ImageDescriptor.createFromURL(url);
-		this.actionRefresh.setImageDescriptor(imageDescriptorRefresh);
-		this.actionRefresh.setEnabled(false);
+		this.actionRefresh
+				.setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID, "icons/etool/refresh.png")); //$NON-NLS-1$
 
 		this.actionWizard = new Action() {
 			public void run() {
@@ -273,39 +267,28 @@ public class AbapGitView extends ViewPart {
 						new AbapGitWizard(AbapGitView.this.lastProject));
 
 				wizardDialog.open();
-				updateView();
+				updateView(false);
 			}
 		};
 		this.actionWizard.setText(Messages.AbapGitView_action_clone);
 		this.actionWizard.setToolTipText(Messages.AbapGitView_action_clone);
-		this.actionWizard
-				.setImageDescriptor(AbapGitUIPlugin.getDefault().getImageDescriptor(ISharedImages.IMG_OBJ_ADD));
-		this.actionWizard.setEnabled(false);
+		this.actionWizard.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJ_ADD));
 	}
 
-	private List<IRepository> getRepositories() {
-		if (this.lastProject == null) {
-			return null;
-		}
-
-		IStatus logonStatus = AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(this.lastProject);
-		if (!logonStatus.isOK()) {
-			return null;
-		}
-
-		String destinationId = getDestination(this.lastProject);
+	private List<IRepository> getRepositories(String destinationId) {
 		List<IRepository> repos = new LinkedList<>();
+		boolean[] isSupported = new boolean[1];
 		try {
 			PlatformUI.getWorkbench().getProgressService().busyCursorWhile(new IRunnableWithProgress() {
 
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 					monitor.beginTask(Messages.AbapGitView_task_fetch_repos, IProgressMonitor.UNKNOWN);
-					IRepositoryService repoService = RepositoryServiceFactory.createRepositoryService(destinationId,
-							monitor);
+					IRepositoryService repoService = RepositoryServiceFactory.createRepositoryService(destinationId, monitor);
 					if (repoService == null) {
 						return;
 					}
+					isSupported[0] = true;
 					repos.addAll(repoService.getRepositories(monitor).getRepositories());
 				}
 			});
@@ -315,27 +298,51 @@ public class AbapGitView extends ViewPart {
 					Messages.AbapGitView_task_fetch_repos_error, e.getTargetException()), StatusManager.SHOW);
 		} catch (InterruptedException e) {
 		}
-		return repos;
+		if (isSupported[0]) {
+			return repos;
+		} else {
+			return null;
+		}
 	}
 
 	private static String getDestination(IProject project) {
 		return AdtProjectServiceFactory.createProjectService().getDestinationId(project);
 	}
 
-	private void updateView() {
-		List<IRepository> repos = getRepositories();
+	private void updateView(boolean ensureLogon) {
+		if (this.lastProject == null) {
+			setContentDescription(Messages.AbapGitView_no_abap_project);
+			setControlsEnabled(false);
+			this.viewer.setInput(null);
+			return;
+		}
 
-		if (repos != null && !repos.isEmpty()) {
-			this.viewer.getControl().setEnabled(true);
-			this.actionRefresh.setEnabled(true);
-			this.actionWizard.setEnabled(true);
+		setControlsEnabled(true);
+		String destinationId = getDestination(this.lastProject);
+		if (!AdtLogonServiceFactory.createLogonService().isLoggedOn(destinationId)
+				&& (!ensureLogon || !AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(this.lastProject).isOK())) {
+			setContentDescription(NLS.bind(Messages.AbapGitView_repos_not_loaded, this.lastProject.getName()));
+			this.viewer.setInput(null);
+			return;
+		}
+
+		List<IRepository> repos = getRepositories(destinationId);
+
+		if (repos != null) {
+			setContentDescription(NLS.bind(Messages.AbapGitView_repos_in_project, this.lastProject.getName()));
+			setControlsEnabled(true);
 			this.viewer.setInput(repos);
 		} else {
-			this.viewer.getControl().setEnabled(false);
-			this.actionRefresh.setEnabled(false);
-			this.actionWizard.setEnabled(true);
+			setContentDescription(NLS.bind(Messages.AbapGitView_not_supported, this.lastProject.getName()));
+			setControlsEnabled(false);
 			this.viewer.setInput(null);
 		}
+	}
+
+	private void setControlsEnabled(boolean enabled) {
+		this.viewer.getControl().setEnabled(enabled);
+		this.actionRefresh.setEnabled(enabled);
+		this.actionWizard.setEnabled(enabled);
 	}
 
 	/**
@@ -371,8 +378,7 @@ public class AbapGitView extends ViewPart {
 		@Override
 		public void run() {
 			if (!MessageDialog.openConfirm(getSite().getShell(), Messages.AbapGitView_context_dialog_unlink_title,
-					MessageFormat.format(Messages.AbapGitView_context_dialog_unlink_message,
-							this.repository.getUrl(), this.repository.getPackage()))) {
+					NLS.bind(Messages.AbapGitView_context_dialog_unlink_message, this.repository.getUrl(), this.repository.getPackage()))) {
 				return;
 			}
 			try {
@@ -384,7 +390,7 @@ public class AbapGitView extends ViewPart {
 								.unlinkRepository(UnlinkAction.this.repository.getKey(), monitor);
 					}
 				});
-				updateView();
+				updateView(true);
 			} catch (InvocationTargetException e) {
 				StatusManager.getManager().handle(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID,
 						Messages.AbapGitView_context_unlink_error, e.getTargetException()), StatusManager.SHOW);

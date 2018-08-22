@@ -6,11 +6,6 @@ Bundle-Version: 0.1.0.qualifier
 Bundle-ClassPath: .
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime;bundle-version="[3.12.0,4.0.0)",
- org.eclipse.core.resources;bundle-version="[3.11.0,4.0.0)",
- org.eclipse.core.databinding;bundle-version="[1.6.0,2.0.0)",
- com.sap.adt.tools.core;bundle-version="[2.89.1,3.0.0)",
- com.sap.adt.destinations.model;bundle-version="[2.89.1,3.0.0)",
- com.sap.adt.destinations;bundle-version="[2.89.1,3.0.0)",
  com.sap.adt.compatibility;bundle-version="[2.89.1,3.0.0)",
  com.sap.adt.communication;bundle-version="[2.89.1,3.0.0)"
 Automatic-Module-Name: org.abapgit.adt.backend
@@ -18,6 +13,3 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Eclipse-ExtensibleAPI: true
 Export-Package: org.abapgit.adt.backend;x-friends:="org.abapgit.adt.ui"
-Import-Package: com.sap.adt.project.ui.util,
- org.eclipse.jface.viewers,
- org.eclipse.swt.widgets
