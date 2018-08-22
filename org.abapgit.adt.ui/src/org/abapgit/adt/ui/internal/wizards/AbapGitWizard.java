@@ -52,7 +52,7 @@ public class AbapGitWizard extends Wizard {
 		setNeedsProgressMonitor(true);
 
 		setDefaultPageImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID,
-				"icons/wizban/abapgit_import_wizban.png")); //$NON-NLS-1$
+				"icons/wizban/abapGit_import_wizban.png")); //$NON-NLS-1$
 	}
 
 	@Override
