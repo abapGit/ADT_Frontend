@@ -262,7 +262,9 @@ public class AbapGitView extends ViewPart {
 
 		this.actionWizard = new Action() {
 			public void run() {
-
+				if (!AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(AbapGitView.this.lastProject).isOK()) {
+					return;
+				}
 				WizardDialog wizardDialog = new WizardDialog(AbapGitView.this.viewer.getControl().getShell(),
 						new AbapGitWizard(AbapGitView.this.lastProject));
 
@@ -382,6 +384,9 @@ public class AbapGitView extends ViewPart {
 				return;
 			}
 			try {
+				if (!AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(this.project).isOK()) {
+					return;
+				}
 				PlatformUI.getWorkbench().getProgressService().busyCursorWhile(new IRunnableWithProgress() {
 
 					@Override
