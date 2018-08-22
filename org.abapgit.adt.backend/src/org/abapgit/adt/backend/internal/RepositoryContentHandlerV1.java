@@ -45,7 +45,7 @@ public class RepositoryContentHandlerV1 implements IContentHandler<IRepository> 
 			xmlStreamWriter.writeEndDocument();
 			return new ByteArrayMessageBody(getSupportedContentType(), outputStream.toByteArray());
 		} catch (XMLStreamException e) {
-			throw new ContentHandlerException("Error serializing repository", e);
+			throw new ContentHandlerException("Error serializing repository", e); //$NON-NLS-1$
 		}
 	}
 

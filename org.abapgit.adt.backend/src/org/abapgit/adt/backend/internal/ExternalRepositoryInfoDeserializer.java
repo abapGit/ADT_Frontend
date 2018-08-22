@@ -82,7 +82,7 @@ public class ExternalRepositoryInfoDeserializer {
 		case "public": //$NON-NLS-1$
 			return AccessMode.PUBLIC;
 		default:
-			throw new ContentHandlingException("Unsupported access mode: " + accessModeString);
+			throw new ContentHandlingException("Unsupported access mode: " + accessModeString); //$NON-NLS-1$
 		}
 	}
 }

@@ -45,7 +45,7 @@ public class ExternalRepositoryInfoRequestContentHandlerV1 implements IContentHa
 			xmlStreamWriter.writeEndDocument();
 			return new ByteArrayMessageBody(getSupportedContentType(), outputStream.toByteArray());
 		} catch (XMLStreamException e) {
-			throw new ContentHandlerException("Error serializing external repository info request", e);
+			throw new ContentHandlerException("Error serializing external repository info request", e); //$NON-NLS-1$
 		}
 	}
 

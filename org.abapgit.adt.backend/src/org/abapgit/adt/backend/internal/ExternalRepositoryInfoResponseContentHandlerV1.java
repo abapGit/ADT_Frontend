@@ -23,7 +23,7 @@ public class ExternalRepositoryInfoResponseContentHandlerV1 implements IContentH
 			XMLStreamReader xmlStreamReader = xmlInputFactory.createXMLStreamReader(body.getContent());
 			return new ExternalRepositoryInfoDeserializer().deserializeExternalRepositoryInfo(xmlStreamReader);
 		} catch (IOException | XMLStreamException e) {
-			throw new ContentHandlerException("Error parsing external repository info", e);
+			throw new ContentHandlerException("Error parsing external repository info", e); //$NON-NLS-1$
 		}
 	}
 
