@@ -37,8 +37,8 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 		super(PAGE_NAME);
 		this.destination = destination;
 		this.cloneData = cloneData;
-		setTitle("Git repository");
-		setDescription("Specify git repository");
+		setTitle("Clone abapGit Repository");
+		setDescription("Specify a abapGit Repository");
 	}
 
 	@Override
@@ -151,7 +151,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 				setUserAndPassControlsVisible(true);
 				txtUser.setFocus();
 				setPageComplete(false);
-				setMessage("The repository is private. Please provide user and password", DialogPage.ERROR);
+				setMessage("The abapGit repository is private. Please provide user and password", DialogPage.ERROR);
 				return false;
 			} else {
 				// update the info, now that we have proper user/password
