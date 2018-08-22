@@ -1,9 +1,9 @@
-package org.abapgit.adt.ui.i18n;
+package org.abapgit.adt.ui.internal.i18n;
 
 import org.eclipse.osgi.util.NLS;
 
 public class Messages extends NLS {
-	private static final String BUNDLE_NAME = "org.abapgit.adt.ui.i18n.messages"; //$NON-NLS-1$
+	private static final String BUNDLE_NAME = "org.abapgit.adt.ui.internal.i18n.messages"; //$NON-NLS-1$
 	public static String AbapGitView_action_clone;
 	public static String AbapGitView_action_refresh;
 	public static String AbapGitView_column_branch;
@@ -15,6 +15,10 @@ public class Messages extends NLS {
 	public static String AbapGitView_context_dialog_unlink_title;
 	public static String AbapGitView_context_unlink;
 	public static String AbapGitView_context_unlink_error;
+	public static String AbapGitView_no_abap_project;
+	public static String AbapGitView_not_supported;
+	public static String AbapGitView_repos_in_project;
+	public static String AbapGitView_repos_not_loaded;
 	public static String AbapGitView_task_fetch_repos;
 	public static String AbapGitView_task_fetch_repos_error;
 	public static String AbapGitWizard_title;

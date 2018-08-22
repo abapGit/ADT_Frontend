@@ -14,8 +14,7 @@ import com.sap.adt.communication.content.ContentHandlingException;
 
 public class ExternalRepositoryInfoDeserializer {
 
-	public IExternalRepositoryInfo deserializeExternalRepositoryInfo(XMLStreamReader xmlReader)
-			throws XMLStreamException {
+	public IExternalRepositoryInfo deserializeExternalRepositoryInfo(XMLStreamReader xmlReader) throws XMLStreamException {
 		ExternalRepositoryInfo externalRepositoryInfo = new ExternalRepositoryInfo();
 
 		while (xmlReader.hasNext()) {
@@ -24,7 +23,10 @@ public class ExternalRepositoryInfoDeserializer {
 			case XMLStreamConstants.START_ELEMENT:
 				switch (xmlReader.getLocalName()) {
 				case "branch": //$NON-NLS-1$
-					externalRepositoryInfo.addBranch(deserializeBranch(xmlReader));
+					IBranch branch = deserializeBranch(xmlReader);
+					if (!"HEAD".equals(branch.getName())) { //$NON-NLS-1$
+						externalRepositoryInfo.addBranch(branch);
+					}
 					break;
 				case "access_mode": //$NON-NLS-1$
 					externalRepositoryInfo.setAccessMode(getAccessModeFromString(xmlReader.getElementText()));
@@ -43,7 +45,8 @@ public class ExternalRepositoryInfoDeserializer {
 
 	private IBranch deserializeBranch(XMLStreamReader xmlReader) throws XMLStreamException {
 		Branch branch = new Branch();
-		while (xmlReader.hasNext()) {
+		int depth = 0;
+		loop: while (xmlReader.hasNext()) {
 			int next = xmlReader.next();
 			switch (next) {
 			case XMLStreamConstants.START_ELEMENT:
@@ -64,8 +67,15 @@ public class ExternalRepositoryInfoDeserializer {
 					branch.setIsHead("X".equals(xmlReader.getElementText())); //$NON-NLS-1$
 					break;
 				default:
+					depth++;
 					break;
 				}
+				break;
+			case XMLStreamConstants.END_ELEMENT:
+				if (depth == 0) {
+					break loop;
+				}
+				depth--;
 				break;
 			default:
 				break;

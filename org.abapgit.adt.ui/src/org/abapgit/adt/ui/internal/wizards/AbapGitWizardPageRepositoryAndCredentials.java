@@ -1,4 +1,4 @@
-package org.abapgit.adt.ui.wizards;
+package org.abapgit.adt.ui.internal.wizards;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -6,8 +6,8 @@ import org.abapgit.adt.backend.IExternalRepositoryInfo.AccessMode;
 import org.abapgit.adt.backend.IExternalRepositoryInfoService;
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
-import org.abapgit.adt.ui.i18n.Messages;
-import org.abapgit.adt.ui.wizards.AbapGitWizard.CloneData;
+import org.abapgit.adt.ui.internal.i18n.Messages;
+import org.abapgit.adt.ui.internal.wizards.AbapGitWizard.CloneData;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.operation.IRunnableWithProgress;

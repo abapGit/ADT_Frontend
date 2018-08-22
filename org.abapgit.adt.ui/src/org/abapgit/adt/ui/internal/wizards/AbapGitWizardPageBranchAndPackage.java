@@ -1,11 +1,11 @@
-package org.abapgit.adt.ui.wizards;
+package org.abapgit.adt.ui.internal.wizards;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import org.abapgit.adt.backend.IExternalRepositoryInfo.IBranch;
-import org.abapgit.adt.ui.i18n.Messages;
-import org.abapgit.adt.ui.wizards.AbapGitWizard.CloneData;
+import org.abapgit.adt.ui.internal.i18n.Messages;
+import org.abapgit.adt.ui.internal.wizards.AbapGitWizard.CloneData;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.DialogPage;
@@ -66,8 +66,7 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 		GridDataFactory.swtDefaults().applyTo(lblBranch);
 
 		this.comboBranches = new ComboViewer(container, SWT.BORDER);
-		GridDataFactory.swtDefaults().span(2, 0).align(SWT.FILL, SWT.CENTER).grab(true, false)
-				.applyTo(comboBranches.getControl());
+		GridDataFactory.swtDefaults().span(2, 0).align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(this.comboBranches.getControl());
 		this.comboBranches.setContentProvider(ArrayContentProvider.getInstance());
 		this.comboBranches.setLabelProvider(new LabelProvider() {
 
@@ -81,7 +80,7 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 
 		});
 		this.comboBranches.getCombo().addModifyListener(event -> {
-			cloneData.branch = comboBranches.getCombo().getText();
+			this.cloneData.branch = this.comboBranches.getCombo().getText();
 			validateClientOnly();
 		});
 
@@ -91,18 +90,18 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 		AdtSWTUtilFactory.getOrCreateSWTUtil().setMandatory(lblPackage, true);
 		GridDataFactory.swtDefaults().applyTo(lblPackage);
 
-		txtPackage = new TextViewer(container, SWT.SINGLE | SWT.BORDER);
-		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(txtPackage.getTextWidget());
-		txtPackage.getTextWidget().setText(""); //$NON-NLS-1$
+		this.txtPackage = new TextViewer(container, SWT.SINGLE | SWT.BORDER);
+		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(this.txtPackage.getTextWidget());
+		this.txtPackage.getTextWidget().setText(""); //$NON-NLS-1$
 
-		txtPackage.getTextWidget().addModifyListener(event -> {
-			cloneData.packageRef = null;
+		this.txtPackage.getTextWidget().addModifyListener(event -> {
+			this.cloneData.packageRef = null;
 			validateClientOnly();
 		});
 
 		IAdtPackageProposalProvider packageProposalProvider = AdtPackageProposalProviderFactory
-				.createPackageProposalProvider(txtPackage);
-		packageProposalProvider.setProject(project);
+				.createPackageProposalProvider(this.txtPackage);
+		packageProposalProvider.setProject(this.project);
 
 		Button btnPackage = new Button(container, SWT.PUSH);
 		GridDataFactory.swtDefaults().applyTo(btnPackage);
@@ -112,11 +111,12 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				IAdtPackageServiceUI packageServiceUI = AdtPackageServiceUIFactory.getOrCreateAdtPackageServiceUI();
-				IAdtObjectReference[] selectedPackages = packageServiceUI.openPackageSelectionDialog(
-						e.display.getActiveShell(), false, destination, txtPackage.getTextWidget().getText());
+				IAdtObjectReference[] selectedPackages = packageServiceUI.openPackageSelectionDialog(e.display.getActiveShell(), false,
+						AbapGitWizardPageBranchAndPackage.this.destination,
+						AbapGitWizardPageBranchAndPackage.this.txtPackage.getTextWidget().getText());
 				if (selectedPackages != null && selectedPackages.length > 0) {
-					txtPackage.getTextWidget().setText(selectedPackages[0].getName());
-					cloneData.packageRef = selectedPackages[0];
+					AbapGitWizardPageBranchAndPackage.this.txtPackage.getTextWidget().setText(selectedPackages[0].getName());
+					AbapGitWizardPageBranchAndPackage.this.cloneData.packageRef = selectedPackages[0];
 				}
 			}
 		});
@@ -130,13 +130,13 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 		setPageComplete(true);
 		setMessage(null);
 
-		if (comboBranches.getCombo().getText().isEmpty()) {
+		if (this.comboBranches.getCombo().getText().isEmpty()) {
 			setMessage(Messages.AbapGitWizardPageBranchAndPackage_combobox_branch_message, DialogPage.INFORMATION);
 			setPageComplete(false);
 			return false;
 		}
 
-		if (txtPackage.getTextWidget().getText().isEmpty()) {
+		if (this.txtPackage.getTextWidget().getText().isEmpty()) {
 			setMessage(Messages.AbapGitWizardPageBranchAndPackage_text_package_message, DialogPage.INFORMATION);
 			setPageComplete(false);
 			return false;
@@ -148,24 +148,24 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 		if (!validateClientOnly()) {
 			return false;
 		}
-		if (cloneData.packageRef == null) {
+		if (this.cloneData.packageRef == null) {
 			try {
-				String packageName = txtPackage.getTextWidget().getText();
+				String packageName = this.txtPackage.getTextWidget().getText();
 				getContainer().run(true, true, new IRunnableWithProgress() {
 
 					@Override
 					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-						monitor.beginTask(Messages.AbapGitWizardPageBranchAndPackage_task_package_validation_message, IProgressMonitor.UNKNOWN);
-						IAdtPackageServiceUI packageServiceUI = AdtPackageServiceUIFactory
-								.getOrCreateAdtPackageServiceUI();
-						if (packageServiceUI.packageExists(destination, packageName, monitor)) {
-							List<IAdtObjectReference> packageRefs = packageServiceUI.find(destination, packageName,
-									monitor);
-							cloneData.packageRef = packageRefs.stream().findFirst().orElse(null);
+						monitor.beginTask(Messages.AbapGitWizardPageBranchAndPackage_task_package_validation_message,
+								IProgressMonitor.UNKNOWN);
+						IAdtPackageServiceUI packageServiceUI = AdtPackageServiceUIFactory.getOrCreateAdtPackageServiceUI();
+						if (packageServiceUI.packageExists(AbapGitWizardPageBranchAndPackage.this.destination, packageName, monitor)) {
+							List<IAdtObjectReference> packageRefs = packageServiceUI
+									.find(AbapGitWizardPageBranchAndPackage.this.destination, packageName, monitor);
+							AbapGitWizardPageBranchAndPackage.this.cloneData.packageRef = packageRefs.stream().findFirst().orElse(null);
 						}
 					}
 				});
-				if (cloneData.packageRef == null) {
+				if (this.cloneData.packageRef == null) {
 					setMessage(Messages.AbapGitWizardPageBranchAndPackage_task_package_validation_error_message, DialogPage.ERROR);
 					setPageComplete(false);
 					return false;
@@ -185,15 +185,17 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 	public void setVisible(boolean visible) {
 		super.setVisible(visible);
 
-		this.comboBranches.setInput(null);
-		this.comboBranches.setSelection(StructuredSelection.EMPTY);
-		if (this.cloneData.externalRepoInfo != null) {
-			List<IBranch> branches = this.cloneData.externalRepoInfo.getBranches();
-			this.comboBranches.setInput(branches);
-			if (!branches.isEmpty()) {
-				IBranch selectedBranch = branches.stream().filter(b -> b.isHead()).findFirst()
-						.orElse(branches.stream().findFirst().get());
-				this.comboBranches.setSelection(new StructuredSelection(selectedBranch));
+		if (visible) {
+			this.comboBranches.setInput(null);
+			this.comboBranches.setSelection(StructuredSelection.EMPTY);
+			if (this.cloneData.externalRepoInfo != null) {
+				List<IBranch> branches = this.cloneData.externalRepoInfo.getBranches();
+				this.comboBranches.setInput(branches);
+				if (!branches.isEmpty()) {
+					IBranch selectedBranch = branches.stream().filter(b -> b.isHead()).findFirst()
+							.orElse(branches.stream().findFirst().get());
+					this.comboBranches.setSelection(new StructuredSelection(selectedBranch));
+				}
 			}
 		}
 	}
