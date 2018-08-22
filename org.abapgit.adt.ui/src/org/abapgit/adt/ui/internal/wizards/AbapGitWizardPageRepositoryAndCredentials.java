@@ -8,10 +8,12 @@ import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard.CloneData;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.WizardPage;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -25,6 +27,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 
 	private static final String PAGE_NAME = AbapGitWizardPageRepositoryAndCredentials.class.getName();
 
+	private final IProject project;
 	private final String destination;
 	private final CloneData cloneData;
 
@@ -34,8 +37,11 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 	private Label lblUser;
 	private Label lblPwd;
 
-	public AbapGitWizardPageRepositoryAndCredentials(String destination, CloneData cloneData) {
+	private boolean wasVisibleBefore;
+
+	public AbapGitWizardPageRepositoryAndCredentials(IProject project, String destination, CloneData cloneData) {
 		super(PAGE_NAME);
+		this.project = project;
 		this.destination = destination;
 		this.cloneData = cloneData;
 		setTitle(Messages.AbapGitWizardPageRepositoryAndCredentials_title);
@@ -94,6 +100,37 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 
 		setControl(container);
 		setPageComplete(false);
+	}
+
+	@Override
+	public void setVisible(boolean visible) {
+		if (visible && !this.wasVisibleBefore) {
+			this.wasVisibleBefore = true;
+			boolean isSupported[] = new boolean[1];
+			try {
+				getContainer().run(true, true, new IRunnableWithProgress() {
+
+					@Override
+					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+						monitor.beginTask(Messages.AbapGitWizardPageRepositoryAndCredentials_task_check_compatibility,
+								IProgressMonitor.UNKNOWN);
+						isSupported[0] = RepositoryServiceFactory
+								.createRepositoryService(AbapGitWizardPageRepositoryAndCredentials.this.destination, monitor) != null;
+					}
+				});
+				if (!isSupported[0]) {
+					setPageComplete(false);
+					setMessage(NLS.bind(Messages.AbapGitView_not_supported, this.project.getName()), DialogPage.ERROR);
+					return;
+				}
+			} catch (InvocationTargetException | InterruptedException e) {
+				setPageComplete(false);
+				setMessage(e.getMessage(), DialogPage.ERROR);
+				return;
+			}
+		}
+
+		super.setVisible(visible);
 	}
 
 	private boolean validateClientOnly() {
