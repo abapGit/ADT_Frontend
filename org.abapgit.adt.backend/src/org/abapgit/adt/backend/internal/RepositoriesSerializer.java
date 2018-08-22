@@ -17,7 +17,7 @@ public class RepositoriesSerializer {
 			switch (next) {
 			case XMLStreamConstants.START_ELEMENT:
 				switch (xmlReader.getLocalName()) {
-				case "repository":
+				case "repository": //$NON-NLS-1$
 					repositories.add(new RepositorySerializer().deserializeRepository(xmlReader, contentType));
 					break;
 				default:

@@ -27,9 +27,9 @@ public class Repositories implements IRepositories {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("Repositories [repositories=");
-		builder.append(repositories);
-		builder.append("]");
+		builder.append("Repositories [repositories="); //$NON-NLS-1$
+		builder.append(this.repositories);
+		builder.append("]"); //$NON-NLS-1$
 		return builder.toString();
 	}
 

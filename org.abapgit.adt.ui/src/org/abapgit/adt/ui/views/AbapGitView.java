@@ -71,25 +71,27 @@ public class AbapGitView extends ViewPart {
 		super.init(site);
 
 		ISelection selection = getSite().getPage().getSelection();
-		lastSelection = selection;
+		this.lastSelection = selection;
 	}
 
-	private ISelectionListener selectionListener = new ISelectionListener() {
+	private final ISelectionListener selectionListener = new ISelectionListener() {
 		private boolean isUpdatingSelection = false;
 
 		@Override
 		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-			if (isUpdatingSelection)
+			if (this.isUpdatingSelection) {
 				return;
+			}
 
 			try {
-				isUpdatingSelection = true;
-				if (AbapGitView.this == part)
+				this.isUpdatingSelection = true;
+				if (AbapGitView.this == part) {
 					return;
+				}
 
 				if (selection instanceof IStructuredSelection) {
 					IStructuredSelection structSelection = (IStructuredSelection) selection;
-					lastSelection = structSelection;
+					AbapGitView.this.lastSelection = structSelection;
 
 					if (!checkIfPageIsVisible()) {
 						return;
@@ -98,7 +100,7 @@ public class AbapGitView extends ViewPart {
 					showLastSelectedElement();
 				}
 			} finally {
-				isUpdatingSelection = false;
+				this.isUpdatingSelection = false;
 			}
 		}
 	};
@@ -110,13 +112,13 @@ public class AbapGitView extends ViewPart {
 	}
 
 	private void showLastSelectedElement() {
-		IProject currentProject = ProjectUtil.getActiveAdtCoreProject(lastSelection, null, null, null);
-		if (currentProject != lastProject) {
-			lastProject = currentProject;
+		IProject currentProject = ProjectUtil.getActiveAdtCoreProject(this.lastSelection, null, null, null);
+		if (currentProject != this.lastProject) {
+			this.lastProject = currentProject;
 			updateView();
 		}
 
-		lastSelection = null;
+		this.lastSelection = null;
 
 	}
 
@@ -148,7 +150,7 @@ public class AbapGitView extends ViewPart {
 		hookContextMenu();
 		contributeToActionBars();
 		// add listener for selections
-		getSite().getPage().addPostSelectionListener(selectionListener);
+		getSite().getPage().addPostSelectionListener(this.selectionListener);
 	}
 
 	private void setupViewer(Composite parent) {
@@ -204,19 +206,19 @@ public class AbapGitView extends ViewPart {
 
 				Date date;
 				try {
-					date = new SimpleDateFormat("yyyyMMddHHmmss").parse(repo.getFirstCommit());
+					date = new SimpleDateFormat("yyyyMMddHHmmss").parse(repo.getFirstCommit()); //$NON-NLS-1$
 				} catch (ParseException e) {
 					return repo.getFirstCommit();
 				}
 
-				String formattedDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
+				String formattedDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date); //$NON-NLS-1$
 				return formattedDate;
 			}
 		});
 	}
 
 	private TableViewerColumn createTableViewerColumn(String title, int bound) {
-		TableViewerColumn viewerColumn = new TableViewerColumn(viewer, SWT.NONE);
+		TableViewerColumn viewerColumn = new TableViewerColumn(this.viewer, SWT.NONE);
 		TableColumn column = viewerColumn.getColumn();
 		column.setText(title);
 		column.setWidth(bound);
@@ -230,22 +232,22 @@ public class AbapGitView extends ViewPart {
 		menuMgr.setRemoveAllWhenShown(true);
 		menuMgr.addMenuListener(new IMenuListener() {
 			public void menuAboutToShow(IMenuManager manager) {
-				if (viewer.getStructuredSelection().size() == 1) {
-					Object firstElement = viewer.getStructuredSelection().getFirstElement();
+				if (AbapGitView.this.viewer.getStructuredSelection().size() == 1) {
+					Object firstElement = AbapGitView.this.viewer.getStructuredSelection().getFirstElement();
 					if (firstElement instanceof IRepository) {
-						manager.add(new UnlinkAction(lastProject, (IRepository) firstElement));
+						manager.add(new UnlinkAction(AbapGitView.this.lastProject, (IRepository) firstElement));
 					}
 				}
 			}
 		});
-		Menu menu = menuMgr.createContextMenu(viewer.getControl());
+		Menu menu = menuMgr.createContextMenu(this.viewer.getControl());
 		this.viewer.getControl().setMenu(menu);
 	}
 
 	private void contributeToActionBars() {
 		IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
-		toolBarManager.add(actionRefresh);
-		toolBarManager.add(actionWizard);
+		toolBarManager.add(this.actionRefresh);
+		toolBarManager.add(this.actionWizard);
 
 	}
 
@@ -258,7 +260,7 @@ public class AbapGitView extends ViewPart {
 		this.actionRefresh.setText("Refresh");
 		this.actionRefresh.setToolTipText("Refresh");
 		Bundle bundle = FrameworkUtil.getBundle(this.getClass());
-		URL url = FileLocator.find(bundle, new Path("icons/etool/refresh.png"), null);
+		URL url = FileLocator.find(bundle, new Path("icons/etool/refresh.png"), null); //$NON-NLS-1$
 		ImageDescriptor imageDescriptorRefresh = ImageDescriptor.createFromURL(url);
 		this.actionRefresh.setImageDescriptor(imageDescriptorRefresh);
 		this.actionRefresh.setEnabled(false);
@@ -266,8 +268,8 @@ public class AbapGitView extends ViewPart {
 		this.actionWizard = new Action() {
 			public void run() {
 
-				WizardDialog wizardDialog = new WizardDialog(viewer.getControl().getShell(),
-						new AbapGitWizard(lastProject));
+				WizardDialog wizardDialog = new WizardDialog(AbapGitView.this.viewer.getControl().getShell(),
+						new AbapGitWizard(AbapGitView.this.lastProject));
 
 				wizardDialog.open();
 				updateView();
@@ -281,16 +283,16 @@ public class AbapGitView extends ViewPart {
 	}
 
 	private List<IRepository> getRepositories() {
-		if (lastProject == null) {
+		if (this.lastProject == null) {
 			return null;
 		}
 
-		IStatus logonStatus = AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(lastProject);
+		IStatus logonStatus = AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(this.lastProject);
 		if (!logonStatus.isOK()) {
 			return null;
 		}
 
-		String destinationId = getDestination(lastProject);
+		String destinationId = getDestination(this.lastProject);
 		List<IRepository> repos = new LinkedList<>();
 		try {
 			PlatformUI.getWorkbench().getProgressService().busyCursorWhile(new IRunnableWithProgress() {
@@ -342,14 +344,14 @@ public class AbapGitView extends ViewPart {
 	public void setFocus() {
 		this.viewer.getControl().setFocus();
 
-		if (lastSelection != null) {
+		if (this.lastSelection != null) {
 			showLastSelectedElement();
 		}
 	}
 
 	@Override
 	public void dispose() {
-		getSite().getPage().removePostSelectionListener(selectionListener);
+		getSite().getPage().removePostSelectionListener(this.selectionListener);
 
 		super.dispose();
 	}
@@ -369,7 +371,7 @@ public class AbapGitView extends ViewPart {
 		public void run() {
 			if (!MessageDialog.openConfirm(getSite().getShell(), "Unlink abapGit Repository",
 					MessageFormat.format("Do you really want to unlink the abapGit Repository {0} from Package {1}?",
-							repository.getUrl(), repository.getPackage()))) {
+							this.repository.getUrl(), this.repository.getPackage()))) {
 				return;
 			}
 			try {
@@ -377,8 +379,8 @@ public class AbapGitView extends ViewPart {
 
 					@Override
 					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-						RepositoryServiceFactory.createRepositoryService(getDestination(project), monitor)
-								.unlinkRepository(repository.getKey(), monitor);
+						RepositoryServiceFactory.createRepositoryService(getDestination(UnlinkAction.this.project), monitor)
+								.unlinkRepository(UnlinkAction.this.repository.getKey(), monitor);
 					}
 				});
 				updateView();

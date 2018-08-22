@@ -23,10 +23,10 @@ public class ExternalRepositoryInfoDeserializer {
 			switch (next) {
 			case XMLStreamConstants.START_ELEMENT:
 				switch (xmlReader.getLocalName()) {
-				case "branch":
+				case "branch": //$NON-NLS-1$
 					externalRepositoryInfo.addBranch(deserializeBranch(xmlReader));
 					break;
-				case "access_mode":
+				case "access_mode": //$NON-NLS-1$
 					externalRepositoryInfo.setAccessMode(getAccessModeFromString(xmlReader.getElementText()));
 					break;
 				default:
@@ -48,20 +48,20 @@ public class ExternalRepositoryInfoDeserializer {
 			switch (next) {
 			case XMLStreamConstants.START_ELEMENT:
 				switch (xmlReader.getLocalName()) {
-				case "sha1":
+				case "sha1": //$NON-NLS-1$
 					branch.setSha1(xmlReader.getElementText());
 					break;
-				case "name":
+				case "name": //$NON-NLS-1$
 					branch.setName(xmlReader.getElementText());
 					break;
-				case "type":
+				case "type": //$NON-NLS-1$
 					branch.setType(xmlReader.getElementText());
 					break;
-				case "display_name":
+				case "display_name": //$NON-NLS-1$
 					branch.setDisplayName(xmlReader.getElementText());
 					break;
-				case "is_head":
-					branch.setIsHead("X".equals(xmlReader.getElementText()));
+				case "is_head": //$NON-NLS-1$
+					branch.setIsHead("X".equals(xmlReader.getElementText())); //$NON-NLS-1$
 					break;
 				default:
 					break;
@@ -77,9 +77,9 @@ public class ExternalRepositoryInfoDeserializer {
 
 	private AccessMode getAccessModeFromString(String accessModeString) {
 		switch (accessModeString.toLowerCase(Locale.ROOT)) {
-		case "private":
+		case "private": //$NON-NLS-1$
 			return AccessMode.PRIVATE;
-		case "public":
+		case "public": //$NON-NLS-1$
 			return AccessMode.PUBLIC;
 		default:
 			throw new ContentHandlingException("Unsupported access mode: " + accessModeString);

@@ -12,27 +12,27 @@ public class Branch implements IBranch {
 
 	@Override
 	public String getSha1() {
-		return sha1;
+		return this.sha1;
 	}
 
 	@Override
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	@Override
 	public String getType() {
-		return type;
+		return this.type;
 	}
 
 	@Override
 	public boolean isHead() {
-		return isHead;
+		return this.isHead;
 	}
 
 	@Override
 	public String getDisplayName() {
-		return displayName;
+		return this.displayName;
 	}
 
 	public void setSha1(String sha1) {
@@ -59,62 +59,74 @@ public class Branch implements IBranch {
 	public int hashCode() { // NOPMD
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((displayName == null) ? 0 : displayName.hashCode());
-		result = prime * result + (isHead ? 1231 : 1237);
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((sha1 == null) ? 0 : sha1.hashCode());
-		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		result = prime * result + ((this.displayName == null) ? 0 : this.displayName.hashCode());
+		result = prime * result + (this.isHead ? 1231 : 1237);
+		result = prime * result + ((this.name == null) ? 0 : this.name.hashCode());
+		result = prime * result + ((this.sha1 == null) ? 0 : this.sha1.hashCode());
+		result = prime * result + ((this.type == null) ? 0 : this.type.hashCode());
 		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) { // NOPMD
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		Branch other = (Branch) obj;
-		if (displayName == null) {
-			if (other.displayName != null)
+		if (this.displayName == null) {
+			if (other.displayName != null) {
 				return false;
-		} else if (!displayName.equals(other.displayName))
+			}
+		} else if (!this.displayName.equals(other.displayName)) {
 			return false;
-		if (isHead != other.isHead)
+		}
+		if (this.isHead != other.isHead) {
 			return false;
-		if (name == null) {
-			if (other.name != null)
+		}
+		if (this.name == null) {
+			if (other.name != null) {
 				return false;
-		} else if (!name.equals(other.name))
+			}
+		} else if (!this.name.equals(other.name)) {
 			return false;
-		if (sha1 == null) {
-			if (other.sha1 != null)
+		}
+		if (this.sha1 == null) {
+			if (other.sha1 != null) {
 				return false;
-		} else if (!sha1.equals(other.sha1))
+			}
+		} else if (!this.sha1.equals(other.sha1)) {
 			return false;
-		if (type == null) {
-			if (other.type != null)
+		}
+		if (this.type == null) {
+			if (other.type != null) {
 				return false;
-		} else if (!type.equals(other.type))
+			}
+		} else if (!this.type.equals(other.type)) {
 			return false;
+		}
 		return true;
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("Branch [sha1=");
-		builder.append(sha1);
-		builder.append(", name=");
-		builder.append(name);
-		builder.append(", type=");
-		builder.append(type);
-		builder.append(", isHead=");
-		builder.append(isHead);
-		builder.append(", displayName=");
-		builder.append(displayName);
-		builder.append("]");
+		builder.append("Branch [sha1="); //$NON-NLS-1$
+		builder.append(this.sha1);
+		builder.append(", name="); //$NON-NLS-1$
+		builder.append(this.name);
+		builder.append(", type="); //$NON-NLS-1$
+		builder.append(this.type);
+		builder.append(", isHead="); //$NON-NLS-1$
+		builder.append(this.isHead);
+		builder.append(", displayName="); //$NON-NLS-1$
+		builder.append(this.displayName);
+		builder.append("]"); //$NON-NLS-1$
 		return builder.toString();
 	}
 

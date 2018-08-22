@@ -19,22 +19,22 @@ public class RepositorySerializer {
 			switch (next) {
 			case XMLStreamConstants.START_ELEMENT:
 				switch (xmlReader.getLocalName()) {
-				case "key":
+				case "key": //$NON-NLS-1$
 					repository.setKey(xmlReader.getElementText());
 					break;
-				case "url":
+				case "url": //$NON-NLS-1$
 					repository.setUrl(xmlReader.getElementText());
 					break;
-				case "branch_name":
+				case "branch_name": //$NON-NLS-1$
 					repository.setBranch(xmlReader.getElementText());
 					break;
-				case "created_by":
+				case "created_by": //$NON-NLS-1$
 					repository.setCreatedBy(xmlReader.getElementText());
 					break;
-				case "created_at":
+				case "created_at": //$NON-NLS-1$
 					repository.setFirstCommit(xmlReader.getElementText());
 					break;
-				case "package":
+				case "package": //$NON-NLS-1$
 					repository.setPackage(xmlReader.getElementText());
 					break;
 				default:
@@ -58,16 +58,16 @@ public class RepositorySerializer {
 
 	public void serializeRepository(IRepository repository, XMLStreamWriter xmlStreamWriter,
 			String supportedContentType) throws XMLStreamException {
-		xmlStreamWriter.writeStartElement("repository");
-		writeElementIfNonEmpty(xmlStreamWriter, "branch", repository.getBranch());
-		writeElementIfNonEmpty(xmlStreamWriter, "created_at", repository.getFirstCommit());
-		writeElementIfNonEmpty(xmlStreamWriter, "key", repository.getKey());
-		writeElementIfNonEmpty(xmlStreamWriter, "package", repository.getPackage());
-		writeElementIfNonEmpty(xmlStreamWriter, "password", repository.getRemotePassword());
-		writeElementIfNonEmpty(xmlStreamWriter, "transportRequest", repository.getTransportRequest());
-		writeElementIfNonEmpty(xmlStreamWriter, "url", repository.getUrl());
-		writeElementIfNonEmpty(xmlStreamWriter, "created_by", repository.getCreatedBy());
-		writeElementIfNonEmpty(xmlStreamWriter, "user", repository.getRemoteUser());
+		xmlStreamWriter.writeStartElement("repository"); //$NON-NLS-1$
+		writeElementIfNonEmpty(xmlStreamWriter, "branch", repository.getBranch()); //$NON-NLS-1$
+		writeElementIfNonEmpty(xmlStreamWriter, "created_at", repository.getFirstCommit()); //$NON-NLS-1$
+		writeElementIfNonEmpty(xmlStreamWriter, "key", repository.getKey()); //$NON-NLS-1$
+		writeElementIfNonEmpty(xmlStreamWriter, "package", repository.getPackage()); //$NON-NLS-1$
+		writeElementIfNonEmpty(xmlStreamWriter, "password", repository.getRemotePassword()); //$NON-NLS-1$
+		writeElementIfNonEmpty(xmlStreamWriter, "transportRequest", repository.getTransportRequest()); //$NON-NLS-1$
+		writeElementIfNonEmpty(xmlStreamWriter, "url", repository.getUrl()); //$NON-NLS-1$
+		writeElementIfNonEmpty(xmlStreamWriter, "created_by", repository.getCreatedBy()); //$NON-NLS-1$
+		writeElementIfNonEmpty(xmlStreamWriter, "user", repository.getRemoteUser()); //$NON-NLS-1$
 		xmlStreamWriter.writeEndElement();
 	}
 
