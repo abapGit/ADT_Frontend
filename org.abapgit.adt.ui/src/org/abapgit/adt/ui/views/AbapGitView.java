@@ -255,8 +255,8 @@ public class AbapGitView extends ViewPart {
 				updateView();
 			}
 		};
-		this.actionRefresh.setText("Synchronize");
-		this.actionRefresh.setToolTipText("Synchronize");
+		this.actionRefresh.setText("Refresh");
+		this.actionRefresh.setToolTipText("Refresh");
 		Bundle bundle = FrameworkUtil.getBundle(this.getClass());
 		URL url = FileLocator.find(bundle, new Path("icons/etool/refresh.png"), null);
 		ImageDescriptor imageDescriptorRefresh = ImageDescriptor.createFromURL(url);
@@ -273,8 +273,8 @@ public class AbapGitView extends ViewPart {
 				updateView();
 			}
 		};
-		this.actionWizard.setText("Clone Repository");
-		this.actionWizard.setToolTipText("Clone Repository");
+		this.actionWizard.setText("Clone abapGit Repository");
+		this.actionWizard.setToolTipText("Clone abapGit Repository");
 		this.actionWizard
 				.setImageDescriptor(AbapGitUIPlugin.getDefault().getImageDescriptor(ISharedImages.IMG_OBJ_ADD));
 		this.actionWizard.setEnabled(false);
@@ -297,7 +297,7 @@ public class AbapGitView extends ViewPart {
 
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-					monitor.beginTask("Fetching repositories", IProgressMonitor.UNKNOWN);
+					monitor.beginTask("Fetching abapGit Repositories", IProgressMonitor.UNKNOWN);
 					IRepositoryService repoService = RepositoryServiceFactory.createRepositoryService(destinationId,
 							monitor);
 					if (repoService == null) {
@@ -309,7 +309,7 @@ public class AbapGitView extends ViewPart {
 
 		} catch (InvocationTargetException e) {
 			StatusManager.getManager().handle(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID,
-					"Error fetching repositories", e.getTargetException()), StatusManager.SHOW);
+					"Error fetching abapGit Repositories", e.getTargetException()), StatusManager.SHOW);
 		} catch (InterruptedException e) {
 		}
 		return repos;
@@ -330,7 +330,7 @@ public class AbapGitView extends ViewPart {
 		} else {
 			this.viewer.getControl().setEnabled(false);
 			this.actionRefresh.setEnabled(false);
-			this.actionWizard.setEnabled(false);
+			this.actionWizard.setEnabled(true);
 			this.viewer.setInput(null);
 		}
 	}
@@ -367,8 +367,8 @@ public class AbapGitView extends ViewPart {
 
 		@Override
 		public void run() {
-			if (!MessageDialog.openConfirm(getSite().getShell(), "Unlink repository",
-					MessageFormat.format("Do you really want to unlink the repository {0} from package {1}?",
+			if (!MessageDialog.openConfirm(getSite().getShell(), "Unlink abapGit Repository",
+					MessageFormat.format("Do you really want to unlink the abapGit Repository {0} from Package {1}?",
 							repository.getUrl(), repository.getPackage()))) {
 				return;
 			}
@@ -384,7 +384,7 @@ public class AbapGitView extends ViewPart {
 				updateView();
 			} catch (InvocationTargetException e) {
 				StatusManager.getManager().handle(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID,
-						"Error unlinking repository", e.getTargetException()), StatusManager.SHOW);
+						"Error unlinking abapGit Repository", e.getTargetException()), StatusManager.SHOW);
 			} catch (InterruptedException e) {
 			}
 		}

@@ -48,8 +48,8 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 		this.destination = destination;
 		this.cloneData = cloneData;
 
-		setTitle("Branch and package selection");
-		setDescription("Select repository branch and target ABAP package");
+		setTitle("Branch and Package Selection");
+		setDescription("Select Repository Branch and Target ABAP Package");
 	}
 
 	@Override

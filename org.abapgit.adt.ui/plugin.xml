@@ -14,7 +14,7 @@
             icon="icons/view/abapgit.png"
             id="org.abapgit.adt.ui.views.AbapGitView"
             inject="true"
-            name="abapGit">
+            name="abapGit Repositories">
       </view>
    </extension>
    <extension
