@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import org.abapgit.adt.backend.IExternalRepositoryInfo.IBranch;
+import org.abapgit.adt.ui.i18n.Messages;
 import org.abapgit.adt.ui.wizards.AbapGitWizard.CloneData;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -48,8 +49,8 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 		this.destination = destination;
 		this.cloneData = cloneData;
 
-		setTitle("Branch and Package Selection");
-		setDescription("Select Repository Branch and Target ABAP Package");
+		setTitle(Messages.AbapGitWizardPageBranchAndPackage_title);
+		setDescription(Messages.AbapGitWizardPageBranchAndPackage_description);
 	}
 
 	@Override
@@ -60,7 +61,7 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 
 		/////// BRANCH INPUT
 		Label lblBranch = new Label(container, SWT.NONE);
-		lblBranch.setText("Branch:");
+		lblBranch.setText(Messages.AbapGitWizardPageBranchAndPackage_label_branch);
 		AdtSWTUtilFactory.getOrCreateSWTUtil().setMandatory(lblBranch, true);
 		GridDataFactory.swtDefaults().applyTo(lblBranch);
 
@@ -86,13 +87,13 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 
 		/////// Package INPUT
 		Label lblPackage = new Label(container, SWT.NONE);
-		lblPackage.setText("Package:");
+		lblPackage.setText(Messages.AbapGitWizardPageBranchAndPackage_label_package);
 		AdtSWTUtilFactory.getOrCreateSWTUtil().setMandatory(lblPackage, true);
 		GridDataFactory.swtDefaults().applyTo(lblPackage);
 
 		txtPackage = new TextViewer(container, SWT.SINGLE | SWT.BORDER);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(txtPackage.getTextWidget());
-		txtPackage.getTextWidget().setText("");
+		txtPackage.getTextWidget().setText(""); //$NON-NLS-1$
 
 		txtPackage.getTextWidget().addModifyListener(event -> {
 			cloneData.packageRef = null;
@@ -105,7 +106,7 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 
 		Button btnPackage = new Button(container, SWT.PUSH);
 		GridDataFactory.swtDefaults().applyTo(btnPackage);
-		btnPackage.setText("Browse...");
+		btnPackage.setText(Messages.AbapGitWizardPageBranchAndPackage_btn_browse);
 
 		btnPackage.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -130,13 +131,13 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 		setMessage(null);
 
 		if (comboBranches.getCombo().getText().isEmpty()) {
-			setMessage("Specify a branch", DialogPage.INFORMATION);
+			setMessage(Messages.AbapGitWizardPageBranchAndPackage_combobox_branch_message, DialogPage.INFORMATION);
 			setPageComplete(false);
 			return false;
 		}
 
 		if (txtPackage.getTextWidget().getText().isEmpty()) {
-			setMessage("Specify a package", DialogPage.INFORMATION);
+			setMessage(Messages.AbapGitWizardPageBranchAndPackage_text_package_message, DialogPage.INFORMATION);
 			setPageComplete(false);
 			return false;
 		}
@@ -154,7 +155,7 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 
 					@Override
 					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-						monitor.beginTask("Validating package...", IProgressMonitor.UNKNOWN);
+						monitor.beginTask(Messages.AbapGitWizardPageBranchAndPackage_task_package_validation_message, IProgressMonitor.UNKNOWN);
 						IAdtPackageServiceUI packageServiceUI = AdtPackageServiceUIFactory
 								.getOrCreateAdtPackageServiceUI();
 						if (packageServiceUI.packageExists(destination, packageName, monitor)) {
@@ -165,7 +166,7 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 					}
 				});
 				if (cloneData.packageRef == null) {
-					setMessage("Package does not exist", DialogPage.ERROR);
+					setMessage(Messages.AbapGitWizardPageBranchAndPackage_task_package_validation_error_message, DialogPage.ERROR);
 					setPageComplete(false);
 					return false;
 				}

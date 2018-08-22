@@ -6,7 +6,7 @@
          point="org.eclipse.ui.views">
       <category
             id="org.abapgit.adt.ui"
-            name="abapGit">
+            name="%category.name">
       </category>
       <view
             category="org.abapgit.adt.ui"
@@ -14,7 +14,7 @@
             icon="icons/view/abapgit.png"
             id="org.abapgit.adt.ui.views.AbapGitView"
             inject="true"
-            name="abapGit Repositories">
+            name="%view.name">
       </view>
    </extension>
    <extension

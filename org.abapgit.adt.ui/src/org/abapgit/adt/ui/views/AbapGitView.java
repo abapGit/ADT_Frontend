@@ -13,6 +13,7 @@ import org.abapgit.adt.backend.IRepository;
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
+import org.abapgit.adt.ui.i18n.Messages;
 import org.abapgit.adt.ui.wizards.AbapGitWizard;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.FileLocator;
@@ -60,7 +61,7 @@ import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
 
 public class AbapGitView extends ViewPart {
 
-	public static final String ID = "org.abapgit.adt.ui.views.AbapGitView";
+	public static final String ID = "org.abapgit.adt.ui.views.AbapGitView"; //$NON-NLS-1$
 
 	private TableViewer viewer;
 	private Action actionRefresh, actionWizard;
@@ -166,7 +167,7 @@ public class AbapGitView extends ViewPart {
 	}
 
 	private void createColumns() {
-		createTableViewerColumn("Package", 200).setLabelProvider(new ColumnLabelProvider() {
+		createTableViewerColumn(Messages.AbapGitView_column_package, 200).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				IRepository p = (IRepository) element;
@@ -174,7 +175,7 @@ public class AbapGitView extends ViewPart {
 			}
 		});
 
-		createTableViewerColumn("URL", 400).setLabelProvider(new ColumnLabelProvider() {
+		createTableViewerColumn(Messages.AbapGitView_column_url, 400).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				IRepository p = (IRepository) element;
@@ -182,7 +183,7 @@ public class AbapGitView extends ViewPart {
 			}
 		});
 
-		createTableViewerColumn("Branch", 200).setLabelProvider(new ColumnLabelProvider() {
+		createTableViewerColumn(Messages.AbapGitView_column_branch, 200).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				IRepository p = (IRepository) element;
@@ -190,7 +191,7 @@ public class AbapGitView extends ViewPart {
 			}
 		});
 
-		createTableViewerColumn("User", 100).setLabelProvider(new ColumnLabelProvider() {
+		createTableViewerColumn(Messages.AbapGitView_column_user, 100).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				IRepository p = (IRepository) element;
@@ -198,7 +199,7 @@ public class AbapGitView extends ViewPart {
 			}
 		});
 
-		createTableViewerColumn("First Commit At", 150).setLabelProvider(new ColumnLabelProvider() {
+		createTableViewerColumn(Messages.AbapGitView_column_firstcommitat, 150).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 
@@ -257,8 +258,8 @@ public class AbapGitView extends ViewPart {
 				updateView();
 			}
 		};
-		this.actionRefresh.setText("Refresh");
-		this.actionRefresh.setToolTipText("Refresh");
+		this.actionRefresh.setText(Messages.AbapGitView_action_refresh);
+		this.actionRefresh.setToolTipText(Messages.AbapGitView_action_refresh);
 		Bundle bundle = FrameworkUtil.getBundle(this.getClass());
 		URL url = FileLocator.find(bundle, new Path("icons/etool/refresh.png"), null); //$NON-NLS-1$
 		ImageDescriptor imageDescriptorRefresh = ImageDescriptor.createFromURL(url);
@@ -275,8 +276,8 @@ public class AbapGitView extends ViewPart {
 				updateView();
 			}
 		};
-		this.actionWizard.setText("Clone abapGit Repository");
-		this.actionWizard.setToolTipText("Clone abapGit Repository");
+		this.actionWizard.setText(Messages.AbapGitView_action_clone);
+		this.actionWizard.setToolTipText(Messages.AbapGitView_action_clone);
 		this.actionWizard
 				.setImageDescriptor(AbapGitUIPlugin.getDefault().getImageDescriptor(ISharedImages.IMG_OBJ_ADD));
 		this.actionWizard.setEnabled(false);
@@ -299,7 +300,7 @@ public class AbapGitView extends ViewPart {
 
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-					monitor.beginTask("Fetching abapGit Repositories", IProgressMonitor.UNKNOWN);
+					monitor.beginTask(Messages.AbapGitView_task_fetch_repos, IProgressMonitor.UNKNOWN);
 					IRepositoryService repoService = RepositoryServiceFactory.createRepositoryService(destinationId,
 							monitor);
 					if (repoService == null) {
@@ -311,7 +312,7 @@ public class AbapGitView extends ViewPart {
 
 		} catch (InvocationTargetException e) {
 			StatusManager.getManager().handle(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID,
-					"Error fetching abapGit Repositories", e.getTargetException()), StatusManager.SHOW);
+					Messages.AbapGitView_task_fetch_repos_error, e.getTargetException()), StatusManager.SHOW);
 		} catch (InterruptedException e) {
 		}
 		return repos;
@@ -364,13 +365,13 @@ public class AbapGitView extends ViewPart {
 		public UnlinkAction(IProject project, IRepository repository) {
 			this.project = project;
 			this.repository = repository;
-			setText("Unlink");
+			setText(Messages.AbapGitView_context_unlink);
 		}
 
 		@Override
 		public void run() {
-			if (!MessageDialog.openConfirm(getSite().getShell(), "Unlink abapGit Repository",
-					MessageFormat.format("Do you really want to unlink the abapGit Repository {0} from Package {1}?",
+			if (!MessageDialog.openConfirm(getSite().getShell(), Messages.AbapGitView_context_dialog_unlink_title,
+					MessageFormat.format(Messages.AbapGitView_context_dialog_unlink_message,
 							this.repository.getUrl(), this.repository.getPackage()))) {
 				return;
 			}
@@ -386,7 +387,7 @@ public class AbapGitView extends ViewPart {
 				updateView();
 			} catch (InvocationTargetException e) {
 				StatusManager.getManager().handle(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID,
-						"Error unlinking abapGit Repository", e.getTargetException()), StatusManager.SHOW);
+						Messages.AbapGitView_context_unlink_error, e.getTargetException()), StatusManager.SHOW);
 			} catch (InterruptedException e) {
 			}
 		}

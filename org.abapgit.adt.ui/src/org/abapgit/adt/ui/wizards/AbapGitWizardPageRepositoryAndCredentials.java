@@ -6,6 +6,7 @@ import org.abapgit.adt.backend.IExternalRepositoryInfo.AccessMode;
 import org.abapgit.adt.backend.IExternalRepositoryInfoService;
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
+import org.abapgit.adt.ui.i18n.Messages;
 import org.abapgit.adt.ui.wizards.AbapGitWizard.CloneData;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.DialogPage;
@@ -37,8 +38,8 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 		super(PAGE_NAME);
 		this.destination = destination;
 		this.cloneData = cloneData;
-		setTitle("Clone abapGit Repository");
-		setDescription("Specify a abapGit Repository");
+		setTitle(Messages.AbapGitWizardPageRepositoryAndCredentials_title);
+		setDescription(Messages.AbapGitWizardPageRepositoryAndCredentials_description);
 	}
 
 	@Override
@@ -51,7 +52,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 		layout.numColumns = 2;
 
 		Label lblUrl = new Label(container, SWT.NONE);
-		lblUrl.setText("URL:");
+		lblUrl.setText(Messages.AbapGitWizardPageRepositoryAndCredentials_label_url);
 		AdtSWTUtilFactory.getOrCreateSWTUtil().setMandatory(lblUrl, true);
 
 		this.txtURL = new Text(container, SWT.BORDER | SWT.SINGLE);
@@ -66,12 +67,12 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 		this.txtURL.setLayoutData(gd);
 
 		this.lblUser = new Label(container, SWT.NONE);
-		this.lblUser.setText("User:");
+		this.lblUser.setText(Messages.AbapGitWizardPageRepositoryAndCredentials_label_user);
 		AdtSWTUtilFactory.getOrCreateSWTUtil().setMandatory(this.lblUser, true);
 		this.txtUser = new Text(container, SWT.BORDER | SWT.SINGLE);
 
 		this.lblPwd = new Label(container, SWT.NONE);
-		this.lblPwd.setText("Password:");
+		this.lblPwd.setText(Messages.AbapGitWizardPageRepositoryAndCredentials_label_password);
 		AdtSWTUtilFactory.getOrCreateSWTUtil().setMandatory(this.lblPwd, true);
 
 		this.txtPwd = new Text(container, SWT.BORDER | SWT.SINGLE);
@@ -100,7 +101,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 		setPageComplete(true);
 		if (this.txtURL.getText().isEmpty() || !this.txtURL.getText().startsWith("https://") //$NON-NLS-1$
 				|| !this.txtURL.getText().endsWith(".git")) { //$NON-NLS-1$
-			setMessage("Please enter a valid git URL.", DialogPage.INFORMATION);
+			setMessage(Messages.AbapGitWizardPageRepositoryAndCredentials_validate_url_error, DialogPage.INFORMATION);
 			setPageComplete(false);
 			return false;
 		}
@@ -109,12 +110,12 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 		if (this.cloneData.externalRepoInfo != null && this.cloneData.externalRepoInfo.getAccessMode() == AccessMode.PRIVATE) {
 			setUserAndPassControlsVisible(true);
 			if (this.txtUser.getText().isEmpty()) {
-				setMessage("Please specify user", DialogPage.INFORMATION);
+				setMessage(Messages.AbapGitWizardPageRepositoryAndCredentials_validate_user_error, DialogPage.INFORMATION);
 				setPageComplete(false);
 				return false;
 			}
 			if (this.txtPwd.getText().isEmpty()) {
-				setMessage("Please specify password", DialogPage.INFORMATION);
+				setMessage(Messages.AbapGitWizardPageRepositoryAndCredentials_validate_password_error, DialogPage.INFORMATION);
 				setPageComplete(false);
 				return false;
 			}
@@ -136,7 +137,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 		if (this.cloneData.repositories.getRepositories().stream()
 				.anyMatch(r -> r.getUrl().toString().equals(this.txtURL.getText()))) {
 			setPageComplete(false);
-			setMessage("The repository is already in use", DialogPage.ERROR);
+			setMessage(Messages.AbapGitWizardPageRepositoryAndCredentials_repo_in_use_error, DialogPage.ERROR);
 			return false;
 		}
 
@@ -151,7 +152,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 				setUserAndPassControlsVisible(true);
 				this.txtUser.setFocus();
 				setPageComplete(false);
-				setMessage("The abapGit repository is private. Please provide user and password", DialogPage.ERROR);
+				setMessage(Messages.AbapGitWizardPageRepositoryAndCredentials_repo_is_private, DialogPage.ERROR);
 				return false;
 			} else {
 				// update the info, now that we have proper user/password
@@ -170,7 +171,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-					monitor.beginTask("Fetching repositories...", IProgressMonitor.UNKNOWN);
+					monitor.beginTask(Messages.AbapGitWizardPageRepositoryAndCredentials_task_repo_fetch, IProgressMonitor.UNKNOWN);
 					IRepositoryService repoService = RepositoryServiceFactory.createRepositoryService(AbapGitWizardPageRepositoryAndCredentials.this.destination,
 							monitor);
 
@@ -191,7 +192,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-					monitor.beginTask("Fetching repository information...", IProgressMonitor.UNKNOWN);
+					monitor.beginTask(Messages.AbapGitWizardPageRepositoryAndCredentials_task_fetch_repo_info, IProgressMonitor.UNKNOWN);
 					IExternalRepositoryInfoService externalRepoInfoService = RepositoryServiceFactory
 							.createExternalRepositoryInfoService(AbapGitWizardPageRepositoryAndCredentials.this.destination, monitor);
 					AbapGitWizardPageRepositoryAndCredentials.this.cloneData.externalRepoInfo = externalRepoInfoService.getExternalRepositoryInfo(AbapGitWizardPageRepositoryAndCredentials.this.cloneData.url,
