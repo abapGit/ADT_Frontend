@@ -23,7 +23,7 @@ public class RepositoriesContentHandlerV1 implements IContentHandler<IRepositori
 			XMLStreamReader xmlStreamReader = xmlInputFactory.createXMLStreamReader(body.getContent());
 			return new RepositoriesSerializer().deserializeRepositories(xmlStreamReader, getSupportedContentType());
 		} catch (IOException | XMLStreamException e) {
-			throw new ContentHandlerException("Error parsing repositories", e);
+			throw new ContentHandlerException("Error parsing repositories", e); //$NON-NLS-1$
 		}
 	}
 
