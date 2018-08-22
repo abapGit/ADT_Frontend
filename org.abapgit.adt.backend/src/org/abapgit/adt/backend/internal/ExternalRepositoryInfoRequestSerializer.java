@@ -7,10 +7,10 @@ public class ExternalRepositoryInfoRequestSerializer {
 
 	public void serializeExternalRepositoryInfoRequest(IExternalRepositoryInfoRequest externalRepositoryInfoRequest,
 			XMLStreamWriter xmlStreamWriter, String supportedContentType) throws XMLStreamException {
-		xmlStreamWriter.writeStartElement("repository_ext");
-		writeElementIfNonEmpty(xmlStreamWriter, "url", externalRepositoryInfoRequest.getUrl());
-		writeElementIfNonEmpty(xmlStreamWriter, "user", externalRepositoryInfoRequest.getUser());
-		writeElementIfNonEmpty(xmlStreamWriter, "password", externalRepositoryInfoRequest.getPassword());
+		xmlStreamWriter.writeStartElement("repository_ext"); //$NON-NLS-1$
+		writeElementIfNonEmpty(xmlStreamWriter, "url", externalRepositoryInfoRequest.getUrl()); //$NON-NLS-1$
+		writeElementIfNonEmpty(xmlStreamWriter, "user", externalRepositoryInfoRequest.getUser()); //$NON-NLS-1$
+		writeElementIfNonEmpty(xmlStreamWriter, "password", externalRepositoryInfoRequest.getPassword()); //$NON-NLS-1$
 		xmlStreamWriter.writeEndElement();
 	}
 

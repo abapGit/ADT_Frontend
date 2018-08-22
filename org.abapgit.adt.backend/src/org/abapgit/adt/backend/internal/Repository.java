@@ -42,25 +42,25 @@ public class Repository implements IRepository {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("Repository [key=");
-		builder.append(key);
-		builder.append(", remoteUser=");
-		builder.append(remoteUser);
-		builder.append(", url=");
-		builder.append(url);
-		builder.append(", branch=");
-		builder.append(branch);
-		builder.append(", pckg=");
-		builder.append(pckg);
-		builder.append(", firstCommit=");
-		builder.append(firstCommit);
-		builder.append(", createdBy=");
-		builder.append(createdBy);
-		builder.append(", remotePassword=");
-		builder.append(remotePassword);
-		builder.append(", transportRequest=");
-		builder.append(transportRequest);
-		builder.append("]");
+		builder.append("Repository [key="); //$NON-NLS-1$
+		builder.append(this.key);
+		builder.append(", remoteUser="); //$NON-NLS-1$
+		builder.append(this.remoteUser);
+		builder.append(", url="); //$NON-NLS-1$
+		builder.append(this.url);
+		builder.append(", branch="); //$NON-NLS-1$
+		builder.append(this.branch);
+		builder.append(", pckg="); //$NON-NLS-1$
+		builder.append(this.pckg);
+		builder.append(", firstCommit="); //$NON-NLS-1$
+		builder.append(this.firstCommit);
+		builder.append(", createdBy="); //$NON-NLS-1$
+		builder.append(this.createdBy);
+		builder.append(", remotePassword="); //$NON-NLS-1$
+		builder.append(this.remotePassword);
+		builder.append(", transportRequest="); //$NON-NLS-1$
+		builder.append(this.transportRequest);
+		builder.append("]"); //$NON-NLS-1$
 		return builder.toString();
 	}
 
@@ -121,7 +121,7 @@ public class Repository implements IRepository {
 
 	@Override
 	public String getCreatedBy() {
-		return createdBy;
+		return this.createdBy;
 	}
 
 	@Override
