@@ -34,18 +34,26 @@ public class ExternalRepositoryInfoRequestContentHandlerV1 implements IContentHa
 	@Override
 	public IMessageBody serialize(IExternalRepositoryInfoRequest externalRepositoryInfoRequest, Charset charset) {
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
-		XMLStreamWriter xmlStreamWriter;
+		XMLStreamWriter xmlStreamWriter = null;
 		try {
 			String encoding = charset == null ? null : charset.name();
-			xmlStreamWriter = xmlOutputFactory.createXMLStreamWriter(outputStream, encoding);
+			xmlStreamWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(outputStream, encoding);
 			xmlStreamWriter.writeStartDocument(null, encoding);
-			new ExternalRepositoryInfoRequestSerializer().serializeExternalRepositoryInfoRequest(
-					externalRepositoryInfoRequest, xmlStreamWriter, getSupportedContentType());
+			new ExternalRepositoryInfoRequestSerializer().serializeExternalRepositoryInfoRequest(externalRepositoryInfoRequest,
+					xmlStreamWriter, getSupportedContentType());
 			xmlStreamWriter.writeEndDocument();
+			xmlStreamWriter.flush();
 			return new ByteArrayMessageBody(getSupportedContentType(), outputStream.toByteArray());
 		} catch (XMLStreamException e) {
 			throw new ContentHandlerException("Error serializing external repository info request", e); //$NON-NLS-1$
+		} finally {
+			if (xmlStreamWriter != null) {
+				try {
+					xmlStreamWriter.close();
+				} catch (XMLStreamException e) {
+					// ignore
+				}
+			}
 		}
 	}
 

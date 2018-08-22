@@ -18,12 +18,20 @@ public class ExternalRepositoryInfoResponseContentHandlerV1 implements IContentH
 
 	@Override
 	public IExternalRepositoryInfo deserialize(IMessageBody body, Class<? extends IExternalRepositoryInfo> dataType) {
+		XMLStreamReader xmlStreamReader = null;
 		try {
-			XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
-			XMLStreamReader xmlStreamReader = xmlInputFactory.createXMLStreamReader(body.getContent());
+			xmlStreamReader = XMLInputFactory.newInstance().createXMLStreamReader(body.getContent());
 			return new ExternalRepositoryInfoDeserializer().deserializeExternalRepositoryInfo(xmlStreamReader);
 		} catch (IOException | XMLStreamException e) {
 			throw new ContentHandlerException("Error parsing external repository info", e); //$NON-NLS-1$
+		} finally {
+			if (xmlStreamReader != null) {
+				try {
+					xmlStreamReader.close();
+				} catch (XMLStreamException e) {
+					// ignore
+				}
+			}
 		}
 	}
 
