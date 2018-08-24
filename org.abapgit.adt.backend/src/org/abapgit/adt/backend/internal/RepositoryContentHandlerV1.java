@@ -35,17 +35,25 @@ public class RepositoryContentHandlerV1 implements IContentHandler<IRepository> 
 	@Override
 	public IMessageBody serialize(IRepository repository, Charset charset) {
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
-		XMLStreamWriter xmlStreamWriter;
+		XMLStreamWriter xmlStreamWriter = null;
 		try {
 			String encoding = charset == null ? null : charset.name();
-			xmlStreamWriter = xmlOutputFactory.createXMLStreamWriter(outputStream, encoding);
+			xmlStreamWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(outputStream, encoding);
 			xmlStreamWriter.writeStartDocument(null, encoding);
 			new RepositorySerializer().serializeRepository(repository, xmlStreamWriter, getSupportedContentType());
 			xmlStreamWriter.writeEndDocument();
+			xmlStreamWriter.flush();
 			return new ByteArrayMessageBody(getSupportedContentType(), outputStream.toByteArray());
 		} catch (XMLStreamException e) {
 			throw new ContentHandlerException("Error serializing repository", e); //$NON-NLS-1$
+		} finally {
+			if (xmlStreamWriter != null) {
+				try {
+					xmlStreamWriter.close();
+				} catch (XMLStreamException e) {
+					// ignore
+				}
+			}
 		}
 	}
 
