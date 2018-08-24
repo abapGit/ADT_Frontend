@@ -21,6 +21,7 @@ public class Messages extends NLS {
 	public static String AbapGitView_repos_not_loaded;
 	public static String AbapGitView_task_fetch_repos;
 	public static String AbapGitView_task_fetch_repos_error;
+	public static String AbapGitWizard_task_cloning_repository;
 	public static String AbapGitWizard_title;
 	public static String AbapGitWizardPageBranchAndPackage_btn_browse;
 	public static String AbapGitWizardPageBranchAndPackage_combobox_branch_message;
