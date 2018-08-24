@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %Bundle-Name
 Bundle-SymbolicName: org.abapgit.adt.ui;singleton:=true
-Bundle-Version: 0.8.24
+Bundle-Version: 0.8.25
 Bundle-ClassPath: .
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime;bundle-version="[3.12.0,4.0.0)",
