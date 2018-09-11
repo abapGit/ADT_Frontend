@@ -84,8 +84,8 @@
             <id>validate</id>
             <phase>test</phase>
             <configuration>
-              <failOnError>false</failOnError>
-              <failOnViolation>false</failOnViolation>
+              <failOnError>true</failOnError>
+              <failOnViolation>true</failOnViolation>
             </configuration>
             <goals>
               <goal>check</goal>
