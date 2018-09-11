@@ -1,17 +1,35 @@
 # Development Guidelines
 
 ### Prerequsites
-* [Eclipse Plug-in Development Environment](http://www.eclipse.org/pde/) retrofit via [Marketplace](https://marketplace.eclipse.org/content/eclipse-pde-plug-development-environment) if needed
-* Latest [ADT](https://tools.hana.ondemand.com/#abap)
-* Java 8?
+* Java 8
+* [Eclipse for RCP and RAP Developers](https://www.eclipse.org/downloads/packages/release/oxygen/3a/eclipse-rcp-and-rap-developers) - currently only Eclipse Oxygen is supported
+* Latest [ADT Plugins](https://tools.hana.ondemand.com/#abap) installed in DevIDE
 * Latest [ADT_Backend](https://github.com/abapGit/ADT_Backend) installed on backend ABAP system
 
 ### Import
-Via
-File -> Import... -> Projects from Git -> Clone URI
+* Clone Repo on disk
+* Import via Eclipse:
+  * File -> Import -> Existing Projects into Workspace
+  * Select root directory: `<path to cloned repo on disk>`
+  * Select All
+  * Finish
 
-### Compiling
-?
+### Versioning
+* Create a new version via cmd: `mvn tycho-versions:set-version -DnewVersion=<New Version>`
+* Create a "raise version" PR with the updated files.
+* After it was merged, a new git tag with the same version needs to be created.
+
+### Build updatesite content
+* Run `mvn clean verify`
+* Open PR on https://github.com/abapGit/eclipse.abapgit.org
+* Upload binaries to release tag
+
+### Quality Tools
+The below mentioned tools are used to verify the quality of the source code during submitting a PR:
+
+* Codacy
+* Spotbugs
+  * Run locally via maven: `mvn clean verify
 
 ### Guides
 
