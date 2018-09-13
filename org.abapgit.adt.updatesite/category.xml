@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/org.abapgit.adt.feature_0.0.0" id="org.abapgit.adt.feature" version="0.0.0">
+      <category name="org.abapgit.adt"/>
+   </feature>
+   <category-def name="org.abapgit.adt" label="abapGit for ABAP Development Tools (ADT)">
+      <description>
+         abapGit plugin for ABAP Development Tools (ADT)
+      </description>
+   </category-def>
+</site>

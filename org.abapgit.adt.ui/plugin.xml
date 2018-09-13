@@ -4,36 +4,14 @@
 
    <extension
          point="org.eclipse.ui.views">
-      <category
-            id="org.abapgit.adt.ui"
-            name="abapGit">
-      </category>
       <view
-            category="org.abapgit.adt.ui"
-            class="org.abapgit.adt.ui.views.MainView"
-            icon="icons/abapgit.png"
-            id="org.abapgit.adt.ui.views.MainView"
+            category="com.sap.adt.views"
+            class="org.abapgit.adt.ui.internal.views.AbapGitView"
+            icon="icons/view/abapgit.png"
+            id="org.abapgit.adt.ui.views.AbapGitView"
             inject="true"
-            name="abapGit">
+            name="%view.name">
       </view>
-   </extension>
-   <extension
-         point="org.eclipse.ui.perspectiveExtensions">
-      <perspectiveExtension
-            targetID="org.eclipse.jdt.ui.JavaPerspective">
-         <view
-               id="org.abapgit.adt.ui.views.MainView"
-               ratio="0.5"
-               relationship="right"
-               relative="org.eclipse.ui.views.ProblemView">
-         </view>
-      </perspectiveExtension>
-   </extension>
-   <extension
-         point="org.eclipse.help.contexts">
-      <contexts
-            file="contexts.xml">
-      </contexts>
    </extension>
 
 </plugin>
