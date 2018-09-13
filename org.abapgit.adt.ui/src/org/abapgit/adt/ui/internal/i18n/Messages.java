@@ -6,6 +6,8 @@ public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "org.abapgit.adt.ui.internal.i18n.messages"; //$NON-NLS-1$
 	public static String AbapGitView_action_clone;
 	public static String AbapGitView_action_refresh;
+	public static String AbapGitView_action_copy;
+	public static String AbapGitView_action_pull;
 	public static String AbapGitView_column_branch;
 	public static String AbapGitView_column_firstcommitat;
 	public static String AbapGitView_column_package;
