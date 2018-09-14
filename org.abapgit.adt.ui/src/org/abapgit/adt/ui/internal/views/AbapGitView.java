@@ -62,7 +62,7 @@ public class AbapGitView extends ViewPart {
 	public static final String ID = "org.abapgit.adt.ui.views.AbapGitView"; //$NON-NLS-1$
 
 	private TableViewer viewer;
-	private Action actionRefresh, actionWizard, actionCopy, actionPull;
+	private Action actionRefresh, actionWizard, actionCopy;
 	private ISelection lastSelection;
 	private IProject lastProject;
 
@@ -249,7 +249,6 @@ public class AbapGitView extends ViewPart {
 		IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
 		toolBarManager.add(this.actionRefresh);
 		toolBarManager.add(this.actionWizard);
-		toolBarManager.add(this.actionPull);
 	}
 
 	private void makeActions() {
@@ -274,14 +273,6 @@ public class AbapGitView extends ViewPart {
 //		this.actionCopy
 //				.setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID, "icons/etool/refresh.png")); //$NON-NLS-1$
 
-		this.actionPull = new Action() {
-			public void run() {
-
-			}
-		};
-		this.actionPull.setText(Messages.AbapGitView_action_pull);
-		this.actionPull.setToolTipText(Messages.AbapGitView_action_pull);
-		this.actionPull.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_COPY));
 
 		this.actionWizard = new Action() {
 			public void run() {
@@ -369,7 +360,6 @@ public class AbapGitView extends ViewPart {
 		this.actionRefresh.setEnabled(enabled);
 		this.actionWizard.setEnabled(enabled);
 		this.actionCopy.setEnabled(enabled);
-		this.actionPull.setEnabled(enabled);
 	}
 
 	/**
@@ -385,9 +375,9 @@ public class AbapGitView extends ViewPart {
 			for (int row = 0; row < table.getSelectionCount(); row++) {
 //					data.append(table.getSelection()[row]);
 
-					for (int j = 0; j <= table.getColumnCount() - 1; j++) {
+				for (int j = 0; j <= table.getColumnCount() - 1; j++) {
 					data.append(table.getItem(row).getText(j) + " "); //$NON-NLS-1$
-					}
+				}
 
 			}
 			final Clipboard clipboard = new Clipboard(table.getDisplay());
@@ -399,6 +389,7 @@ public class AbapGitView extends ViewPart {
 	protected boolean canCopy(final Table table) {
 		return table.getColumnCount() > 0 && table.getSelectionCount() > 0;
 	}
+
 
 	/**
 	 * Passing the focus request to the viewer's control.
