@@ -22,6 +22,7 @@ import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -236,6 +237,7 @@ public class AbapGitView extends ViewPart {
 					Object firstElement = AbapGitView.this.viewer.getStructuredSelection().getFirstElement();
 					if (firstElement instanceof IRepository) {
 						manager.add(new UnlinkAction(AbapGitView.this.lastProject, (IRepository) firstElement));
+						manager.add(new Separator());
 						manager.add(AbapGitView.this.actionCopy);
 					}
 				}
@@ -270,6 +272,7 @@ public class AbapGitView extends ViewPart {
 		};
 		this.actionCopy.setText(Messages.AbapGitView_action_copy);
 		this.actionCopy.setToolTipText(Messages.AbapGitView_action_copy);
+		this.actionCopy.setAccelerator(SWT.ALT | 'C');
 //		this.actionCopy
 //				.setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID, "icons/etool/refresh.png")); //$NON-NLS-1$
 
