@@ -22,6 +22,7 @@ import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -35,6 +36,8 @@ import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.Clipboard;
+import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
@@ -60,7 +63,7 @@ public class AbapGitView extends ViewPart {
 	public static final String ID = "org.abapgit.adt.ui.views.AbapGitView"; //$NON-NLS-1$
 
 	private TableViewer viewer;
-	private Action actionRefresh, actionWizard;
+	private Action actionRefresh, actionWizard, actionCopy;
 	private ISelection lastSelection;
 	private IProject lastProject;
 
@@ -234,6 +237,8 @@ public class AbapGitView extends ViewPart {
 					Object firstElement = AbapGitView.this.viewer.getStructuredSelection().getFirstElement();
 					if (firstElement instanceof IRepository) {
 						manager.add(new UnlinkAction(AbapGitView.this.lastProject, (IRepository) firstElement));
+						manager.add(new Separator());
+						manager.add(AbapGitView.this.actionCopy);
 					}
 				}
 			}
@@ -246,7 +251,6 @@ public class AbapGitView extends ViewPart {
 		IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
 		toolBarManager.add(this.actionRefresh);
 		toolBarManager.add(this.actionWizard);
-
 	}
 
 	private void makeActions() {
@@ -260,6 +264,18 @@ public class AbapGitView extends ViewPart {
 		this.actionRefresh
 				.setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID, "icons/etool/refresh.png")); //$NON-NLS-1$
 
+		this.actionCopy = new Action() {
+			public void run() {
+				Table table = AbapGitView.this.viewer.getTable();
+				copy(table);
+			}
+		};
+		this.actionCopy.setText(Messages.AbapGitView_action_copy);
+		this.actionCopy.setToolTipText(Messages.AbapGitView_action_copy);
+		this.actionCopy.setAccelerator(SWT.ALT | 'C');
+//		this.actionCopy
+//				.setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID, "icons/etool/refresh.png")); //$NON-NLS-1$
+
 		this.actionWizard = new Action() {
 			public void run() {
 				if (!AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(AbapGitView.this.lastProject).isOK()) {
@@ -269,7 +285,7 @@ public class AbapGitView extends ViewPart {
 						new AbapGitWizard(AbapGitView.this.lastProject));
 
 				wizardDialog.open();
-				updateView(false);
+				updateView(true);
 			}
 		};
 		this.actionWizard.setText(Messages.AbapGitView_action_clone);
@@ -345,6 +361,35 @@ public class AbapGitView extends ViewPart {
 		this.viewer.getControl().setEnabled(enabled);
 		this.actionRefresh.setEnabled(enabled);
 		this.actionWizard.setEnabled(enabled);
+		this.actionCopy.setEnabled(enabled);
+	}
+
+	/**
+	 * Copies the current selection to the clipboard.
+	 *
+	 * @param table
+	 *            the data source
+	 */
+	protected void copy(Table table) {
+		if (canCopy(table)) {
+			final StringBuilder data = new StringBuilder();
+
+			for (int row = 0; row < table.getSelectionCount(); row++) {
+//					data.append(table.getSelection()[row]);
+
+				for (int j = 0; j <= table.getColumnCount() - 1; j++) {
+					data.append(table.getItem(row).getText(j) + " "); //$NON-NLS-1$
+				}
+
+			}
+			final Clipboard clipboard = new Clipboard(table.getDisplay());
+			clipboard.setContents(new String[] { data.toString() }, new TextTransfer[] { TextTransfer.getInstance() });
+			clipboard.dispose();
+		}
+	}
+
+	protected boolean canCopy(final Table table) {
+		return table.getColumnCount() > 0 && table.getSelectionCount() > 0;
 	}
 
 	/**

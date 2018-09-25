@@ -136,8 +136,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 	private boolean validateClientOnly() {
 		setMessage(null);
 		setPageComplete(true);
-		if (this.txtURL.getText().isEmpty() || !this.txtURL.getText().startsWith("https://") //$NON-NLS-1$
-				|| !this.txtURL.getText().endsWith(".git")) { //$NON-NLS-1$
+		if (this.txtURL.getText().isEmpty() || !this.txtURL.getText().startsWith("https://")) { //$NON-NLS-1$
 			setMessage(Messages.AbapGitWizardPageRepositoryAndCredentials_validate_url_error, DialogPage.INFORMATION);
 			setPageComplete(false);
 			return false;
