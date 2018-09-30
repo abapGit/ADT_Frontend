@@ -4,6 +4,8 @@
 # abapGit ADT Frontend
 abapGit ADT Frontend
 
+Note: The abapGit ADT Frontend currently only works with SAP Cloud Platform ABAP Environment
+
 # Development Guidelines
 
 see [CONTRIBUTING](CONTRIBUTING.md) and [DEV-GUIDELINES](DEV-GUIDELINES.md)
