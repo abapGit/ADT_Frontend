@@ -29,6 +29,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 
 	private final IProject project;
 	private final String destination;
+	private Boolean pullAction;
 	private final CloneData cloneData;
 
 	private Text txtURL;
@@ -44,6 +45,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 		this.project = project;
 		this.destination = destination;
 		this.cloneData = cloneData;
+		this.pullAction = false;
 		setTitle(Messages.AbapGitWizardPageRepositoryAndCredentials_title);
 		setDescription(Messages.AbapGitWizardPageRepositoryAndCredentials_description);
 	}
@@ -100,6 +102,14 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 
 		setControl(container);
 		setPageComplete(false);
+
+		if (this.cloneData.url != null) {
+			this.pullAction = true;
+			this.txtURL.setText(this.cloneData.url);
+			this.txtURL.setEnabled(false);
+			this.cloneData.externalRepoInfo = null;
+			validateAll();
+		}
 	}
 
 	@Override
@@ -171,7 +181,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 			}
 		}
 		if (this.cloneData.repositories.getRepositories().stream()
-				.anyMatch(r -> r.getUrl().toString().equals(this.txtURL.getText()))) {
+				.anyMatch(r -> r.getUrl().toString().equals(this.txtURL.getText())) && this.pullAction == false) {
 			setPageComplete(false);
 			setMessage(Messages.AbapGitWizardPageRepositoryAndCredentials_repo_in_use_error, DialogPage.ERROR);
 			return false;

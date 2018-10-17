@@ -9,4 +9,7 @@ public interface IRepositoryService {
 			String password, IProgressMonitor monitor);
 
 	void unlinkRepository(String key, IProgressMonitor monitor);
+
+	void pullRepository(String key, String branch, String transportRequest, String user, String password, IProgressMonitor monitor);
+
 }

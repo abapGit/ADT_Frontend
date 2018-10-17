@@ -13,6 +13,7 @@ import org.abapgit.adt.backend.RepositoryServiceFactory;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard;
+import org.abapgit.adt.ui.internal.wizards.AbapGitWizardPull;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -97,6 +98,8 @@ public class AbapGitView extends ViewPart {
 			}
 		}
 	};
+
+	private Action actionPullWizard;
 
 	@Override
 	public void init(IViewSite site) throws PartInitException {
@@ -236,11 +239,12 @@ public class AbapGitView extends ViewPart {
 				if (AbapGitView.this.viewer.getStructuredSelection().size() == 1) {
 					Object firstElement = AbapGitView.this.viewer.getStructuredSelection().getFirstElement();
 					if (firstElement instanceof IRepository) {
+
+						manager.add(AbapGitView.this.actionPullWizard);
+						manager.add(new Separator());
+						manager.add(AbapGitView.this.actionCopy);
 						manager.add(new UnlinkAction(AbapGitView.this.lastProject, (IRepository) firstElement));
 
-						manager.add(new Separator());
-
-						manager.add(AbapGitView.this.actionCopy);
 					}
 				}
 			}
@@ -295,6 +299,31 @@ public class AbapGitView extends ViewPart {
 		this.actionWizard.setText(Messages.AbapGitView_action_clone);
 		this.actionWizard.setToolTipText(Messages.AbapGitView_action_clone);
 		this.actionWizard.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJ_ADD));
+
+		this.actionPullWizard = new Action() {
+
+			private IRepository selRepo;
+
+			public void run() {
+				if (!AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(AbapGitView.this.lastProject).isOK()) {
+					return;
+				}
+
+				Object firstElement = AbapGitView.this.viewer.getStructuredSelection().getFirstElement();
+				this.selRepo = null;
+
+				if (firstElement instanceof IRepository) {
+					this.selRepo = ((IRepository) firstElement);
+				}
+
+				WizardDialog wizardDialog = new WizardDialog(AbapGitView.this.viewer.getControl().getShell(),
+						new AbapGitWizardPull(AbapGitView.this.lastProject, this.selRepo));
+
+				wizardDialog.open();
+				updateView(true);
+			}
+		};
+		this.actionPullWizard.setText(Messages.AbapGitView_context_pull);
 	}
 
 	private List<IRepository> getRepositories(String destinationId) {

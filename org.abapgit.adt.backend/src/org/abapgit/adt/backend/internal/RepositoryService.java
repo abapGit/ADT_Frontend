@@ -74,8 +74,38 @@ public class RepositoryService implements IRepositoryService {
 	}
 
 	@Override
+	public void pullRepository(String key, String branch, String transportRequest, String user, String password, IProgressMonitor monitor) {
+
+		URI uriToRepo = new UriBuilder(this.uri).addPathSegments(key, "pull").getUri(); //$NON-NLS-1$
+		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory().createResourceWithStatelessSession(uriToRepo,
+				this.destinationId);
+
+		IContentHandler<IRepository> requestContentHandlerV1 = new RepositoryContentHandlerV1();
+		restResource.addContentHandler(requestContentHandlerV1);
+
+		IRepository repository = new Repository();
+		repository.setBranch(branch);
+		repository.setTransportRequest(transportRequest);
+
+		if (user != null && !user.isEmpty()) {
+			repository.setRemoteUser(user);
+		}
+
+		if (password != null && !password.isEmpty()) {
+			repository.setPassword(password);
+		}
+//		repository.setKey(key);
+
+		IAdtCompatibleRestResourceFilter compatibilityFilter = AdtCompatibleRestResourceFilterFactory.createFilter(new IContentHandler[0]);
+		restResource.addRequestFilter(compatibilityFilter);
+		restResource.addResponseFilter(compatibilityFilter);
+
+		restResource.post(monitor, null, repository);
+	}
+
+	@Override
 	public void unlinkRepository(String key, IProgressMonitor monitor) {
-		URI uriToRepo = new UriBuilder(uri).addPathSegments(key).getUri();
+		URI uriToRepo = new UriBuilder(this.uri).addPathSegments(key).getUri();
 		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory()
 				.createResourceWithStatelessSession(uriToRepo, this.destinationId);
 
