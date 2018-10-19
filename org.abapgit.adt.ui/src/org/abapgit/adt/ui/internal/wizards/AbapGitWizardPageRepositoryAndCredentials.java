@@ -48,6 +48,10 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 		this.pullAction = false;
 		setTitle(Messages.AbapGitWizardPageRepositoryAndCredentials_title);
 		setDescription(Messages.AbapGitWizardPageRepositoryAndCredentials_description);
+
+		if (this.cloneData.url != null) {
+			setTitle(Messages.AbapGitWizardPull_title);
+		}
 	}
 
 	@Override
@@ -110,11 +114,23 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 			this.cloneData.externalRepoInfo = null;
 			validateAll();
 		}
+
 	}
+
 
 	@Override
 	public void setVisible(boolean visible) {
+
+		//Navigate to transport request page if repo is public
+		if (this.cloneData.externalRepoInfo != null && this.cloneData.externalRepoInfo.getAccessMode() == AccessMode.PUBLIC
+				&& this.pullAction == true) {
+			getContainer().showPage(getNextPage());
+			getContainer().getCurrentPage().setVisible(visible);
+			return;
+		}
+
 		if (visible && !this.wasVisibleBefore) {
+
 			this.wasVisibleBefore = true;
 			boolean isSupported[] = new boolean[1];
 			try {
@@ -138,9 +154,11 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 				setMessage(e.getMessage(), DialogPage.ERROR);
 				return;
 			}
+
 		}
 
 		super.setVisible(visible);
+
 	}
 
 	private boolean validateClientOnly() {

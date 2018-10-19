@@ -101,12 +101,24 @@ public class AbapGitWizardPull extends Wizard {
 
 	@Override
 	public void addPages() {
+
 		this.pageCredentials = new AbapGitWizardPageRepositoryAndCredentials(this.project, this.destination, this.cloneData);
 		this.transportService = AdtTransportServiceFactory.createTransportService(this.destination);
 		this.transportPage = AdtTransportSelectionWizardPageFactory.createTransportSelectionPage(this.transportService);
 
 		addPage(this.pageCredentials);
 		addPage(this.transportPage);
+
+	}
+
+	@Override
+	public boolean needsPreviousAndNextButtons() {
+
+		if (this.cloneData.url != null && this.cloneData.externalRepoInfo.getAccessMode() == AccessMode.PUBLIC) {
+			return false;
+		}
+
+		return true;
 
 	}
 
@@ -147,12 +159,6 @@ public class AbapGitWizardPull extends Wizard {
 			this.pageChangeListener = new PageChangeListener();
 			((WizardDialog) wizardContainer).addPageChangingListener(this.pageChangeListener);
 
-			//Ask for credentials
-			if (this.cloneData.externalRepoInfo != null && this.cloneData.externalRepoInfo.getAccessMode() == AccessMode.PUBLIC) {
-//				wizardContainer.showPage(AbapGitWizardPull.this.transportPage);
-//				setTransportRequest();
-			}
-
 		}
 	}
 
@@ -181,34 +187,12 @@ public class AbapGitWizardPull extends Wizard {
 							true);
 					AbapGitWizardPull.this.transportPage.setCheckData(checkData);
 				} catch (Exception e) {
-					AbapGitWizardPull.this.pageCredentials.setMessage(e.getMessage(), DialogPage.ERROR);
+					AbapGitWizardPull.this.transportPage.setErrorMessage(e.getMessage());
 				}
 
 			}
 		}
 
 	}
-
-//	private void setTransportRequest() {
-//
-//		try {
-//			// The transport service requires URIs to objects we want to create in the
-//			// target package.
-//			// However, we do not know these URIs from the client.
-//			// Instead, give it the URI of the package in which we clone.
-//			IAdtObjectReference packageRef = AbapGitWizardPull.this.cloneData.packageRef;
-//			IAdtObjectReference checkRef = IAdtCoreFactory.eINSTANCE.createAdtObjectReference();
-//			checkRef.setUri(packageRef.getUri());
-//
-//			System.out.println(checkRef);
-//			System.out.println(packageRef.getPackageName());
-//
-//			IAdtTransportCheckData checkData = AbapGitWizardPull.this.transportService.check(checkRef, packageRef.getPackageName(), true);
-//			AbapGitWizardPull.this.transportPage.setCheckData(checkData);
-//		} catch (Exception e) {
-////			AbapGitWizardPull.this.transportPage.setErrorMessage(e.getMessage());
-//			System.out.println("SOEMTHING WENT WRONG ~ " + e.getMessage());
-//		}
-//	}
 
 }
