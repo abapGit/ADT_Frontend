@@ -272,8 +272,7 @@ public class AbapGitView extends ViewPart {
 
 		this.actionCopy = new Action() {
 			public void run() {
-				Table table = AbapGitView.this.viewer.getTable();
-				copy(table);
+				copy();
 			}
 		};
 		this.actionCopy.setText(Messages.AbapGitView_action_copy);
@@ -403,26 +402,27 @@ public class AbapGitView extends ViewPart {
 	 * @param table
 	 *            the data source
 	 */
-	protected void copy(Table table) {
-		if (canCopy(table)) {
-			final StringBuilder data = new StringBuilder();
+	protected void copy() {
 
-			for (int row = 0; row < table.getSelectionCount(); row++) {
-//					data.append(table.getSelection()[row]);
+		IRepository currRepository;
+		Object firstElement = AbapGitView.this.viewer.getStructuredSelection().getFirstElement();
+		currRepository = null;
 
-				for (int j = 0; j <= table.getColumnCount() - 1; j++) {
-					data.append(table.getItem(row).getText(j) + " "); //$NON-NLS-1$
-				}
+		if (firstElement instanceof IRepository) {
+			currRepository = ((IRepository) firstElement);
+		}
 
+		final StringBuilder data = new StringBuilder();
+
+			if (currRepository != null) {
+			data.append(currRepository.getPackage() + " " + currRepository.getUrl() + " " + currRepository.getBranch() + " " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					+ currRepository.getCreatedBy());
 			}
-			final Clipboard clipboard = new Clipboard(table.getDisplay());
+
+		final Clipboard clipboard = new Clipboard(AbapGitView.this.viewer.getControl().getDisplay());
 			clipboard.setContents(new String[] { data.toString() }, new TextTransfer[] { TextTransfer.getInstance() });
 			clipboard.dispose();
-		}
-	}
 
-	protected boolean canCopy(final Table table) {
-		return table.getColumnCount() > 0 && table.getSelectionCount() > 0;
 	}
 
 	/**
