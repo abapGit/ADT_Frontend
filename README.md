@@ -6,6 +6,10 @@ abapGit ADT Frontend
 
 Note: The abapGit ADT Frontend currently only works with SAP Cloud Platform ABAP Environment
 
+# Eclipse update site
+
+In Eclipse, choose in the menu bar Help > Install New Software and add the URL http://eclipse.abapgit.org/updatesite/
+
 # Development Guidelines
 
 see [CONTRIBUTING](CONTRIBUTING.md) and [DEV-GUIDELINES](DEV-GUIDELINES.md)
