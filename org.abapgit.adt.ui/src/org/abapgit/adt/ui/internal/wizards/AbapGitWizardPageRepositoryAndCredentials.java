@@ -123,7 +123,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 
 		//Navigate to transport request page if repo is public
 		if (this.cloneData.externalRepoInfo != null && this.cloneData.externalRepoInfo.getAccessMode() == AccessMode.PUBLIC
-				&& this.pullAction == true) {
+				&& this.pullAction) {
 			getContainer().showPage(getNextPage());
 			getContainer().getCurrentPage().setVisible(visible);
 			return;
@@ -199,7 +199,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 			}
 		}
 		if (this.cloneData.repositories.getRepositories().stream()
-				.anyMatch(r -> r.getUrl().toString().equals(this.txtURL.getText())) && this.pullAction == false) {
+				.anyMatch(r -> r.getUrl().toString().equals(this.txtURL.getText())) && !this.pullAction) {
 			setPageComplete(false);
 			setMessage(Messages.AbapGitWizardPageRepositoryAndCredentials_repo_in_use_error, DialogPage.ERROR);
 			return false;

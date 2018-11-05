@@ -114,7 +114,7 @@ public class AbapGitWizardPull extends Wizard {
 	@Override
 	public boolean needsPreviousAndNextButtons() {
 
-		if (this.cloneData.url != null && this.cloneData.externalRepoInfo.getAccessMode() == AccessMode.PUBLIC) {
+		if (this.cloneData.externalRepoInfo.getAccessMode() == AccessMode.PUBLIC) {
 			return false;
 		}
 
