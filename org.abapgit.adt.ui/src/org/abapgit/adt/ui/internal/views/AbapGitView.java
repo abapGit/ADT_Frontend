@@ -239,7 +239,6 @@ public class AbapGitView extends ViewPart {
 				if (AbapGitView.this.viewer.getStructuredSelection().size() == 1) {
 					Object firstElement = AbapGitView.this.viewer.getStructuredSelection().getFirstElement();
 					if (firstElement instanceof IRepository) {
-
 						if (((IRepository) firstElement).getLink(IRepositoryService.RELATION_PULL) != null) {
 							manager.add(AbapGitView.this.actionPullWizard);
 							manager.add(new Separator());
@@ -281,8 +280,8 @@ public class AbapGitView extends ViewPart {
 		this.actionCopy.setToolTipText(Messages.AbapGitView_action_copy);
 
 		this.actionCopy.setAccelerator(SWT.ALT | 'C');
-
 		this.actionCopy.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_COPY));
+
 //		this.actionCopy
 //				.setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID, "icons/etool/refresh.png")); //$NON-NLS-1$
 
