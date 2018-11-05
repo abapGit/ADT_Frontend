@@ -312,16 +312,17 @@ public class AbapGitView extends ViewPart {
 				}
 
 				Object firstElement = AbapGitView.this.viewer.getStructuredSelection().getFirstElement();
-				this.selRepo = null;
 
 				if (firstElement instanceof IRepository) {
 					this.selRepo = ((IRepository) firstElement);
 				}
 
-				WizardDialog wizardDialog = new WizardDialog(AbapGitView.this.viewer.getControl().getShell(),
-						new AbapGitWizardPull(AbapGitView.this.lastProject, this.selRepo));
+				if (this.selRepo != null) {
+					WizardDialog wizardDialog = new WizardDialog(AbapGitView.this.viewer.getControl().getShell(),
+							new AbapGitWizardPull(AbapGitView.this.lastProject, this.selRepo));
+					wizardDialog.open();
 
-				wizardDialog.open();
+				}
 				updateView(true);
 			}
 		};
