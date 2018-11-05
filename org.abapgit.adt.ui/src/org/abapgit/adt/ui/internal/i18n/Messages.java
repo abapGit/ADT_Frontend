@@ -17,6 +17,10 @@ public class Messages extends NLS {
 	public static String AbapGitView_context_dialog_unlink_title;
 	public static String AbapGitView_context_unlink;
 	public static String AbapGitView_context_unlink_error;
+	public static String AbapGitView_context_pull;
+	public static String AbapGitView_context_pull_error;
+	public static String AbapGitView_context_dialog_pull_message;
+	public static String AbapGitView_context_dialog_pull_title;
 	public static String AbapGitView_no_abap_project;
 	public static String AbapGitView_not_supported;
 	public static String AbapGitView_repos_in_project;
@@ -25,6 +29,7 @@ public class Messages extends NLS {
 	public static String AbapGitView_task_fetch_repos_error;
 	public static String AbapGitWizard_task_cloning_repository;
 	public static String AbapGitWizard_title;
+	public static String AbapGitWizardPull_title;
 	public static String AbapGitWizardPageBranchAndPackage_btn_browse;
 	public static String AbapGitWizardPageBranchAndPackage_combobox_branch_message;
 	public static String AbapGitWizardPageBranchAndPackage_description;
