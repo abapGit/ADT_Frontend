@@ -1,5 +1,9 @@
 package org.abapgit.adt.backend.internal;
 
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.abapgit.adt.backend.IRepository;
 
 public class Repository implements IRepository {
@@ -13,6 +17,7 @@ public class Repository implements IRepository {
 	private String createdBy;
 	private String remotePassword;
 	private String transportRequest;
+	private final Map<String, URI> links = new HashMap<>();
 
 	@Override
 	public String getUrl() {
@@ -128,4 +133,14 @@ public class Repository implements IRepository {
 	public void setCreatedBy(String createdBy) {
 		this.createdBy = createdBy;
 	}
+
+	@Override
+	public URI getLink(String relation) {
+		return this.links.get(relation);
+	}
+
+	public void addLink(String relation, URI uri) {
+		this.links.put(relation, uri);
+	}
+
 }
