@@ -135,7 +135,7 @@ public class AbapGitWizardPull extends Wizard {
 					IRepositoryService repoService = RepositoryServiceFactory.createRepositoryService(AbapGitWizardPull.this.destination,
 							monitor);
 
-					repoService.pullRepository(AbapGitWizardPull.this.selRepoData.getKey(), AbapGitWizardPull.this.selRepoData.getBranch(),
+					repoService.pullRepository(AbapGitWizardPull.this.selRepoData, AbapGitWizardPull.this.selRepoData.getBranch(),
 							transportRequestNumber, AbapGitWizardPull.this.cloneData.user, AbapGitWizardPull.this.cloneData.pass, monitor);
 				}
 			});

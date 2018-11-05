@@ -1,5 +1,7 @@
 package org.abapgit.adt.backend;
 
+import java.net.URI;
+
 public interface IRepository {
 	public String getKey();
 
@@ -36,4 +38,7 @@ public interface IRepository {
 	public void setPassword(String password);
 
 	public void setTransportRequest(String transportRequest);
+
+	public URI getLink(String relation);
+
 }

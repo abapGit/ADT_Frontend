@@ -74,9 +74,10 @@ public class RepositoryService implements IRepositoryService {
 	}
 
 	@Override
-	public void pullRepository(String key, String branch, String transportRequest, String user, String password, IProgressMonitor monitor) {
+	public void pullRepository(IRepository existingRepository, String branch, String transportRequest, String user, String password,
+			IProgressMonitor monitor) {
 
-		URI uriToRepo = new UriBuilder(this.uri).addPathSegments(key, "pull").getUri(); //$NON-NLS-1$
+		URI uriToRepo = existingRepository.getLink(IRepositoryService.RELATION_PULL); //$NON-NLS-1$
 		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory().createResourceWithStatelessSession(uriToRepo,
 				this.destinationId);
 

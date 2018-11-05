@@ -1,5 +1,7 @@
 package org.abapgit.adt.backend.internal;
 
+import java.net.URI;
+
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -11,7 +13,7 @@ import org.abapgit.adt.backend.IRepository;
 public class RepositorySerializer {
 
 	public IRepository deserializeRepository(XMLStreamReader xmlReader, String contentType) throws XMLStreamException {
-		IRepository repository = new Repository();
+		Repository repository = new Repository();
 
 		int depth = 0;
 		loop: while (xmlReader.hasNext()) {
@@ -36,6 +38,9 @@ public class RepositorySerializer {
 					break;
 				case "package": //$NON-NLS-1$
 					repository.setPackage(xmlReader.getElementText());
+					break;
+				case "link": //$NON-NLS-1$
+					repository.addLink(xmlReader.getAttributeValue(null, "rel"), URI.create(xmlReader.getAttributeValue(null, "href")));
 					break;
 				default:
 					depth++;
@@ -63,11 +68,11 @@ public class RepositorySerializer {
 		writeElementIfNonEmpty(xmlStreamWriter, "created_at", repository.getFirstCommit()); //$NON-NLS-1$
 		writeElementIfNonEmpty(xmlStreamWriter, "key", repository.getKey()); //$NON-NLS-1$
 		writeElementIfNonEmpty(xmlStreamWriter, "package", repository.getPackage()); //$NON-NLS-1$
-		writeElementIfNonEmpty(xmlStreamWriter, "password", repository.getRemotePassword()); //$NON-NLS-1$
 		writeElementIfNonEmpty(xmlStreamWriter, "transportRequest", repository.getTransportRequest()); //$NON-NLS-1$
 		writeElementIfNonEmpty(xmlStreamWriter, "url", repository.getUrl()); //$NON-NLS-1$
 		writeElementIfNonEmpty(xmlStreamWriter, "created_by", repository.getCreatedBy()); //$NON-NLS-1$
 		writeElementIfNonEmpty(xmlStreamWriter, "user", repository.getRemoteUser()); //$NON-NLS-1$
+		writeElementIfNonEmpty(xmlStreamWriter, "password", repository.getRemotePassword()); //$NON-NLS-1$
 		xmlStreamWriter.writeEndElement();
 	}
 

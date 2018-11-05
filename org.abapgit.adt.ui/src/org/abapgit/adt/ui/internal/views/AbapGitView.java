@@ -240,8 +240,10 @@ public class AbapGitView extends ViewPart {
 					Object firstElement = AbapGitView.this.viewer.getStructuredSelection().getFirstElement();
 					if (firstElement instanceof IRepository) {
 
-						manager.add(AbapGitView.this.actionPullWizard);
-						manager.add(new Separator());
+						if (((IRepository) firstElement).getLink(IRepositoryService.RELATION_PULL) != null) {
+							manager.add(AbapGitView.this.actionPullWizard);
+							manager.add(new Separator());
+						}
 						manager.add(AbapGitView.this.actionCopy);
 						manager.add(new UnlinkAction(AbapGitView.this.lastProject, (IRepository) firstElement));
 
@@ -280,6 +282,7 @@ public class AbapGitView extends ViewPart {
 
 		this.actionCopy.setAccelerator(SWT.ALT | 'C');
 
+		this.actionCopy.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_COPY));
 //		this.actionCopy
 //				.setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID, "icons/etool/refresh.png")); //$NON-NLS-1$
 
@@ -323,6 +326,8 @@ public class AbapGitView extends ViewPart {
 			}
 		};
 		this.actionPullWizard.setText(Messages.AbapGitView_context_pull);
+//		this.actionPullWizard
+//				.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
 	}
 
 	private List<IRepository> getRepositories(String destinationId) {
@@ -453,6 +458,7 @@ public class AbapGitView extends ViewPart {
 			this.project = project;
 			this.repository = repository;
 			setText(Messages.AbapGitView_context_unlink);
+			setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ETOOL_DELETE));
 		}
 
 		@Override
