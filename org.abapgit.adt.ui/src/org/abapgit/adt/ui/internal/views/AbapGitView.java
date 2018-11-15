@@ -439,7 +439,7 @@ public class AbapGitView extends ViewPart {
 
 					IAdtPackageServiceUI packageServiceUI = AdtPackageServiceUIFactory.getOrCreateAdtPackageServiceUI();
 					List<IAdtObjectReference> pkgRefs = packageServiceUI.find(destinationId, currRepository.getPackage(), null);
-					IProject currProject = AdtProjectServiceFactory.createProjectService().findProject(destinationId);
+					IProject currProject = AbapGitView.this.lastProject; //AdtProjectServiceFactory.createProjectService().findProject(destinationId);
 					if (!pkgRefs.isEmpty()) {
 						IAdtObjectReference gitPackageRef = pkgRefs.stream().findFirst().get();
 						if (gitPackageRef != null) {
