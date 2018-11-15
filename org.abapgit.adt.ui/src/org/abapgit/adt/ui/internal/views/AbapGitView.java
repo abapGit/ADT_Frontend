@@ -28,6 +28,8 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableLabelProvider;
@@ -44,9 +46,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -55,9 +60,15 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import com.sap.adt.destinations.logon.AdtLogonServiceFactory;
+import com.sap.adt.destinations.model.IDestinationData;
 import com.sap.adt.destinations.ui.logon.AdtLogonServiceUIFactory;
 import com.sap.adt.project.ui.util.ProjectUtil;
+import com.sap.adt.tools.core.model.adtcore.IAdtObjectReference;
 import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
+import com.sap.adt.tools.core.project.IAbapProject;
+import com.sap.adt.tools.core.ui.navigation.AdtNavigationServiceFactory;
+import com.sap.adt.tools.core.ui.packages.AdtPackageServiceUIFactory;
+import com.sap.adt.tools.core.ui.packages.IAdtPackageServiceUI;
 
 public class AbapGitView extends ViewPart {
 
@@ -332,6 +343,7 @@ public class AbapGitView extends ViewPart {
 
 	private List<IRepository> getRepositories(String destinationId) {
 		List<IRepository> repos = new LinkedList<>();
+		List<IRepository> myrepos = new LinkedList<>();
 		boolean[] isSupported = new boolean[1];
 		try {
 			PlatformUI.getWorkbench().getProgressService().busyCursorWhile(new IRunnableWithProgress() {
@@ -344,7 +356,20 @@ public class AbapGitView extends ViewPart {
 						return;
 					}
 					isSupported[0] = true;
+
+					//Check if repos are created by current user
+					IProject currProject = AdtProjectServiceFactory.createProjectService().findProject(destinationId);
+					IAbapProject currAbapProject = currProject.getAdapter(IAbapProject.class);
+					IDestinationData ProjectDestData = currAbapProject.getDestinationData();
+
 					repos.addAll(repoService.getRepositories(monitor).getRepositories());
+
+					for (IRepository r : repos) {
+						if (r.getCreatedBy().equalsIgnoreCase(ProjectDestData.getUser())) {
+							myrepos.add(r);
+						}
+					}
+
 				}
 			});
 
@@ -354,7 +379,7 @@ public class AbapGitView extends ViewPart {
 		} catch (InterruptedException e) {
 		}
 		if (isSupported[0]) {
-			return repos;
+			return myrepos;
 		} else {
 			return null;
 		}
@@ -392,7 +417,74 @@ public class AbapGitView extends ViewPart {
 			setControlsEnabled(false);
 			this.viewer.setInput(null);
 		}
+
+		this.viewer.addDoubleClickListener(new IDoubleClickListener() {
+
+			@Override
+			public void doubleClick(DoubleClickEvent event) {
+
+				IRepository currRepository;
+				IWorkbenchPage page = getSite().getPage();
+				IViewPart view = page.findView(IPageLayout.ID_PROJECT_EXPLORER);
+				currRepository = null;
+
+				IStructuredSelection selection = (IStructuredSelection) event.getSelection();
+
+				Object firstElement = selection.getFirstElement();
+				if (firstElement instanceof IRepository) {
+					currRepository = ((IRepository) firstElement);
+				}
+
+				if (currRepository != null) {
+
+					IAdtPackageServiceUI packageServiceUI = AdtPackageServiceUIFactory.getOrCreateAdtPackageServiceUI();
+					List<IAdtObjectReference> pkgRefs = packageServiceUI.find(destinationId, currRepository.getPackage(), null);
+					IProject currProject = AdtProjectServiceFactory.createProjectService().findProject(destinationId);
+					if (!pkgRefs.isEmpty()) {
+						IAdtObjectReference gitPackageRef = pkgRefs.stream().findFirst().get();
+						if (gitPackageRef != null) {
+							AdtNavigationServiceFactory.createNavigationService().navigate(currProject, gitPackageRef, true);
+						}
+					}
+
+//					IWorkbenchPart workbenchPart = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePart();
+//					IFile file = workbenchPart.getSite().getPage().getActiveEditor().getEditorInput().getAdapter(IFile.class);
+//					if (file == null) {
+//						System.out.println("FileNotFoundException");
+//					}
+//					expandProjectExlorer(file);
+
+				}
+
+			}
+		});
 	}
+
+//	public void expandProjectExlorer(IFile file) {
+//		if (file == null) {
+//			return;
+//		}
+//		try {
+//			IWorkbenchPage page = getSite().getWorkbenchWindow().getActivePage();
+//			IViewPart view = page.showView(IPageLayout.ID_PROJECT_EXPLORER);
+//			if (view instanceof ISetSelectionTarget) {
+//
+//				AbapGitView.this.viewer.getControl().getShell().getDisplay().asyncExec(new Runnable() {
+//					@Override
+//					public void run() {
+//
+//						ISelection selection = new StructuredSelection(file);
+//
+//						System.out.println(selection);
+//						((ISetSelectionTarget) view).selectReveal(selection);
+//					}
+//				});
+//
+//			}
+//		} catch (PartInitException e) {
+//			System.out.println(e.getMessage());
+//		}
+//	}
 
 	private void setControlsEnabled(boolean enabled) {
 		this.viewer.getControl().setEnabled(enabled);
