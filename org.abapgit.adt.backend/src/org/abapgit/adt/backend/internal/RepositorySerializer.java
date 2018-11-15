@@ -68,11 +68,11 @@ public class RepositorySerializer {
 		writeElementIfNonEmpty(xmlStreamWriter, "created_at", repository.getFirstCommit()); //$NON-NLS-1$
 		writeElementIfNonEmpty(xmlStreamWriter, "key", repository.getKey()); //$NON-NLS-1$
 		writeElementIfNonEmpty(xmlStreamWriter, "package", repository.getPackage()); //$NON-NLS-1$
+		writeElementIfNonEmpty(xmlStreamWriter, "password", repository.getRemotePassword()); //$NON-NLS-1$
 		writeElementIfNonEmpty(xmlStreamWriter, "transportRequest", repository.getTransportRequest()); //$NON-NLS-1$
 		writeElementIfNonEmpty(xmlStreamWriter, "url", repository.getUrl()); //$NON-NLS-1$
 		writeElementIfNonEmpty(xmlStreamWriter, "created_by", repository.getCreatedBy()); //$NON-NLS-1$
 		writeElementIfNonEmpty(xmlStreamWriter, "user", repository.getRemoteUser()); //$NON-NLS-1$
-		writeElementIfNonEmpty(xmlStreamWriter, "password", repository.getRemotePassword()); //$NON-NLS-1$
 		xmlStreamWriter.writeEndElement();
 	}
 
