@@ -7,6 +7,7 @@ public class Messages extends NLS {
 	public static String AbapGitView_action_clone;
 	public static String AbapGitView_action_refresh;
 	public static String AbapGitView_action_copy;
+	public static String AbapGitView_action_showMyRepos;
 	public static String AbapGitView_action_pull;
 	public static String AbapGitView_column_branch;
 	public static String AbapGitView_column_firstcommitat;
@@ -30,6 +31,8 @@ public class Messages extends NLS {
 	public static String AbapGitWizard_task_cloning_repository;
 	public static String AbapGitWizard_title;
 	public static String AbapGitWizardPull_title;
+	public static String AbapGitWizardPageBranchAndPackage_chbox_activate;
+	public static String AbapGitWizardPageBranchAndPackage_chbox_activate_tooltip;
 	public static String AbapGitWizardPageBranchAndPackage_btn_browse;
 	public static String AbapGitWizardPageBranchAndPackage_combobox_branch_message;
 	public static String AbapGitWizardPageBranchAndPackage_description;
