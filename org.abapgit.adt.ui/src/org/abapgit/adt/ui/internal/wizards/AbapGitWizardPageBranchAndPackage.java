@@ -40,6 +40,7 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 	private final String destination;
 	private final CloneData cloneData;
 
+	private Button checkbox_Tta;
 	private TextViewer txtPackage;
 	private ComboViewer comboBranches;
 
@@ -118,6 +119,25 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 					AbapGitWizardPageBranchAndPackage.this.txtPackage.getTextWidget().setText(selectedPackages[0].getName());
 					AbapGitWizardPageBranchAndPackage.this.cloneData.packageRef = selectedPackages[0];
 				}
+			}
+		});
+
+		/////// CHECKBOX Try to Activate
+		Label lblTta = new Label(container, SWT.NONE);
+		lblTta.setText(Messages.AbapGitWizardPageBranchAndPackage_chbox_activate);
+		lblTta.setToolTipText(Messages.AbapGitWizardPageBranchAndPackage_chbox_activate_tooltip);
+		GridDataFactory.swtDefaults().applyTo(lblTta);
+
+
+		this.checkbox_Tta = new Button(container, SWT.CHECK);
+		GridDataFactory.swtDefaults().applyTo(this.checkbox_Tta);
+
+		this.checkbox_Tta.addSelectionListener(new SelectionAdapter() {
+
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				Button chbox = (Button) event.getSource();
+				System.out.println(chbox.getSelection());
 			}
 		});
 
