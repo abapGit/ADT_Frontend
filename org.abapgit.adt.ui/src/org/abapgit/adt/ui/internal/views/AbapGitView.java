@@ -249,22 +249,24 @@ public class AbapGitView extends ViewPart {
 					if (firstElement instanceof IRepository) {
 
 						//Check if repos are created by current user
-						String destinationId = getDestination(AbapGitView.this.lastProject);
-						IProject currProject = AdtProjectServiceFactory.createProjectService().findProject(destinationId);
-						IAbapProject currAbapProject = currProject.getAdapter(IAbapProject.class);
-						IDestinationData ProjectDestData = currAbapProject.getDestinationData();
+//						String destinationId = getDestination(AbapGitView.this.lastProject);
+//						IProject currProject = AdtProjectServiceFactory.createProjectService().findProject(destinationId);
+//						IAbapProject currAbapProject = currProject.getAdapter(IAbapProject.class);
+//						IDestinationData ProjectDestData = currAbapProject.getDestinationData();
 
-						if ((((IRepository) firstElement).getCreatedBy().equalsIgnoreCase(ProjectDestData.getUser()))) {
-
-							if (((IRepository) firstElement).getLink(IRepositoryService.RELATION_PULL) != null) {
-								manager.add(AbapGitView.this.actionPullWizard);
-								manager.add(new Separator());
-							}
-							manager.add(new UnlinkAction(AbapGitView.this.lastProject, (IRepository) firstElement));
-
-						}
+//						if ((((IRepository) firstElement).getCreatedBy().equalsIgnoreCase(ProjectDestData.getUser()))) {
+//
+//							if (((IRepository) firstElement).getLink(IRepositoryService.RELATION_PULL) != null) {
+//								manager.add(AbapGitView.this.actionPullWizard);
+//								manager.add(new Separator());
+//							}
+//
+//						}
 
 						manager.add(AbapGitView.this.actionCopy);
+						manager.add(new Separator());
+						manager.add(new UnlinkAction(AbapGitView.this.lastProject, (IRepository) firstElement));
+
 
 					}
 				}
@@ -312,9 +314,6 @@ public class AbapGitView extends ViewPart {
 
 		this.actionCopy.setAccelerator(SWT.ALT | 'C');
 		this.actionCopy.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_COPY));
-
-//		this.actionCopy
-//				.setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID, "icons/etool/refresh.png")); //$NON-NLS-1$
 
 		this.actionWizard = new Action() {
 			public void run() {
