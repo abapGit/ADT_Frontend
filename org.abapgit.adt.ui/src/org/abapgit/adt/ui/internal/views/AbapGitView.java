@@ -28,6 +28,8 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableLabelProvider;
@@ -55,16 +57,22 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import com.sap.adt.destinations.logon.AdtLogonServiceFactory;
+import com.sap.adt.destinations.model.IDestinationData;
 import com.sap.adt.destinations.ui.logon.AdtLogonServiceUIFactory;
 import com.sap.adt.project.ui.util.ProjectUtil;
+import com.sap.adt.tools.core.model.adtcore.IAdtObjectReference;
 import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
+import com.sap.adt.tools.core.project.IAbapProject;
+import com.sap.adt.tools.core.ui.navigation.AdtNavigationServiceFactory;
+import com.sap.adt.tools.core.ui.packages.AdtPackageServiceUIFactory;
+import com.sap.adt.tools.core.ui.packages.IAdtPackageServiceUI;
 
 public class AbapGitView extends ViewPart {
 
 	public static final String ID = "org.abapgit.adt.ui.views.AbapGitView"; //$NON-NLS-1$
 
 	private TableViewer viewer;
-	private Action actionRefresh, actionWizard, actionCopy;
+	private Action actionRefresh, actionWizard, actionCopy, actionShowMyRepos;
 	private ISelection lastSelection;
 	private IProject lastProject;
 
@@ -117,7 +125,7 @@ public class AbapGitView extends ViewPart {
 		IProject currentProject = ProjectUtil.getActiveAdtCoreProject(this.lastSelection, null, null, null);
 		if (currentProject != this.lastProject) {
 			this.lastProject = currentProject;
-			updateView(false);
+			updateView(false, false);
 		}
 
 		this.lastSelection = null;
@@ -152,7 +160,7 @@ public class AbapGitView extends ViewPart {
 		hookContextMenu();
 		contributeToActionBars();
 
-		updateView(false);
+		updateView(false, false);
 
 		// add listener for selections
 		getSite().getPage().addPostSelectionListener(this.selectionListener);
@@ -239,12 +247,26 @@ public class AbapGitView extends ViewPart {
 				if (AbapGitView.this.viewer.getStructuredSelection().size() == 1) {
 					Object firstElement = AbapGitView.this.viewer.getStructuredSelection().getFirstElement();
 					if (firstElement instanceof IRepository) {
-						if (((IRepository) firstElement).getLink(IRepositoryService.RELATION_PULL) != null) {
-							manager.add(AbapGitView.this.actionPullWizard);
-							manager.add(new Separator());
-						}
+
+						//Check if repos are created by current user
+//						String destinationId = getDestination(AbapGitView.this.lastProject);
+//						IProject currProject = AdtProjectServiceFactory.createProjectService().findProject(destinationId);
+//						IAbapProject currAbapProject = currProject.getAdapter(IAbapProject.class);
+//						IDestinationData ProjectDestData = currAbapProject.getDestinationData();
+
+//						if ((((IRepository) firstElement).getCreatedBy().equalsIgnoreCase(ProjectDestData.getUser()))) {
+//
+//							if (((IRepository) firstElement).getLink(IRepositoryService.RELATION_PULL) != null) {
+//								manager.add(AbapGitView.this.actionPullWizard);
+//								manager.add(new Separator());
+//							}
+//
+//						}
+
 						manager.add(AbapGitView.this.actionCopy);
+						manager.add(new Separator());
 						manager.add(new UnlinkAction(AbapGitView.this.lastProject, (IRepository) firstElement));
+
 
 					}
 				}
@@ -257,19 +279,30 @@ public class AbapGitView extends ViewPart {
 	private void contributeToActionBars() {
 		IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
 		toolBarManager.add(this.actionRefresh);
+		toolBarManager.add(this.actionShowMyRepos);
 		toolBarManager.add(this.actionWizard);
 	}
 
 	private void makeActions() {
 		this.actionRefresh = new Action() {
 			public void run() {
-				updateView(true);
+				updateView(true, false);
 			}
 		};
 		this.actionRefresh.setText(Messages.AbapGitView_action_refresh);
 		this.actionRefresh.setToolTipText(Messages.AbapGitView_action_refresh);
 		this.actionRefresh
 				.setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID, "icons/etool/refresh.png")); //$NON-NLS-1$
+
+		this.actionShowMyRepos = new Action() {
+			public void run() {
+				updateView(true, true);
+			}
+		};
+		this.actionShowMyRepos.setText(Messages.AbapGitView_action_showMyRepos);
+		this.actionShowMyRepos.setToolTipText(Messages.AbapGitView_action_showMyRepos);
+		this.actionShowMyRepos
+				.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ETOOL_HOME_NAV));
 
 		this.actionCopy = new Action() {
 			public void run() {
@@ -282,9 +315,6 @@ public class AbapGitView extends ViewPart {
 		this.actionCopy.setAccelerator(SWT.ALT | 'C');
 		this.actionCopy.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_COPY));
 
-//		this.actionCopy
-//				.setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID, "icons/etool/refresh.png")); //$NON-NLS-1$
-
 		this.actionWizard = new Action() {
 			public void run() {
 				if (!AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(AbapGitView.this.lastProject).isOK()) {
@@ -294,7 +324,7 @@ public class AbapGitView extends ViewPart {
 						new AbapGitWizard(AbapGitView.this.lastProject));
 
 				wizardDialog.open();
-				updateView(true);
+				updateView(true, false);
 			}
 		};
 		this.actionWizard.setText(Messages.AbapGitView_action_clone);
@@ -322,7 +352,7 @@ public class AbapGitView extends ViewPart {
 					wizardDialog.open();
 
 				}
-				updateView(true);
+				updateView(true, false);
 			}
 		};
 		this.actionPullWizard.setText(Messages.AbapGitView_context_pull);
@@ -330,8 +360,9 @@ public class AbapGitView extends ViewPart {
 //				.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
 	}
 
-	private List<IRepository> getRepositories(String destinationId) {
+	private List<IRepository> getRepositories(String destinationId, Boolean byCurrUser) {
 		List<IRepository> repos = new LinkedList<>();
+		List<IRepository> myrepos = new LinkedList<>();
 		boolean[] isSupported = new boolean[1];
 		try {
 			PlatformUI.getWorkbench().getProgressService().busyCursorWhile(new IRunnableWithProgress() {
@@ -344,7 +375,27 @@ public class AbapGitView extends ViewPart {
 						return;
 					}
 					isSupported[0] = true;
+
 					repos.addAll(repoService.getRepositories(monitor).getRepositories());
+
+					if (byCurrUser) {
+						//Check if repos are created by current user
+						IProject currProject = AdtProjectServiceFactory.createProjectService().findProject(destinationId);
+						IAbapProject currAbapProject = currProject.getAdapter(IAbapProject.class);
+						IDestinationData ProjectDestData = currAbapProject.getDestinationData();
+
+						for (IRepository r : repos) {
+							if (r.getCreatedBy().equalsIgnoreCase(ProjectDestData.getUser())) {
+								myrepos.add(r);
+							}
+						}
+					}
+
+					if (!myrepos.isEmpty()) {
+						repos.clear();
+						repos.addAll(myrepos);
+					}
+
 				}
 			});
 
@@ -364,7 +415,7 @@ public class AbapGitView extends ViewPart {
 		return AdtProjectServiceFactory.createProjectService().getDestinationId(project);
 	}
 
-	private void updateView(boolean ensureLogon) {
+	private void updateView(boolean ensureLogon, boolean byCurrUser) {
 		if (this.lastProject == null) {
 			setContentDescription(Messages.AbapGitView_no_abap_project);
 			setControlsEnabled(false);
@@ -381,7 +432,11 @@ public class AbapGitView extends ViewPart {
 			return;
 		}
 
-		List<IRepository> repos = getRepositories(destinationId);
+		List<IRepository> repos = getRepositories(destinationId, false);
+
+		if (byCurrUser) {
+			repos = getRepositories(destinationId, true);
+		}
 
 		if (repos != null) {
 			setContentDescription(NLS.bind(Messages.AbapGitView_repos_in_project, this.lastProject.getName()));
@@ -392,11 +447,79 @@ public class AbapGitView extends ViewPart {
 			setControlsEnabled(false);
 			this.viewer.setInput(null);
 		}
+
+		this.viewer.addDoubleClickListener(new IDoubleClickListener() {
+
+			@Override
+			public void doubleClick(DoubleClickEvent event) {
+
+				IRepository currRepository;
+//				IWorkbenchPage page = getSite().getPage();
+//				IViewPart view = page.findView(IPageLayout.ID_PROJECT_EXPLORER);
+				currRepository = null;
+
+				IStructuredSelection selection = (IStructuredSelection) event.getSelection();
+
+				Object firstElement = selection.getFirstElement();
+				if (firstElement instanceof IRepository) {
+					currRepository = ((IRepository) firstElement);
+				}
+
+				if (currRepository != null) {
+
+					IAdtPackageServiceUI packageServiceUI = AdtPackageServiceUIFactory.getOrCreateAdtPackageServiceUI();
+					List<IAdtObjectReference> pkgRefs = packageServiceUI.find(destinationId, currRepository.getPackage(), null);
+					IProject currProject = AbapGitView.this.lastProject; //AdtProjectServiceFactory.createProjectService().findProject(destinationId);
+					if (!pkgRefs.isEmpty()) {
+						IAdtObjectReference gitPackageRef = pkgRefs.stream().findFirst().get();
+						if (gitPackageRef != null) {
+							AdtNavigationServiceFactory.createNavigationService().navigate(currProject, gitPackageRef, true);
+						}
+					}
+
+//					IWorkbenchPart workbenchPart = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePart();
+//					IFile file = workbenchPart.getSite().getPage().getActiveEditor().getEditorInput().getAdapter(IFile.class);
+//					if (file == null) {
+//						System.out.println("FileNotFoundException");
+//					}
+//					expandProjectExlorer(file);
+
+				}
+
+			}
+		});
 	}
+
+//	public void expandProjectExlorer(IFile file) {
+//		if (file == null) {
+//			return;
+//		}
+//		try {
+//			IWorkbenchPage page = getSite().getWorkbenchWindow().getActivePage();
+//			IViewPart view = page.showView(IPageLayout.ID_PROJECT_EXPLORER);
+//			if (view instanceof ISetSelectionTarget) {
+//
+//				AbapGitView.this.viewer.getControl().getShell().getDisplay().asyncExec(new Runnable() {
+//					@Override
+//					public void run() {
+//
+//						ISelection selection = new StructuredSelection(file);
+//
+//						System.out.println(selection);
+//						((ISetSelectionTarget) view).selectReveal(selection);
+//					}
+//				});
+//
+//			}
+//		} catch (PartInitException e) {
+//			System.out.println(e.getMessage());
+//		}
+//	}
 
 	private void setControlsEnabled(boolean enabled) {
 		this.viewer.getControl().setEnabled(enabled);
 		this.actionRefresh.setEnabled(enabled);
+		this.actionShowMyRepos.setEnabled(enabled);
 		this.actionWizard.setEnabled(enabled);
 		this.actionCopy.setEnabled(enabled);
 	}
@@ -479,7 +602,7 @@ public class AbapGitView extends ViewPart {
 								.unlinkRepository(UnlinkAction.this.repository.getKey(), monitor);
 					}
 				});
-				updateView(true);
+				updateView(true, false);
 			} catch (InvocationTargetException e) {
 				StatusManager.getManager().handle(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID,
 						Messages.AbapGitView_context_unlink_error, e.getTargetException()), StatusManager.SHOW);
