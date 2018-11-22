@@ -3,6 +3,8 @@ package org.abapgit.adt.ui.internal.wizards;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
+import org.abapgit.adt.backend.ApackServiceFactory;
+import org.abapgit.adt.backend.IApackGitManifestService;
 import org.abapgit.adt.backend.IExternalRepositoryInfo.IBranch;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard.CloneData;
@@ -198,6 +200,9 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 				return false;
 			}
 		}
+		if (this.cloneData.apackManifest == null) {
+			return fetchApackManifest();
+		}
 		return true;
 	}
 
@@ -217,6 +222,33 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 					this.comboBranches.setSelection(new StructuredSelection(selectedBranch));
 				}
 			}
+		}
+	}
+
+	private boolean fetchApackManifest() {
+		try {
+			getContainer().run(true, true, new IRunnableWithProgress() {
+
+				@Override
+				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+					monitor.beginTask(Messages.AbapGitWizardPageBranchAndPackage_task_apack_manifest_message, IProgressMonitor.UNKNOWN);
+					IApackGitManifestService manifestService = ApackServiceFactory.createApackGitManifestService(AbapGitWizardPageBranchAndPackage.this.destination, monitor);
+					AbapGitWizardPageBranchAndPackage.this.cloneData.apackManifest = manifestService.getManifest(
+							AbapGitWizardPageBranchAndPackage.this.cloneData.url, AbapGitWizardPageBranchAndPackage.this.cloneData.branch,
+							AbapGitWizardPageBranchAndPackage.this.cloneData.user,
+							AbapGitWizardPageBranchAndPackage.this.cloneData.pass, monitor);
+				}
+			});
+			setPageComplete(true);
+			setMessage(null);
+			return true;
+		} catch (InvocationTargetException e) {
+			setPageComplete(false);
+			setMessage(e.getTargetException().getMessage(), DialogPage.ERROR);
+			return false;
+		} catch (InterruptedException e) {
+			// process was aborted
+			return false;
 		}
 	}
 

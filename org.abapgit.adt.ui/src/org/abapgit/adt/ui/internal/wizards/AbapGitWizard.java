@@ -2,6 +2,7 @@ package org.abapgit.adt.ui.internal.wizards;
 
 import java.lang.reflect.InvocationTargetException;
 
+import org.abapgit.adt.backend.IApackManifest;
 import org.abapgit.adt.backend.IExternalRepositoryInfo;
 import org.abapgit.adt.backend.IRepositories;
 import org.abapgit.adt.backend.IRepositoryService;
@@ -149,6 +150,7 @@ public class AbapGitWizard extends Wizard {
 		public String url;
 		public String user;
 		public String pass;
+		public IApackManifest apackManifest;
 	}
 
 }

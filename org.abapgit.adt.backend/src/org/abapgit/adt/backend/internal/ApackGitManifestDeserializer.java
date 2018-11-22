@@ -58,7 +58,7 @@ public class ApackGitManifestDeserializer {
 					manifestDescriptor.setDescription(xmlReader.getElementText());
 					break;
 				case "git_url": //$NON-NLS-1$
-					manifestDescriptor.setDescription(xmlReader.getElementText());
+					manifestDescriptor.setGitUrl(xmlReader.getElementText());
 					break;
 				case "author": //$NON-NLS-1$
 					IApackAuthor apackAuthor = deserializeApackAuthor(xmlReader);

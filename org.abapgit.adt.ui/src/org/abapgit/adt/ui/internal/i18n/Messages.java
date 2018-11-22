@@ -38,6 +38,7 @@ public class Messages extends NLS {
 	public static String AbapGitWizardPageBranchAndPackage_description;
 	public static String AbapGitWizardPageBranchAndPackage_label_branch;
 	public static String AbapGitWizardPageBranchAndPackage_label_package;
+	public static String AbapGitWizardPageBranchAndPackage_task_apack_manifest_message;
 	public static String AbapGitWizardPageBranchAndPackage_task_package_validation_error_message;
 	public static String AbapGitWizardPageBranchAndPackage_task_package_validation_message;
 	public static String AbapGitWizardPageBranchAndPackage_text_package_message;
