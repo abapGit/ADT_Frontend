@@ -40,6 +40,7 @@ public class AbapGitWizard extends Wizard {
 
 	private AbapGitWizardPageRepositoryAndCredentials pageRepo;
 	private AbapGitWizardPageBranchAndPackage pageBranchAndPackage;
+	private AbapGitWizardPageApack pageApack;
 	private IAdtTransportService transportService;
 	private IAdtTransportSelectionWizardPage transportPage;
 
@@ -60,10 +61,12 @@ public class AbapGitWizard extends Wizard {
 	public void addPages() {
 		this.pageRepo = new AbapGitWizardPageRepositoryAndCredentials(this.project, this.destination, this.cloneData);
 		this.pageBranchAndPackage = new AbapGitWizardPageBranchAndPackage(this.project, this.destination, this.cloneData);
+		this.pageApack = new AbapGitWizardPageApack(this.project, this.destination, this.cloneData);
 		this.transportService = AdtTransportServiceFactory.createTransportService(this.destination);
 		this.transportPage = AdtTransportSelectionWizardPageFactory.createTransportSelectionPage(this.transportService);
 		addPage(this.pageRepo);
 		addPage(this.pageBranchAndPackage);
+		addPage(this.pageApack);
 		addPage(this.transportPage);
 	}
 
@@ -114,12 +117,14 @@ public class AbapGitWizard extends Wizard {
 					event.doit = false;
 					return;
 				}
-			} else if (event.getCurrentPage() == AbapGitWizard.this.pageBranchAndPackage
-					&& event.getTargetPage() == AbapGitWizard.this.transportPage) {
+			}
+			if (event.getCurrentPage() == AbapGitWizard.this.pageBranchAndPackage) {
 				if (!AbapGitWizard.this.pageBranchAndPackage.validateAll()) {
 					event.doit = false;
 					return;
 				}
+			}
+			if (event.getTargetPage() == AbapGitWizard.this.transportPage) {
 				try {
 					// The transport service requires URIs to objects we want to create in the
 					// target package.
