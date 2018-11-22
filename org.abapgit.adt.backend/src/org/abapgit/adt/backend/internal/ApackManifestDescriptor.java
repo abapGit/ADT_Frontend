@@ -86,7 +86,7 @@ public class ApackManifestDescriptor implements IApackManifestDescriptor {
 		this.authors.add(author);
 	}
 
-	public void setHomeUrl(String homeUrl) {
+	public void setGitUrl(String homeUrl) {
 		this.gitUrl = homeUrl;
 	}
 

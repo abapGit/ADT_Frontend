@@ -31,7 +31,7 @@ public class ApackDependency implements IApackDependency {
 		this.packageId = packageId;
 	}
 
-	public void setHomeUrl(String homeUrl) {
+	public void setGitUrl(String homeUrl) {
 		this.gitUrl = homeUrl;
 	}
 
@@ -94,6 +94,7 @@ public class ApackDependency implements IApackDependency {
 		return true;
 	}
 
+	@Override
 	public boolean isEmpty() {
 		return (this.organizationId == null || this.organizationId.isEmpty()) && (this.packageId == null || this.packageId.isEmpty())
 				&& (this.gitUrl == null || this.gitUrl.isEmpty());

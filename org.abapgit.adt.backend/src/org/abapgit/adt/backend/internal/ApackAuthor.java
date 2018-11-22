@@ -75,6 +75,7 @@ public class ApackAuthor implements IApackAuthor {
 		return true;
 	}
 
+	@Override
 	public boolean isEmpty() {
 		return (this.name == null || this.name.isEmpty()) && (this.eMail == null || this.eMail.isEmpty());
 	}

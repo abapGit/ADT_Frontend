@@ -10,6 +10,8 @@ public interface IApackManifest {
 
 		String getEMail();
 
+		boolean isEmpty();
+
 	}
 
 	public interface IApackDependency {
@@ -19,6 +21,8 @@ public interface IApackManifest {
 		String getPackageId();
 
 		String getGitUrl();
+
+		boolean isEmpty();
 
 	}
 
