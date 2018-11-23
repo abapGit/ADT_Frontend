@@ -200,9 +200,6 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 				return false;
 			}
 		}
-		if (this.cloneData.apackManifest == null) {
-			return fetchApackManifest();
-		}
 		return true;
 	}
 
@@ -222,10 +219,13 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 					this.comboBranches.setSelection(new StructuredSelection(selectedBranch));
 				}
 			}
+
+			fetchApackManifest();
 		}
 	}
 
 	private boolean fetchApackManifest() {
+		this.cloneData.apackManifest = null;
 		try {
 			getContainer().run(true, true, new IRunnableWithProgress() {
 

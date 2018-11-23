@@ -17,6 +17,7 @@ import org.eclipse.jface.dialogs.IPageChangingListener;
 import org.eclipse.jface.dialogs.PageChangingEvent;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.IWizardContainer;
+import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.jface.wizard.WizardPage;
@@ -141,6 +142,18 @@ public class AbapGitWizard extends Wizard {
 				}
 			}
 		}
+	}
+
+	@Override
+	public IWizardPage getNextPage(IWizardPage page) {
+		if (page.equals(this.pageBranchAndPackage) && this.cloneData.apackManifest != null
+				&& !this.cloneData.apackManifest.hasDependencies()) {
+			// If we don't have APACK dependencies, we can skip the APACK-related page
+			return this.transportPage;
+		} else {
+			return super.getNextPage(page);
+		}
+
 	}
 
 	/**

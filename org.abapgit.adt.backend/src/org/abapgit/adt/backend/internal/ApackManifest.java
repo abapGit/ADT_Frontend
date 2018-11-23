@@ -54,4 +54,12 @@ public class ApackManifest implements IApackManifest {
 		return true;
 	}
 
+	@Override
+	public boolean hasDependencies() {
+		if (this.descriptor != null && this.descriptor.getDependencies() != null) {
+			return this.descriptor.getDependencies().size() > 0;
+		}
+		return false;
+	}
+
 }

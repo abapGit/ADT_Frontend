@@ -43,7 +43,11 @@ public class ApackGitManifestService implements IApackGitManifestService {
 		restResource.addRequestFilter(compatibilityFilter);
 		restResource.addResponseFilter(compatibilityFilter);
 
-		return restResource.post(monitor, IApackManifest.class, gitManifestRequest);
+		IApackManifest apackManifest = restResource.post(monitor, IApackManifest.class, gitManifestRequest);
+		if (apackManifest == null) {
+			apackManifest = new ApackManifest();
+		}
+		return apackManifest;
 	}
 
 }

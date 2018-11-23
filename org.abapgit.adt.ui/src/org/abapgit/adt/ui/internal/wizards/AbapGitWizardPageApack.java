@@ -119,6 +119,9 @@ public class AbapGitWizardPageApack extends WizardPage {
 
 		if (visible && this.cloneData.apackManifest != null) {
 			IApackManifestDescriptor manifestDescriptor = this.cloneData.apackManifest.getDescriptor();
+			if (manifestDescriptor == null) {
+				return;
+			}
 			if (!manifestDescriptor.getOrganizationId().isEmpty()) {
 				this.organizationIdContent.setText(manifestDescriptor.getOrganizationId());
 			}

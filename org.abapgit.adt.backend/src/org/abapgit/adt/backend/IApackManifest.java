@@ -48,4 +48,6 @@ public interface IApackManifest {
 
 	IApackManifestDescriptor getDescriptor();
 
+	boolean hasDependencies();
+
 }
