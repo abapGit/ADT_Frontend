@@ -24,6 +24,10 @@ public interface IApackManifest {
 
 		boolean isEmpty();
 
+		void setTargetPackageName(String packageName);
+
+		String getTargetPackageName();
+
 	}
 
 	interface IApackManifestDescriptor {
@@ -43,6 +47,8 @@ public interface IApackManifest {
 		String getGitUrl();
 
 		List<IApackDependency> getDependencies();
+
+		void addDependency(IApackDependency dependency);
 
 	}
 

@@ -62,7 +62,7 @@ public class AbapGitWizard extends Wizard {
 	public void addPages() {
 		this.pageRepo = new AbapGitWizardPageRepositoryAndCredentials(this.project, this.destination, this.cloneData);
 		this.pageBranchAndPackage = new AbapGitWizardPageBranchAndPackage(this.project, this.destination, this.cloneData);
-		this.pageApack = new AbapGitWizardPageApack(this.project, this.destination, this.cloneData);
+		this.pageApack = new AbapGitWizardPageApack(this.destination, this.cloneData);
 		this.transportService = AdtTransportServiceFactory.createTransportService(this.destination);
 		this.transportPage = AdtTransportSelectionWizardPageFactory.createTransportSelectionPage(this.transportService);
 		addPage(this.pageRepo);

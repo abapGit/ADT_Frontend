@@ -94,6 +94,7 @@ public class ApackManifestDescriptor implements IApackManifestDescriptor {
 		this.dependencies = dependencies;
 	}
 
+	@Override
 	public void addDependency(IApackDependency dependency) {
 		this.dependencies.add(dependency);
 	}

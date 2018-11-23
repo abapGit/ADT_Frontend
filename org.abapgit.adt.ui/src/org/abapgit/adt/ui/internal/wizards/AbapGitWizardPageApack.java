@@ -6,13 +6,14 @@ import org.abapgit.adt.backend.IApackManifest.IApackDependency;
 import org.abapgit.adt.backend.IApackManifest.IApackManifestDescriptor;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard.CloneData;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TableEditor;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -22,11 +23,14 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
+import com.sap.adt.tools.core.model.adtcore.IAdtObjectReference;
+import com.sap.adt.tools.core.ui.packages.AdtPackageServiceUIFactory;
+import com.sap.adt.tools.core.ui.packages.IAdtPackageServiceUI;
+
 public class AbapGitWizardPageApack extends WizardPage {
 
 	private static final String PAGE_NAME = AbapGitWizardPageApack.class.getName();
 
-	private final IProject project;
 	private final String destination;
 	private final CloneData cloneData;
 
@@ -38,9 +42,8 @@ public class AbapGitWizardPageApack extends WizardPage {
 	private Label gitUrlContent;
 	private Table table;
 
-	public AbapGitWizardPageApack(IProject project, String destination, CloneData cloneData) {
+	public AbapGitWizardPageApack(String destination, CloneData cloneData) {
 		super(PAGE_NAME);
-		this.project = project;
 		this.destination = destination;
 		this.cloneData = cloneData;
 
@@ -149,26 +152,43 @@ public class AbapGitWizardPageApack extends WizardPage {
 			if (!manifestDescriptor.getDependencies().isEmpty() && this.table.getItemCount() == 0) {
 				List<IApackDependency> dependencies = manifestDescriptor.getDependencies();
 				for (IApackDependency dependency : dependencies) {
+					final int packageColumnIndex = 3;
 					TableItem tableItem = new TableItem(this.table, SWT.NONE);
 					tableItem.setText(
 							new String[] { dependency.getOrganizationId(), dependency.getPackageId(), dependency.getGitUrl(), "" }); //$NON-NLS-1$
 
 					Button button = new Button(this.table, SWT.NONE);
 					button.setText("..."); //$NON-NLS-1$
+					button.addSelectionListener(new SelectionAdapter() {
+						@Override
+						public void widgetSelected(SelectionEvent e) {
+							IAdtPackageServiceUI packageServiceUI = AdtPackageServiceUIFactory.getOrCreateAdtPackageServiceUI();
+							IAdtObjectReference[] selectedPackages = packageServiceUI.openPackageSelectionDialog(e.display.getActiveShell(),
+									false, AbapGitWizardPageApack.this.destination, tableItem.getText(packageColumnIndex));
+							if (selectedPackages != null && selectedPackages.length > 0) {
+								tableItem.setText(packageColumnIndex, selectedPackages[0].getName());
+								dependency.setTargetPackageName(selectedPackages[0].getName());
+								packTheTable();
+							}
+						}
+					});
 					button.pack();
 					TableEditor editor = new TableEditor(this.table);
 					editor.horizontalAlignment = SWT.RIGHT;
 					editor.minimumWidth = button.getSize().x;
-					editor.setEditor(button, tableItem, 3);
+					editor.setEditor(button, tableItem, packageColumnIndex);
 					editor.layout();
 				}
-
-				for (int i = 0; i < this.table.getColumnCount(); i++) {
-					this.table.getColumn(i).pack();
-				}
+				packTheTable();
 			}
 		}
 
+	}
+
+	private void packTheTable() {
+		for (int i = 0; i < this.table.getColumnCount(); i++) {
+			this.table.getColumn(i).pack();
+		}
 	}
 
 }

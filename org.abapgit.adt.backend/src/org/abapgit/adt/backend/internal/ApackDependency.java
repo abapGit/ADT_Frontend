@@ -7,6 +7,7 @@ public class ApackDependency implements IApackDependency {
 	private String organizationId;
 	private String packageId;
 	private String gitUrl;
+	private String targetPackageName;
 
 	@Override
 	public String getOrganizationId() {
@@ -44,6 +45,8 @@ public class ApackDependency implements IApackDependency {
 		builder.append(this.packageId);
 		builder.append(", gitUrl="); //$NON-NLS-1$
 		builder.append(this.gitUrl);
+		builder.append(", targetPackageName="); //$NON-NLS-1$
+		builder.append(this.targetPackageName);
 		builder.append("]"); //$NON-NLS-1$
 		return builder.toString();
 	}
@@ -55,6 +58,7 @@ public class ApackDependency implements IApackDependency {
 		result = prime * result + ((this.organizationId == null) ? 0 : this.organizationId.hashCode());
 		result = prime * result + ((this.packageId == null) ? 0 : this.packageId.hashCode());
 		result = prime * result + ((this.gitUrl == null) ? 0 : this.gitUrl.hashCode());
+		result = prime * result + ((this.targetPackageName == null) ? 0 : this.targetPackageName.hashCode());
 		return result;
 	}
 
@@ -91,13 +95,30 @@ public class ApackDependency implements IApackDependency {
 		} else if (!this.gitUrl.equals(other.gitUrl)) {
 			return false;
 		}
+		if (this.targetPackageName == null) {
+			if (other.targetPackageName != null) {
+				return false;
+			}
+		} else if (!this.targetPackageName.equals(other.targetPackageName)) {
+			return false;
+		}
 		return true;
 	}
 
 	@Override
 	public boolean isEmpty() {
 		return (this.organizationId == null || this.organizationId.isEmpty()) && (this.packageId == null || this.packageId.isEmpty())
-				&& (this.gitUrl == null || this.gitUrl.isEmpty());
+				&& (this.gitUrl == null || this.gitUrl.isEmpty() && (this.targetPackageName == null || this.targetPackageName.isEmpty()));
+	}
+
+	@Override
+	public void setTargetPackageName(String packageName) {
+		this.targetPackageName = packageName;
+	}
+
+	@Override
+	public String getTargetPackageName() {
+		return this.targetPackageName;
 	}
 
 }

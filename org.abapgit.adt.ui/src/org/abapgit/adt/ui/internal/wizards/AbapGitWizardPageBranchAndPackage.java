@@ -1,10 +1,13 @@
 package org.abapgit.adt.ui.internal.wizards;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
 import java.util.List;
 
 import org.abapgit.adt.backend.ApackServiceFactory;
 import org.abapgit.adt.backend.IApackGitManifestService;
+import org.abapgit.adt.backend.IApackManifest;
+import org.abapgit.adt.backend.IApackManifest.IApackDependency;
 import org.abapgit.adt.backend.IExternalRepositoryInfo.IBranch;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard.CloneData;
@@ -19,6 +22,7 @@ import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.wizard.WizardPage;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -46,14 +50,16 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 	private TextViewer txtPackage;
 	private ComboViewer comboBranches;
 
-	private final LastApackCall lastApackCall;
+	private final ApackParameters lastApackCall;
+
+	private static final String MASTER_BRANCH = "refs/heads/master"; //$NON-NLS-1$
 
 	public AbapGitWizardPageBranchAndPackage(IProject project, String destination, CloneData cloneData) {
 		super(PAGE_NAME);
 		this.project = project;
 		this.destination = destination;
 		this.cloneData = cloneData;
-		this.lastApackCall = new LastApackCall();
+		this.lastApackCall = new ApackParameters();
 
 		setTitle(Messages.AbapGitWizardPageBranchAndPackage_title);
 		setDescription(Messages.AbapGitWizardPageBranchAndPackage_description);
@@ -241,14 +247,51 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-					monitor.beginTask(Messages.AbapGitWizardPageBranchAndPackage_task_apack_manifest_message, IProgressMonitor.UNKNOWN);
-					IApackGitManifestService manifestService = ApackServiceFactory.createApackGitManifestService(AbapGitWizardPageBranchAndPackage.this.destination, monitor);
-					AbapGitWizardPageBranchAndPackage.this.cloneData.apackManifest = manifestService.getManifest(
-							AbapGitWizardPageBranchAndPackage.this.cloneData.url, AbapGitWizardPageBranchAndPackage.this.cloneData.branch,
-							AbapGitWizardPageBranchAndPackage.this.cloneData.user,
-							AbapGitWizardPageBranchAndPackage.this.cloneData.pass, monitor);
+
+					final HashMap<String, List<IApackDependency>> myDependencies = new HashMap<String, List<IApackDependency>>();
+					myDependencies.put(AbapGitWizardPageBranchAndPackage.this.cloneData.url, null);
+
+					ApackParameters nextApackCall = new ApackParameters();
+					nextApackCall.url = AbapGitWizardPageBranchAndPackage.this.cloneData.url;
+					nextApackCall.branch = AbapGitWizardPageBranchAndPackage.this.cloneData.branch;
+
+					AbapGitWizardPageBranchAndPackage.this.cloneData.apackManifest = retrieveApackManifest(monitor, myDependencies,
+							nextApackCall);
+
 					AbapGitWizardPageBranchAndPackage.this.lastApackCall.url = AbapGitWizardPageBranchAndPackage.this.cloneData.url;
 					AbapGitWizardPageBranchAndPackage.this.lastApackCall.branch = AbapGitWizardPageBranchAndPackage.this.cloneData.branch;
+				}
+
+				private IApackManifest retrieveApackManifest(IProgressMonitor monitor,
+						final HashMap<String, List<IApackDependency>> myDependencies, ApackParameters apackParameters) {
+					monitor.beginTask(NLS.bind(Messages.AbapGitWizardPageBranchAndPackage_task_apack_manifest_message,
+							AbapGitWizardPageBranchAndPackage.this.cloneData.url), IProgressMonitor.UNKNOWN);
+					IApackGitManifestService manifestService = ApackServiceFactory
+							.createApackGitManifestService(AbapGitWizardPageBranchAndPackage.this.destination, monitor);
+					IApackManifest myManifest = manifestService.getManifest(apackParameters.url, apackParameters.branch,
+							AbapGitWizardPageBranchAndPackage.this.cloneData.user, AbapGitWizardPageBranchAndPackage.this.cloneData.pass,
+							monitor);
+					final List<IApackDependency> newDependencies = myManifest.getDescriptor().getDependencies();
+					myDependencies.put(apackParameters.url, newDependencies);
+					for (IApackDependency dependency : newDependencies) {
+						retrieveDependentManifests(ApackParameters.createFromDependency(dependency), newDependencies, manifestService, monitor);
+					}
+					return myManifest;
+				}
+
+				private void retrieveDependentManifests(ApackParameters apackParameters, final List<IApackDependency> newDependencies,
+						IApackGitManifestService manifestService, IProgressMonitor monitor) {
+					monitor.beginTask(NLS.bind(Messages.AbapGitWizardPageBranchAndPackage_task_apack_manifest_message, apackParameters.url),
+							IProgressMonitor.UNKNOWN);
+					IApackManifest myManifest = manifestService.getManifest(apackParameters.url, apackParameters.branch,
+							AbapGitWizardPageBranchAndPackage.this.cloneData.user, AbapGitWizardPageBranchAndPackage.this.cloneData.pass,
+							monitor);
+					List<IApackDependency> myDependencies = myManifest.getDescriptor().getDependencies();
+					newDependencies.addAll(myDependencies);
+					for (IApackDependency myDependency: myDependencies) {
+						retrieveDependentManifests(ApackParameters.createFromDependency(myDependency), newDependencies, manifestService,
+								monitor);
+					}
 				}
 			});
 			setPageComplete(true);
@@ -262,7 +305,15 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 		}
 	}
 
-	private static class LastApackCall {
+	private static class ApackParameters {
+
+		public static ApackParameters createFromDependency(IApackDependency dependency) {
+			ApackParameters apackParameters = new ApackParameters();
+			apackParameters.url = dependency.getGitUrl();
+			apackParameters.branch = MASTER_BRANCH;
+			return apackParameters;
+		}
+
 		public String url;
 		public String branch;
 	}
