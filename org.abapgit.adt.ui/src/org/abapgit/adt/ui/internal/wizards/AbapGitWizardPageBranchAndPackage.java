@@ -46,11 +46,14 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 	private TextViewer txtPackage;
 	private ComboViewer comboBranches;
 
+	private final LastApackCall lastApackCall;
+
 	public AbapGitWizardPageBranchAndPackage(IProject project, String destination, CloneData cloneData) {
 		super(PAGE_NAME);
 		this.project = project;
 		this.destination = destination;
 		this.cloneData = cloneData;
+		this.lastApackCall = new LastApackCall();
 
 		setTitle(Messages.AbapGitWizardPageBranchAndPackage_title);
 		setDescription(Messages.AbapGitWizardPageBranchAndPackage_description);
@@ -85,6 +88,7 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 		this.comboBranches.getCombo().addModifyListener(event -> {
 			this.cloneData.branch = this.comboBranches.getCombo().getText();
 			validateClientOnly();
+			fetchApackManifest();
 		});
 
 		/////// Package INPUT
@@ -224,7 +228,13 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 		}
 	}
 
-	private boolean fetchApackManifest() {
+	private void fetchApackManifest() {
+		if (this.cloneData.url.isEmpty() || this.cloneData.branch.isEmpty()) {
+			return;
+		}
+		if (this.cloneData.url.equals(this.lastApackCall.url) && this.cloneData.branch.equals(this.lastApackCall.branch)) {
+			return;
+		}
 		this.cloneData.apackManifest = null;
 		try {
 			getContainer().run(true, true, new IRunnableWithProgress() {
@@ -237,19 +247,24 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 							AbapGitWizardPageBranchAndPackage.this.cloneData.url, AbapGitWizardPageBranchAndPackage.this.cloneData.branch,
 							AbapGitWizardPageBranchAndPackage.this.cloneData.user,
 							AbapGitWizardPageBranchAndPackage.this.cloneData.pass, monitor);
+					AbapGitWizardPageBranchAndPackage.this.lastApackCall.url = AbapGitWizardPageBranchAndPackage.this.cloneData.url;
+					AbapGitWizardPageBranchAndPackage.this.lastApackCall.branch = AbapGitWizardPageBranchAndPackage.this.cloneData.branch;
 				}
 			});
 			setPageComplete(true);
 			setMessage(null);
-			return true;
 		} catch (InvocationTargetException e) {
 			setPageComplete(false);
 			setMessage(e.getTargetException().getMessage(), DialogPage.ERROR);
-			return false;
 		} catch (InterruptedException e) {
-			// process was aborted
-			return false;
+			// Call was aborted - no dependencies will be retrieved and used in the import
+			setPageComplete(true);
 		}
+	}
+
+	private static class LastApackCall {
+		public String url;
+		public String branch;
 	}
 
 }

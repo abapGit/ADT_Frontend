@@ -8,10 +8,14 @@ import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard.CloneData;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
@@ -96,7 +100,8 @@ public class AbapGitWizardPageApack extends WizardPage {
 		dependenciesLabel.setText(Messages.AbapGitWizardPageApack_label_dependencies);
 		GridDataFactory.swtDefaults().span(3, 0).align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(dependenciesLabel);
 
-		this.table = new Table(container, SWT.NONE);
+		TableViewer tableViewer = new TableViewer(container, SWT.NONE);
+		this.table = tableViewer.getTable();
 		this.table.setLinesVisible(true);
 		this.table.setHeaderVisible(true);
 		GridData gridData = new GridData(GridData.FILL, GridData.FILL, true, true);
@@ -104,7 +109,8 @@ public class AbapGitWizardPageApack extends WizardPage {
 		this.table.setLayoutData(gridData);
 		String[] titles = { Messages.AbapGitWizardPageApack_table_header_organization_id, Messages.AbapGitWizardPageApack_table_header_package_id, Messages.AbapGitWizardPageApack_table_header_git_repository_url, Messages.AbapGitWizardPageApack_table_header_package_name };
 		for (String title : titles) {
-			TableColumn column = new TableColumn(this.table, SWT.NONE);
+			TableViewerColumn viewerColumn = new TableViewerColumn(tableViewer, SWT.NONE);
+			TableColumn column = viewerColumn.getColumn();
 			column.setText(title);
 			column.pack();
 		}
@@ -146,7 +152,17 @@ public class AbapGitWizardPageApack extends WizardPage {
 					TableItem tableItem = new TableItem(this.table, SWT.NONE);
 					tableItem.setText(
 							new String[] { dependency.getOrganizationId(), dependency.getPackageId(), dependency.getGitUrl(), "" }); //$NON-NLS-1$
+
+					Button button = new Button(this.table, SWT.NONE);
+					button.setText("..."); //$NON-NLS-1$
+					button.pack();
+					TableEditor editor = new TableEditor(this.table);
+					editor.horizontalAlignment = SWT.RIGHT;
+					editor.minimumWidth = button.getSize().x;
+					editor.setEditor(button, tableItem, 3);
+					editor.layout();
 				}
+
 				for (int i = 0; i < this.table.getColumnCount(); i++) {
 					this.table.getColumn(i).pack();
 				}
