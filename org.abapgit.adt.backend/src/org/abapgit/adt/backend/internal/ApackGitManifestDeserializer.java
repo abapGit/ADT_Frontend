@@ -108,6 +108,9 @@ public class ApackGitManifestDeserializer {
 				case "git_url": //$NON-NLS-1$
 					apackDependency.setGitUrl(xmlReader.getElementText());
 					break;
+				case "target_package_name": //$NON-NLS-1$
+					apackDependency.setTargetPackageName(xmlReader.getElementText());
+					break;
 				default:
 					depth++;
 					break;

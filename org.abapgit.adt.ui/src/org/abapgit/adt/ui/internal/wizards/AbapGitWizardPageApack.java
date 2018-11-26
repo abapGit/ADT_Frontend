@@ -155,34 +155,41 @@ public class AbapGitWizardPageApack extends WizardPage {
 					final int packageColumnIndex = 3;
 					TableItem tableItem = new TableItem(this.table, SWT.NONE);
 					tableItem.setText(
-							new String[] { dependency.getOrganizationId(), dependency.getPackageId(), dependency.getGitUrl(), "" }); //$NON-NLS-1$
+							new String[] { dependency.getOrganizationId(), dependency.getPackageId(), dependency.getGitUrl(), dependency.getTargetPackageName() });
 
-					Button button = new Button(this.table, SWT.NONE);
-					button.setText("..."); //$NON-NLS-1$
-					button.addSelectionListener(new SelectionAdapter() {
-						@Override
-						public void widgetSelected(SelectionEvent e) {
-							IAdtPackageServiceUI packageServiceUI = AdtPackageServiceUIFactory.getOrCreateAdtPackageServiceUI();
-							IAdtObjectReference[] selectedPackages = packageServiceUI.openPackageSelectionDialog(e.display.getActiveShell(),
-									false, AbapGitWizardPageApack.this.destination, tableItem.getText(packageColumnIndex));
-							if (selectedPackages != null && selectedPackages.length > 0) {
-								tableItem.setText(packageColumnIndex, selectedPackages[0].getName());
-								dependency.setTargetPackageName(selectedPackages[0].getName());
-								packTheTable();
-							}
-						}
-					});
-					button.pack();
-					TableEditor editor = new TableEditor(this.table);
-					editor.horizontalAlignment = SWT.RIGHT;
-					editor.minimumWidth = button.getSize().x;
-					editor.setEditor(button, tableItem, packageColumnIndex);
-					editor.layout();
+					if (dependency.getTargetPackageName().isEmpty()) {
+						addThePackageButton(dependency, packageColumnIndex, tableItem);
+					}
+
 				}
 				packTheTable();
 			}
 		}
 
+	}
+
+	private void addThePackageButton(IApackDependency dependency, final int packageColumnIndex, TableItem tableItem) {
+		Button button = new Button(this.table, SWT.NONE);
+		button.setText("..."); //$NON-NLS-1$
+		button.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				IAdtPackageServiceUI packageServiceUI = AdtPackageServiceUIFactory.getOrCreateAdtPackageServiceUI();
+				IAdtObjectReference[] selectedPackages = packageServiceUI.openPackageSelectionDialog(e.display.getActiveShell(), false,
+						AbapGitWizardPageApack.this.destination, tableItem.getText(packageColumnIndex));
+				if (selectedPackages != null && selectedPackages.length > 0) {
+					tableItem.setText(packageColumnIndex, selectedPackages[0].getName());
+					dependency.setTargetPackageName(selectedPackages[0].getName());
+					packTheTable();
+				}
+			}
+		});
+		button.pack();
+		TableEditor editor = new TableEditor(this.table);
+		editor.horizontalAlignment = SWT.RIGHT;
+		editor.minimumWidth = button.getSize().x;
+		editor.setEditor(button, tableItem, packageColumnIndex);
+		editor.layout();
 	}
 
 	private void packTheTable() {
