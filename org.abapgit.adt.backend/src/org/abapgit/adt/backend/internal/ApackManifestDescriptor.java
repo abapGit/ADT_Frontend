@@ -90,6 +90,7 @@ public class ApackManifestDescriptor implements IApackManifestDescriptor {
 		this.gitUrl = homeUrl;
 	}
 
+	@Override
 	public void setDependencies(List<IApackDependency> dependencies) {
 		this.dependencies = dependencies;
 	}

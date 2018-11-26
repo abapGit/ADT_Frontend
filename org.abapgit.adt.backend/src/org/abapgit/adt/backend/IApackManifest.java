@@ -48,6 +48,8 @@ public interface IApackManifest {
 
 		List<IApackDependency> getDependencies();
 
+		void setDependencies(List<IApackDependency> dependencies);
+
 		void addDependency(IApackDependency dependency);
 
 	}

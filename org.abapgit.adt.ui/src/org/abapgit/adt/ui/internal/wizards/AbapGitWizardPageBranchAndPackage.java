@@ -1,6 +1,7 @@
 package org.abapgit.adt.ui.internal.wizards;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -248,22 +249,24 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 
-					final HashMap<String, List<IApackDependency>> myDependencies = new HashMap<String, List<IApackDependency>>();
-					myDependencies.put(AbapGitWizardPageBranchAndPackage.this.cloneData.url, null);
+					final HashMap<String, Boolean> dependencyCoverage = new HashMap<String, Boolean>();
+					final List<IApackDependency> retrievedDependencies = new ArrayList<IApackDependency>();
 
 					ApackParameters nextApackCall = new ApackParameters();
 					nextApackCall.url = AbapGitWizardPageBranchAndPackage.this.cloneData.url;
 					nextApackCall.branch = AbapGitWizardPageBranchAndPackage.this.cloneData.branch;
 
-					AbapGitWizardPageBranchAndPackage.this.cloneData.apackManifest = retrieveApackManifest(monitor, myDependencies,
-							nextApackCall);
+					AbapGitWizardPageBranchAndPackage.this.cloneData.apackManifest = retrieveApackManifest(monitor, dependencyCoverage,
+							retrievedDependencies, nextApackCall);
 
 					AbapGitWizardPageBranchAndPackage.this.lastApackCall.url = AbapGitWizardPageBranchAndPackage.this.cloneData.url;
 					AbapGitWizardPageBranchAndPackage.this.lastApackCall.branch = AbapGitWizardPageBranchAndPackage.this.cloneData.branch;
 				}
 
 				private IApackManifest retrieveApackManifest(IProgressMonitor monitor,
-						final HashMap<String, List<IApackDependency>> myDependencies, ApackParameters apackParameters) {
+						final HashMap<String, Boolean> dependencyCoverage, final List<IApackDependency> retrievedDependencies,
+						ApackParameters apackParameters) {
+
 					monitor.beginTask(NLS.bind(Messages.AbapGitWizardPageBranchAndPackage_task_apack_manifest_message,
 							AbapGitWizardPageBranchAndPackage.this.cloneData.url), IProgressMonitor.UNKNOWN);
 					IApackGitManifestService manifestService = ApackServiceFactory
@@ -271,26 +274,39 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 					IApackManifest myManifest = manifestService.getManifest(apackParameters.url, apackParameters.branch,
 							AbapGitWizardPageBranchAndPackage.this.cloneData.user, AbapGitWizardPageBranchAndPackage.this.cloneData.pass,
 							monitor);
-					final List<IApackDependency> newDependencies = myManifest.getDescriptor().getDependencies();
-					myDependencies.put(apackParameters.url, newDependencies);
-					for (IApackDependency dependency : newDependencies) {
-						retrieveDependentManifests(ApackParameters.createFromDependency(dependency), newDependencies, manifestService, monitor);
+					dependencyCoverage.put(apackParameters.url, true);
+					if (myManifest.hasDependencies()) {
+						for (IApackDependency dependency : myManifest.getDescriptor().getDependencies()) {
+							retrievedDependencies.add(dependency);
+							retrieveDependentManifests(ApackParameters.createFromDependency(dependency), dependencyCoverage,
+									retrievedDependencies, manifestService, monitor);
+						}
+						myManifest.getDescriptor().setDependencies(retrievedDependencies);
 					}
 					return myManifest;
+
 				}
 
-				private void retrieveDependentManifests(ApackParameters apackParameters, final List<IApackDependency> newDependencies,
+				private void retrieveDependentManifests(ApackParameters apackParameters, final HashMap<String, Boolean> dependencyCoverage,
+						final List<IApackDependency> retrievedDependencies,
 						IApackGitManifestService manifestService, IProgressMonitor monitor) {
 					monitor.beginTask(NLS.bind(Messages.AbapGitWizardPageBranchAndPackage_task_apack_manifest_message, apackParameters.url),
 							IProgressMonitor.UNKNOWN);
 					IApackManifest myManifest = manifestService.getManifest(apackParameters.url, apackParameters.branch,
 							AbapGitWizardPageBranchAndPackage.this.cloneData.user, AbapGitWizardPageBranchAndPackage.this.cloneData.pass,
 							monitor);
-					List<IApackDependency> myDependencies = myManifest.getDescriptor().getDependencies();
-					newDependencies.addAll(myDependencies);
-					for (IApackDependency myDependency: myDependencies) {
-						retrieveDependentManifests(ApackParameters.createFromDependency(myDependency), newDependencies, manifestService,
-								monitor);
+					dependencyCoverage.put(apackParameters.url, true);
+					if (myManifest.hasDependencies()) {
+						for (IApackDependency myDependency : myManifest.getDescriptor().getDependencies()) {
+							if (!retrievedDependencies.contains(myDependency)) {
+								retrievedDependencies.add(myDependency);
+							}
+							if (!dependencyCoverage.getOrDefault(myDependency.getGitUrl(), false)) {
+								retrieveDependentManifests(ApackParameters.createFromDependency(myDependency), dependencyCoverage,
+										retrievedDependencies,
+										manifestService, monitor);
+							}
+						}
 					}
 				}
 			});
