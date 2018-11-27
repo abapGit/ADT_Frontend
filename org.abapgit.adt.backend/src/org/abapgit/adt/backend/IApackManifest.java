@@ -2,6 +2,8 @@ package org.abapgit.adt.backend;
 
 import java.util.List;
 
+import com.sap.adt.tools.core.model.adtcore.IAdtObjectReference;
+
 public interface IApackManifest {
 
 	public interface IApackAuthor {
@@ -24,9 +26,9 @@ public interface IApackManifest {
 
 		boolean isEmpty();
 
-		void setTargetPackageName(String packageName);
+		void setTargetPackage(IAdtObjectReference targetPackage);
 
-		String getTargetPackageName();
+		IAdtObjectReference getTargetPackage();
 
 	}
 

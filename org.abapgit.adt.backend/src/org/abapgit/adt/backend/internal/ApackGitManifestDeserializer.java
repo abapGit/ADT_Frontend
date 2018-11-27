@@ -9,7 +9,12 @@ import org.abapgit.adt.backend.IApackManifest.IApackAuthor;
 import org.abapgit.adt.backend.IApackManifest.IApackDependency;
 import org.abapgit.adt.backend.IApackManifest.IApackManifestDescriptor;
 
+import com.sap.adt.tools.core.model.adtcore.IAdtCoreFactory;
+import com.sap.adt.tools.core.model.adtcore.IAdtObjectReference;
+
 public class ApackGitManifestDeserializer {
+
+	private static final String ADT_CORE_NAMESPACE = "http://www.sap.com/adt/core"; //$NON-NLS-1$
 
 	public IApackManifest deserializeApackManifest(XMLStreamReader xmlReader) throws XMLStreamException {
 		ApackManifest apackManifest = new ApackManifest();
@@ -108,8 +113,12 @@ public class ApackGitManifestDeserializer {
 				case "git_url": //$NON-NLS-1$
 					apackDependency.setGitUrl(xmlReader.getElementText());
 					break;
-				case "target_package_name": //$NON-NLS-1$
-					apackDependency.setTargetPackageName(xmlReader.getElementText());
+				case "target_package": //$NON-NLS-1$
+					// Manually deserialize until we have found an open ADT Core API
+					IAdtObjectReference objectReference = IAdtCoreFactory.eINSTANCE.createAdtObjectReference();
+					objectReference.setUri(xmlReader.getAttributeValue(ADT_CORE_NAMESPACE, "uri")); //$NON-NLS-1$
+					objectReference.setName(xmlReader.getAttributeValue(ADT_CORE_NAMESPACE, "name")); //$NON-NLS-1$
+					apackDependency.setTargetPackage(objectReference);
 					break;
 				default:
 					depth++;

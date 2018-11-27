@@ -62,8 +62,8 @@ public class AbapGitWizard extends Wizard {
 	public void addPages() {
 		this.pageRepo = new AbapGitWizardPageRepositoryAndCredentials(this.project, this.destination, this.cloneData);
 		this.pageBranchAndPackage = new AbapGitWizardPageBranchAndPackage(this.project, this.destination, this.cloneData);
-		this.pageApack = new AbapGitWizardPageApack(this.destination, this.cloneData);
 		this.transportService = AdtTransportServiceFactory.createTransportService(this.destination);
+		this.pageApack = new AbapGitWizardPageApack(this.destination, this.cloneData, this.transportService);
 		this.transportPage = AdtTransportSelectionWizardPageFactory.createTransportSelectionPage(this.transportService);
 		addPage(this.pageRepo);
 		addPage(this.pageBranchAndPackage);
@@ -139,6 +139,12 @@ public class AbapGitWizard extends Wizard {
 					AbapGitWizard.this.transportPage.setCheckData(checkData);
 				} catch (Exception e) {
 					AbapGitWizard.this.pageBranchAndPackage.setMessage(e.getMessage(), DialogPage.ERROR);
+				}
+			}
+			if (event.getCurrentPage() == AbapGitWizard.this.pageApack) {
+				if (!AbapGitWizard.this.pageApack.validateAll()) {
+					event.doit = false;
+					return;
 				}
 			}
 		}
