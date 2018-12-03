@@ -6,6 +6,8 @@ import com.sap.adt.tools.core.model.adtcore.IAdtObjectReference;
 
 public interface IApackManifest {
 
+	public static final String MASTER_BRANCH = "refs/heads/master"; //$NON-NLS-1$
+
 	public interface IApackAuthor {
 
 		String getName();

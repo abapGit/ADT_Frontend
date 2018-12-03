@@ -20,6 +20,7 @@ public class Repositories implements IRepositories {
 		return Collections.unmodifiableList(this.repositories);
 	}
 
+	@Override
 	public void add(IRepository repository) {
 		this.repositories.add(repository);
 	}

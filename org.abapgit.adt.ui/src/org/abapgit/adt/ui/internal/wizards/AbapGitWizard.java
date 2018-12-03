@@ -2,9 +2,12 @@ package org.abapgit.adt.ui.internal.wizards;
 
 import java.lang.reflect.InvocationTargetException;
 
+import org.abapgit.adt.backend.AbapGitModelFactory;
 import org.abapgit.adt.backend.IApackManifest;
+import org.abapgit.adt.backend.IApackManifest.IApackDependency;
 import org.abapgit.adt.backend.IExternalRepositoryInfo;
 import org.abapgit.adt.backend.IRepositories;
+import org.abapgit.adt.backend.IRepository;
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
@@ -82,8 +85,24 @@ public class AbapGitWizard extends Wizard {
 					monitor.beginTask(Messages.AbapGitWizard_task_cloning_repository, IProgressMonitor.UNKNOWN);
 					IRepositoryService repoService = RepositoryServiceFactory.createRepositoryService(AbapGitWizard.this.destination,
 							monitor);
-					repoService.cloneRepository(AbapGitWizard.this.cloneData.url, AbapGitWizard.this.cloneData.branch, AbapGitWizard.this.cloneData.packageRef.getName(),
-							transportRequestNumber, AbapGitWizard.this.cloneData.user, AbapGitWizard.this.cloneData.pass, monitor);
+					if (hasDependencies()) {
+						IRepositories repositories = AbapGitModelFactory.createRepositories();
+						repositories.add(createRepository(AbapGitWizard.this.cloneData.url, AbapGitWizard.this.cloneData.branch,
+								AbapGitWizard.this.cloneData.packageRef.getName(), transportRequestNumber,
+								AbapGitWizard.this.cloneData.user, AbapGitWizard.this.cloneData.pass));
+						for (IApackDependency apackDependency : AbapGitWizard.this.cloneData.apackManifest.getDescriptor()
+								.getDependencies()) {
+							repositories.add(createRepository(apackDependency.getGitUrl(), IApackManifest.MASTER_BRANCH,
+									apackDependency.getTargetPackage().getName(), transportRequestNumber,
+									AbapGitWizard.this.cloneData.user, AbapGitWizard.this.cloneData.pass));
+						}
+						repoService.cloneRepositories(repositories, monitor);
+					} else {
+						repoService.cloneRepository(AbapGitWizard.this.cloneData.url, AbapGitWizard.this.cloneData.branch,
+								AbapGitWizard.this.cloneData.packageRef.getName(), transportRequestNumber,
+								AbapGitWizard.this.cloneData.user, AbapGitWizard.this.cloneData.pass, monitor);
+					}
+
 				}
 			});
 			return true;
@@ -152,14 +171,29 @@ public class AbapGitWizard extends Wizard {
 
 	@Override
 	public IWizardPage getNextPage(IWizardPage page) {
-		if (page.equals(this.pageBranchAndPackage) && this.cloneData.apackManifest != null
-				&& !this.cloneData.apackManifest.hasDependencies()) {
+		if (page.equals(this.pageBranchAndPackage) && !hasDependencies()) {
 			// If we don't have APACK dependencies, we can skip the APACK-related page
 			return this.transportPage;
 		} else {
 			return super.getNextPage(page);
 		}
 
+	}
+
+	private boolean hasDependencies() {
+		return this.cloneData.apackManifest != null && this.cloneData.apackManifest.hasDependencies();
+	}
+
+	private IRepository createRepository(String url, String branch, String targetPackage, String transportRequest, String userName,
+			String password) {
+		IRepository repository = AbapGitModelFactory.createRepository();
+		repository.setUrl(url);
+		repository.setBranch(branch);
+		repository.setPackage(targetPackage);
+		repository.setTransportRequest(transportRequest);
+		repository.setRemoteUser(userName);
+		repository.setPassword(password);
+		return repository;
 	}
 
 	/**

@@ -113,4 +113,20 @@ public class RepositoryService implements IRepositoryService {
 		restResource.delete(monitor);
 	}
 
+	@Override
+	public void cloneRepositories(IRepositories repositories, IProgressMonitor monitor) {
+		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory().createResourceWithStatelessSession(this.uri,
+				this.destinationId);
+
+		IContentHandler<IRepositories> requestContentHandlerV2 = new RepositoryContentHandlerV2();
+		restResource.addContentHandler(requestContentHandlerV2);
+
+		IAdtCompatibleRestResourceFilter compatibilityFilter = AdtCompatibleRestResourceFilterFactory.createFilter(new IContentHandler[0]);
+		restResource.addRequestFilter(compatibilityFilter);
+		restResource.addResponseFilter(compatibilityFilter);
+
+		restResource.post(monitor, null, repositories);
+
+	}
+
 }

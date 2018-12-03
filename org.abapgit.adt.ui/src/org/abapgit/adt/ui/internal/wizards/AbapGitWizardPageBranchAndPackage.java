@@ -53,8 +53,6 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 
 	private final ApackParameters lastApackCall;
 
-	private static final String MASTER_BRANCH = "refs/heads/master"; //$NON-NLS-1$
-
 	public AbapGitWizardPageBranchAndPackage(IProject project, String destination, CloneData cloneData) {
 		super(PAGE_NAME);
 		this.project = project;
@@ -326,7 +324,7 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 		public static ApackParameters createFromDependency(IApackDependency dependency) {
 			ApackParameters apackParameters = new ApackParameters();
 			apackParameters.url = dependency.getGitUrl();
-			apackParameters.branch = MASTER_BRANCH;
+			apackParameters.branch = IApackManifest.MASTER_BRANCH;
 			return apackParameters;
 		}
 
