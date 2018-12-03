@@ -55,6 +55,9 @@ public class Messages extends NLS {
 	public static String AbapGitWizardPageRepositoryAndCredentials_validate_password_error;
 	public static String AbapGitWizardPageRepositoryAndCredentials_validate_url_error;
 	public static String AbapGitWizardPageRepositoryAndCredentials_validate_user_error;
+	public static String AbapGitView_open_error;
+	public static String AbapGitPull_not_yet_available;
+
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
