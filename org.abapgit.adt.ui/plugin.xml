@@ -80,7 +80,14 @@
                       <adapt
                             type="com.sap.adt.tools.core.project.IAbapProject">
                       </adapt>
-                                           
+                     
+                    <instanceof
+                         value="org.eclipse.core.resources.IProject">
+                      </instanceof>
+                      <adapt
+                            type="org.eclipse.core.resources.IProject">
+                      </adapt>
+                      
                    </or>
                 </and>
              </iterate>
