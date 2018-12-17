@@ -18,6 +18,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
@@ -25,8 +26,6 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.FilteredTree;
 import org.eclipse.ui.dialogs.PatternFilter;
-
-import com.sap.adt.tools.core.ui.Activator;
 
 public class AbapGitDialogImport extends TitleAreaDialog {
 
@@ -137,8 +136,11 @@ public class AbapGitDialogImport extends TitleAreaDialog {
 				IObject p = (IObject) element;
 				String objStatus = p.getObjStatus();
 				String objType = p.getObjType();
-				Image Status_warning = Activator.getDefault().getImage(Activator.EXCEPTION);
-				Image Status_error = Activator.getDefault().getImage(Activator.ERROR);
+
+				Display d = Display.getCurrent();
+				Image Status_warning = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_WARN_TSK);
+//				Image Status_warning = Activator.getDefault().getImage(Activator.EXCEPTION);
+				Image Status_error = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_ERROR_TSK);
 				Image Status_info = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_INFO_TSK);
 
 				if (objStatus != null && objStatus.equals("W")) { //$NON-NLS-1$
@@ -203,10 +205,13 @@ public class AbapGitDialogImport extends TitleAreaDialog {
 			public Image getImage(Object element) {
 				IObject p = (IObject) element;
 				String textMsgType = p.getMsgType();
-				Image Warning = Activator.getDefault().getImage(Activator.WARNING);
-				Image Error = Activator.getDefault().getImage(Activator.ERROR);
+
+				Display d = Display.getCurrent();
+
+				Image Warning = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_WARN_TSK);
+				Image Error = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_ERROR_TSK);
 //				com.sap.adt.tools.core.ui.Activator.getDefault().getImage(com.sap.adt.tools.core.ui.Activator.ERROR);
-//				Image Success = Activator.getDefault().getImage(com.sap.adt.tools.core.ui.Activator.CHECKED);
+//				Image Success = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.);
 				Image Info = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_INFO_TSK);
 
 				if (textMsgType != null && textMsgType.equals("W")) { //$NON-NLS-1$
