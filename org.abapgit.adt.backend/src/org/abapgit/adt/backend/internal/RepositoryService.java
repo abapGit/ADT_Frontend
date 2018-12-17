@@ -42,7 +42,7 @@ public class RepositoryService implements IRepositoryService {
 	}
 
 	@Override
-	public void cloneRepository(String url, String branch, String targetPackage, String transportRequest, String user,
+	public IObjects cloneRepository(String url, String branch, String targetPackage, String transportRequest, String user,
 			String password, IProgressMonitor monitor) {
 		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory()
 				.createResourceWithStatelessSession(this.uri, this.destinationId);
@@ -68,10 +68,17 @@ public class RepositoryService implements IRepositoryService {
 
 		IAdtCompatibleRestResourceFilter compatibilityFilter = AdtCompatibleRestResourceFilterFactory
 				.createFilter(new IContentHandler[0]);
-		restResource.addRequestFilter(compatibilityFilter);
-		restResource.addResponseFilter(compatibilityFilter);
 
-		restResource.post(monitor, null, repository);
+		IContentHandler<IObjects> responseContentHandlerV1 = new AbapObjectContentHandlerV1();
+		restResource.addContentHandler(responseContentHandlerV1);
+
+		IAdtCompatibleRestResourceFilter responseCompatibilityFilter = AdtCompatibleRestResourceFilterFactory
+				.createFilter(new IContentHandler[0]);
+
+		restResource.addResponseFilter(responseCompatibilityFilter);
+		restResource.addRequestFilter(compatibilityFilter);
+
+		return restResource.post(monitor, IObjects.class, repository);
 	}
 
 	@Override

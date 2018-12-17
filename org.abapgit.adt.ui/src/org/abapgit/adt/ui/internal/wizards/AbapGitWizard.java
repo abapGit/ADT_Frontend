@@ -1,12 +1,16 @@
 package org.abapgit.adt.ui.internal.wizards;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.abapgit.adt.backend.IExternalRepositoryInfo;
+import org.abapgit.adt.backend.IObject;
 import org.abapgit.adt.backend.IRepositories;
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
+import org.abapgit.adt.ui.dialogs.AbapGitDialogImport;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
@@ -14,6 +18,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.dialogs.IPageChangingListener;
 import org.eclipse.jface.dialogs.PageChangingEvent;
+import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.IWizardContainer;
 import org.eclipse.jface.wizard.Wizard;
@@ -68,6 +73,9 @@ public class AbapGitWizard extends Wizard {
 
 	@Override
 	public boolean performFinish() {
+
+		List<IObject> cloneObjects = new LinkedList<>();
+
 		try {
 			String transportRequestNumber = this.transportPage.getTransportRequestNumber();
 			getContainer().run(true, true, new IRunnableWithProgress() {
@@ -77,10 +85,23 @@ public class AbapGitWizard extends Wizard {
 					monitor.beginTask(Messages.AbapGitWizard_task_cloning_repository, IProgressMonitor.UNKNOWN);
 					IRepositoryService repoService = RepositoryServiceFactory.createRepositoryService(AbapGitWizard.this.destination,
 							monitor);
-					repoService.cloneRepository(AbapGitWizard.this.cloneData.url, AbapGitWizard.this.cloneData.branch, AbapGitWizard.this.cloneData.packageRef.getName(),
-							transportRequestNumber, AbapGitWizard.this.cloneData.user, AbapGitWizard.this.cloneData.pass, monitor);
+					List<IObject> abapObjects = repoService.cloneRepository(AbapGitWizard.this.cloneData.url,
+							AbapGitWizard.this.cloneData.branch, AbapGitWizard.this.cloneData.packageRef.getName(),
+							transportRequestNumber, AbapGitWizard.this.cloneData.user, AbapGitWizard.this.cloneData.pass, monitor)
+							.getObjects();
+
+					cloneObjects.addAll(abapObjects);
 				}
 			});
+
+			TitleAreaDialog dialog = new AbapGitDialogImport(getShell(), cloneObjects);
+			int dialogResult = dialog.open();
+
+			if (dialogResult == dialog.CANCEL) {
+				System.out.println("CANCEL presed");
+				return false;
+			}
+
 			return true;
 		} catch (InterruptedException e) {
 			return false;
