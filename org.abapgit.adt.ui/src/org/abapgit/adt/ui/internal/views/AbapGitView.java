@@ -160,7 +160,7 @@ public class AbapGitView extends ViewPart {
 		hookContextMenu();
 		contributeToActionBars();
 
-		updateView(false, false);
+	updateView(false, false);
 
 		this.viewer.addDoubleClickListener(new IDoubleClickListener() {
 
@@ -396,7 +396,6 @@ public class AbapGitView extends ViewPart {
 					wizardDialog.open();
 
 				}
-
 				updateView(true, false);
 			}
 		};
