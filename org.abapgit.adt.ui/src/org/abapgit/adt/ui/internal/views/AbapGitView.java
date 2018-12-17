@@ -162,6 +162,46 @@ public class AbapGitView extends ViewPart {
 
 		updateView(false, false);
 
+		this.viewer.addDoubleClickListener(new IDoubleClickListener() {
+
+			@Override
+			public void doubleClick(DoubleClickEvent event) {
+
+				IRepository currRepository;
+				currRepository = null;
+
+				IStructuredSelection selection = (IStructuredSelection) event.getSelection();
+
+				Object firstElement = selection.getFirstElement();
+				if (firstElement instanceof IRepository) {
+					currRepository = ((IRepository) firstElement);
+				}
+
+				if (currRepository != null) {
+
+					IAdtPackageServiceUI packageServiceUI = AdtPackageServiceUIFactory.getOrCreateAdtPackageServiceUI();
+					String destinationId = getDestination(AbapGitView.this.lastProject);
+					List<IAdtObjectReference> pkgRefs = packageServiceUI.find(destinationId, currRepository.getPackage(), null);
+					IProject currProject = AbapGitView.this.lastProject;
+					if (!pkgRefs.isEmpty()) {
+						IAdtObjectReference gitPackageRef = pkgRefs.stream().findFirst().get();
+						if (gitPackageRef != null) {
+							AdtNavigationServiceFactory.createNavigationService().navigate(currProject, gitPackageRef, true);
+						}
+					}
+
+//					IWorkbenchPart workbenchPart = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePart();
+//					IFile file = workbenchPart.getSite().getPage().getActiveEditor().getEditorInput().getAdapter(IFile.class);
+//					if (file == null) {
+//						System.out.println("FileNotFoundException");
+//					}
+//					expandProjectExlorer(file);
+
+				}
+
+			}
+		});
+
 		// add listener for selections
 		getSite().getPage().addPostSelectionListener(this.selectionListener);
 	}
@@ -190,7 +230,9 @@ public class AbapGitView extends ViewPart {
 			@Override
 			public String getText(Object element) {
 				IRepository p = (IRepository) element;
-				return p.getUrl();
+				String pattern = "((git@|https:\\/\\/)([\\w]+)(\\/|:))([\\w,\\-,\\_]+)\\@"; //$NON-NLS-1$
+				return p.getUrl().replaceAll(pattern, "$1*****@"); //$NON-NLS-1$
+//				return p.getUrl();
 			}
 		});
 
@@ -249,23 +291,25 @@ public class AbapGitView extends ViewPart {
 					if (firstElement instanceof IRepository) {
 
 						//Check if repos are created by current user
-//						String destinationId = getDestination(AbapGitView.this.lastProject);
-//						IProject currProject = AdtProjectServiceFactory.createProjectService().findProject(destinationId);
-//						IAbapProject currAbapProject = currProject.getAdapter(IAbapProject.class);
-//						IDestinationData ProjectDestData = currAbapProject.getDestinationData();
-
-//						if ((((IRepository) firstElement).getCreatedBy().equalsIgnoreCase(ProjectDestData.getUser()))) {
-//
-//							if (((IRepository) firstElement).getLink(IRepositoryService.RELATION_PULL) != null) {
-//								manager.add(AbapGitView.this.actionPullWizard);
-//								manager.add(new Separator());
-//							}
-//
-//						}
+						String destinationId = getDestination(AbapGitView.this.lastProject);
+						IProject currProject = AdtProjectServiceFactory.createProjectService().findProject(destinationId);
+						IAbapProject currAbapProject = currProject.getAdapter(IAbapProject.class);
+						IDestinationData ProjectDestData = currAbapProject.getDestinationData();
 
 						manager.add(AbapGitView.this.actionCopy);
-						manager.add(new Separator());
-						manager.add(new UnlinkAction(AbapGitView.this.lastProject, (IRepository) firstElement));
+
+						if ((((IRepository) firstElement).getCreatedBy().equalsIgnoreCase(ProjectDestData.getUser()))) {
+
+							if (((IRepository) firstElement).getLink(IRepositoryService.RELATION_PULL) != null) {
+								manager.removeAll();
+								manager.add(AbapGitView.this.actionPullWizard);
+								manager.add(AbapGitView.this.actionCopy);
+								manager.add(new Separator());
+								manager.add(new UnlinkAction(AbapGitView.this.lastProject, (IRepository) firstElement));
+							}
+
+						}
+
 
 
 					}
@@ -352,6 +396,7 @@ public class AbapGitView extends ViewPart {
 					wizardDialog.open();
 
 				}
+
 				updateView(true, false);
 			}
 		};
@@ -375,8 +420,8 @@ public class AbapGitView extends ViewPart {
 						return;
 					}
 					isSupported[0] = true;
-
-					repos.addAll(repoService.getRepositories(monitor).getRepositories());
+					List<IRepository> templist = repoService.getRepositories(monitor).getRepositories();
+					repos.addAll(templist);
 
 					if (byCurrUser) {
 						//Check if repos are created by current user
@@ -448,46 +493,6 @@ public class AbapGitView extends ViewPart {
 			this.viewer.setInput(null);
 		}
 
-		this.viewer.addDoubleClickListener(new IDoubleClickListener() {
-
-			@Override
-			public void doubleClick(DoubleClickEvent event) {
-
-				IRepository currRepository;
-//				IWorkbenchPage page = getSite().getPage();
-//				IViewPart view = page.findView(IPageLayout.ID_PROJECT_EXPLORER);
-				currRepository = null;
-
-				IStructuredSelection selection = (IStructuredSelection) event.getSelection();
-
-				Object firstElement = selection.getFirstElement();
-				if (firstElement instanceof IRepository) {
-					currRepository = ((IRepository) firstElement);
-				}
-
-				if (currRepository != null) {
-
-					IAdtPackageServiceUI packageServiceUI = AdtPackageServiceUIFactory.getOrCreateAdtPackageServiceUI();
-					List<IAdtObjectReference> pkgRefs = packageServiceUI.find(destinationId, currRepository.getPackage(), null);
-					IProject currProject = AbapGitView.this.lastProject; //AdtProjectServiceFactory.createProjectService().findProject(destinationId);
-					if (!pkgRefs.isEmpty()) {
-						IAdtObjectReference gitPackageRef = pkgRefs.stream().findFirst().get();
-						if (gitPackageRef != null) {
-							AdtNavigationServiceFactory.createNavigationService().navigate(currProject, gitPackageRef, true);
-						}
-					}
-
-//					IWorkbenchPart workbenchPart = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePart();
-//					IFile file = workbenchPart.getSite().getPage().getActiveEditor().getEditorInput().getAdapter(IFile.class);
-//					if (file == null) {
-//						System.out.println("FileNotFoundException");
-//					}
-//					expandProjectExlorer(file);
-
-				}
-
-			}
-		});
 	}
 
 //	public void expandProjectExlorer(IFile file) {
