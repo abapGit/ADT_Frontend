@@ -13,7 +13,7 @@ public interface IRepositoryService {
 
 	void unlinkRepository(String key, IProgressMonitor monitor);
 
-	void pullRepository(IRepository existingRepository, String branch, String transportRequest, String user, String password,
+	IObjects pullRepository(IRepository existingRepository, String branch, String transportRequest, String user, String password,
 			IProgressMonitor monitor);
 
 }

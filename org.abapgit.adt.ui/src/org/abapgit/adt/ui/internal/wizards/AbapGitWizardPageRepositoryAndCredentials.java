@@ -121,11 +121,14 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 	@Override
 	public void setVisible(boolean visible) {
 
-		//Navigate to transport request page if repo is public
+//		//Navigate to transport request page if repo is public
 		if (this.cloneData.externalRepoInfo != null && this.cloneData.externalRepoInfo.getAccessMode() == AccessMode.PUBLIC
 				&& this.pullAction) {
 			getContainer().showPage(getNextPage());
 			getContainer().getCurrentPage().setVisible(visible);
+//			System.out.println(getContainer().getCurrentPage().getName());
+			getContainer().getCurrentPage().setPreviousPage(getContainer().getCurrentPage());
+//			getContainer().getCurrentPage().getPreviousPage().setVisible(false);
 			return;
 		}
 

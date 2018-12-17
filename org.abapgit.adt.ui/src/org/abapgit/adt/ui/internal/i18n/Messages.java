@@ -14,6 +14,12 @@ public class Messages extends NLS {
 	public static String AbapGitView_column_package;
 	public static String AbapGitView_column_url;
 	public static String AbapGitView_column_user;
+	public static String AbapGitDialogImport_column_obj_type;
+	public static String AbapGitDialogImport_column_obj_name;
+	public static String AbapGitDialogImport_column_obj_status;
+	public static String AbapGitDialogImport_column_package;
+	public static String AbapGitDialogImport_column_msg_type;
+	public static String AbapGitDialogImport_column_msg_text;
 	public static String AbapGitView_context_dialog_unlink_message;
 	public static String AbapGitView_context_dialog_unlink_title;
 	public static String AbapGitView_context_unlink;
@@ -29,6 +35,7 @@ public class Messages extends NLS {
 	public static String AbapGitView_task_fetch_repos;
 	public static String AbapGitView_task_fetch_repos_error;
 	public static String AbapGitWizard_task_cloning_repository;
+	public static String AbapGitWizard_task_pulling_repository;
 	public static String AbapGitWizard_title;
 	public static String AbapGitWizardPull_title;
 	public static String AbapGitWizardPageBranchAndPackage_chbox_activate;
