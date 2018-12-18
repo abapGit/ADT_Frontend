@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.abapgit.adt</groupId>
   <artifactId>org.abapgit.adt.parent</artifactId>
@@ -11,6 +12,36 @@
     <module>org.abapgit.adt.feature</module>
     <module>org.abapgit.adt.updatesite</module>
   </modules>
+  <profiles>
+    <profile>
+    <id>dev</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+        <property>
+          <name>environment</name>
+          <value>dev</value>
+        </property>
+      </activation>
+      <properties>
+        <spotbugs.failOnError>false</spotbugs.failOnError>
+        <spotbugs.failOnViolation>false</spotbugs.failOnViolation>
+      </properties>
+    </profile>
+    <profile>
+    <id>prod</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+        <property>
+          <name>environment</name>
+          <value>prod</value>
+        </property>
+      </activation>
+      <properties>
+        <spotbugs.failOnError>true</spotbugs.failOnError>
+        <spotbugs.failOnViolation>true</spotbugs.failOnViolation>
+      </properties>
+    </profile>
+  </profiles>
   <properties>
     <tycho-version>1.2.0</tycho-version>
   </properties>
@@ -84,15 +115,15 @@
             <id>validate</id>
             <phase>test</phase>
             <configuration>
-              <failOnError>true</failOnError>
-              <failOnViolation>true</failOnViolation>
+              <failOnError>${spotbugs.failOnError}</failOnError>
+              <failOnViolation>${spotbugs.failOnError}</failOnViolation>
             </configuration>
             <goals>
               <goal>check</goal>
             </goals>
           </execution>
         </executions>
-        </plugin>
+      </plugin>
     </plugins>
   </build>
   <repositories>
