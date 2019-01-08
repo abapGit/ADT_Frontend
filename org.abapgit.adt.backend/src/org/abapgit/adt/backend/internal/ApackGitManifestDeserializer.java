@@ -119,6 +119,7 @@ public class ApackGitManifestDeserializer {
 					objectReference.setUri(xmlReader.getAttributeValue(ADT_CORE_NAMESPACE, "uri")); //$NON-NLS-1$
 					objectReference.setName(xmlReader.getAttributeValue(ADT_CORE_NAMESPACE, "name")); //$NON-NLS-1$
 					apackDependency.setTargetPackage(objectReference);
+					apackDependency.setRequiresClone(false);
 					break;
 				default:
 					depth++;

@@ -57,8 +57,8 @@ public class AbapGitWizard extends Wizard {
 
 		setNeedsProgressMonitor(true);
 
-		setDefaultPageImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID,
-				"icons/wizban/abapGit_import_wizban.png")); //$NON-NLS-1$
+		setDefaultPageImageDescriptor(
+				AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID, "icons/wizban/abapGit_import_wizban.png")); //$NON-NLS-1$
 	}
 
 	@Override
@@ -92,9 +92,11 @@ public class AbapGitWizard extends Wizard {
 								AbapGitWizard.this.cloneData.user, AbapGitWizard.this.cloneData.pass));
 						for (IApackDependency apackDependency : AbapGitWizard.this.cloneData.apackManifest.getDescriptor()
 								.getDependencies()) {
-							repositories.add(createRepository(apackDependency.getGitUrl(), IApackManifest.MASTER_BRANCH,
-									apackDependency.getTargetPackage().getName(), transportRequestNumber,
-									AbapGitWizard.this.cloneData.user, AbapGitWizard.this.cloneData.pass));
+							if (apackDependency.requiresClone()) {
+								repositories.add(createRepository(apackDependency.getGitUrl(), IApackManifest.MASTER_BRANCH,
+										apackDependency.getTargetPackage().getName(), transportRequestNumber,
+										AbapGitWizard.this.cloneData.user, AbapGitWizard.this.cloneData.pass));
+							}
 						}
 						repoService.cloneRepositories(repositories, monitor);
 					} else {
@@ -110,8 +112,7 @@ public class AbapGitWizard extends Wizard {
 			return false;
 		} catch (InvocationTargetException e) {
 			((WizardPage) getContainer().getCurrentPage()).setPageComplete(false);
-			((WizardPage) getContainer().getCurrentPage()).setMessage(e.getTargetException().getMessage(),
-					DialogPage.ERROR);
+			((WizardPage) getContainer().getCurrentPage()).setMessage(e.getTargetException().getMessage(), DialogPage.ERROR);
 			return false;
 		}
 	}

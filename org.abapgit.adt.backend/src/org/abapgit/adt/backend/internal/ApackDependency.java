@@ -10,6 +10,11 @@ public class ApackDependency implements IApackDependency {
 	private String packageId;
 	private String gitUrl;
 	private IAdtObjectReference targetPackage;
+	private boolean requiresClone;
+
+	public ApackDependency() {
+		this.requiresClone = true;
+	}
 
 	@Override
 	public String getOrganizationId() {
@@ -49,6 +54,8 @@ public class ApackDependency implements IApackDependency {
 		builder.append(this.gitUrl);
 		builder.append(", targetPackage="); //$NON-NLS-1$
 		builder.append(this.targetPackage);
+		builder.append(", requiresClone="); //$NON-NLS-1$
+		builder.append(this.requiresClone);
 		builder.append("]"); //$NON-NLS-1$
 		return builder.toString();
 	}
@@ -61,6 +68,7 @@ public class ApackDependency implements IApackDependency {
 		result = prime * result + ((this.packageId == null) ? 0 : this.packageId.hashCode());
 		result = prime * result + ((this.gitUrl == null) ? 0 : this.gitUrl.hashCode());
 		result = prime * result + ((this.targetPackage == null) ? 0 : this.targetPackage.hashCode());
+		result = prime * result + (this.requiresClone ? 1337 : 7331);
 		return result;
 	}
 
@@ -104,13 +112,16 @@ public class ApackDependency implements IApackDependency {
 		} else if (!this.targetPackage.equals(other.targetPackage)) {
 			return false;
 		}
+		if (this.requiresClone != other.requiresClone) {
+			return false;
+		}
 		return true;
 	}
 
 	@Override
 	public boolean isEmpty() {
 		return (this.organizationId == null || this.organizationId.isEmpty()) && (this.packageId == null || this.packageId.isEmpty())
-				&& (this.gitUrl == null || this.gitUrl.isEmpty() && this.targetPackage == null);
+				&& (this.gitUrl == null || this.gitUrl.isEmpty() && this.targetPackage == null && this.requiresClone == false);
 	}
 
 	@Override
@@ -121,6 +132,15 @@ public class ApackDependency implements IApackDependency {
 	@Override
 	public IAdtObjectReference getTargetPackage() {
 		return this.targetPackage;
+	}
+
+	@Override
+	public boolean requiresClone() {
+		return this.requiresClone;
+	}
+
+	public void setRequiresClone(boolean requiresClone) {
+		this.requiresClone = requiresClone;
 	}
 
 }

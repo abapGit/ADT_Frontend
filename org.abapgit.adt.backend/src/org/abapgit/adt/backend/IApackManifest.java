@@ -32,6 +32,8 @@ public interface IApackManifest {
 
 		IAdtObjectReference getTargetPackage();
 
+		boolean requiresClone();
+
 	}
 
 	interface IApackManifestDescriptor {
