@@ -20,7 +20,7 @@ public class AbapObjectSerializer {
 				switch (xmlReader.getLocalName()) {
 				case "obj_type": //$NON-NLS-1$
 					object.setObjType(xmlReader.getElementText());
-					object_msg.setObjType("Message");
+					object_msg.setObjType("Message"); //$NON-NLS-1$
 					message_exists = false;
 					break;
 				case "obj_name": //$NON-NLS-1$

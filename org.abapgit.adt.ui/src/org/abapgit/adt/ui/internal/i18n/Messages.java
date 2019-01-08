@@ -48,6 +48,8 @@ public class Messages extends NLS {
 	public static String AbapGitWizardPageBranchAndPackage_task_package_validation_error_message;
 	public static String AbapGitWizardPageBranchAndPackage_task_package_validation_message;
 	public static String AbapGitWizardPageBranchAndPackage_text_package_message;
+	public static String AbapGitDialogPageObjLog_title;
+	public static String AbapGitDialogPageObjLog_description;
 	public static String AbapGitWizardPageBranchAndPackage_title;
 	public static String AbapGitWizardPageRepositoryAndCredentials_description;
 	public static String AbapGitWizardPageRepositoryAndCredentials_label_password;

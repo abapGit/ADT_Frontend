@@ -149,7 +149,7 @@ public class AbapGitWizardPull extends Wizard {
 			int dialogResult = dialog.open();
 
 			if (dialogResult == dialog.CANCEL) {
-				System.out.println("CANCEL presed");
+//				System.out.println("CANCEL presed");
 				return false;
 			}
 

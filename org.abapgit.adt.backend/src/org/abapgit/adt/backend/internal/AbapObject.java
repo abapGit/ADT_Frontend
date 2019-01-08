@@ -1,10 +1,10 @@
 package org.abapgit.adt.backend.internal;
 
-import java.net.URI;
+//import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashMap;
+//import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+//import java.util.Map;
 
 import org.abapgit.adt.backend.IObject;
 
@@ -16,7 +16,7 @@ public class AbapObject implements IObject {
 	private String pckg;
 	private String msg_type;
 	private String msg_text;
-	private final Map<String, URI> links = new HashMap<>();
+//	private final Map<String, URI> links = new HashMap<>();
 
 	private final List<IObject> abapLogObjectChildren = new ArrayList<IObject>();
 

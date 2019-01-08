@@ -18,7 +18,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
@@ -40,8 +39,8 @@ public class AbapGitDialogImport extends TitleAreaDialog {
 	@Override
 	public void create() {
 		super.create();
-		setTitle("ABAP objects import log");
-		setMessage("Please check status and message for all imported ABAP objects", IMessageProvider.INFORMATION);
+		setTitle(Messages.AbapGitDialogPageObjLog_title);
+		setMessage(Messages.AbapGitDialogPageObjLog_description, IMessageProvider.INFORMATION);
 	}
 
 	@Override
@@ -126,7 +125,7 @@ public class AbapGitDialogImport extends TitleAreaDialog {
 		createTableViewerColumn(Messages.AbapGitDialogImport_column_obj_status, 200).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				IObject p = (IObject) element;
+//				IObject p = (IObject) element;
 //				return p.getObjStatus();
 				return null;
 			}
@@ -137,7 +136,7 @@ public class AbapGitDialogImport extends TitleAreaDialog {
 				String objStatus = p.getObjStatus();
 				String objType = p.getObjType();
 
-				Display d = Display.getCurrent();
+//				Display d = Display.getCurrent();
 				Image Status_warning = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_WARN_TSK);
 //				Image Status_warning = Activator.getDefault().getImage(Activator.EXCEPTION);
 				Image Status_error = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_ERROR_TSK);
@@ -183,11 +182,11 @@ public class AbapGitDialogImport extends TitleAreaDialog {
 				String textMsgType = p.getMsgType();
 
 				if (textMsgType != null && textMsgType.equals("W")) { //$NON-NLS-1$
-					return "Warning";
+					return "Warning"; //$NON-NLS-1$
 				}
 
 				if (textMsgType != null && textMsgType.equals("E")) { //$NON-NLS-1$
-					return "Error";
+					return "Error"; //$NON-NLS-1$
 				}
 
 				if (textMsgType != null && textMsgType.equals("S")) { //$NON-NLS-1$
@@ -195,7 +194,7 @@ public class AbapGitDialogImport extends TitleAreaDialog {
 				}
 
 				if (textMsgType != null && textMsgType.equals("I")) { //$NON-NLS-1$
-					return "Info";
+					return "Info"; //$NON-NLS-1$
 				}
 
 				return textMsgType;
@@ -206,13 +205,13 @@ public class AbapGitDialogImport extends TitleAreaDialog {
 				IObject p = (IObject) element;
 				String textMsgType = p.getMsgType();
 
-				Display d = Display.getCurrent();
+//				Display d = Display.getCurrent();
 
 				Image Warning = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_WARN_TSK);
 				Image Error = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_ERROR_TSK);
 //				com.sap.adt.tools.core.ui.Activator.getDefault().getImage(com.sap.adt.tools.core.ui.Activator.ERROR);
 //				Image Success = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.);
-				Image Info = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_INFO_TSK);
+//				Image Info = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_INFO_TSK);
 
 				if (textMsgType != null && textMsgType.equals("W")) { //$NON-NLS-1$
 					return Warning;
