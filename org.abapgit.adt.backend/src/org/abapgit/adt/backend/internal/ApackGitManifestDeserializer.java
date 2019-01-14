@@ -116,10 +116,15 @@ public class ApackGitManifestDeserializer {
 				case "target_package": //$NON-NLS-1$
 					// Manually deserialize until we have found an open ADT Core API
 					IAdtObjectReference objectReference = IAdtCoreFactory.eINSTANCE.createAdtObjectReference();
-					objectReference.setUri(xmlReader.getAttributeValue(ADT_CORE_NAMESPACE, "uri")); //$NON-NLS-1$
-					objectReference.setName(xmlReader.getAttributeValue(ADT_CORE_NAMESPACE, "name")); //$NON-NLS-1$
+					String targetPackageUri = xmlReader.getAttributeValue(ADT_CORE_NAMESPACE, "uri"); //$NON-NLS-1$
+					String targetPackageName = xmlReader.getAttributeValue(ADT_CORE_NAMESPACE, "name"); //$NON-NLS-1$
+					objectReference.setUri(targetPackageUri);
+					objectReference.setName(targetPackageName);
+					if (targetPackageName != null && !targetPackageName.isEmpty() || (targetPackageUri != null && !targetPackageUri.isEmpty())) {
+						// Clone only required if there is no backend package (= no previous clone)
+						apackDependency.setRequiresClone(false);
+					}
 					apackDependency.setTargetPackage(objectReference);
-					apackDependency.setRequiresClone(false);
 					break;
 				default:
 					depth++;
