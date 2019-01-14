@@ -3,8 +3,10 @@ package org.abapgit.adt.backend.internal;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
 
 import org.abapgit.adt.backend.IRepositories;
+import org.abapgit.adt.backend.IRepository;
 
 public class RepositoriesSerializer {
 
@@ -30,6 +32,15 @@ public class RepositoriesSerializer {
 		}
 
 		return repositories;
+	}
+
+	public void serializeRepositories(IRepositories repositories, XMLStreamWriter xmlStreamWriter, String contentType) throws XMLStreamException {
+		xmlStreamWriter.writeStartElement("repositories"); //$NON-NLS-1$
+		RepositorySerializer repositorySerializer = new RepositorySerializer();
+		for (IRepository repository : repositories.getRepositories()) {
+			repositorySerializer.serializeRepository(repository, xmlStreamWriter, contentType);
+		}
+		xmlStreamWriter.writeEndElement();
 	}
 
 }
