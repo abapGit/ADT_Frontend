@@ -321,6 +321,9 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 
 	private static class ApackParameters {
 
+		public String url;
+		public String branch;
+
 		public static ApackParameters createFromDependency(IApackDependency dependency) {
 			ApackParameters apackParameters = new ApackParameters();
 			apackParameters.url = dependency.getGitUrl();
@@ -328,8 +331,6 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 			return apackParameters;
 		}
 
-		public String url;
-		public String branch;
 	}
 
 }
