@@ -144,42 +144,70 @@ public class AbapGitWizardPageApack extends WizardPage {
 			if (manifestDescriptor == null) {
 				return;
 			}
-			if (!manifestDescriptor.getOrganizationId().isEmpty()) {
-				this.organizationIdContent.setText(manifestDescriptor.getOrganizationId());
-			}
-			if (!manifestDescriptor.getPackageId().isEmpty()) {
-				this.packageIdContent.setText(manifestDescriptor.getPackageId());
-			}
-			if (!manifestDescriptor.getVersion().isEmpty()) {
-				this.versionContent.setText(manifestDescriptor.getVersion());
-			}
-			if (!manifestDescriptor.getLicense().isEmpty()) {
-				this.licenseContent.setText(manifestDescriptor.getLicense());
-			}
-			if (!manifestDescriptor.getDescription().isEmpty()) {
-				this.descriptionContent.setText(manifestDescriptor.getDescription());
-			}
-			if (!manifestDescriptor.getGitUrl().isEmpty()) {
-				this.gitUrlContent.setText(manifestDescriptor.getGitUrl());
-			}
-			if (!manifestDescriptor.getDependencies().isEmpty() && this.table.getItemCount() == 0) {
-				List<IApackDependency> dependencies = manifestDescriptor.getDependencies();
-				for (IApackDependency dependency : dependencies) {
-					final int packageColumnIndex = 3;
-					TableItem tableItem = new TableItem(this.table, SWT.NONE);
-					tableItem.setText(new String[] { dependency.getOrganizationId(), dependency.getPackageId(), dependency.getGitUrl(),
-							dependency.getTargetPackage().getName() });
-
-					if (dependency.getTargetPackage() == null || dependency.getTargetPackage().getName() == null
-							|| dependency.getTargetPackage().getName().isEmpty()) {
-						addThePackageButton(dependency, packageColumnIndex, tableItem);
-					}
-
-				}
-				packTheTable();
-			}
+			setTextOrganisationId(manifestDescriptor);
+			setTextPackageId(manifestDescriptor);
+			setTextVersion(manifestDescriptor);
+			setTextLicense(manifestDescriptor);
+			setTextDescription(manifestDescriptor);
+			setTextGitUrl(manifestDescriptor);
+			buildDependencyTable(manifestDescriptor);
 		}
 
+	}
+
+	private void buildDependencyTable(IApackManifestDescriptor manifestDescriptor) {
+		if (!manifestDescriptor.getDependencies().isEmpty() && this.table.getItemCount() == 0) {
+			List<IApackDependency> dependencies = manifestDescriptor.getDependencies();
+			for (IApackDependency dependency : dependencies) {
+				final int packageColumnIndex = 3;
+				TableItem tableItem = new TableItem(this.table, SWT.NONE);
+				tableItem.setText(new String[] { dependency.getOrganizationId(), dependency.getPackageId(), dependency.getGitUrl(),
+						dependency.getTargetPackage().getName() });
+
+				if (dependency.getTargetPackage() == null || dependency.getTargetPackage().getName() == null
+						|| dependency.getTargetPackage().getName().isEmpty()) {
+					addThePackageButton(dependency, packageColumnIndex, tableItem);
+				}
+
+			}
+			packTheTable();
+		}
+	}
+
+	private void setTextGitUrl(IApackManifestDescriptor manifestDescriptor) {
+		if (!manifestDescriptor.getGitUrl().isEmpty()) {
+			this.gitUrlContent.setText(manifestDescriptor.getGitUrl());
+		}
+	}
+
+	private void setTextDescription(IApackManifestDescriptor manifestDescriptor) {
+		if (!manifestDescriptor.getDescription().isEmpty()) {
+			this.descriptionContent.setText(manifestDescriptor.getDescription());
+		}
+	}
+
+	private void setTextLicense(IApackManifestDescriptor manifestDescriptor) {
+		if (!manifestDescriptor.getLicense().isEmpty()) {
+			this.licenseContent.setText(manifestDescriptor.getLicense());
+		}
+	}
+
+	private void setTextVersion(IApackManifestDescriptor manifestDescriptor) {
+		if (!manifestDescriptor.getVersion().isEmpty()) {
+			this.versionContent.setText(manifestDescriptor.getVersion());
+		}
+	}
+
+	private void setTextPackageId(IApackManifestDescriptor manifestDescriptor) {
+		if (!manifestDescriptor.getPackageId().isEmpty()) {
+			this.packageIdContent.setText(manifestDescriptor.getPackageId());
+		}
+	}
+
+	private void setTextOrganisationId(IApackManifestDescriptor manifestDescriptor) {
+		if (!manifestDescriptor.getOrganizationId().isEmpty()) {
+			this.organizationIdContent.setText(manifestDescriptor.getOrganizationId());
+		}
 	}
 
 	private void addThePackageButton(IApackDependency dependency, final int packageColumnIndex, TableItem tableItem) {
@@ -218,79 +246,109 @@ public class AbapGitWizardPageApack extends WizardPage {
 		if (this.cloneData.apackManifest.hasDependencies()) {
 			// Check if all dependencies have valid packages assigned
 			for (IApackDependency apackDependency : this.cloneData.apackManifest.getDescriptor().getDependencies()) {
-				if (apackDependency.getTargetPackage() == null || apackDependency.getTargetPackage().getName() == null
-						|| apackDependency.getTargetPackage().getName().isEmpty()) {
-					setMessage(NLS.bind(Messages.AbapGitWizardPageApack_task_invalid_package_assignment,
-							apackDependency.getOrganizationId() + "-" + apackDependency.getPackageId()), DialogPage.ERROR); //$NON-NLS-1$
-					setPageComplete(false);
+				if (!validatePackageNotEmpty(apackDependency)) {
 					return false;
 				}
-				try {
-					getContainer().run(true, true, new IRunnableWithProgress() {
-
-						@Override
-						public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-							String packageName = apackDependency.getTargetPackage().getName();
-							monitor.beginTask(NLS.bind(Messages.AbapGitWizardPageApack_task_validating_package, packageName),
-									IProgressMonitor.UNKNOWN);
-							IAdtPackageServiceUI packageServiceUI = AdtPackageServiceUIFactory.getOrCreateAdtPackageServiceUI();
-							if (packageServiceUI.packageExists(AbapGitWizardPageApack.this.destination, packageName, monitor)) {
-								List<IAdtObjectReference> packageReferences = packageServiceUI.find(AbapGitWizardPageApack.this.destination,
-										packageName, monitor);
-								if (packageReferences == null || packageReferences.isEmpty()) {
-									setMessage(NLS.bind(Messages.AbapGitWizardPageApack_task_package_not_existing, packageName),
-											DialogPage.ERROR);
-									setPageComplete(false);
-								}
-							}
-						}
-					});
-					if (!isPageComplete()) {
-						return false;
-					}
-				} catch (InvocationTargetException e) {
-					setMessage(e.getTargetException().getMessage(), DialogPage.ERROR);
-					setPageComplete(false);
-					return false;
-				} catch (InterruptedException e) {
+				if (!validatePackageExisting(apackDependency)) {
 					return false;
 				}
-
 			}
 
 			// Check if all packages have the same transport layer and software component
-			IAdtObjectReference packageRef = this.cloneData.packageRef;
-			IAdtObjectReference checkReference = IAdtCoreFactory.eINSTANCE.createAdtObjectReference();
-			checkReference.setUri(packageRef.getUri());
 			List<IApackDependency> apackDependencies = this.cloneData.apackManifest.getDescriptor().getDependencies();
-			List<IAdtObjectReference> dependencyReferences = new ArrayList<IAdtObjectReference>();
-			dependencyReferences.add(checkReference);
-			for (IApackDependency apackDependency : apackDependencies) {
-				checkReference = IAdtCoreFactory.eINSTANCE.createAdtObjectReference();
-				checkReference.setUri(apackDependency.getTargetPackage().getUri());
-				dependencyReferences.add(checkReference);
+			IAdtTransportCheckData[] dependencyCheckData = buildPackageCheckData(apackDependencies);
+
+			if (!validateCheckData(apackDependencies, dependencyCheckData)) {
+				return false;
 			}
-			IAdtTransportCheckData[] dependencyCheckData = this.transportService.check(
-					dependencyReferences.toArray(new IAdtObjectReference[dependencyReferences.size()]), packageRef.getPackageName(), true,
-					this.destination);
-			if ((dependencyCheckData.length - 1) != apackDependencies.size()) {
-				setMessage(Messages.AbapGitWizardPageApack_task_error_retrieving_transport_data, DialogPage.ERROR);
+			return validatePackageTransportLayer(dependencyCheckData);
+		}
+		return true;
+	}
+
+	private boolean validatePackageTransportLayer(IAdtTransportCheckData[] dependencyCheckData) {
+		IAdtTransportCheckData referenceCheckData = dependencyCheckData[0];
+		for (int i = 1; i < dependencyCheckData.length; i++) {
+			if (!referenceCheckData.getPackageSoftwareComponent().equals(dependencyCheckData[i].getPackageSoftwareComponent())
+					|| !referenceCheckData.getPackageTransportLayer().equals(dependencyCheckData[i].getPackageTransportLayer())) {
+				setMessage(
+						NLS.bind(Messages.AbapGitWizardPageApack_task_transport_layers_differ,
+								referenceCheckData.getObjectName(), dependencyCheckData[i].getObjectName()),
+						DialogPage.ERROR);
 				setPageComplete(false);
 				return false;
 			}
-			IAdtTransportCheckData referenceCheckData = dependencyCheckData[0];
-			for (int i = 1; i < dependencyCheckData.length; i++) {
-				if (!referenceCheckData.getPackageSoftwareComponent().equals(dependencyCheckData[i].getPackageSoftwareComponent())
-						|| !referenceCheckData.getPackageTransportLayer().equals(dependencyCheckData[i].getPackageTransportLayer())) {
-					setMessage(
-							NLS.bind(Messages.AbapGitWizardPageApack_task_transport_layers_differ,
-									referenceCheckData.getObjectName(), dependencyCheckData[i].getObjectName()),
-							DialogPage.ERROR);
-					setPageComplete(false);
-					return false;
-				}
-			}
+		}
+		return true;
+	}
 
+	private boolean validateCheckData(List<IApackDependency> apackDependencies, IAdtTransportCheckData[] dependencyCheckData) {
+		if ((dependencyCheckData.length - 1) != apackDependencies.size()) {
+			setMessage(Messages.AbapGitWizardPageApack_task_error_retrieving_transport_data, DialogPage.ERROR);
+			setPageComplete(false);
+			return false;
+		}
+		return true;
+	}
+
+	private IAdtTransportCheckData[] buildPackageCheckData(List<IApackDependency> apackDependencies) {
+		IAdtObjectReference packageRef = this.cloneData.packageRef;
+		IAdtObjectReference checkReference = IAdtCoreFactory.eINSTANCE.createAdtObjectReference();
+		checkReference.setUri(packageRef.getUri());
+		List<IAdtObjectReference> dependencyReferences = new ArrayList<IAdtObjectReference>();
+		dependencyReferences.add(checkReference);
+		for (IApackDependency apackDependency : apackDependencies) {
+			checkReference = IAdtCoreFactory.eINSTANCE.createAdtObjectReference();
+			checkReference.setUri(apackDependency.getTargetPackage().getUri());
+			dependencyReferences.add(checkReference);
+		}
+		IAdtTransportCheckData[] dependencyCheckData = this.transportService.check(
+				dependencyReferences.toArray(new IAdtObjectReference[dependencyReferences.size()]), packageRef.getPackageName(), true,
+				this.destination);
+		return dependencyCheckData;
+	}
+
+	private boolean validatePackageExisting(IApackDependency apackDependency) {
+		try {
+			getContainer().run(true, true, new IRunnableWithProgress() {
+
+				@Override
+				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+					String packageName = apackDependency.getTargetPackage().getName();
+					monitor.beginTask(NLS.bind(Messages.AbapGitWizardPageApack_task_validating_package, packageName),
+							IProgressMonitor.UNKNOWN);
+					IAdtPackageServiceUI packageServiceUI = AdtPackageServiceUIFactory.getOrCreateAdtPackageServiceUI();
+					if (packageServiceUI.packageExists(AbapGitWizardPageApack.this.destination, packageName, monitor)) {
+						List<IAdtObjectReference> packageReferences = packageServiceUI.find(AbapGitWizardPageApack.this.destination,
+								packageName, monitor);
+						if (packageReferences == null || packageReferences.isEmpty()) {
+							setMessage(NLS.bind(Messages.AbapGitWizardPageApack_task_package_not_existing, packageName),
+									DialogPage.ERROR);
+							setPageComplete(false);
+						}
+					}
+				}
+			});
+			if (!isPageComplete()) {
+				return false;
+			}
+		} catch (InvocationTargetException e) {
+			setMessage(e.getTargetException().getMessage(), DialogPage.ERROR);
+			setPageComplete(false);
+			return false;
+		} catch (InterruptedException e) {
+			return false;
+		}
+		return true;
+	}
+
+	private boolean validatePackageNotEmpty(IApackDependency apackDependency) {
+		if (apackDependency.getTargetPackage() == null || apackDependency.getTargetPackage().getName() == null
+				|| apackDependency.getTargetPackage().getName().isEmpty()) {
+			setMessage(NLS.bind(Messages.AbapGitWizardPageApack_task_invalid_package_assignment,
+					apackDependency.getOrganizationId() + "-" + apackDependency.getPackageId()), DialogPage.ERROR); //$NON-NLS-1$
+			setPageComplete(false);
+			return false;
 		}
 		return true;
 	}

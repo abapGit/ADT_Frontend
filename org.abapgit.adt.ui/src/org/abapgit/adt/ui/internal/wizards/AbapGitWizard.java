@@ -133,17 +133,15 @@ public class AbapGitWizard extends Wizard {
 		@Override
 		public void handlePageChanging(final PageChangingEvent event) {
 
-			if (event.getCurrentPage() == AbapGitWizard.this.pageRepo && event.getTargetPage() == AbapGitWizard.this.pageBranchAndPackage) {
-				if (!AbapGitWizard.this.pageRepo.validateAll()) {
-					event.doit = false;
-					return;
-				}
+			if (event.getCurrentPage() == AbapGitWizard.this.pageRepo && event.getTargetPage() == AbapGitWizard.this.pageBranchAndPackage
+					&& !AbapGitWizard.this.pageRepo.validateAll()) {
+				event.doit = false;
+				return;
 			}
-			if (event.getCurrentPage() == AbapGitWizard.this.pageBranchAndPackage) {
-				if (!AbapGitWizard.this.pageBranchAndPackage.validateAll()) {
-					event.doit = false;
-					return;
-				}
+			if (event.getCurrentPage() == AbapGitWizard.this.pageBranchAndPackage
+					&& !AbapGitWizard.this.pageBranchAndPackage.validateAll()) {
+				event.doit = false;
+				return;
 			}
 			if (event.getTargetPage() == AbapGitWizard.this.transportPage) {
 				try {
@@ -161,11 +159,9 @@ public class AbapGitWizard extends Wizard {
 					AbapGitWizard.this.pageBranchAndPackage.setMessage(e.getMessage(), DialogPage.ERROR);
 				}
 			}
-			if (event.getCurrentPage() == AbapGitWizard.this.pageApack) {
-				if (!AbapGitWizard.this.pageApack.validateAll()) {
-					event.doit = false;
-					return;
-				}
+			if (event.getCurrentPage() == AbapGitWizard.this.pageApack && !AbapGitWizard.this.pageApack.validateAll()) {
+				event.doit = false;
+				return;
 			}
 		}
 	}

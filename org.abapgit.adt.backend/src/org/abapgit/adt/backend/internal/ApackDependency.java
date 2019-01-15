@@ -112,16 +112,13 @@ public class ApackDependency implements IApackDependency {
 		} else if (!this.targetPackage.equals(other.targetPackage)) {
 			return false;
 		}
-		if (this.requiresClone != other.requiresClone) {
-			return false;
-		}
-		return true;
+		return this.requiresClone == other.requiresClone;
 	}
 
 	@Override
 	public boolean isEmpty() {
 		return (this.organizationId == null || this.organizationId.isEmpty()) && (this.packageId == null || this.packageId.isEmpty())
-				&& (this.gitUrl == null || this.gitUrl.isEmpty() && this.targetPackage == null && this.requiresClone == false);
+				&& (this.gitUrl == null || this.gitUrl.isEmpty() && this.targetPackage == null && !this.requiresClone);
 	}
 
 	@Override

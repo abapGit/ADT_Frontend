@@ -107,8 +107,6 @@ public class AbapGitView extends ViewPart {
 		}
 	};
 
-	private Action actionPullWizard;
-
 	@Override
 	public void init(IViewSite site) throws PartInitException {
 		super.init(site);
@@ -331,7 +329,7 @@ public class AbapGitView extends ViewPart {
 		this.actionWizard.setToolTipText(Messages.AbapGitView_action_clone);
 		this.actionWizard.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJ_ADD));
 
-		this.actionPullWizard = new Action() {
+		Action actionPullWizard = new Action() {
 
 			private IRepository selRepo;
 
@@ -355,8 +353,8 @@ public class AbapGitView extends ViewPart {
 				updateView(true, false);
 			}
 		};
-		this.actionPullWizard.setText(Messages.AbapGitView_context_pull);
-//		this.actionPullWizard
+		actionPullWizard.setText(Messages.AbapGitView_context_pull);
+//		actionPullWizard
 //				.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
 	}
 
