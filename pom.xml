@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.abapgit.adt</groupId>
   <artifactId>org.abapgit.adt.parent</artifactId>
-  <version>0.11.13</version>
+  <version>0.19.1.15</version>
   <name>abapGit</name>
   <packaging>pom</packaging>
   <modules>
