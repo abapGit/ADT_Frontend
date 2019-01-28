@@ -1,6 +1,8 @@
 package org.abapgit.adt.ui.internal.wizards;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.abapgit.adt.backend.IExternalRepositoryInfo.AccessMode;
 import org.abapgit.adt.backend.IExternalRepositoryInfoService;
@@ -37,6 +39,10 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 	private Text txtPwd;
 	private Label lblUser;
 	private Label lblPwd;
+	private Matcher m;
+	private Pattern r;
+	private String ptrn;
+	private String newUrl;
 
 	private boolean wasVisibleBefore;
 
@@ -70,13 +76,17 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 		this.txtURL = new Text(container, SWT.BORDER | SWT.SINGLE);
 		this.txtURL.setText(""); //$NON-NLS-1$
 
+		this.ptrn = "((git@|https:\\/\\/)([\\w]+)(\\/|:))([\\w,\\-,\\_]+)\\@"; //$NON-NLS-1$
+		this.r = Pattern.compile(this.ptrn);
+
 		this.txtURL.addModifyListener(event -> {
 			this.cloneData.url = this.txtURL.getText();
 			this.cloneData.externalRepoInfo = null;
-			setUserAndPassControlsVisible(false);
+//			setUserAndPassControlsVisible(false);
 			validateClientOnly();
 		});
 		this.txtURL.setLayoutData(gd);
+
 
 		this.lblUser = new Label(container, SWT.NONE);
 		this.lblUser.setText(Messages.AbapGitWizardPageRepositoryAndCredentials_label_user);
@@ -104,6 +114,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 
 		setUserAndPassControlsVisible(false);
 
+
 		setControl(container);
 		setPageComplete(false);
 
@@ -121,7 +132,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 	@Override
 	public void setVisible(boolean visible) {
 
-//		//Navigate to transport request page if repo is public
+		//Navigate to transport request page if repo is public
 		if (this.cloneData.externalRepoInfo != null && this.cloneData.externalRepoInfo.getAccessMode() == AccessMode.PUBLIC
 				&& this.pullAction) {
 			getContainer().showPage(getNextPage());
@@ -187,6 +198,23 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 				return false;
 			}
 		}
+
+		Matcher matcher = this.r.matcher(this.txtURL.getText());
+		if (matcher.find()) {
+			this.newUrl = this.txtURL.getText();
+			this.txtURL.setText(this.newUrl.replaceAll(this.ptrn, "https://"));
+
+
+			setUserAndPassControlsVisible(true);
+
+			this.txtUser.setText(matcher.group(3));
+			this.txtPwd.setText(matcher.group(5));
+
+			setMessage("Url mask found");
+//				setMessage(Messages.AbapGitWizardPageRepositoryAndCredentials_repo_is_private, DialogPage.ERROR);
+			setPageComplete(true);
+		}
+
 		return true;
 	}
 

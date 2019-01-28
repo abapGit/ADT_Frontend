@@ -10,7 +10,6 @@ import org.abapgit.adt.backend.IRepository;
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
-import org.abapgit.adt.ui.dialogs.AbapGitDialogImport;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard.CloneData;
 import org.eclipse.core.resources.IProject;
@@ -19,7 +18,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.dialogs.IPageChangingListener;
 import org.eclipse.jface.dialogs.PageChangingEvent;
-import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.IWizardContainer;
 import org.eclipse.jface.wizard.Wizard;
@@ -145,13 +143,16 @@ public class AbapGitWizardPull extends Wizard {
 				}
 			});
 
-			TitleAreaDialog dialog = new AbapGitDialogImport(getShell(), pullObjects);
-			int dialogResult = dialog.open();
+//			MessageDialog.openInformation(getShell(), "Info",
+//					"AbapGit import started. Please refresh and check the status of your repository manually.");
 
-			if (dialogResult == dialog.CANCEL) {
-//				System.out.println("CANCEL presed");
-				return false;
-			}
+//			TitleAreaDialog dialog = new AbapGitDialogImport(getShell(), pullObjects);
+//			int dialogResult = dialog.open();
+//
+//			if (dialogResult == dialog.CANCEL) {
+////				System.out.println("CANCEL presed");
+//				return false;
+//			}
 
 			return true;
 

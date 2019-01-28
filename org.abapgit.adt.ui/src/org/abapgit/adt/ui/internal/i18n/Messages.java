@@ -9,11 +9,14 @@ public class Messages extends NLS {
 	public static String AbapGitView_action_copy;
 	public static String AbapGitView_action_showMyRepos;
 	public static String AbapGitView_action_pull;
+	public static String AbapGitView_action_open;
+	public static String AbapGitView_action_objectlog;
 	public static String AbapGitView_column_branch;
 	public static String AbapGitView_column_firstcommitat;
 	public static String AbapGitView_column_package;
 	public static String AbapGitView_column_url;
 	public static String AbapGitView_column_user;
+	public static String AbapGitView_column_repo_status;
 	public static String AbapGitDialogImport_column_obj_type;
 	public static String AbapGitDialogImport_column_obj_name;
 	public static String AbapGitDialogImport_column_obj_status;
