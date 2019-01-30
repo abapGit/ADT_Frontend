@@ -39,7 +39,6 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 	private Text txtPwd;
 	private Label lblUser;
 	private Label lblPwd;
-	private Matcher m;
 	private Pattern r;
 	private String ptrn;
 	private String newUrl;
@@ -200,9 +199,9 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 		}
 
 		Matcher matcher = this.r.matcher(this.txtURL.getText());
-		if (matcher.find()) {
+		if (matcher.find() && this.txtURL.getText().endsWith(".git")) { //$NON-NLS-1$
 			this.newUrl = this.txtURL.getText();
-			this.txtURL.setText(this.newUrl.replaceAll(this.ptrn, "https://"));
+			this.txtURL.setText(this.newUrl.replaceAll(this.ptrn, "https://")); //$NON-NLS-1$
 
 
 			setUserAndPassControlsVisible(true);
@@ -210,8 +209,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 			this.txtUser.setText(matcher.group(3));
 			this.txtPwd.setText(matcher.group(5));
 
-			setMessage("Url mask found");
-//				setMessage(Messages.AbapGitWizardPageRepositoryAndCredentials_repo_is_private, DialogPage.ERROR);
+			setMessage(Messages.AbapGitWizardPageRepositoryAndCredentials_repo_user_pass, DialogPage.INFORMATION);
 			setPageComplete(true);
 		}
 
@@ -247,7 +245,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 				setUserAndPassControlsVisible(true);
 				this.txtUser.setFocus();
 				setPageComplete(false);
-				setMessage(Messages.AbapGitWizardPageRepositoryAndCredentials_repo_is_private, DialogPage.ERROR);
+				setMessage(Messages.AbapGitWizardPageRepositoryAndCredentials_repo_is_private, DialogPage.INFORMATION);
 				return false;
 			} else {
 				// update the info, now that we have proper user/password

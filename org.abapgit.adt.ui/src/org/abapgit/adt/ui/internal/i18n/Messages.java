@@ -59,6 +59,7 @@ public class Messages extends NLS {
 	public static String AbapGitWizardPageRepositoryAndCredentials_label_url;
 	public static String AbapGitWizardPageRepositoryAndCredentials_label_user;
 	public static String AbapGitWizardPageRepositoryAndCredentials_repo_in_use_error;
+	public static String AbapGitWizardPageRepositoryAndCredentials_repo_user_pass;
 	public static String AbapGitWizardPageRepositoryAndCredentials_repo_is_private;
 	public static String AbapGitWizardPageRepositoryAndCredentials_task_check_compatibility;
 	public static String AbapGitWizardPageRepositoryAndCredentials_task_fetch_repo_info;
