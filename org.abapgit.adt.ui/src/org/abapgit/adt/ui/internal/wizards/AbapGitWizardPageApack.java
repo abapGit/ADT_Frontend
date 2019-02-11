@@ -47,8 +47,6 @@ public class AbapGitWizardPageApack extends WizardPage {
 	private Label organizationIdContent;
 	private Label packageIdContent;
 	private Label versionContent;
-	private Label licenseContent;
-	private Label descriptionContent;
 	private Label gitUrlContent;
 	private Table table;
 
@@ -88,20 +86,6 @@ public class AbapGitWizardPageApack extends WizardPage {
 		this.versionContent = new Label(container, SWT.NONE);
 		GridDataFactory.swtDefaults().span(2, 0).align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(this.versionContent);
 		this.versionContent.setText(Messages.AbapGitWizardPageApack_text_no_information_available);
-
-		Label licenseLabel = new Label(container, SWT.NONE);
-		licenseLabel.setText(Messages.AbapGitWizardPageApack_label_license);
-		GridDataFactory.swtDefaults().applyTo(licenseLabel);
-		this.licenseContent = new Label(container, SWT.NONE);
-		GridDataFactory.swtDefaults().span(2, 0).align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(this.licenseContent);
-		this.licenseContent.setText(Messages.AbapGitWizardPageApack_text_no_information_available);
-
-		Label descriptionLabel = new Label(container, SWT.NONE);
-		descriptionLabel.setText(Messages.AbapGitWizardPageApack_label_description);
-		GridDataFactory.swtDefaults().applyTo(descriptionLabel);
-		this.descriptionContent = new Label(container, SWT.NONE);
-		GridDataFactory.swtDefaults().span(2, 0).align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(this.descriptionContent);
-		this.descriptionContent.setText(Messages.AbapGitWizardPageApack_text_no_information_available);
 
 		Label gitUrlLabel = new Label(container, SWT.NONE);
 		gitUrlLabel.setText(Messages.AbapGitWizardPageApack_label_git_repository_url);
@@ -147,8 +131,6 @@ public class AbapGitWizardPageApack extends WizardPage {
 			setTextOrganisationId(manifestDescriptor);
 			setTextPackageId(manifestDescriptor);
 			setTextVersion(manifestDescriptor);
-			setTextLicense(manifestDescriptor);
-			setTextDescription(manifestDescriptor);
 			setTextGitUrl(manifestDescriptor);
 			buildDependencyTable(manifestDescriptor);
 		}
@@ -177,18 +159,6 @@ public class AbapGitWizardPageApack extends WizardPage {
 	private void setTextGitUrl(IApackManifestDescriptor manifestDescriptor) {
 		if (!manifestDescriptor.getGitUrl().isEmpty()) {
 			this.gitUrlContent.setText(manifestDescriptor.getGitUrl());
-		}
-	}
-
-	private void setTextDescription(IApackManifestDescriptor manifestDescriptor) {
-		if (!manifestDescriptor.getDescription().isEmpty()) {
-			this.descriptionContent.setText(manifestDescriptor.getDescription());
-		}
-	}
-
-	private void setTextLicense(IApackManifestDescriptor manifestDescriptor) {
-		if (!manifestDescriptor.getLicense().isEmpty()) {
-			this.licenseContent.setText(manifestDescriptor.getLicense());
 		}
 	}
 

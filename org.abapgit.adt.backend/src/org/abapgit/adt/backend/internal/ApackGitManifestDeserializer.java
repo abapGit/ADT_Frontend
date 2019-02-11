@@ -4,8 +4,8 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
+import org.abapgit.adt.backend.EApackRepositoryType;
 import org.abapgit.adt.backend.IApackManifest;
-import org.abapgit.adt.backend.IApackManifest.IApackAuthor;
 import org.abapgit.adt.backend.IApackManifest.IApackDependency;
 import org.abapgit.adt.backend.IApackManifest.IApackManifestDescriptor;
 
@@ -56,20 +56,11 @@ public class ApackGitManifestDeserializer {
 				case "version": //$NON-NLS-1$
 					manifestDescriptor.setVersion(xmlReader.getElementText());
 					break;
-				case "license": //$NON-NLS-1$
-					manifestDescriptor.setLicense(xmlReader.getElementText());
-					break;
-				case "description": //$NON-NLS-1$
-					manifestDescriptor.setDescription(xmlReader.getElementText());
-					break;
 				case "git_url": //$NON-NLS-1$
 					manifestDescriptor.setGitUrl(xmlReader.getElementText());
 					break;
-				case "author": //$NON-NLS-1$
-					IApackAuthor apackAuthor = deserializeApackAuthor(xmlReader);
-					if (!apackAuthor.isEmpty()) {
-						manifestDescriptor.addAuthor(apackAuthor);
-					}
+				case "repository_type": //$NON-NLS-1$
+					manifestDescriptor.setRepositoryType(EApackRepositoryType.fromString(xmlReader.getElementText()));
 					break;
 				case "dependency": //$NON-NLS-1$
 					IApackDependency apackDependency = deserializeApackDependency(xmlReader);
@@ -143,40 +134,6 @@ public class ApackGitManifestDeserializer {
 		}
 
 		return apackDependency;
-	}
-
-	private IApackAuthor deserializeApackAuthor(XMLStreamReader xmlReader) throws XMLStreamException {
-		ApackAuthor apackAuthor = new ApackAuthor();
-
-		int depth = 0;
-		loop: while (xmlReader.hasNext()) {
-			int next = xmlReader.next();
-			switch (next) {
-			case XMLStreamConstants.START_ELEMENT:
-				switch (xmlReader.getLocalName()) {
-				case "name": //$NON-NLS-1$
-					apackAuthor.setName(xmlReader.getElementText());
-					break;
-				case "e_mail": //$NON-NLS-1$
-					apackAuthor.setEMail(xmlReader.getElementText());
-					break;
-				default:
-					depth++;
-					break;
-				}
-				break;
-			case XMLStreamConstants.END_ELEMENT:
-				if (depth == 0) {
-					break loop;
-				}
-				depth--;
-				break;
-			default:
-				break;
-			}
-		}
-
-		return apackAuthor;
 	}
 
 }

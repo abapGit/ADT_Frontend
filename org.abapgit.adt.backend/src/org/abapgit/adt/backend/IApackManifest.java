@@ -8,16 +8,6 @@ public interface IApackManifest {
 
 	public static final String MASTER_BRANCH = "refs/heads/master"; //$NON-NLS-1$
 
-	public interface IApackAuthor {
-
-		String getName();
-
-		String getEMail();
-
-		boolean isEmpty();
-
-	}
-
 	public interface IApackDependency {
 
 		String getOrganizationId();
@@ -44,11 +34,7 @@ public interface IApackManifest {
 
 		String getVersion();
 
-		String getLicense();
-
-		String getDescription();
-
-		List<IApackAuthor> getAuthors();
+		EApackRepositoryType getRepositoryType();
 
 		String getGitUrl();
 
