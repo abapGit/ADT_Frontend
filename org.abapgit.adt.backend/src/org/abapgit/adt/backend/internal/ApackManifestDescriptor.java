@@ -9,21 +9,21 @@ import org.abapgit.adt.backend.IApackManifest.IApackManifestDescriptor;
 
 public class ApackManifestDescriptor implements IApackManifestDescriptor {
 
-	private String organizationId;
-	private String packageId;
+	private String groupId;
+	private String artifactId;
 	private String version;
 	private EApackRepositoryType repositoryType;
 	private String gitUrl;
 	private List<IApackDependency> dependencies = new ArrayList<IApackDependency>();
 
 	@Override
-	public String getOrganizationId() {
-		return this.organizationId;
+	public String getGroupId() {
+		return this.groupId;
 	}
 
 	@Override
 	public String getPackageId() {
-		return this.packageId;
+		return this.artifactId;
 	}
 
 	@Override
@@ -41,12 +41,12 @@ public class ApackManifestDescriptor implements IApackManifestDescriptor {
 		return this.dependencies;
 	}
 
-	public void setOrganizationId(String organizationId) {
-		this.organizationId = organizationId;
+	public void setGroupId(String groupId) {
+		this.groupId = groupId;
 	}
 
 	public void setPackageId(String packageId) {
-		this.packageId = packageId;
+		this.artifactId = packageId;
 	}
 
 	public void setVersion(String version) {
@@ -70,10 +70,10 @@ public class ApackManifestDescriptor implements IApackManifestDescriptor {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("APACK Manifest [organizationId="); //$NON-NLS-1$
-		builder.append(this.organizationId);
+		builder.append("APACK Manifest [groupId="); //$NON-NLS-1$
+		builder.append(this.groupId);
 		builder.append(", packageId="); //$NON-NLS-1$
-		builder.append(this.packageId);
+		builder.append(this.artifactId);
 		builder.append(", version="); //$NON-NLS-1$
 		builder.append(this.version);
 		builder.append(", gitUrl="); //$NON-NLS-1$
@@ -90,8 +90,8 @@ public class ApackManifestDescriptor implements IApackManifestDescriptor {
 	public int hashCode() { // NOPMD
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((this.organizationId == null) ? 0 : this.organizationId.hashCode());
-		result = prime * result + ((this.packageId == null) ? 0 : this.packageId.hashCode());
+		result = prime * result + ((this.groupId == null) ? 0 : this.groupId.hashCode());
+		result = prime * result + ((this.artifactId == null) ? 0 : this.artifactId.hashCode());
 		result = prime * result + ((this.version == null) ? 0 : this.version.hashCode());
 		result = prime * result + ((this.gitUrl == null) ? 0 : this.gitUrl.hashCode());
 		result = prime * result + ((this.repositoryType == null) ? 0 : this.repositoryType.hashCode());
@@ -111,18 +111,18 @@ public class ApackManifestDescriptor implements IApackManifestDescriptor {
 			return false;
 		}
 		ApackManifestDescriptor other = (ApackManifestDescriptor) obj;
-		if (this.organizationId == null) {
-			if (other.organizationId != null) {
+		if (this.groupId == null) {
+			if (other.groupId != null) {
 				return false;
 			}
-		} else if (!this.organizationId.equals(other.organizationId)) {
+		} else if (!this.groupId.equals(other.groupId)) {
 			return false;
 		}
-		if (this.packageId == null) {
-			if (other.packageId != null) {
+		if (this.artifactId == null) {
+			if (other.artifactId != null) {
 				return false;
 			}
-		} else if (!this.packageId.equals(other.packageId)) {
+		} else if (!this.artifactId.equals(other.artifactId)) {
 			return false;
 		}
 		if (this.version == null) {

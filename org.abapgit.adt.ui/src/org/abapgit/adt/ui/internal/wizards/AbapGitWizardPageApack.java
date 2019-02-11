@@ -143,7 +143,7 @@ public class AbapGitWizardPageApack extends WizardPage {
 			for (IApackDependency dependency : dependencies) {
 				final int packageColumnIndex = 3;
 				TableItem tableItem = new TableItem(this.table, SWT.NONE);
-				tableItem.setText(new String[] { dependency.getOrganizationId(), dependency.getPackageId(), dependency.getGitUrl(),
+				tableItem.setText(new String[] { dependency.getGroupId(), dependency.getArtifactId(), dependency.getGitUrl(),
 						dependency.getTargetPackage().getName() });
 
 				if (dependency.getTargetPackage() == null || dependency.getTargetPackage().getName() == null
@@ -175,8 +175,8 @@ public class AbapGitWizardPageApack extends WizardPage {
 	}
 
 	private void setTextOrganisationId(IApackManifestDescriptor manifestDescriptor) {
-		if (!manifestDescriptor.getOrganizationId().isEmpty()) {
-			this.organizationIdContent.setText(manifestDescriptor.getOrganizationId());
+		if (!manifestDescriptor.getGroupId().isEmpty()) {
+			this.organizationIdContent.setText(manifestDescriptor.getGroupId());
 		}
 	}
 
@@ -316,7 +316,7 @@ public class AbapGitWizardPageApack extends WizardPage {
 		if (apackDependency.getTargetPackage() == null || apackDependency.getTargetPackage().getName() == null
 				|| apackDependency.getTargetPackage().getName().isEmpty()) {
 			setMessage(NLS.bind(Messages.AbapGitWizardPageApack_task_invalid_package_assignment,
-					apackDependency.getOrganizationId() + "-" + apackDependency.getPackageId()), DialogPage.ERROR); //$NON-NLS-1$
+					apackDependency.getGroupId() + "-" + apackDependency.getArtifactId()), DialogPage.ERROR); //$NON-NLS-1$
 			setPageComplete(false);
 			return false;
 		}

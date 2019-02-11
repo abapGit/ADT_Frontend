@@ -6,8 +6,8 @@ import com.sap.adt.tools.core.model.adtcore.IAdtObjectReference;
 
 public class ApackDependency implements IApackDependency {
 
-	private String organizationId;
-	private String packageId;
+	private String groupId;
+	private String artifactId;
 	private String gitUrl;
 	private IAdtObjectReference targetPackage;
 	private boolean requiresClone;
@@ -17,13 +17,13 @@ public class ApackDependency implements IApackDependency {
 	}
 
 	@Override
-	public String getOrganizationId() {
-		return this.organizationId;
+	public String getGroupId() {
+		return this.groupId;
 	}
 
 	@Override
-	public String getPackageId() {
-		return this.packageId;
+	public String getArtifactId() {
+		return this.artifactId;
 	}
 
 	@Override
@@ -31,12 +31,12 @@ public class ApackDependency implements IApackDependency {
 		return this.gitUrl;
 	}
 
-	public void setOrganizationId(String organizationId) {
-		this.organizationId = organizationId;
+	public void setGroupId(String groupId) {
+		this.groupId = groupId;
 	}
 
-	public void setPackageId(String packageId) {
-		this.packageId = packageId;
+	public void setArtifactId(String artifactId) {
+		this.artifactId = artifactId;
 	}
 
 	public void setGitUrl(String homeUrl) {
@@ -46,10 +46,10 @@ public class ApackDependency implements IApackDependency {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("Dependency [organizationId="); //$NON-NLS-1$
-		builder.append(this.organizationId);
-		builder.append(", packageId="); //$NON-NLS-1$
-		builder.append(this.packageId);
+		builder.append("Dependency [groupId="); //$NON-NLS-1$
+		builder.append(this.groupId);
+		builder.append(", artifactId="); //$NON-NLS-1$
+		builder.append(this.artifactId);
 		builder.append(", gitUrl="); //$NON-NLS-1$
 		builder.append(this.gitUrl);
 		builder.append(", targetPackage="); //$NON-NLS-1$
@@ -64,8 +64,8 @@ public class ApackDependency implements IApackDependency {
 	public int hashCode() { // NOPMD
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((this.organizationId == null) ? 0 : this.organizationId.hashCode());
-		result = prime * result + ((this.packageId == null) ? 0 : this.packageId.hashCode());
+		result = prime * result + ((this.groupId == null) ? 0 : this.groupId.hashCode());
+		result = prime * result + ((this.artifactId == null) ? 0 : this.artifactId.hashCode());
 		result = prime * result + ((this.gitUrl == null) ? 0 : this.gitUrl.hashCode());
 		result = prime * result + ((this.targetPackage == null) ? 0 : this.targetPackage.hashCode());
 		result = prime * result + (this.requiresClone ? 1337 : 7331);
@@ -84,18 +84,18 @@ public class ApackDependency implements IApackDependency {
 			return false;
 		}
 		ApackDependency other = (ApackDependency) obj;
-		if (this.organizationId == null) {
-			if (other.organizationId != null) {
+		if (this.groupId == null) {
+			if (other.groupId != null) {
 				return false;
 			}
-		} else if (!this.organizationId.equals(other.organizationId)) {
+		} else if (!this.groupId.equals(other.groupId)) {
 			return false;
 		}
-		if (this.packageId == null) {
-			if (other.packageId != null) {
+		if (this.artifactId == null) {
+			if (other.artifactId != null) {
 				return false;
 			}
-		} else if (!this.packageId.equals(other.packageId)) {
+		} else if (!this.artifactId.equals(other.artifactId)) {
 			return false;
 		}
 		if (this.gitUrl == null) {
@@ -117,7 +117,7 @@ public class ApackDependency implements IApackDependency {
 
 	@Override
 	public boolean isEmpty() {
-		return (this.organizationId == null || this.organizationId.isEmpty()) && (this.packageId == null || this.packageId.isEmpty())
+		return (this.groupId == null || this.groupId.isEmpty()) && (this.artifactId == null || this.artifactId.isEmpty())
 				&& (this.gitUrl == null || this.gitUrl.isEmpty() && this.targetPackage == null && !this.requiresClone);
 	}
 

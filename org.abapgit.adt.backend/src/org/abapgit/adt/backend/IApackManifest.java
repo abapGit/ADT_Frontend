@@ -10,9 +10,9 @@ public interface IApackManifest {
 
 	public interface IApackDependency {
 
-		String getOrganizationId();
+		String getGroupId();
 
-		String getPackageId();
+		String getArtifactId();
 
 		String getGitUrl();
 
@@ -28,7 +28,7 @@ public interface IApackManifest {
 
 	interface IApackManifestDescriptor {
 
-		String getOrganizationId();
+		String getGroupId();
 
 		String getPackageId();
 

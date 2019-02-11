@@ -47,10 +47,10 @@ public class ApackGitManifestDeserializer {
 			switch (next) {
 			case XMLStreamConstants.START_ELEMENT:
 				switch (xmlReader.getLocalName()) {
-				case "organization_id": //$NON-NLS-1$
-					manifestDescriptor.setOrganizationId(xmlReader.getElementText());
+				case "group_id": //$NON-NLS-1$
+					manifestDescriptor.setGroupId(xmlReader.getElementText());
 					break;
-				case "package_id": //$NON-NLS-1$
+				case "artifact_id": //$NON-NLS-1$
 					manifestDescriptor.setPackageId(xmlReader.getElementText());
 					break;
 				case "version": //$NON-NLS-1$
@@ -95,11 +95,11 @@ public class ApackGitManifestDeserializer {
 			switch (next) {
 			case XMLStreamConstants.START_ELEMENT:
 				switch (xmlReader.getLocalName()) {
-				case "organization_id": //$NON-NLS-1$
-					apackDependency.setOrganizationId(xmlReader.getElementText());
+				case "group_id": //$NON-NLS-1$
+					apackDependency.setGroupId(xmlReader.getElementText());
 					break;
-				case "package_id": //$NON-NLS-1$
-					apackDependency.setPackageId(xmlReader.getElementText());
+				case "artifact_id": //$NON-NLS-1$
+					apackDependency.setArtifactId(xmlReader.getElementText());
 					break;
 				case "git_url": //$NON-NLS-1$
 					apackDependency.setGitUrl(xmlReader.getElementText());
