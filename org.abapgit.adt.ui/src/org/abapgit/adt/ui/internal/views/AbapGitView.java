@@ -451,11 +451,12 @@ public class AbapGitView extends ViewPart {
 
 				List<IObject> pullObjects = null;
 				TitleAreaDialog dialog = new AbapGitDialogImport(AbapGitView.this.viewer.getControl().getShell(), pullObjects);
-				int dialogResult = dialog.open();
+				dialog.open();
 
-				if (dialogResult == dialog.CANCEL) {
+//				int dialogResult = dialog.open();
+//				if (dialogResult == dialog.CANCEL) {
 //					System.out.println("CANCEL presed");
-				}
+//				}
 
 			}
 		};

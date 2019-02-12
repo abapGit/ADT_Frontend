@@ -95,12 +95,13 @@ public class AbapGitWizard extends Wizard {
 			});
 
 			TitleAreaDialog dialog = new AbapGitDialogImport(getShell(), cloneObjects);
-			int dialogResult = dialog.open();
+			dialog.open();
 
-			if (dialogResult == dialog.CANCEL) {
+//			int dialogResult = dialog.open();
+//			if (dialogResult == dialog.CANCEL) {
 //				System.out.println("CANCEL presed");
-				return false;
-			}
+//				return false;
+//			}
 
 			return true;
 		} catch (InterruptedException e) {
