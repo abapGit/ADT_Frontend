@@ -300,20 +300,20 @@ public class AbapGitView extends ViewPart {
 			}
 		});
 
-		createTableViewerColumn(Messages.AbapGitView_column_repo_status, 100).setLabelProvider(new ColumnLabelProvider() {
-			@Override
-			public String getText(Object element) {
-				IRepository p = (IRepository) element;
-//				return p.getCreatedBy();
-				return "TBD"; //$NON-NLS-1$
-			}
-
-			@Override
-			public Image getImage(Object element) {
-				Image statusImg = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_WARN_TSK);
-				return statusImg;
-			}
-		});
+//		createTableViewerColumn(Messages.AbapGitView_column_repo_status, 100).setLabelProvider(new ColumnLabelProvider() {
+//			@Override
+//			public String getText(Object element) {
+//				IRepository p = (IRepository) element;
+////				return p.getCreatedBy();
+//				return "TBD"; //$NON-NLS-1$
+//			}
+//
+//			@Override
+//			public Image getImage(Object element) {
+//				Image statusImg = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_WARN_TSK);
+//				return statusImg;
+//			}
+//		});
 	}
 
 	private TableViewerColumn createTableViewerColumn(String title, int bound) {
@@ -349,7 +349,7 @@ public class AbapGitView extends ViewPart {
 							if (((IRepository) firstElement).getLink(IRepositoryService.RELATION_PULL) != null) {
 								manager.removeAll();
 								manager.add(AbapGitView.this.actionPullWizard);
-								manager.add(AbapGitView.this.actionObjectLog);
+//								manager.add(AbapGitView.this.actionObjectLog);
 
 								manager.add(new Separator());
 								manager.add(AbapGitView.this.actionOpen);
@@ -495,15 +495,17 @@ public class AbapGitView extends ViewPart {
 				}
 
 				if (this.selRepo != null) {
+
 					WizardDialog wizardDialog = new WizardDialog(AbapGitView.this.viewer.getControl().getShell(),
 							new AbapGitWizardPull(AbapGitView.this.lastProject, this.selRepo));
+					wizardDialog.open();
 
-					int dialogResult = wizardDialog.open();
-					if (dialogResult == wizardDialog.OK) {
-						MessageDialog.openInformation(AbapGitView.this.viewer.getControl().getShell(), "Info",
-								"AbapGit import started. Please refresh and check the status of your repository manually.");
-
-					}
+//					int dialogResult = wizardDialog.open();
+//					if (dialogResult == wizardDialog.OK) {
+//						MessageDialog.openInformation(AbapGitView.this.viewer.getControl().getShell(), "Info",
+//								"AbapGit import started. Please refresh and check the status of your repository manually.");
+//
+//					}
 
 				}
 
