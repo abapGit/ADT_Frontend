@@ -67,14 +67,14 @@ public class AbapGitWizardPageApack extends WizardPage {
 		container.setLayout(layout);
 
 		Label organizationIdLabel = new Label(container, SWT.NONE);
-		organizationIdLabel.setText(Messages.AbapGitWizardPageApack_label_organization_id);
+		organizationIdLabel.setText(Messages.AbapGitWizardPageApack_label_group_id);
 		GridDataFactory.swtDefaults().applyTo(organizationIdLabel);
 		this.organizationIdContent = new Label(container, SWT.NONE);
 		GridDataFactory.swtDefaults().span(2, 0).align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(this.organizationIdContent);
 		this.organizationIdContent.setText(Messages.AbapGitWizardPageApack_text_no_information_available);
 
 		Label packageIdLabel = new Label(container, SWT.NONE);
-		packageIdLabel.setText(Messages.AbapGitWizardPageApack_label_package_id);
+		packageIdLabel.setText(Messages.AbapGitWizardPageApack_label_artifact_id);
 		GridDataFactory.swtDefaults().applyTo(packageIdLabel);
 		this.packageIdContent = new Label(container, SWT.NONE);
 		GridDataFactory.swtDefaults().span(2, 0).align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(this.packageIdContent);
@@ -105,8 +105,8 @@ public class AbapGitWizardPageApack extends WizardPage {
 		GridData gridData = new GridData(GridData.FILL, GridData.FILL, true, true);
 		gridData.horizontalSpan = 3;
 		this.table.setLayoutData(gridData);
-		String[] titles = { Messages.AbapGitWizardPageApack_table_header_organization_id,
-				Messages.AbapGitWizardPageApack_table_header_package_id, Messages.AbapGitWizardPageApack_table_header_git_repository_url,
+		String[] titles = { Messages.AbapGitWizardPageApack_table_header_group_id,
+				Messages.AbapGitWizardPageApack_table_header_artifact_id, Messages.AbapGitWizardPageApack_table_header_git_repository_url,
 				Messages.AbapGitWizardPageApack_table_header_package_name };
 		for (String title : titles) {
 			TableViewerColumn viewerColumn = new TableViewerColumn(tableViewer, SWT.NONE);
