@@ -40,7 +40,7 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 	private final String destination;
 	private final CloneData cloneData;
 
-	private boolean pullAction;
+//	private boolean pullAction ;
 //	private Button checkbox_Tta;
 	private TextViewer txtPackage;
 	private ComboViewer comboBranches;
@@ -49,7 +49,7 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 		super(PAGE_NAME);
 		this.project = project;
 		this.destination = destination;
-		this.pullAction = false;
+//		this.pullAction = false;
 		this.cloneData = cloneData;
 
 		setTitle(Messages.AbapGitWizardPageBranchAndPackage_title);
@@ -146,7 +146,7 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 
 		if (this.cloneData.url != null) {
 
-			this.pullAction = true;
+//			this.pullAction = true;
 			this.comboBranches.getCombo().setEnabled(false);
 			this.txtPackage.getTextWidget().setText(this.cloneData.packageRef.getName());
 

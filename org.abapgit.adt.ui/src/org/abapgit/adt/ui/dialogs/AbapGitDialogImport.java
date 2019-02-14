@@ -158,7 +158,7 @@ public class AbapGitDialogImport extends TitleAreaDialog {
 					return Status_info;
 				}
 
-				if (objType.equals("Message")) { //$NON-NLS-1$
+				if (objType != null && objType.equals("Message")) { //$NON-NLS-1$
 					return null;
 				}
 
@@ -264,12 +264,12 @@ public class AbapGitDialogImport extends TitleAreaDialog {
 
 class ObjectTreeContentProvider implements ITreeContentProvider {
 
-	public void inputChanged(Viewer v, Object oldInput, Object newInput) {
-	}
+//	public void inputChanged(Viewer v, Object oldInput, Object newInput) {
+//	}
 
-	@Override
-	public void dispose() {
-	}
+//	@Override
+//	public void dispose() {
+//	}
 
 	@Override
 	public Object[] getElements(Object inputElement) {

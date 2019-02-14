@@ -80,7 +80,7 @@ public class AbapGitView extends ViewPart {
 	private Action actionRefresh, actionWizard, actionCopy, actionOpen, actionShowMyRepos, actionObjectLog;
 	private ISelection lastSelection;
 	private IProject lastProject;
-	ViewerFilter searchFilter;
+	private ViewerFilter searchFilter;
 
 	private final ISelectionListener selectionListener = new ISelectionListener() {
 		private boolean isUpdatingSelection = false;
@@ -179,7 +179,7 @@ public class AbapGitView extends ViewPart {
 				IDestinationData ProjectDestData = currAbapProject.getDestinationData();
 
 				String searchMyRepos = ProjectDestData.getUser();
-				if (searchMyRepos.equals("")) { //$NON-NLS-1$
+				if (searchMyRepos.isEmpty()) {
 					return true;
 				}
 
@@ -344,9 +344,10 @@ public class AbapGitView extends ViewPart {
 						manager.add(AbapGitView.this.actionOpen);
 						manager.add(AbapGitView.this.actionCopy);
 
-						if ((((IRepository) firstElement).getCreatedBy().equalsIgnoreCase(ProjectDestData.getUser()))) {
+						if ((((IRepository) firstElement).getCreatedBy().equalsIgnoreCase(ProjectDestData.getUser()))
+								&& ((IRepository) firstElement).getLink(IRepositoryService.RELATION_PULL) != null) {
 
-							if (((IRepository) firstElement).getLink(IRepositoryService.RELATION_PULL) != null) {
+//							if (((IRepository) firstElement).getLink(IRepositoryService.RELATION_PULL) != null) {
 								manager.removeAll();
 								manager.add(AbapGitView.this.actionPullWizard);
 //								manager.add(AbapGitView.this.actionObjectLog);
@@ -357,7 +358,7 @@ public class AbapGitView extends ViewPart {
 
 								manager.add(new Separator());
 								manager.add(new UnlinkAction(AbapGitView.this.lastProject, (IRepository) firstElement));
-							}
+//							}
 
 						}
 

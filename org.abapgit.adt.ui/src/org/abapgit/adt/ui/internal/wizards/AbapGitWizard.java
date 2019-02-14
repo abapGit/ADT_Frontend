@@ -10,7 +10,6 @@ import org.abapgit.adt.backend.IRepositories;
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
-import org.abapgit.adt.ui.dialogs.AbapGitDialogImport;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
@@ -18,7 +17,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.dialogs.IPageChangingListener;
 import org.eclipse.jface.dialogs.PageChangingEvent;
-import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.IWizardContainer;
 import org.eclipse.jface.wizard.Wizard;
@@ -94,8 +92,8 @@ public class AbapGitWizard extends Wizard {
 				}
 			});
 
-			TitleAreaDialog dialog = new AbapGitDialogImport(getShell(), cloneObjects);
-			dialog.open();
+//			TitleAreaDialog dialog = new AbapGitDialogImport(getShell(), cloneObjects);
+//			dialog.open();
 
 //			int dialogResult = dialog.open();
 //			if (dialogResult == dialog.CANCEL) {
