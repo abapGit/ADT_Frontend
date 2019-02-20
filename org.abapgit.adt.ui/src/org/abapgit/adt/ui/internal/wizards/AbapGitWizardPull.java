@@ -1,11 +1,9 @@
 package org.abapgit.adt.ui.internal.wizards;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.abapgit.adt.backend.IExternalRepositoryInfoService;
-import org.abapgit.adt.backend.IObject;
 import org.abapgit.adt.backend.IRepository;
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
@@ -115,16 +113,9 @@ public class AbapGitWizardPull extends Wizard {
 
 	}
 
-//	@Override
-//	public boolean needsPreviousAndNextButtons() {
-//
-//		return this.cloneData.externalRepoInfo.getAccessMode() == AccessMode.PRIVATE;
-//
-//	}
 
 	@Override
 	public boolean performFinish() {
-		List<IObject> pullObjects = new LinkedList<>();
 
 		try {
 			String transportRequestNumber = this.transportPage.getTransportRequestNumber();
@@ -136,23 +127,11 @@ public class AbapGitWizardPull extends Wizard {
 					IRepositoryService repoService = RepositoryServiceFactory.createRepositoryService(AbapGitWizardPull.this.destination,
 							monitor);
 
-					List<IObject> abapObjects = repoService.pullRepository(AbapGitWizardPull.this.selRepoData,
-							AbapGitWizardPull.this.selRepoData.getBranch(), transportRequestNumber, AbapGitWizardPull.this.cloneData.user,
-							AbapGitWizardPull.this.cloneData.pass, monitor).getObjects();
-					pullObjects.addAll(abapObjects);
+					repoService.pullRepository(AbapGitWizardPull.this.selRepoData, AbapGitWizardPull.this.selRepoData.getBranch(),
+							transportRequestNumber, AbapGitWizardPull.this.cloneData.user, AbapGitWizardPull.this.cloneData.pass, monitor);
+
 				}
 			});
-
-//			MessageDialog.openInformation(getShell(), "Info",
-//					"AbapGit import started. Please refresh and check the status of your repository manually.");
-
-//			TitleAreaDialog dialog = new AbapGitDialogImport(getShell(), pullObjects);
-//			int dialogResult = dialog.open();
-//
-//			if (dialogResult == dialog.CANCEL) {
-////				System.out.println("CANCEL presed");
-//				return false;
-//			}
 
 			return true;
 
@@ -177,39 +156,6 @@ public class AbapGitWizardPull extends Wizard {
 
 		}
 	}
-
-//	private final class PageChangeListener implements IPageChangingListener {
-//		@Override
-//		public void handlePageChanging(final PageChangingEvent event) {
-//
-//			if (event.getCurrentPage() == AbapGitWizardPull.this.pageBranchAndPackage
-//					&& event.getTargetPage() == AbapGitWizardPull.this.transportPage) {
-//
-//				if (!AbapGitWizardPull.this.pageBranchAndPackage.validateAll()) {
-//					event.doit = false;
-//					return;
-//				}
-//
-//				try {
-//					// The transport service requires URIs to objects we want to create in the
-//					// target package.
-//					// However, we do not know these URIs from the client.
-//					// Instead, give it the URI of the package in which we clone.
-//					IAdtObjectReference packageRef = AbapGitWizardPull.this.cloneData.packageRef;
-//					IAdtObjectReference checkRef = IAdtCoreFactory.eINSTANCE.createAdtObjectReference();
-//					checkRef.setUri(packageRef.getUri());
-//
-//					IAdtTransportCheckData checkData = AbapGitWizardPull.this.transportService.check(checkRef, packageRef.getPackageName(),
-//							true);
-//					AbapGitWizardPull.this.transportPage.setCheckData(checkData);
-//				} catch (Exception e) {
-//					AbapGitWizardPull.this.transportPage.setErrorMessage(e.getMessage());
-//				}
-//
-//			}
-//		}
-//
-//	}
 
 	private final class PageChangeListener implements IPageChangingListener {
 		@Override
