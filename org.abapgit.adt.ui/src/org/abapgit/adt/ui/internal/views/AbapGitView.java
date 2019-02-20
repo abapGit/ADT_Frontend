@@ -31,8 +31,6 @@ import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
-import org.eclipse.jface.viewers.DoubleClickEvent;
-import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableLabelProvider;
@@ -192,46 +190,6 @@ public class AbapGitView extends ViewPart {
 			}
 		};
 
-		this.viewer.addDoubleClickListener(new IDoubleClickListener() {
-
-			@Override
-			public void doubleClick(DoubleClickEvent event) {
-
-//				IRepository currRepository;
-//				currRepository = null;
-//
-//				IStructuredSelection selection = (IStructuredSelection) event.getSelection();
-//
-//				Object firstElement = selection.getFirstElement();
-//				if (firstElement instanceof IRepository) {
-//					currRepository = ((IRepository) firstElement);
-//				}
-//
-//				if (currRepository != null) {
-//
-//					IAdtPackageServiceUI packageServiceUI = AdtPackageServiceUIFactory.getOrCreateAdtPackageServiceUI();
-//					String destinationId = getDestination(AbapGitView.this.lastProject);
-//					List<IAdtObjectReference> pkgRefs = packageServiceUI.find(destinationId, currRepository.getPackage(), null);
-//					IProject currProject = AbapGitView.this.lastProject;
-//					if (!pkgRefs.isEmpty()) {
-//						IAdtObjectReference gitPackageRef = pkgRefs.stream().findFirst().get();
-//						if (gitPackageRef != null) {
-//							AdtNavigationServiceFactory.createNavigationService().navigate(currProject, gitPackageRef, true);
-//						}
-//					}
-
-//					IWorkbenchPart workbenchPart = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePart();
-//					IFile file = workbenchPart.getSite().getPage().getActiveEditor().getEditorInput().getAdapter(IFile.class);
-//					if (file == null) {
-//						System.out.println("FileNotFoundException");
-//					}
-//					expandProjectExlorer(file);
-
-//				}
-
-			}
-		});
-
 		// add listener for selections
 		getSite().getPage().addPostSelectionListener(this.selectionListener);
 	}
@@ -300,20 +258,6 @@ public class AbapGitView extends ViewPart {
 			}
 		});
 
-//		createTableViewerColumn(Messages.AbapGitView_column_repo_status, 100).setLabelProvider(new ColumnLabelProvider() {
-//			@Override
-//			public String getText(Object element) {
-//				IRepository p = (IRepository) element;
-////				return p.getCreatedBy();
-//				return "TBD"; //$NON-NLS-1$
-//			}
-//
-//			@Override
-//			public Image getImage(Object element) {
-//				Image statusImg = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_WARN_TSK);
-//				return statusImg;
-//			}
-//		});
 	}
 
 	private TableViewerColumn createTableViewerColumn(String title, int bound) {
@@ -347,10 +291,8 @@ public class AbapGitView extends ViewPart {
 						if ((((IRepository) firstElement).getCreatedBy().equalsIgnoreCase(ProjectDestData.getUser()))
 								&& ((IRepository) firstElement).getLink(IRepositoryService.RELATION_PULL) != null) {
 
-//							if (((IRepository) firstElement).getLink(IRepositoryService.RELATION_PULL) != null) {
 								manager.removeAll();
 								manager.add(AbapGitView.this.actionPullWizard);
-//								manager.add(AbapGitView.this.actionObjectLog);
 
 								manager.add(new Separator());
 								manager.add(AbapGitView.this.actionOpen);
@@ -358,7 +300,6 @@ public class AbapGitView extends ViewPart {
 
 								manager.add(new Separator());
 								manager.add(new UnlinkAction(AbapGitView.this.lastProject, (IRepository) firstElement));
-//							}
 
 						}
 
@@ -454,11 +395,6 @@ public class AbapGitView extends ViewPart {
 				TitleAreaDialog dialog = new AbapGitDialogImport(AbapGitView.this.viewer.getControl().getShell(), pullObjects);
 				dialog.open();
 
-//				int dialogResult = dialog.open();
-//				if (dialogResult == dialog.CANCEL) {
-//					System.out.println("CANCEL presed");
-//				}
-
 			}
 		};
 		this.actionObjectLog.setText(Messages.AbapGitView_action_objectlog);
@@ -501,13 +437,6 @@ public class AbapGitView extends ViewPart {
 					WizardDialog wizardDialog = new WizardDialog(AbapGitView.this.viewer.getControl().getShell(),
 							new AbapGitWizardPull(AbapGitView.this.lastProject, this.selRepo));
 					wizardDialog.open();
-
-//					int dialogResult = wizardDialog.open();
-//					if (dialogResult == wizardDialog.OK) {
-//						MessageDialog.openInformation(AbapGitView.this.viewer.getControl().getShell(), "Info",
-//								"AbapGit import started. Please refresh and check the status of your repository manually.");
-//
-//					}
 
 				}
 
@@ -605,32 +534,6 @@ public class AbapGitView extends ViewPart {
 		}
 
 	}
-
-//	public void expandProjectExlorer(IFile file) {
-//		if (file == null) {
-//			return;
-//		}
-//		try {
-//			IWorkbenchPage page = getSite().getWorkbenchWindow().getActivePage();
-//			IViewPart view = page.showView(IPageLayout.ID_PROJECT_EXPLORER);
-//			if (view instanceof ISetSelectionTarget) {
-//
-//				AbapGitView.this.viewer.getControl().getShell().getDisplay().asyncExec(new Runnable() {
-//					@Override
-//					public void run() {
-//
-//						ISelection selection = new StructuredSelection(file);
-//
-//						System.out.println(selection);
-//						((ISetSelectionTarget) view).selectReveal(selection);
-//					}
-//				});
-//
-//			}
-//		} catch (PartInitException e) {
-//			System.out.println(e.getMessage());
-//		}
-//	}
 
 	private void setControlsEnabled(boolean enabled) {
 		this.viewer.getControl().setEnabled(enabled);

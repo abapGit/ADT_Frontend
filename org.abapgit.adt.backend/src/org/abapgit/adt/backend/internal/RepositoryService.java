@@ -103,7 +103,6 @@ public class RepositoryService implements IRepositoryService {
 		if (password != null && !password.isEmpty()) {
 			repository.setPassword(password);
 		}
-//		repository.setKey(key);
 
 		IAdtCompatibleRestResourceFilter compatibilityFilter = AdtCompatibleRestResourceFilterFactory.createFilter(new IContentHandler[0]);
 		restResource.addRequestFilter(compatibilityFilter);

@@ -136,9 +136,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 				&& this.pullAction) {
 			getContainer().showPage(getNextPage());
 			getContainer().getCurrentPage().setVisible(visible);
-//			System.out.println(getContainer().getCurrentPage().getName());
 			getContainer().getCurrentPage().setPreviousPage(getContainer().getCurrentPage());
-//			getContainer().getCurrentPage().getPreviousPage().setVisible(false);
 			return;
 		}
 
