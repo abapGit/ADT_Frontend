@@ -40,7 +40,7 @@ public class RepositorySerializer {
 					repository.setPackage(xmlReader.getElementText());
 					break;
 				case "link": //$NON-NLS-1$
-					repository.addLink(xmlReader.getAttributeValue(null, "rel"), URI.create(xmlReader.getAttributeValue(null, "href")));
+					repository.addLink(xmlReader.getAttributeValue(null, "rel"), URI.create(xmlReader.getAttributeValue(null, "href"))); //$NON-NLS-1$ //$NON-NLS-2$
 					break;
 				default:
 					depth++;

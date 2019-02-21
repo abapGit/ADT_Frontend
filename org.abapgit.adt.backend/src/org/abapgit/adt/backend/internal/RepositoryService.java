@@ -2,6 +2,7 @@ package org.abapgit.adt.backend.internal;
 
 import java.net.URI;
 
+import org.abapgit.adt.backend.IObjects;
 import org.abapgit.adt.backend.IRepositories;
 import org.abapgit.adt.backend.IRepository;
 import org.abapgit.adt.backend.IRepositoryService;
@@ -41,7 +42,7 @@ public class RepositoryService implements IRepositoryService {
 	}
 
 	@Override
-	public void cloneRepository(String url, String branch, String targetPackage, String transportRequest, String user,
+	public IObjects cloneRepository(String url, String branch, String targetPackage, String transportRequest, String user,
 			String password, IProgressMonitor monitor) {
 		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory()
 				.createResourceWithStatelessSession(this.uri, this.destinationId);
@@ -67,17 +68,24 @@ public class RepositoryService implements IRepositoryService {
 
 		IAdtCompatibleRestResourceFilter compatibilityFilter = AdtCompatibleRestResourceFilterFactory
 				.createFilter(new IContentHandler[0]);
-		restResource.addRequestFilter(compatibilityFilter);
-		restResource.addResponseFilter(compatibilityFilter);
 
-		restResource.post(monitor, null, repository);
+		IContentHandler<IObjects> responseContentHandlerV1 = new AbapObjectContentHandlerV1();
+		restResource.addContentHandler(responseContentHandlerV1);
+
+		IAdtCompatibleRestResourceFilter responseCompatibilityFilter = AdtCompatibleRestResourceFilterFactory
+				.createFilter(new IContentHandler[0]);
+
+		restResource.addResponseFilter(responseCompatibilityFilter);
+		restResource.addRequestFilter(compatibilityFilter);
+
+		return restResource.post(monitor, IObjects.class, repository);
 	}
 
 	@Override
-	public void pullRepository(IRepository existingRepository, String branch, String transportRequest, String user, String password,
+	public IObjects pullRepository(IRepository existingRepository, String branch, String transportRequest, String user, String password,
 			IProgressMonitor monitor) {
 
-		URI uriToRepo = existingRepository.getLink(IRepositoryService.RELATION_PULL); //$NON-NLS-1$
+		URI uriToRepo = existingRepository.getLink(IRepositoryService.RELATION_PULL);
 		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory().createResourceWithStatelessSession(uriToRepo,
 				this.destinationId);
 
@@ -95,13 +103,18 @@ public class RepositoryService implements IRepositoryService {
 		if (password != null && !password.isEmpty()) {
 			repository.setPassword(password);
 		}
-//		repository.setKey(key);
 
 		IAdtCompatibleRestResourceFilter compatibilityFilter = AdtCompatibleRestResourceFilterFactory.createFilter(new IContentHandler[0]);
 		restResource.addRequestFilter(compatibilityFilter);
-		restResource.addResponseFilter(compatibilityFilter);
 
-		restResource.post(monitor, null, repository);
+		IContentHandler<IObjects> responseContentHandlerV1 = new AbapObjectContentHandlerV1();
+		restResource.addContentHandler(responseContentHandlerV1);
+
+		IAdtCompatibleRestResourceFilter responseCompatibilityFilter = AdtCompatibleRestResourceFilterFactory
+				.createFilter(new IContentHandler[0]);
+		restResource.addResponseFilter(responseCompatibilityFilter);
+
+		return restResource.post(monitor, IObjects.class, repository);
 	}
 
 	@Override

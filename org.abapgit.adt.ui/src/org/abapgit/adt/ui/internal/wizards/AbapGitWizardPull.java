@@ -3,7 +3,6 @@ package org.abapgit.adt.ui.internal.wizards;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-import org.abapgit.adt.backend.IExternalRepositoryInfo.AccessMode;
 import org.abapgit.adt.backend.IExternalRepositoryInfoService;
 import org.abapgit.adt.backend.IRepository;
 import org.abapgit.adt.backend.IRepositoryService;
@@ -44,6 +43,7 @@ public class AbapGitWizardPull extends Wizard {
 	private PageChangeListener pageChangeListener;
 
 	private AbapGitWizardPageRepositoryAndCredentials pageCredentials;
+	private AbapGitWizardPageBranchAndPackage pageBranchAndPackage;
 	public IAdtTransportService transportService;
 	public IAdtTransportSelectionWizardPage transportPage;
 	public IRepository selRepoData;
@@ -103,20 +103,16 @@ public class AbapGitWizardPull extends Wizard {
 	public void addPages() {
 
 		this.pageCredentials = new AbapGitWizardPageRepositoryAndCredentials(this.project, this.destination, this.cloneData);
+		this.pageBranchAndPackage = new AbapGitWizardPageBranchAndPackage(this.project, this.destination, this.cloneData);
 		this.transportService = AdtTransportServiceFactory.createTransportService(this.destination);
 		this.transportPage = AdtTransportSelectionWizardPageFactory.createTransportSelectionPage(this.transportService);
 
 		addPage(this.pageCredentials);
+		addPage(this.pageBranchAndPackage);
 		addPage(this.transportPage);
 
 	}
 
-	@Override
-	public boolean needsPreviousAndNextButtons() {
-
-		return this.cloneData.externalRepoInfo.getAccessMode() == AccessMode.PRIVATE;
-
-	}
 
 	@Override
 	public boolean performFinish() {
@@ -127,15 +123,18 @@ public class AbapGitWizardPull extends Wizard {
 
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-					monitor.beginTask(Messages.AbapGitWizard_task_cloning_repository, IProgressMonitor.UNKNOWN);
+					monitor.beginTask(Messages.AbapGitWizard_task_pulling_repository, IProgressMonitor.UNKNOWN);
 					IRepositoryService repoService = RepositoryServiceFactory.createRepositoryService(AbapGitWizardPull.this.destination,
 							monitor);
 
 					repoService.pullRepository(AbapGitWizardPull.this.selRepoData, AbapGitWizardPull.this.selRepoData.getBranch(),
 							transportRequestNumber, AbapGitWizardPull.this.cloneData.user, AbapGitWizardPull.this.cloneData.pass, monitor);
+
 				}
 			});
+
 			return true;
+
 		} catch (InterruptedException e) {
 			return false;
 		} catch (InvocationTargetException e) {
@@ -163,13 +162,17 @@ public class AbapGitWizardPull extends Wizard {
 		public void handlePageChanging(final PageChangingEvent event) {
 
 			if (event.getCurrentPage() == AbapGitWizardPull.this.pageCredentials
-					&& event.getTargetPage() == AbapGitWizardPull.this.transportPage) {
-
+					&& event.getTargetPage() == AbapGitWizardPull.this.pageBranchAndPackage) {
 				if (!AbapGitWizardPull.this.pageCredentials.validateAll()) {
 					event.doit = false;
 					return;
 				}
-
+			} else if (event.getCurrentPage() == AbapGitWizardPull.this.pageBranchAndPackage
+					&& event.getTargetPage() == AbapGitWizardPull.this.transportPage) {
+				if (!AbapGitWizardPull.this.pageBranchAndPackage.validateAll()) {
+					event.doit = false;
+					return;
+				}
 				try {
 					// The transport service requires URIs to objects we want to create in the
 					// target package.
@@ -178,17 +181,15 @@ public class AbapGitWizardPull extends Wizard {
 					IAdtObjectReference packageRef = AbapGitWizardPull.this.cloneData.packageRef;
 					IAdtObjectReference checkRef = IAdtCoreFactory.eINSTANCE.createAdtObjectReference();
 					checkRef.setUri(packageRef.getUri());
-
 					IAdtTransportCheckData checkData = AbapGitWizardPull.this.transportService.check(checkRef, packageRef.getPackageName(),
 							true);
 					AbapGitWizardPull.this.transportPage.setCheckData(checkData);
 				} catch (Exception e) {
-					AbapGitWizardPull.this.transportPage.setErrorMessage(e.getMessage());
-				}
-
+					AbapGitWizardPull.this.pageBranchAndPackage.setMessage(e.getMessage(), DialogPage.ERROR);
 			}
 		}
 
+	}
 	}
 
 }

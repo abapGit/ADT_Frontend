@@ -1,11 +1,14 @@
 package org.abapgit.adt.ui.internal.wizards;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.abapgit.adt.backend.AbapGitModelFactory;
 import org.abapgit.adt.backend.IApackManifest;
 import org.abapgit.adt.backend.IApackManifest.IApackDependency;
 import org.abapgit.adt.backend.IExternalRepositoryInfo;
+import org.abapgit.adt.backend.IObject;
 import org.abapgit.adt.backend.IRepositories;
 import org.abapgit.adt.backend.IRepository;
 import org.abapgit.adt.backend.IRepositoryService;
@@ -76,6 +79,9 @@ public class AbapGitWizard extends Wizard {
 
 	@Override
 	public boolean performFinish() {
+
+		List<IObject> cloneObjects = new LinkedList<>();
+
 		try {
 			String transportRequestNumber = this.transportPage.getTransportRequestNumber();
 			getContainer().run(true, true, new IRunnableWithProgress() {
@@ -100,13 +106,15 @@ public class AbapGitWizard extends Wizard {
 						}
 						repoService.cloneRepositories(repositories, monitor);
 					} else {
-						repoService.cloneRepository(AbapGitWizard.this.cloneData.url, AbapGitWizard.this.cloneData.branch,
+						List<IObject> abapObjects = repoService.cloneRepository(AbapGitWizard.this.cloneData.url, AbapGitWizard.this.cloneData.branch,
 								AbapGitWizard.this.cloneData.packageRef.getName(), transportRequestNumber,
-								AbapGitWizard.this.cloneData.user, AbapGitWizard.this.cloneData.pass, monitor);
+										AbapGitWizard.this.cloneData.user, AbapGitWizard.this.cloneData.pass, monitor)
+								.getObjects();
+						cloneObjects.addAll(abapObjects);
 					}
-
 				}
 			});
+
 			return true;
 		} catch (InterruptedException e) {
 			return false;
