@@ -75,7 +75,7 @@ public class AbapGitView extends ViewPart {
 	public static final String ID = "org.abapgit.adt.ui.views.AbapGitView"; //$NON-NLS-1$
 
 	private TableViewer viewer;
-	private Action actionRefresh, actionWizard, actionCopy, actionOpen, actionShowMyRepos, actionObjectLog;
+	private Action actionRefresh, actionWizard, actionCopy, actionOpen, actionShowMyRepos, actionObjectLog, actionPullWizard;
 	private ISelection lastSelection;
 	private IProject lastProject;
 	private ViewerFilter searchFilter;
@@ -110,8 +110,6 @@ public class AbapGitView extends ViewPart {
 			}
 		}
 	};
-
-	private Action actionPullWizard;
 
 	@Override
 	public void init(IViewSite site) throws PartInitException {

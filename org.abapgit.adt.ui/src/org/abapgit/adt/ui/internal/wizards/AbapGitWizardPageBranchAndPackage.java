@@ -1,8 +1,14 @@
 package org.abapgit.adt.ui.internal.wizards;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+import org.abapgit.adt.backend.ApackServiceFactory;
+import org.abapgit.adt.backend.IApackGitManifestService;
+import org.abapgit.adt.backend.IApackManifest;
+import org.abapgit.adt.backend.IApackManifest.IApackDependency;
 import org.abapgit.adt.backend.IExternalRepositoryInfo.IBranch;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard.CloneData;
@@ -17,6 +23,7 @@ import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.wizard.WizardPage;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -43,12 +50,15 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 	private TextViewer txtPackage;
 	private ComboViewer comboBranches;
 
+	private final ApackParameters lastApackCall;
+
 	public AbapGitWizardPageBranchAndPackage(IProject project, String destination, CloneData cloneData) {
 		super(PAGE_NAME);
 		this.project = project;
 		this.destination = destination;
 //		this.pullAction = false;
 		this.cloneData = cloneData;
+		this.lastApackCall = new ApackParameters();
 
 		setTitle(Messages.AbapGitWizardPageBranchAndPackage_title);
 		setDescription(Messages.AbapGitWizardPageBranchAndPackage_description);
@@ -83,6 +93,7 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 		this.comboBranches.getCombo().addModifyListener(event -> {
 			this.cloneData.branch = this.comboBranches.getCombo().getText();
 			validateClientOnly();
+			fetchApackManifest();
 		});
 
 		/////// Package INPUT
@@ -211,7 +222,112 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 					this.comboBranches.setSelection(new StructuredSelection(selectedBranch));
 				}
 			}
+
+			fetchApackManifest();
 		}
+	}
+
+	private void fetchApackManifest() {
+		if (this.cloneData.url.isEmpty() || this.cloneData.branch.isEmpty()) {
+			return;
+		}
+		if (this.cloneData.url.equals(this.lastApackCall.url) && this.cloneData.branch.equals(this.lastApackCall.branch)) {
+			return;
+		}
+		this.cloneData.apackManifest = null;
+		try {
+			getContainer().run(true, true, new IRunnableWithProgress() {
+
+				@Override
+				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+
+					final HashMap<String, Boolean> dependencyCoverage = new HashMap<String, Boolean>();
+					final List<IApackDependency> retrievedDependencies = new ArrayList<IApackDependency>();
+
+					ApackParameters nextApackCall = new ApackParameters();
+					nextApackCall.url = AbapGitWizardPageBranchAndPackage.this.cloneData.url;
+					nextApackCall.branch = AbapGitWizardPageBranchAndPackage.this.cloneData.branch;
+
+					AbapGitWizardPageBranchAndPackage.this.cloneData.apackManifest = retrieveApackManifest(monitor, dependencyCoverage,
+							retrievedDependencies, nextApackCall);
+
+					AbapGitWizardPageBranchAndPackage.this.lastApackCall.url = AbapGitWizardPageBranchAndPackage.this.cloneData.url;
+					AbapGitWizardPageBranchAndPackage.this.lastApackCall.branch = AbapGitWizardPageBranchAndPackage.this.cloneData.branch;
+				}
+
+				private IApackManifest retrieveApackManifest(IProgressMonitor monitor,
+						final HashMap<String, Boolean> dependencyCoverage, final List<IApackDependency> retrievedDependencies,
+						ApackParameters apackParameters) {
+
+					monitor.beginTask(NLS.bind(Messages.AbapGitWizardPageBranchAndPackage_task_apack_manifest_message,
+							AbapGitWizardPageBranchAndPackage.this.cloneData.url), IProgressMonitor.UNKNOWN);
+					IApackGitManifestService manifestService = ApackServiceFactory
+							.createApackGitManifestService(AbapGitWizardPageBranchAndPackage.this.destination, monitor);
+					IApackManifest myManifest = null;
+					if (manifestService != null) {
+						myManifest = manifestService.getManifest(apackParameters.url, apackParameters.branch,
+								AbapGitWizardPageBranchAndPackage.this.cloneData.user,
+								AbapGitWizardPageBranchAndPackage.this.cloneData.pass, monitor);
+						dependencyCoverage.put(apackParameters.url, true);
+						if (myManifest.hasDependencies()) {
+							for (IApackDependency dependency : myManifest.getDescriptor().getDependencies()) {
+								retrievedDependencies.add(dependency);
+								retrieveDependentManifests(ApackParameters.createFromDependency(dependency), dependencyCoverage,
+										retrievedDependencies, manifestService, monitor);
+							}
+							myManifest.getDescriptor().setDependencies(retrievedDependencies);
+						}
+					}
+					return myManifest;
+
+				}
+
+				private void retrieveDependentManifests(ApackParameters apackParameters, final HashMap<String, Boolean> dependencyCoverage,
+						final List<IApackDependency> retrievedDependencies,
+						IApackGitManifestService manifestService, IProgressMonitor monitor) {
+					monitor.beginTask(NLS.bind(Messages.AbapGitWizardPageBranchAndPackage_task_apack_manifest_message, apackParameters.url),
+							IProgressMonitor.UNKNOWN);
+					IApackManifest myManifest = manifestService.getManifest(apackParameters.url, apackParameters.branch,
+							AbapGitWizardPageBranchAndPackage.this.cloneData.user, AbapGitWizardPageBranchAndPackage.this.cloneData.pass,
+							monitor);
+					dependencyCoverage.put(apackParameters.url, true);
+					if (myManifest.hasDependencies()) {
+						for (IApackDependency myDependency : myManifest.getDescriptor().getDependencies()) {
+							if (!retrievedDependencies.contains(myDependency)) {
+								retrievedDependencies.add(myDependency);
+							}
+							if (!dependencyCoverage.getOrDefault(myDependency.getGitUrl(), false)) {
+								retrieveDependentManifests(ApackParameters.createFromDependency(myDependency), dependencyCoverage,
+										retrievedDependencies,
+										manifestService, monitor);
+							}
+						}
+					}
+				}
+			});
+			setPageComplete(true);
+			setMessage(null);
+		} catch (InvocationTargetException e) {
+			setPageComplete(false);
+			setMessage(e.getTargetException().getMessage(), DialogPage.ERROR);
+		} catch (InterruptedException e) {
+			// Call was aborted - no dependencies will be retrieved and used in the import
+			setPageComplete(true);
+		}
+	}
+
+	private static class ApackParameters {
+
+		public String url;
+		public String branch;
+
+		public static ApackParameters createFromDependency(IApackDependency dependency) {
+			ApackParameters apackParameters = new ApackParameters();
+			apackParameters.url = dependency.getGitUrl();
+			apackParameters.branch = IApackManifest.MASTER_BRANCH;
+			return apackParameters;
+		}
+
 	}
 
 }

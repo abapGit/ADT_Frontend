@@ -11,6 +11,8 @@ public interface IRepositoryService {
 	IObjects cloneRepository(String url, String branch, String targetPackage, String transportRequest, String user,
 			String password, IProgressMonitor monitor);
 
+	void cloneRepositories(IRepositories repositories, IProgressMonitor monitor);
+
 	void unlinkRepository(String key, IProgressMonitor monitor);
 
 	IObjects pullRepository(IRepository existingRepository, String branch, String transportRequest, String user, String password,
