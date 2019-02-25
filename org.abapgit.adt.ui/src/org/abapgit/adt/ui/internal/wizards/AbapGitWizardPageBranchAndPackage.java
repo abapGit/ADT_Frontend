@@ -263,17 +263,20 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 							AbapGitWizardPageBranchAndPackage.this.cloneData.url), IProgressMonitor.UNKNOWN);
 					IApackGitManifestService manifestService = ApackServiceFactory
 							.createApackGitManifestService(AbapGitWizardPageBranchAndPackage.this.destination, monitor);
-					IApackManifest myManifest = manifestService.getManifest(apackParameters.url, apackParameters.branch,
-							AbapGitWizardPageBranchAndPackage.this.cloneData.user, AbapGitWizardPageBranchAndPackage.this.cloneData.pass,
-							monitor);
-					dependencyCoverage.put(apackParameters.url, true);
-					if (myManifest.hasDependencies()) {
-						for (IApackDependency dependency : myManifest.getDescriptor().getDependencies()) {
-							retrievedDependencies.add(dependency);
-							retrieveDependentManifests(ApackParameters.createFromDependency(dependency), dependencyCoverage,
-									retrievedDependencies, manifestService, monitor);
+					IApackManifest myManifest = null;
+					if (manifestService != null) {
+						myManifest = manifestService.getManifest(apackParameters.url, apackParameters.branch,
+								AbapGitWizardPageBranchAndPackage.this.cloneData.user,
+								AbapGitWizardPageBranchAndPackage.this.cloneData.pass, monitor);
+						dependencyCoverage.put(apackParameters.url, true);
+						if (myManifest.hasDependencies()) {
+							for (IApackDependency dependency : myManifest.getDescriptor().getDependencies()) {
+								retrievedDependencies.add(dependency);
+								retrieveDependentManifests(ApackParameters.createFromDependency(dependency), dependencyCoverage,
+										retrievedDependencies, manifestService, monitor);
+							}
+							myManifest.getDescriptor().setDependencies(retrievedDependencies);
 						}
-						myManifest.getDescriptor().setDependencies(retrievedDependencies);
 					}
 					return myManifest;
 
