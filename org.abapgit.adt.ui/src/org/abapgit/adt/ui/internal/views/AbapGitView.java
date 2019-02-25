@@ -279,17 +279,10 @@ public class AbapGitView extends ViewPart {
 					Object firstElement = AbapGitView.this.viewer.getStructuredSelection().getFirstElement();
 					if (firstElement instanceof IRepository) {
 
-						//Check if repos are created by current user
-						String destinationId = getDestination(AbapGitView.this.lastProject);
-						IProject currProject = AdtProjectServiceFactory.createProjectService().findProject(destinationId);
-						IAbapProject currAbapProject = currProject.getAdapter(IAbapProject.class);
-						IDestinationData ProjectDestData = currAbapProject.getDestinationData();
-
 						manager.add(AbapGitView.this.actionOpen);
 						manager.add(AbapGitView.this.actionCopy);
 
-						if ((((IRepository) firstElement).getCreatedBy().equalsIgnoreCase(ProjectDestData.getUser()))
-								&& ((IRepository) firstElement).getLink(IRepositoryService.RELATION_PULL) != null) {
+						if (((IRepository) firstElement).getLink(IRepositoryService.RELATION_PULL) != null) {
 
 								manager.removeAll();
 								manager.add(AbapGitView.this.actionPullWizard);
@@ -300,11 +293,7 @@ public class AbapGitView extends ViewPart {
 
 								manager.add(new Separator());
 								manager.add(new UnlinkAction(AbapGitView.this.lastProject, (IRepository) firstElement));
-
 						}
-
-
-
 					}
 				}
 			}
