@@ -2,12 +2,12 @@
 
 ### Prerequsites
 * Java 8
-* [Eclipse for RCP and RAP Developers](https://www.eclipse.org/downloads/packages/release/oxygen/3a/eclipse-rcp-and-rap-developers) - currently only Eclipse Oxygen is supported
+* [Eclipse for RCP and RAP Developers](https://www.eclipse.org/downloads/packages/release/2018-12/r/eclipse-ide-rcp-and-rap-developers)
 * Latest [ADT Plugins](https://tools.hana.ondemand.com/#abap) installed in DevIDE
 * Latest [ADT_Backend](https://github.com/abapGit/ADT_Backend) installed on backend ABAP system
 
 ### Import
-* Clone Repo on disk
+* Clone git repository on disk
 * Import via Eclipse:
   * File -> Import -> Existing Projects into Workspace
   * Select root directory: `<path to cloned repo on disk>`
@@ -15,6 +15,7 @@
   * Finish
 
 ### Versioning
+* For versioning, we try to follow the concepts of [Semantic Versioning](https://semver.org/)
 * Create a new version via cmd: `mvn tycho-versions:set-version -DnewVersion=<New Version>`
 * Create a "raise version" PR with the updated files.
 * After it was merged, a new git tag with the same version needs to be created.
@@ -25,11 +26,10 @@
 * Upload binaries to release tag
 
 ### Quality Tools
-The below mentioned tools are used to verify the quality of the source code during submitting a PR:
+The below-mentioned tools are used to verify the quality of the source code during submitting a PR:
 
-* Codacy
-* Spotbugs
-  * Run locally via maven: `mvn clean verify
+* [Spotbugs](https://spotbugs.github.io/)
+  * Run locally via maven: `mvn clean verify`
 
 ### Guides
 
