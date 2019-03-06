@@ -15,9 +15,15 @@ public class Repository implements IRepository {
 	private String pckg;
 	private String firstCommit;
 	private String createdBy;
+	private String deserializedBy;
+	private String deserializedAt;
 	private String remotePassword;
+	private String statusFlag;
+	private String statusText;
 	private String transportRequest;
-	private final Map<String, URI> links = new HashMap<>();
+	private final Map<String, URI> pullLink = new HashMap<>();
+	private final Map<String, URI> statusLink = new HashMap<>();
+	private final Map<String, URI> logLink = new HashMap<>();
 
 	@Override
 	public String getUrl() {
@@ -125,6 +131,16 @@ public class Repository implements IRepository {
 	}
 
 	@Override
+	public String getStatusFlag() {
+		return this.statusFlag;
+	}
+
+	@Override
+	public String getStatusText() {
+		return this.statusText;
+	}
+
+	@Override
 	public String getCreatedBy() {
 		return this.createdBy;
 	}
@@ -135,12 +151,60 @@ public class Repository implements IRepository {
 	}
 
 	@Override
-	public URI getLink(String relation) {
-		return this.links.get(relation);
+	public String getDeserializedBy() {
+		return this.deserializedBy;
 	}
 
-	public void addLink(String relation, URI uri) {
-		this.links.put(relation, uri);
+	@Override
+	public void setDeserializedBy(String deserializedBy) {
+		this.deserializedBy = deserializedBy;
+	}
+
+	@Override
+	public String getDeserializedAt() {
+		return this.deserializedAt;
+	}
+
+	@Override
+	public void setDeserializedAt(String deserializedAt) {
+		this.deserializedAt = deserializedAt;
+	}
+
+	@Override
+	public URI getPullLink(String relation) {
+		return this.pullLink.get(relation);
+	}
+
+	public void addPullLink(String relation, URI uri) {
+		this.pullLink.put(relation, uri);
+	}
+
+	@Override
+	public URI getLogLink(String relation) {
+		return this.logLink.get(relation);
+	}
+
+	public void addLogLink(String relation, URI uri) {
+		this.logLink.put(relation, uri);
+	}
+
+	@Override
+	public void setStatusFlag(String statusFlag) {
+		this.statusFlag = statusFlag;
+	}
+
+	@Override
+	public void setStatusText(String statusText) {
+		this.statusText = statusText;
+	}
+
+	@Override
+	public URI getStatusLink(String relation) {
+		return this.statusLink.get(relation);
+	}
+
+	public void addStatusLink(String relation, URI uri) {
+		this.statusLink.put(relation, uri);
 	}
 
 }

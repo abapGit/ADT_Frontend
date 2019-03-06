@@ -36,11 +36,42 @@ public class RepositorySerializer {
 				case "created_at": //$NON-NLS-1$
 					repository.setFirstCommit(xmlReader.getElementText());
 					break;
+				case "deserialized_by": //$NON-NLS-1$
+					repository.setDeserializedBy(xmlReader.getElementText());
+					break;
+				case "deserialized_at": //$NON-NLS-1$
+					repository.setDeserializedAt(xmlReader.getElementText());
+					break;
 				case "package": //$NON-NLS-1$
 					repository.setPackage(xmlReader.getElementText());
 					break;
+				case "status": //$NON-NLS-1$
+					repository.setStatusFlag(xmlReader.getElementText());
+					break;
+				case "status_text": //$NON-NLS-1$
+					repository.setStatusText(xmlReader.getElementText());
+					break;
 				case "link": //$NON-NLS-1$
-					repository.addLink(xmlReader.getAttributeValue(null, "rel"), URI.create(xmlReader.getAttributeValue(null, "href"))); //$NON-NLS-1$ //$NON-NLS-2$
+					String lv_type_attr = xmlReader.getAttributeValue(null, "type"); //$NON-NLS-1$
+
+					if (lv_type_attr != null && lv_type_attr.equals("pull_link")) { //$NON-NLS-1$
+						repository.addPullLink(xmlReader.getAttributeValue(null, "rel"), //$NON-NLS-1$
+								URI.create(xmlReader.getAttributeValue(null, "href"))); //$NON-NLS-1$
+
+					}
+
+					if (lv_type_attr != null && lv_type_attr.equals("status_link")) { //$NON-NLS-1$
+						repository.addStatusLink(xmlReader.getAttributeValue(null, "rel"), //$NON-NLS-1$
+								URI.create(xmlReader.getAttributeValue(null, "href"))); //$NON-NLS-1$
+
+					}
+
+					if (lv_type_attr != null && lv_type_attr.equals("log_link")) { //$NON-NLS-1$
+						repository.addLogLink(xmlReader.getAttributeValue(null, "rel"), //$NON-NLS-1$
+								URI.create(xmlReader.getAttributeValue(null, "href"))); //$NON-NLS-1$
+
+					}
+					depth++;
 					break;
 				default:
 					depth++;
@@ -61,8 +92,8 @@ public class RepositorySerializer {
 		return repository;
 	}
 
-	public void serializeRepository(IRepository repository, XMLStreamWriter xmlStreamWriter,
-			String supportedContentType) throws XMLStreamException {
+	public void serializeRepository(IRepository repository, XMLStreamWriter xmlStreamWriter, String supportedContentType)
+			throws XMLStreamException {
 		xmlStreamWriter.writeStartElement("repository"); //$NON-NLS-1$
 		writeElementIfNonEmpty(xmlStreamWriter, "branch", repository.getBranch()); //$NON-NLS-1$
 		writeElementIfNonEmpty(xmlStreamWriter, "created_at", repository.getFirstCommit()); //$NON-NLS-1$
@@ -76,8 +107,7 @@ public class RepositorySerializer {
 		xmlStreamWriter.writeEndElement();
 	}
 
-	private void writeElementIfNonEmpty(XMLStreamWriter xmlStreamWriter, String elementName, String content)
-			throws XMLStreamException {
+	private void writeElementIfNonEmpty(XMLStreamWriter xmlStreamWriter, String elementName, String content) throws XMLStreamException {
 		if (content != null && !content.isEmpty()) {
 			xmlStreamWriter.writeStartElement(elementName);
 			xmlStreamWriter.writeCharacters(content);

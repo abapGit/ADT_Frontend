@@ -26,9 +26,31 @@ public class RepositoryService implements IRepositoryService {
 	}
 
 	@Override
+	public IObjects getRepoObjLog(IProgressMonitor monitor, IRepository currRepository) {
+
+		URI uriToRepoObjLog = currRepository.getLogLink(IRepositoryService.RELATION_LOG);
+//		URI uriToRepoObjLog = currRepository.getStatusLink(IRepositoryService.RELATION_STATUS);
+//		System.out.println("uriToRepoStatus -> " + uriToRepoStatus);
+
+		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory().createResourceWithStatelessSession(uriToRepoObjLog,
+				this.destinationId);
+
+		IContentHandler<IObjects> responseContentHandlerV1 = new AbapObjectContentHandlerV1();
+		restResource.addContentHandler(responseContentHandlerV1);
+
+		IAdtCompatibleRestResourceFilter compatibilityFilter = AdtCompatibleRestResourceFilterFactory
+				.createFilter(responseContentHandlerV1);
+		restResource.addRequestFilter(compatibilityFilter);
+		restResource.addResponseFilter(compatibilityFilter);
+
+//		System.out.println(restResource.get(monitor, IObjects.class));
+		return restResource.get(monitor, IObjects.class);
+	}
+
+	@Override
 	public IRepositories getRepositories(IProgressMonitor monitor) {
-		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory()
-				.createResourceWithStatelessSession(this.uri, this.destinationId);
+		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory().createResourceWithStatelessSession(this.uri,
+				this.destinationId);
 
 		IContentHandler<IRepositories> responseContentHandlerV1 = new RepositoriesContentHandlerV1();
 		restResource.addContentHandler(responseContentHandlerV1);
@@ -42,10 +64,10 @@ public class RepositoryService implements IRepositoryService {
 	}
 
 	@Override
-	public IObjects cloneRepository(String url, String branch, String targetPackage, String transportRequest, String user,
-			String password, IProgressMonitor monitor) {
-		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory()
-				.createResourceWithStatelessSession(this.uri, this.destinationId);
+	public IObjects cloneRepository(String url, String branch, String targetPackage, String transportRequest, String user, String password,
+			IProgressMonitor monitor) {
+		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory().createResourceWithStatelessSession(this.uri,
+				this.destinationId);
 
 		IContentHandler<IRepository> requestContentHandlerV1 = new RepositoryContentHandlerV1();
 		restResource.addContentHandler(requestContentHandlerV1);
@@ -66,8 +88,7 @@ public class RepositoryService implements IRepositoryService {
 		repository.setTransportRequest(transportRequest);
 		repository.setPackage(targetPackage);
 
-		IAdtCompatibleRestResourceFilter compatibilityFilter = AdtCompatibleRestResourceFilterFactory
-				.createFilter(new IContentHandler[0]);
+		IAdtCompatibleRestResourceFilter compatibilityFilter = AdtCompatibleRestResourceFilterFactory.createFilter(new IContentHandler[0]);
 
 		IContentHandler<IObjects> responseContentHandlerV1 = new AbapObjectContentHandlerV1();
 		restResource.addContentHandler(responseContentHandlerV1);
@@ -85,7 +106,7 @@ public class RepositoryService implements IRepositoryService {
 	public IObjects pullRepository(IRepository existingRepository, String branch, String transportRequest, String user, String password,
 			IProgressMonitor monitor) {
 
-		URI uriToRepo = existingRepository.getLink(IRepositoryService.RELATION_PULL);
+		URI uriToRepo = existingRepository.getPullLink(IRepositoryService.RELATION_PULL);
 		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory().createResourceWithStatelessSession(uriToRepo,
 				this.destinationId);
 
@@ -120,8 +141,8 @@ public class RepositoryService implements IRepositoryService {
 	@Override
 	public void unlinkRepository(String key, IProgressMonitor monitor) {
 		URI uriToRepo = new UriBuilder(this.uri).addPathSegments(key).getUri();
-		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory()
-				.createResourceWithStatelessSession(uriToRepo, this.destinationId);
+		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory().createResourceWithStatelessSession(uriToRepo,
+				this.destinationId);
 
 		restResource.delete(monitor);
 	}
