@@ -8,12 +8,10 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.abapgit.adt.backend.IObject;
 import org.abapgit.adt.backend.IRepository;
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
-import org.abapgit.adt.ui.dialogs.AbapGitDialogObjLog;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizardPull;
@@ -31,7 +29,6 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -81,7 +78,7 @@ public class AbapGitView extends ViewPart {
 	public static final String ID = "org.abapgit.adt.ui.views.AbapGitView"; //$NON-NLS-1$
 
 	private TableViewer viewer;
-	private Action actionRefresh, actionWizard, actionCopy, actionOpen, actionShowMyRepos, actionObjectLog, actionPullWizard;
+	private Action actionRefresh, actionWizard, actionCopy, actionOpen, actionShowMyRepos, actionPullWizard; //actionObjectLog
 	private ISelection lastSelection;
 	private IProject lastProject;
 	private ViewerFilter searchFilter;
@@ -278,7 +275,7 @@ public class AbapGitView extends ViewPart {
 				IRepository p = (IRepository) element;
 				String statusFlag = p.getStatusFlag();
 
-				Bundle bundle = Platform.getBundle("org.eclipse.jdt.doc.user"); //$NON-NLS-1$
+				Bundle bundle = Platform.getBundle("org.eclipse.platform.doc.user"); //$NON-NLS-1$
 				URL imgUrl = null;
 				Image statusWarning = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_WARN_TSK);
 				Image statusError = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_ERROR_TSK);
@@ -294,12 +291,12 @@ public class AbapGitView extends ViewPart {
 					return statusError;
 				}
 				if (statusFlag != null && statusFlag.equals("S")) { //$NON-NLS-1$
-					imgUrl = FileLocator.find(bundle, new Path("images/org.eclipse.jdt.junit/obj16/testok.png"), null); //$NON-NLS-1$
+					imgUrl = FileLocator.find(bundle, new Path("images/ref-18.png"), null); //$NON-NLS-1$
 					ImageDescriptor imageDesc = ImageDescriptor.createFromURL(imgUrl);
 					return imageDesc.createImage();
 				}
 				if (statusFlag != null && statusFlag.equals("R")) { //$NON-NLS-1$
-					imgUrl = FileLocator.find(bundle, new Path("gettingStarted/images/add_as_source_folder.png"), null); //$NON-NLS-1$
+					imgUrl = FileLocator.find(bundle, new Path("images/up_nav.png"), null); //$NON-NLS-1$
 					ImageDescriptor imageDesc = ImageDescriptor.createFromURL(imgUrl);
 					return imageDesc.createImage();
 				}
@@ -424,21 +421,21 @@ public class AbapGitView extends ViewPart {
 		this.actionOpen.setText(Messages.AbapGitView_action_open);
 		this.actionOpen.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJ_FOLDER));
 
-		this.actionObjectLog = new Action() {
-			public void run() {
-				if (!AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(AbapGitView.this.lastProject).isOK()) {
-					return;
-				}
-
-				List<IObject> pullObjects = null;
-				TitleAreaDialog dialog = new AbapGitDialogObjLog(AbapGitView.this.viewer.getControl().getShell(), pullObjects);
-				dialog.open();
-
-			}
-		};
-		this.actionObjectLog.setText(Messages.AbapGitView_action_objectlog);
-		this.actionObjectLog.setToolTipText(Messages.AbapGitView_action_objectlog);
-		this.actionObjectLog.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJ_FILE));
+//		this.actionObjectLog = new Action() {
+//			public void run() {
+//				if (!AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(AbapGitView.this.lastProject).isOK()) {
+//					return;
+//				}
+//
+//				List<IObject> pullObjects = null;
+//				TitleAreaDialog dialog = new AbapGitDialogObjLog(AbapGitView.this.viewer.getControl().getShell(), pullObjects);
+//				dialog.open();
+//
+//			}
+//		};
+//		this.actionObjectLog.setText(Messages.AbapGitView_action_objectlog);
+//		this.actionObjectLog.setToolTipText(Messages.AbapGitView_action_objectlog);
+//		this.actionObjectLog.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJ_FILE));
 
 		this.actionWizard = new Action() {
 			public void run() {
@@ -581,7 +578,7 @@ public class AbapGitView extends ViewPart {
 		this.actionWizard.setEnabled(enabled);
 		this.actionCopy.setEnabled(enabled);
 		this.actionOpen.setEnabled(enabled);
-		this.actionObjectLog.setEnabled(enabled);
+//		this.actionObjectLog.setEnabled(enabled);
 	}
 
 	/**
@@ -672,56 +669,56 @@ public class AbapGitView extends ViewPart {
 
 	}
 
-	private class GetObjLogAction extends Action {
-
-		private final IProject project;
-		private final IRepository repository;
-
-		public GetObjLogAction(IProject project, IRepository repository) {
-			this.project = project;
-			this.repository = repository;
-			setText("Show object log..."); //$NON-NLS-1$
-			setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_DEF_VIEW));
-		}
-
-		@Override
-		public void run() {
-			List<IObject> objectLogItems = new LinkedList<>();
-
-			try {
-				if (!AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(this.project).isOK()) {
-					return;
-				}
-				PlatformUI.getWorkbench().getProgressService().busyCursorWhile(new IRunnableWithProgress() {
-
-					@Override
-					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-
-						List<IObject> abapObjects = RepositoryServiceFactory
-								.createRepositoryService(getDestination(GetObjLogAction.this.project), monitor)
-								.getRepoObjLog(monitor, GetObjLogAction.this.repository).getObjects();
-
-						objectLogItems.addAll(abapObjects);
-
-					}
-				});
-//				updateView(true);
-			} catch (InvocationTargetException e) {
-				StatusManager.getManager().handle(
-						new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, "Check status error", e.getTargetException()), //$NON-NLS-1$
-						StatusManager.SHOW);
-			} catch (InterruptedException e) {
-			}
-
-			TitleAreaDialog objLogDialog = new AbapGitDialogObjLog(AbapGitView.this.viewer.getControl().getShell(), objectLogItems);
-			int dialogResult = objLogDialog.open();
-
-			if (dialogResult == objLogDialog.CANCEL) {
-//				System.out.println("CANCEL presed");
-			}
-
-		}
-
-	}
+//	private class GetObjLogAction extends Action {
+//
+//		private final IProject project;
+//		private final IRepository repository;
+//
+//		public GetObjLogAction(IProject project, IRepository repository) {
+//			this.project = project;
+//			this.repository = repository;
+//			setText("Show object log..."); //$NON-NLS-1$
+//			setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_DEF_VIEW));
+//		}
+//
+//		@Override
+//		public void run() {
+//			List<IObject> objectLogItems = new LinkedList<>();
+//
+//			try {
+//				if (!AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(this.project).isOK()) {
+//					return;
+//				}
+//				PlatformUI.getWorkbench().getProgressService().busyCursorWhile(new IRunnableWithProgress() {
+//
+//					@Override
+//					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+//
+//						List<IObject> abapObjects = RepositoryServiceFactory
+//								.createRepositoryService(getDestination(GetObjLogAction.this.project), monitor)
+//								.getRepoObjLog(monitor, GetObjLogAction.this.repository).getObjects();
+//
+//						objectLogItems.addAll(abapObjects);
+//
+//					}
+//				});
+////				updateView(true);
+//			} catch (InvocationTargetException e) {
+//				StatusManager.getManager().handle(
+//						new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, "Check status error", e.getTargetException()), //$NON-NLS-1$
+//						StatusManager.SHOW);
+//			} catch (InterruptedException e) {
+//			}
+//
+//			TitleAreaDialog objLogDialog = new AbapGitDialogObjLog(AbapGitView.this.viewer.getControl().getShell(), objectLogItems);
+//			int dialogResult = objLogDialog.open();
+//
+//			if (dialogResult == objLogDialog.CANCEL) {
+////				System.out.println("CANCEL presed");
+//			}
+//
+//		}
+//
+//	}
 
 }
