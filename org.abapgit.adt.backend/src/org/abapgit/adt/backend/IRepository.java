@@ -15,7 +15,15 @@ public interface IRepository {
 
 	public String getCreatedBy();
 
+	public String getDeserializedBy();
+
+	public String getDeserializedAt();
+
 	public String getPackage();
+
+	public String getStatusFlag();
+
+	public String getStatusText();
 
 	public String getRemotePassword();
 
@@ -33,12 +41,24 @@ public interface IRepository {
 
 	public void setCreatedBy(String createdBy);
 
+	public void setDeserializedBy(String deserializedBy);
+
+	public void setDeserializedAt(String deserializedAt);
+
 	public void setPackage(String pckg);
+
+	public void setStatusFlag(String statusFlag);
+
+	public void setStatusText(String statusText);
 
 	public void setPassword(String password);
 
 	public void setTransportRequest(String transportRequest);
 
-	public URI getLink(String relation);
+	public URI getPullLink(String relation);
+
+	public URI getLogLink(String relation);
+
+	public URI getStatusLink(String relation);
 
 }
