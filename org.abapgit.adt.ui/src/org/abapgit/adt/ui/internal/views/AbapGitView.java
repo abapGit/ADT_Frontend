@@ -247,7 +247,7 @@ public class AbapGitView extends ViewPart {
 
 				IRepository repo = (IRepository) element;
 				String lastChangedAt = repo.getDeserializedAt();
-				if (lastChangedAt.equals("0.0")) { //$NON-NLS-1$
+				if (lastChangedAt == null || lastChangedAt.equals("0.0")) { //$NON-NLS-1$
 					lastChangedAt = repo.getFirstCommit();
 				}
 
@@ -267,7 +267,12 @@ public class AbapGitView extends ViewPart {
 			@Override
 			public String getText(Object element) {
 				IRepository p = (IRepository) element;
-				return p.getStatusText();
+				String statusText = p.getStatusText();
+				if (statusText == null) {
+					return ""; //$NON-NLS-1$
+				}
+
+				return statusText;
 			}
 
 			@Override
