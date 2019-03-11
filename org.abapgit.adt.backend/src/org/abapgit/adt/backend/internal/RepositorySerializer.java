@@ -54,7 +54,7 @@ public class RepositorySerializer {
 				case "link": //$NON-NLS-1$
 					String lv_type_attr = xmlReader.getAttributeValue(null, "type"); //$NON-NLS-1$
 
-					if (lv_type_attr != null && lv_type_attr.equals("pull_link")) { //$NON-NLS-1$
+					if (lv_type_attr == null || lv_type_attr.equals("pull_link")) { //$NON-NLS-1$
 						repository.addPullLink(xmlReader.getAttributeValue(null, "rel"), //$NON-NLS-1$
 								URI.create(xmlReader.getAttributeValue(null, "href"))); //$NON-NLS-1$
 
