@@ -46,6 +46,7 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 	private final IProject project;
 	private final String destination;
 	private final CloneData cloneData;
+	private final String pullBranch;
 
 	private TextViewer txtPackage;
 	private ComboViewer comboBranches;
@@ -56,8 +57,8 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 		super(PAGE_NAME);
 		this.project = project;
 		this.destination = destination;
-//		this.pullAction = false;
 		this.cloneData = cloneData;
+		this.pullBranch = cloneData.branch;
 		this.lastApackCall = new ApackParameters();
 
 		setTitle(Messages.AbapGitWizardPageBranchAndPackage_title);
@@ -219,6 +220,12 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 				if (!branches.isEmpty()) {
 					IBranch selectedBranch = branches.stream().filter(b -> b.isHead()).findFirst()
 							.orElse(branches.stream().findFirst().get());
+
+					//PULL branch is pre populated
+					if (this.pullBranch != null && selectedBranch.getName() != this.pullBranch) {
+						selectedBranch = branches.stream().filter(b -> b.getName().equals(this.pullBranch)).findFirst().get();
+					}
+
 					this.comboBranches.setSelection(new StructuredSelection(selectedBranch));
 				}
 			}

@@ -54,6 +54,7 @@ public class AbapGitWizardPull extends Wizard {
 		this.cloneData = new CloneData();
 		this.selRepoData = selRepo;
 		this.cloneData.url = selRepo.getUrl();
+		this.cloneData.branch = selRepo.getBranch();
 
 		getPackageAndRepoType();
 
