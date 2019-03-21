@@ -41,6 +41,7 @@ public class Messages extends NLS {
 	public static String AbapGitWizard_task_pulling_repository;
 	public static String AbapGitWizard_title;
 	public static String AbapGitWizardPull_title;
+	public static String AbapGitWizardPageApack_checkbox_pull_all_dependencies;
 	public static String AbapGitWizardPageApack_description;
 	public static String AbapGitWizardPageApack_label_dependencies;
 	public static String AbapGitWizardPageApack_label_git_repository_url;
