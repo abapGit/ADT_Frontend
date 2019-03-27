@@ -22,7 +22,9 @@ public interface IApackManifest {
 
 		IAdtObjectReference getTargetPackage();
 
-		boolean requiresClone();
+		boolean requiresSynchronization();
+
+		void setRequiresSynchronization(boolean requiresSynchronization);
 
 	}
 

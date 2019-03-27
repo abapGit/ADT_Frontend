@@ -69,7 +69,7 @@ public class AbapGitWizard extends Wizard {
 		this.pageRepo = new AbapGitWizardPageRepositoryAndCredentials(this.project, this.destination, this.cloneData);
 		this.pageBranchAndPackage = new AbapGitWizardPageBranchAndPackage(this.project, this.destination, this.cloneData);
 		this.transportService = AdtTransportServiceFactory.createTransportService(this.destination);
-		this.pageApack = new AbapGitWizardPageApack(this.destination, this.cloneData, this.transportService);
+		this.pageApack = new AbapGitWizardPageApack(this.destination, this.cloneData, this.transportService, false);
 		this.transportPage = AdtTransportSelectionWizardPageFactory.createTransportSelectionPage(this.transportService);
 		addPage(this.pageRepo);
 		addPage(this.pageBranchAndPackage);
@@ -91,14 +91,14 @@ public class AbapGitWizard extends Wizard {
 					monitor.beginTask(Messages.AbapGitWizard_task_cloning_repository, IProgressMonitor.UNKNOWN);
 					IRepositoryService repoService = RepositoryServiceFactory.createRepositoryService(AbapGitWizard.this.destination,
 							monitor);
-					if (hasDependencies()) {
+					if (AbapGitWizard.this.cloneData.hasDependencies()) {
 						IRepositories repositories = AbapGitModelFactory.createRepositories();
 						repositories.add(createRepository(AbapGitWizard.this.cloneData.url, AbapGitWizard.this.cloneData.branch,
 								AbapGitWizard.this.cloneData.packageRef.getName(), transportRequestNumber,
 								AbapGitWizard.this.cloneData.user, AbapGitWizard.this.cloneData.pass));
 						for (IApackDependency apackDependency : AbapGitWizard.this.cloneData.apackManifest.getDescriptor()
 								.getDependencies()) {
-							if (apackDependency.requiresClone()) {
+							if (apackDependency.requiresSynchronization()) {
 								repositories.add(createRepository(apackDependency.getGitUrl(), IApackManifest.MASTER_BRANCH,
 										apackDependency.getTargetPackage().getName(), transportRequestNumber,
 										AbapGitWizard.this.cloneData.user, AbapGitWizard.this.cloneData.pass));
@@ -176,17 +176,13 @@ public class AbapGitWizard extends Wizard {
 
 	@Override
 	public IWizardPage getNextPage(IWizardPage page) {
-		if (page.equals(this.pageBranchAndPackage) && !hasDependencies()) {
+		if (page.equals(this.pageBranchAndPackage) && !this.cloneData.hasDependencies()) {
 			// If we don't have APACK dependencies, we can skip the APACK-related page
 			return this.transportPage;
 		} else {
 			return super.getNextPage(page);
 		}
 
-	}
-
-	private boolean hasDependencies() {
-		return this.cloneData.apackManifest != null && this.cloneData.apackManifest.hasDependencies();
 	}
 
 	private IRepository createRepository(String url, String branch, String targetPackage, String transportRequest, String userName,
@@ -214,6 +210,10 @@ public class AbapGitWizard extends Wizard {
 		public String user;
 		public String pass;
 		public IApackManifest apackManifest;
+
+		public boolean hasDependencies() {
+			return this.apackManifest != null && this.apackManifest.hasDependencies();
+		}
 	}
 
 }

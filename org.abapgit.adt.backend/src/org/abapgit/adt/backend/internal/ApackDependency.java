@@ -10,10 +10,10 @@ public class ApackDependency implements IApackDependency {
 	private String artifactId;
 	private String gitUrl;
 	private IAdtObjectReference targetPackage;
-	private boolean requiresClone;
+	private boolean requiresSynchronization;
 
 	public ApackDependency() {
-		this.requiresClone = true;
+		this.requiresSynchronization = true;
 	}
 
 	@Override
@@ -54,8 +54,8 @@ public class ApackDependency implements IApackDependency {
 		builder.append(this.gitUrl);
 		builder.append(", targetPackage="); //$NON-NLS-1$
 		builder.append(this.targetPackage);
-		builder.append(", requiresClone="); //$NON-NLS-1$
-		builder.append(this.requiresClone);
+		builder.append(", requiresSynchronization="); //$NON-NLS-1$
+		builder.append(this.requiresSynchronization);
 		builder.append("]"); //$NON-NLS-1$
 		return builder.toString();
 	}
@@ -68,7 +68,7 @@ public class ApackDependency implements IApackDependency {
 		result = prime * result + ((this.artifactId == null) ? 0 : this.artifactId.hashCode());
 		result = prime * result + ((this.gitUrl == null) ? 0 : this.gitUrl.hashCode());
 		result = prime * result + ((this.targetPackage == null) ? 0 : this.targetPackage.hashCode());
-		result = prime * result + (this.requiresClone ? 1337 : 7331);
+		result = prime * result + (this.requiresSynchronization ? 1337 : 7331);
 		return result;
 	}
 
@@ -112,13 +112,13 @@ public class ApackDependency implements IApackDependency {
 		} else if (!this.targetPackage.equals(other.targetPackage)) {
 			return false;
 		}
-		return this.requiresClone == other.requiresClone;
+		return this.requiresSynchronization == other.requiresSynchronization;
 	}
 
 	@Override
 	public boolean isEmpty() {
 		return (this.groupId == null || this.groupId.isEmpty()) && (this.artifactId == null || this.artifactId.isEmpty())
-				&& (this.gitUrl == null || this.gitUrl.isEmpty() && this.targetPackage == null && !this.requiresClone);
+				&& (this.gitUrl == null || this.gitUrl.isEmpty() && this.targetPackage == null && !this.requiresSynchronization);
 	}
 
 	@Override
@@ -132,12 +132,13 @@ public class ApackDependency implements IApackDependency {
 	}
 
 	@Override
-	public boolean requiresClone() {
-		return this.requiresClone;
+	public boolean requiresSynchronization() {
+		return this.requiresSynchronization;
 	}
 
-	public void setRequiresClone(boolean requiresClone) {
-		this.requiresClone = requiresClone;
+	@Override
+	public void setRequiresSynchronization(boolean requiresSynchronization) {
+		this.requiresSynchronization = requiresSynchronization;
 	}
 
 }

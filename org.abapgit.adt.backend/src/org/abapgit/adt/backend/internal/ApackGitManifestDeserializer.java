@@ -112,8 +112,8 @@ public class ApackGitManifestDeserializer {
 					objectReference.setUri(targetPackageUri);
 					objectReference.setName(targetPackageName);
 					if (targetPackageName != null && !targetPackageName.isEmpty() || (targetPackageUri != null && !targetPackageUri.isEmpty())) {
-						// Clone only required if there is no backend package (= no previous clone)
-						apackDependency.setRequiresClone(false);
+						// Synchronization only required if there is no backend package (= no previous sync)
+						apackDependency.setRequiresSynchronization(false);
 					}
 					apackDependency.setTargetPackage(objectReference);
 					break;

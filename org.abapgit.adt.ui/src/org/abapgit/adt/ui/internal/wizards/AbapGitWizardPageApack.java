@@ -43,18 +43,21 @@ public class AbapGitWizardPageApack extends WizardPage {
 	private final String destination;
 	private final CloneData cloneData;
 	private final IAdtTransportService transportService;
+	private final boolean pullScenario;
 
 	private Label organizationIdContent;
 	private Label packageIdContent;
 	private Label versionContent;
 	private Label gitUrlContent;
 	private Table table;
+	private Button pullAllCheckBox;
 
-	public AbapGitWizardPageApack(String destination, CloneData cloneData, IAdtTransportService transportService) {
+	public AbapGitWizardPageApack(String destination, CloneData cloneData, IAdtTransportService transportService, boolean pullScenario) {
 		super(PAGE_NAME);
 		this.destination = destination;
 		this.cloneData = cloneData;
 		this.transportService = transportService;
+		this.pullScenario = pullScenario;
 
 		setTitle(Messages.AbapGitWizardPageApack_title);
 		setDescription(Messages.AbapGitWizardPageApack_description);
@@ -93,6 +96,13 @@ public class AbapGitWizardPageApack extends WizardPage {
 		this.gitUrlContent = new Label(container, SWT.NONE);
 		GridDataFactory.swtDefaults().span(2, 0).align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(this.gitUrlContent);
 		this.gitUrlContent.setText(Messages.AbapGitWizardPageApack_text_no_information_available);
+
+		if (this.pullScenario) {
+			this.pullAllCheckBox = new Button(container, SWT.CHECK);
+			this.pullAllCheckBox.setText(Messages.AbapGitWizardPageApack_checkbox_pull_all_dependencies);
+			this.pullAllCheckBox.setSelection(true);
+			GridDataFactory.swtDefaults().span(3, 0).align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(this.pullAllCheckBox);
+		}
 
 		Label dependenciesLabel = new Label(container, SWT.NONE);
 		dependenciesLabel.setText(Messages.AbapGitWizardPageApack_label_dependencies);
@@ -221,6 +231,9 @@ public class AbapGitWizardPageApack extends WizardPage {
 				}
 				if (!validatePackageExisting(apackDependency)) {
 					return false;
+				}
+				if (this.pullScenario && this.pullAllCheckBox.getSelection()) {
+					apackDependency.setRequiresSynchronization(true);
 				}
 			}
 
