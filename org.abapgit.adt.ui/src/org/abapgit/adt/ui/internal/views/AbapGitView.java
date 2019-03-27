@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -475,8 +476,16 @@ public class AbapGitView extends ViewPart {
 
 				if (this.selRepo != null) {
 
+					Object viewerInput = AbapGitView.this.viewer.getInput();
+					List<IRepository> allRepositories = new ArrayList<IRepository>();
+					if (viewerInput != null && viewerInput instanceof List<?>) {
+						@SuppressWarnings("unchecked")
+						List<IRepository> viewerRepositories = (List<IRepository>) viewerInput;
+						allRepositories.addAll(viewerRepositories);
+					}
+
 					WizardDialog wizardDialog = new WizardDialog(AbapGitView.this.viewer.getControl().getShell(),
-							new AbapGitWizardPull(AbapGitView.this.lastProject, this.selRepo));
+							new AbapGitWizardPull(AbapGitView.this.lastProject, this.selRepo, allRepositories));
 					wizardDialog.open();
 
 				}
