@@ -34,4 +34,9 @@ public class Repositories implements IRepositories {
 		return builder.toString();
 	}
 
+	@Override
+	public IRepository getRepository(String url) {
+		return this.repositories.stream().filter(b -> b.getUrl().equals(url)).findFirst().get();
+	}
+
 }

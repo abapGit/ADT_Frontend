@@ -26,6 +26,7 @@ public class Messages extends NLS {
 	public static String AbapGitView_context_dialog_unlink_message;
 	public static String AbapGitView_context_dialog_unlink_title;
 	public static String AbapGitView_context_unlink;
+	public static String AbapGitView_context_object_log;
 	public static String AbapGitView_context_unlink_error;
 	public static String AbapGitView_context_pull;
 	public static String AbapGitView_context_pull_error;

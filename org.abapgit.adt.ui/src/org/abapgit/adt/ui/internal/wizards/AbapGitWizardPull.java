@@ -44,6 +44,7 @@ public class AbapGitWizardPull extends Wizard {
 	private final String destination;
 	private final CloneData cloneData;
 	private PageChangeListener pageChangeListener;
+	private final Boolean pullAction = true;
 
 	private AbapGitWizardPageRepositoryAndCredentials pageCredentials;
 	private AbapGitWizardPageBranchAndPackage pageBranchAndPackage;
@@ -109,8 +110,9 @@ public class AbapGitWizardPull extends Wizard {
 	@Override
 	public void addPages() {
 
-		this.pageCredentials = new AbapGitWizardPageRepositoryAndCredentials(this.project, this.destination, this.cloneData);
-		this.pageBranchAndPackage = new AbapGitWizardPageBranchAndPackage(this.project, this.destination, this.cloneData);
+		this.pageCredentials = new AbapGitWizardPageRepositoryAndCredentials(this.project, this.destination, this.cloneData,
+				this.pullAction);
+		this.pageBranchAndPackage = new AbapGitWizardPageBranchAndPackage(this.project, this.destination, this.cloneData, this.pullAction);
 		this.transportService = AdtTransportServiceFactory.createTransportService(this.destination);
 		this.pageApack = new AbapGitWizardPageApack(this.destination, this.cloneData, this.transportService, true);
 		this.transportPage = AdtTransportSelectionWizardPageFactory.createTransportSelectionPage(this.transportService);
