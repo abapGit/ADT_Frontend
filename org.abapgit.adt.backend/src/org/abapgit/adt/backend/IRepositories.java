@@ -7,4 +7,6 @@ public interface IRepositories {
 	List<IRepository> getRepositories();
 
 	void add(IRepository repository);
+
+	IRepository getRepository(String url);
 }
