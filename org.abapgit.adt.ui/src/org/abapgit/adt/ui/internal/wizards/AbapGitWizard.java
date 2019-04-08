@@ -66,8 +66,8 @@ public class AbapGitWizard extends Wizard {
 
 	@Override
 	public void addPages() {
-		this.pageRepo = new AbapGitWizardPageRepositoryAndCredentials(this.project, this.destination, this.cloneData);
-		this.pageBranchAndPackage = new AbapGitWizardPageBranchAndPackage(this.project, this.destination, this.cloneData);
+		this.pageRepo = new AbapGitWizardPageRepositoryAndCredentials(this.project, this.destination, this.cloneData, false);
+		this.pageBranchAndPackage = new AbapGitWizardPageBranchAndPackage(this.project, this.destination, this.cloneData, false);
 		this.transportService = AdtTransportServiceFactory.createTransportService(this.destination);
 		this.pageApack = new AbapGitWizardPageApack(this.destination, this.cloneData, this.transportService, false);
 		this.transportPage = AdtTransportSelectionWizardPageFactory.createTransportSelectionPage(this.transportService);
@@ -88,10 +88,14 @@ public class AbapGitWizard extends Wizard {
 
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+
+					Boolean sequenceLnp = AbapGitWizard.this.pageBranchAndPackage.getLnpSequence();
+
 					monitor.beginTask(Messages.AbapGitWizard_task_cloning_repository, IProgressMonitor.UNKNOWN);
 					IRepositoryService repoService = RepositoryServiceFactory.createRepositoryService(AbapGitWizard.this.destination,
 							monitor);
 					if (AbapGitWizard.this.cloneData.hasDependencies()) {
+
 						IRepositories repositories = AbapGitModelFactory.createRepositories();
 						repositories.add(createRepository(AbapGitWizard.this.cloneData.url, AbapGitWizard.this.cloneData.branch,
 								AbapGitWizard.this.cloneData.packageRef.getName(), transportRequestNumber,
@@ -106,21 +110,35 @@ public class AbapGitWizard extends Wizard {
 						}
 						repoService.cloneRepositories(repositories, monitor);
 					} else {
-						List<IObject> abapObjects = repoService.cloneRepository(AbapGitWizard.this.cloneData.url, AbapGitWizard.this.cloneData.branch,
-								AbapGitWizard.this.cloneData.packageRef.getName(), transportRequestNumber,
-										AbapGitWizard.this.cloneData.user, AbapGitWizard.this.cloneData.pass, monitor)
+						List<IObject> abapObjects = repoService.cloneRepository(AbapGitWizard.this.cloneData.url,
+								AbapGitWizard.this.cloneData.branch, AbapGitWizard.this.cloneData.packageRef.getName(),
+								transportRequestNumber, AbapGitWizard.this.cloneData.user, AbapGitWizard.this.cloneData.pass, monitor)
 								.getObjects();
 						cloneObjects.addAll(abapObjects);
+
+						//-> Check if link and pull sequence is set
+						if (sequenceLnp) {
+
+							//-> Get linked repository by url
+							IRepository linkedRepo = repoService.getRepositories(monitor).getRepository(AbapGitWizard.this.cloneData.url);
+
+							//-> Pull newly linked repository
+							repoService.pullRepository(linkedRepo, AbapGitWizard.this.cloneData.branch,
+									AbapGitWizard.this.transportPage.getTransportRequestNumber(), AbapGitWizard.this.cloneData.user,
+									AbapGitWizard.this.cloneData.pass, monitor);
+						}
 					}
 				}
 			});
 
 			return true;
 		} catch (InterruptedException e) {
+
 			return false;
 		} catch (InvocationTargetException e) {
 			((WizardPage) getContainer().getCurrentPage()).setPageComplete(false);
 			((WizardPage) getContainer().getCurrentPage()).setMessage(e.getTargetException().getMessage(), DialogPage.ERROR);
+
 			return false;
 		}
 	}

@@ -29,8 +29,6 @@ public class RepositoryService implements IRepositoryService {
 	public IObjects getRepoObjLog(IProgressMonitor monitor, IRepository currRepository) {
 
 		URI uriToRepoObjLog = currRepository.getLogLink(IRepositoryService.RELATION_LOG);
-//		URI uriToRepoObjLog = currRepository.getStatusLink(IRepositoryService.RELATION_STATUS);
-//		System.out.println("uriToRepoStatus -> " + uriToRepoStatus);
 
 		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory().createResourceWithStatelessSession(uriToRepoObjLog,
 				this.destinationId);
@@ -43,7 +41,6 @@ public class RepositoryService implements IRepositoryService {
 		restResource.addRequestFilter(compatibilityFilter);
 		restResource.addResponseFilter(compatibilityFilter);
 
-//		System.out.println(restResource.get(monitor, IObjects.class));
 		return restResource.get(monitor, IObjects.class);
 	}
 

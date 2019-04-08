@@ -31,7 +31,6 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 
 	private final IProject project;
 	private final String destination;
-	private Boolean pullAction;
 	private final CloneData cloneData;
 
 	private Text txtURL;
@@ -43,14 +42,15 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 	private String ptrn;
 	private String newUrl;
 
+	private final Boolean pullAction;
 	private boolean wasVisibleBefore;
 
-	public AbapGitWizardPageRepositoryAndCredentials(IProject project, String destination, CloneData cloneData) {
+	public AbapGitWizardPageRepositoryAndCredentials(IProject project, String destination, CloneData cloneData, Boolean pullAction) {
 		super(PAGE_NAME);
 		this.project = project;
 		this.destination = destination;
 		this.cloneData = cloneData;
-		this.pullAction = false;
+		this.pullAction = pullAction;
 		setTitle(Messages.AbapGitWizardPageRepositoryAndCredentials_title);
 		setDescription(Messages.AbapGitWizardPageRepositoryAndCredentials_description);
 
@@ -118,7 +118,6 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 		setPageComplete(false);
 
 		if (this.cloneData.url != null) {
-			this.pullAction = true;
 			this.txtURL.setText(this.cloneData.url);
 			this.txtURL.setEnabled(false);
 			this.cloneData.externalRepoInfo = null;
@@ -127,10 +126,8 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 
 	}
 
-
 	@Override
 	public void setVisible(boolean visible) {
-
 		//Navigate to transport request page if repo is public
 		if (this.cloneData.externalRepoInfo != null && this.cloneData.externalRepoInfo.getAccessMode() == AccessMode.PUBLIC
 				&& this.pullAction) {

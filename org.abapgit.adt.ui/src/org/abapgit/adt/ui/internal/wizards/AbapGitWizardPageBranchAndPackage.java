@@ -9,6 +9,7 @@ import org.abapgit.adt.backend.ApackServiceFactory;
 import org.abapgit.adt.backend.IApackGitManifestService;
 import org.abapgit.adt.backend.IApackManifest;
 import org.abapgit.adt.backend.IApackManifest.IApackDependency;
+import org.abapgit.adt.backend.IExternalRepositoryInfo.AccessMode;
 import org.abapgit.adt.backend.IExternalRepositoryInfo.IBranch;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard.CloneData;
@@ -22,6 +23,7 @@ import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
@@ -46,19 +48,27 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 	private final IProject project;
 	private final String destination;
 	private final CloneData cloneData;
+	private final String pullBranch;
 
+	private Button checkbox_lnp;
+	private Boolean chboxLinkAndPull;
 	private TextViewer txtPackage;
 	private ComboViewer comboBranches;
 
+	private final Boolean pullAction;
+	private boolean backButtonEnabled = true;
 	private final ApackParameters lastApackCall;
 
-	public AbapGitWizardPageBranchAndPackage(IProject project, String destination, CloneData cloneData) {
+	public AbapGitWizardPageBranchAndPackage(IProject project, String destination, CloneData cloneData, Boolean pullAction) {
 		super(PAGE_NAME);
 		this.project = project;
 		this.destination = destination;
-//		this.pullAction = false;
 		this.cloneData = cloneData;
+		this.pullBranch = cloneData.branch;
+		this.pullAction = pullAction;
 		this.lastApackCall = new ApackParameters();
+		this.chboxLinkAndPull = false;
+
 
 		setTitle(Messages.AbapGitWizardPageBranchAndPackage_title);
 		setDescription(Messages.AbapGitWizardPageBranchAndPackage_description);
@@ -133,6 +143,26 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 			}
 		});
 
+		//-> Show checkbox only in link wizard
+		if (!this.pullAction) {
+			/////// CHECKBOX Link & Pull
+			Label lblLnp = new Label(container, SWT.NONE);
+			lblLnp.setText(Messages.AbapGitWizardPageBranchAndPackage_chbox_activate);
+			lblLnp.setToolTipText(Messages.AbapGitWizardPageBranchAndPackage_chbox_activate_tooltip);
+			GridDataFactory.swtDefaults().applyTo(lblLnp);
+
+			this.checkbox_lnp = new Button(container, SWT.CHECK);
+			GridDataFactory.swtDefaults().applyTo(this.checkbox_lnp);
+
+			this.checkbox_lnp.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent event) {
+					Button chbox = (Button) event.getSource();
+					setLnpSequence(chbox.getSelection());
+				}
+			});
+		}
+
 		setControl(container);
 
 		if (this.cloneData.url != null) {
@@ -143,12 +173,36 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 			this.txtPackage.getControl().setEnabled(false);
 			this.txtPackage.getTextWidget().setEnabled(false);
 			this.txtPackage.getTextWidget().setEditable(false);
-
 			btnPackage.setEnabled(false);
 
+			//-> Disable back navigation if repo is public and we're in pull wizard
+			if (this.cloneData.externalRepoInfo != null && this.cloneData.externalRepoInfo.getAccessMode() == AccessMode.PUBLIC) {
+				setBackButtonEnabled(false);
+			}
 		}
 
 		validateClientOnly();
+	}
+
+	private void setLnpSequence(boolean chboxValue) {
+		this.chboxLinkAndPull = chboxValue;
+	}
+
+	public boolean getLnpSequence() {
+		return this.chboxLinkAndPull;
+	}
+
+	public void setBackButtonEnabled(boolean enabled) {
+		this.backButtonEnabled = enabled;
+		getContainer().updateButtons();
+	}
+
+	@Override
+	public IWizardPage getPreviousPage() {
+		if (!this.backButtonEnabled) {
+			return null;
+		}
+		return super.getPreviousPage();
 	}
 
 	private boolean validateClientOnly() {
@@ -219,6 +273,12 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 				if (!branches.isEmpty()) {
 					IBranch selectedBranch = branches.stream().filter(b -> b.isHead()).findFirst()
 							.orElse(branches.stream().findFirst().get());
+
+					//PULL branch is pre populated
+					if (this.pullBranch != null && selectedBranch.getName() != this.pullBranch) {
+						selectedBranch = branches.stream().filter(b -> b.getName().equals(this.pullBranch)).findFirst().get();
+					}
+
 					this.comboBranches.setSelection(new StructuredSelection(selectedBranch));
 				}
 			}
@@ -255,9 +315,8 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 					AbapGitWizardPageBranchAndPackage.this.lastApackCall.branch = AbapGitWizardPageBranchAndPackage.this.cloneData.branch;
 				}
 
-				private IApackManifest retrieveApackManifest(IProgressMonitor monitor,
-						final HashMap<String, Boolean> dependencyCoverage, final List<IApackDependency> retrievedDependencies,
-						ApackParameters apackParameters) {
+				private IApackManifest retrieveApackManifest(IProgressMonitor monitor, final HashMap<String, Boolean> dependencyCoverage,
+						final List<IApackDependency> retrievedDependencies, ApackParameters apackParameters) {
 
 					monitor.beginTask(NLS.bind(Messages.AbapGitWizardPageBranchAndPackage_task_apack_manifest_message,
 							AbapGitWizardPageBranchAndPackage.this.cloneData.url), IProgressMonitor.UNKNOWN);
@@ -283,8 +342,8 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 				}
 
 				private void retrieveDependentManifests(ApackParameters apackParameters, final HashMap<String, Boolean> dependencyCoverage,
-						final List<IApackDependency> retrievedDependencies,
-						IApackGitManifestService manifestService, IProgressMonitor monitor) {
+						final List<IApackDependency> retrievedDependencies, IApackGitManifestService manifestService,
+						IProgressMonitor monitor) {
 					monitor.beginTask(NLS.bind(Messages.AbapGitWizardPageBranchAndPackage_task_apack_manifest_message, apackParameters.url),
 							IProgressMonitor.UNKNOWN);
 					IApackManifest myManifest = manifestService.getManifest(apackParameters.url, apackParameters.branch,
@@ -298,8 +357,7 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 							}
 							if (!dependencyCoverage.getOrDefault(myDependency.getGitUrl(), false)) {
 								retrieveDependentManifests(ApackParameters.createFromDependency(myDependency), dependencyCoverage,
-										retrievedDependencies,
-										manifestService, monitor);
+										retrievedDependencies, manifestService, monitor);
 							}
 						}
 					}
