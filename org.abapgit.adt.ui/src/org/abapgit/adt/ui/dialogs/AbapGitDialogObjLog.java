@@ -89,6 +89,7 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 
 		createColumns();
 
+
 		this.abapObjTable.setInput(this.abapObjects);
 		table.setSortColumn(table.getColumn(1));
 		table.setSortDirection(SWT.UP);
@@ -141,13 +142,7 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 			public Image getImage(Object element) {
 				IObject p = (IObject) element;
 				String objStatus = p.getObjStatus();
-				String objType = p.getObjType();
-
-//				Image statusWarning = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_WARN_TSK);
-//				Image Status_warning = Activator.getDefault().getImage(Activator.EXCEPTION);
-//				Image statusError = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_ERROR_TSK);
-//				Image statusSuccess = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_TASK_TSK);
-//				Image statusInfo = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_INFO_TSK);
+//				String objType = p.getObjType();
 
 				Bundle bundle = Platform.getBundle("org.eclipse.jdt.doc.user"); //$NON-NLS-1$
 				URL imgUrl = null;
@@ -160,6 +155,10 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 					imgUrl = FileLocator.find(bundle, new Path("images/org.eclipse.jdt.ui/obj16/error_obj.png"), null); //$NON-NLS-1$
 				}
 
+				if (objStatus != null && objStatus.equals("A")) { //$NON-NLS-1$
+					imgUrl = FileLocator.find(bundle, new Path("images/org.eclipse.ltk.ui.refactoring/obj16/fatalerror_obj.png"), null); //$NON-NLS-1$
+				}
+
 				if (objStatus != null && objStatus.equals("S")) { //$NON-NLS-1$
 					imgUrl = FileLocator.find(bundle, new Path("images/org.eclipse.jdt.junit/obj16/testok.png"), null); //$NON-NLS-1$
 				}
@@ -168,22 +167,19 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 					imgUrl = FileLocator.find(bundle, new Path("images/org.eclipse.jdt.ui/obj16/info_obj.png"), null); //$NON-NLS-1$
 				}
 
-				if (objType != null && objType.equals("Message")) { //$NON-NLS-1$
-					imgUrl = FileLocator.find(bundle, new Path("images/org.eclipse.jdt.ui/obj16/file_obj.png"), null); //$NON-NLS-1$
+//				if (objType != null && objType.equals("Message")) { //$NON-NLS-1$
+//					imgUrl = FileLocator.find(bundle, new Path("images/org.eclipse.jdt.ui/obj16/file_obj.png"), null); //$NON-NLS-1$
+//				}
+
+				if (imgUrl == null) {
+					bundle = Platform.getBundle("org.eclipse.ui"); //$NON-NLS-1$
+					imgUrl = FileLocator.find(bundle, new Path("icons/full/obj16/blank.png"), null); //$NON-NLS-1$
 				}
 
 				ImageDescriptor imageDesc = ImageDescriptor.createFromURL(imgUrl);
 				return imageDesc.createImage();
 			}
 
-		});
-
-		createTableViewerColumn(Messages.AbapGitView_column_package, 200).setLabelProvider(new ColumnLabelProvider() {
-			@Override
-			public String getText(Object element) {
-				IObject p = (IObject) element;
-				return p.getPackage();
-			}
 		});
 
 		createTableViewerColumn(Messages.AbapGitDialogImport_column_msg_type, 200).setLabelProvider(new ColumnLabelProvider() {
@@ -218,9 +214,6 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 
 				Image Warning = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_WARN_TSK);
 				Image Error = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_ERROR_TSK);
-//				com.sap.adt.tools.core.ui.Activator.getDefault().getImage(com.sap.adt.tools.core.ui.Activator.ERROR);
-//				Image Success = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.);
-//				Image Info = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_INFO_TSK);
 
 				if (textMsgType != null && textMsgType.equals("W")) { //$NON-NLS-1$
 					return Warning;
