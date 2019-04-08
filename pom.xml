@@ -79,11 +79,6 @@
             <environment>
               <os>win32</os>
               <ws>win32</ws>
-              <arch>x86</arch>
-            </environment>
-            <environment>
-              <os>win32</os>
-              <ws>win32</ws>
               <arch>x86_64</arch>
             </environment>
             <environment>
@@ -128,13 +123,13 @@
   </build>
   <repositories>
     <repository>
-      <id>eclipse-photon</id>
-      <url>http://download.eclipse.org/releases/photon</url>
+      <id>eclipse-2018-12</id>
+      <url>http://download.eclipse.org/releases/2018-12</url>
       <layout>p2</layout>
     </repository>
     <repository>
-      <id>adt-photon</id>
-      <url>https://tools.hana.ondemand.com/photon</url>
+      <id>adt-2018-12</id>
+      <url>https://tools.hana.ondemand.com/2018-12</url>
       <layout>p2</layout>
     </repository>
   </repositories>
