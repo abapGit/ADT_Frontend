@@ -60,13 +60,15 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 			protected boolean isLeafMatch(final Viewer viewer, final Object element) {
 				TreeViewer treeViewer = (TreeViewer) viewer;
 				int numberOfColumns = treeViewer.getTree().getColumnCount();
-				boolean isMatch = false;
 				for (int columnIndex = 0; columnIndex < numberOfColumns; columnIndex++) {
 					ColumnLabelProvider labelProvider = (ColumnLabelProvider) treeViewer.getLabelProvider(columnIndex);
 					String labelText = labelProvider.getText(element);
-					isMatch |= wordMatches(labelText);
+//					String labelText = ((IObject) element).getObjType();
+					if (wordMatches(labelText)) {
+						return true;
+					}
 				}
-				return isMatch;
+				return false;
 			}
 
 			@Override
