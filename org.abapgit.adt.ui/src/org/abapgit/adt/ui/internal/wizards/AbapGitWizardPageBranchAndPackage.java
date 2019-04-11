@@ -169,10 +169,8 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 
 			this.comboBranches.getCombo().setEnabled(false);
 			this.txtPackage.getTextWidget().setText(this.cloneData.packageRef.getName());
+			AdtSWTUtilFactory.getOrCreateSWTUtil().setEditable(this.txtPackage.getControl(), false);
 
-			this.txtPackage.getControl().setEnabled(false);
-			this.txtPackage.getTextWidget().setEnabled(false);
-			this.txtPackage.getTextWidget().setEditable(false);
 			btnPackage.setEnabled(false);
 
 			//-> Disable back navigation if repo is public and we're in pull wizard
