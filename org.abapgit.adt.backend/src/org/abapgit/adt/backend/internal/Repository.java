@@ -207,4 +207,42 @@ public class Repository implements IRepository {
 		this.statusLink.put(relation, uri);
 	}
 
+	@Override
+	public int hashCode() { // NOPMD
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((this.url == null) ? 0 : this.url.hashCode());
+		result = prime * result + ((this.branch == null) ? 0 : this.branch.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) { // NOPMD
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		Repository other = (Repository) obj;
+		if (this.url == null) {
+			if (other.url != null) {
+				return false;
+			}
+		} else if (!this.url.equals(other.url)) {
+			return false;
+		}
+		if (this.branch == null) {
+			if (other.branch != null) {
+				return false;
+			}
+		} else if (!this.branch.equals(other.branch)) {
+			return false;
+		}
+		return true;
+	}
+
 }
