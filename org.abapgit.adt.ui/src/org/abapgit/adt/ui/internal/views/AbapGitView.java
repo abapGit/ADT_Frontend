@@ -388,7 +388,7 @@ public class AbapGitView extends ViewPart {
 		this.actionRefresh
 				.setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID, "icons/etool/refresh.png")); //$NON-NLS-1$
 
-		this.actionShowMyRepos = new Action() {
+		this.actionShowMyRepos = new Action(null, Action.AS_CHECK_BOX) {
 			public void run() {
 				AbapGitView.this.viewer.addFilter(AbapGitView.this.searchFilter);
 			}
@@ -569,7 +569,9 @@ public class AbapGitView extends ViewPart {
 		}
 
 		List<IRepository> repos = getRepositories(destinationId, false);
-		this.viewer.resetFilters();
+		if (!this.actionShowMyRepos.isChecked()) {
+			this.viewer.resetFilters();
+		}
 
 		if (repos != null) {
 			setContentDescription(NLS.bind(Messages.AbapGitView_repos_in_project, this.lastProject.getName()));
