@@ -388,16 +388,24 @@ public class AbapGitView extends ViewPart {
 		this.actionRefresh
 				.setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID, "icons/etool/refresh.png")); //$NON-NLS-1$
 
-		this.actionShowMyRepos = new Action() {
+		this.actionShowMyRepos = new Action(null, Action.AS_CHECK_BOX) {
 			public void run() {
+				//-> Add filter if action is selected
 				AbapGitView.this.viewer.addFilter(AbapGitView.this.searchFilter);
+
+				//-> Remove filter if action is deselected
+				if (!AbapGitView.this.actionShowMyRepos.isChecked()) {
+					AbapGitView.this.viewer.resetFilters();
+				}
 			}
 
 		};
+		Bundle actionShowMyReposBundle = Platform.getBundle("com.sap.adt.projectexplorer.ui"); //$NON-NLS-1$
+		URL actionShowMyReposImgUrl = FileLocator.find(actionShowMyReposBundle, new Path("icons/obj/package_obj_user.png"), //$NON-NLS-1$
+				null);
 		this.actionShowMyRepos.setText(Messages.AbapGitView_action_showMyRepos);
 		this.actionShowMyRepos.setToolTipText(Messages.AbapGitView_action_showMyRepos);
-		this.actionShowMyRepos
-				.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ETOOL_HOME_NAV));
+		this.actionShowMyRepos.setImageDescriptor(ImageDescriptor.createFromURL(actionShowMyReposImgUrl));
 
 		this.actionCopy = new Action() {
 			public void run() {
@@ -569,7 +577,6 @@ public class AbapGitView extends ViewPart {
 		}
 
 		List<IRepository> repos = getRepositories(destinationId, false);
-		this.viewer.resetFilters();
 
 		if (repos != null) {
 			setContentDescription(NLS.bind(Messages.AbapGitView_repos_in_project, this.lastProject.getName()));
