@@ -96,19 +96,22 @@ public class AbapGitWizard extends Wizard {
 							monitor);
 					if (AbapGitWizard.this.cloneData.hasDependencies()) {
 
-						IRepositories repositories = AbapGitModelFactory.createRepositories();
-						repositories.add(createRepository(AbapGitWizard.this.cloneData.url, AbapGitWizard.this.cloneData.branch,
+						IRepositories repositoriesToLink = AbapGitModelFactory.createRepositories();
+						repositoriesToLink.add(createRepository(AbapGitWizard.this.cloneData.url, AbapGitWizard.this.cloneData.branch,
 								AbapGitWizard.this.cloneData.packageRef.getName(), transportRequestNumber,
 								AbapGitWizard.this.cloneData.user, AbapGitWizard.this.cloneData.pass));
 						for (IApackDependency apackDependency : AbapGitWizard.this.cloneData.apackManifest.getDescriptor()
 								.getDependencies()) {
 							if (apackDependency.requiresSynchronization()) {
-								repositories.add(createRepository(apackDependency.getGitUrl(), IApackManifest.MASTER_BRANCH,
+								repositoriesToLink.add(createRepository(apackDependency.getGitUrl(), IApackManifest.MASTER_BRANCH,
 										apackDependency.getTargetPackage().getName(), transportRequestNumber,
 										AbapGitWizard.this.cloneData.user, AbapGitWizard.this.cloneData.pass));
 							}
 						}
-						repoService.cloneRepositories(repositories, monitor);
+						repoService.cloneRepositories(repositoriesToLink, monitor);
+						if (sequenceLnp) {
+							pullLinkedRepositories(monitor, repoService, repositoriesToLink);
+						}
 					} else {
 						List<IObject> abapObjects = repoService.cloneRepository(AbapGitWizard.this.cloneData.url,
 								AbapGitWizard.this.cloneData.branch, AbapGitWizard.this.cloneData.packageRef.getName(),
@@ -126,6 +129,19 @@ public class AbapGitWizard extends Wizard {
 							repoService.pullRepository(linkedRepo, AbapGitWizard.this.cloneData.branch,
 									AbapGitWizard.this.transportPage.getTransportRequestNumber(), AbapGitWizard.this.cloneData.user,
 									AbapGitWizard.this.cloneData.pass, monitor);
+						}
+					}
+				}
+
+				private void pullLinkedRepositories(IProgressMonitor monitor, IRepositoryService repoService, IRepositories repositoriesToLink) {
+					// Need to retrieve linked repositories as only they contain the PULL link needed to continue...
+					IRepositories linkedRepositories = repoService.getRepositories(monitor);
+					for (IRepository repository : repositoriesToLink.getRepositories()) {
+						IRepository linkedRepository = linkedRepositories.getRepository(repository.getUrl());
+						if (linkedRepository != null) {
+							repoService.pullRepository(linkedRepository, linkedRepository.getBranch(),
+									AbapGitWizard.this.transportPage.getTransportRequestNumber(),
+									AbapGitWizard.this.cloneData.user, AbapGitWizard.this.cloneData.pass, monitor);
 						}
 					}
 				}
