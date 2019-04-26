@@ -207,6 +207,7 @@ public class AbapGitWizardPull extends Wizard {
 		@Override
 		public void handlePageChanging(final PageChangingEvent event) {
 
+			//-> Credentials page -> Branch & Package page
 			if (event.getCurrentPage() == AbapGitWizardPull.this.pageCredentials
 					&& event.getTargetPage() == AbapGitWizardPull.this.pageBranchAndPackage) {
 				if (!AbapGitWizardPull.this.pageCredentials.validateAll()) {
@@ -215,12 +216,32 @@ public class AbapGitWizardPull extends Wizard {
 				}
 			}
 
+			//-> Branch & Package page -> Credentials page
+			if (event.getCurrentPage() == AbapGitWizardPull.this.pageBranchAndPackage
+					&& event.getTargetPage() == AbapGitWizardPull.this.pageCredentials) {
+				if (!AbapGitWizardPull.this.pageBranchAndPackage.validateAll()) {
+					event.doit = false;
+					return;
+				}
+			}
+
+			//-> Branch & Package page -> Transport page
+			if (event.getCurrentPage() == AbapGitWizardPull.this.pageBranchAndPackage
+					&& event.getTargetPage() == AbapGitWizardPull.this.transportPage) {
+				if (!AbapGitWizardPull.this.pageBranchAndPackage.validateAll()) {
+					event.doit = false;
+					return;
+				}
+			}
+
+			//-> Branch & Package page -> Any page
 			if (event.getCurrentPage() == AbapGitWizardPull.this.pageBranchAndPackage
 					&& !AbapGitWizardPull.this.pageBranchAndPackage.validateAll()) {
 				event.doit = false;
 				return;
 			}
 
+			//-> Prepare transport page
 			if (event.getTargetPage() == AbapGitWizardPull.this.transportPage) {
 				try {
 					// The transport service requires URIs to objects we want to create in the
@@ -238,6 +259,7 @@ public class AbapGitWizardPull extends Wizard {
 				}
 			}
 
+			//-> APACK page -> Any page
 			if (event.getCurrentPage() == AbapGitWizardPull.this.pageApack && !AbapGitWizardPull.this.pageApack.validateAll()) {
 				event.doit = false;
 				return;

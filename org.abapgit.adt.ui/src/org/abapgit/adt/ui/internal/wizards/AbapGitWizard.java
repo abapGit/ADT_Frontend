@@ -159,16 +159,36 @@ public class AbapGitWizard extends Wizard {
 		@Override
 		public void handlePageChanging(final PageChangingEvent event) {
 
+			//-> Credentials page -> Branch & Package page
 			if (event.getCurrentPage() == AbapGitWizard.this.pageRepo && event.getTargetPage() == AbapGitWizard.this.pageBranchAndPackage
 					&& !AbapGitWizard.this.pageRepo.validateAll()) {
 				event.doit = false;
 				return;
 			}
+
+			//-> Branch & Package page -> Credentials page
+			if (event.getCurrentPage() == AbapGitWizard.this.pageBranchAndPackage && event.getTargetPage() == AbapGitWizard.this.pageRepo) {
+				event.doit = true;
+				return;
+			}
+
+			//-> Branch & Package page -> Transport page
+			if (event.getCurrentPage() == AbapGitWizard.this.pageBranchAndPackage
+					&& event.getTargetPage() == AbapGitWizard.this.transportPage) {
+				if (!AbapGitWizard.this.pageBranchAndPackage.validateAll()) {
+					event.doit = false;
+					return;
+				}
+			}
+
+			//-> Branch & Package page -> Any page
 			if (event.getCurrentPage() == AbapGitWizard.this.pageBranchAndPackage
 					&& !AbapGitWizard.this.pageBranchAndPackage.validateAll()) {
 				event.doit = false;
 				return;
 			}
+
+			//-> Prepare transport page
 			if (event.getTargetPage() == AbapGitWizard.this.transportPage) {
 				try {
 					// The transport service requires URIs to objects we want to create in the
@@ -185,6 +205,8 @@ public class AbapGitWizard extends Wizard {
 					AbapGitWizard.this.pageBranchAndPackage.setMessage(e.getMessage(), DialogPage.ERROR);
 				}
 			}
+
+			//-> APACK page -> Any page
 			if (event.getCurrentPage() == AbapGitWizard.this.pageApack && !AbapGitWizard.this.pageApack.validateAll()) {
 				event.doit = false;
 				return;
