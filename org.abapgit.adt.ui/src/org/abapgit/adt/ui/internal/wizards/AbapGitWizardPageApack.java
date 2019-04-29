@@ -115,8 +115,8 @@ public class AbapGitWizardPageApack extends WizardPage {
 		GridData gridData = new GridData(GridData.FILL, GridData.FILL, true, true);
 		gridData.horizontalSpan = 3;
 		this.table.setLayoutData(gridData);
-		String[] titles = { Messages.AbapGitWizardPageApack_table_header_group_id,
-				Messages.AbapGitWizardPageApack_table_header_artifact_id, Messages.AbapGitWizardPageApack_table_header_git_repository_url,
+		String[] titles = { Messages.AbapGitWizardPageApack_table_header_group_id, Messages.AbapGitWizardPageApack_table_header_artifact_id,
+				Messages.AbapGitWizardPageApack_table_header_git_repository_url,
 				Messages.AbapGitWizardPageApack_table_header_package_name };
 		for (String title : titles) {
 			TableViewerColumn viewerColumn = new TableViewerColumn(tableViewer, SWT.NONE);
@@ -237,14 +237,33 @@ public class AbapGitWizardPageApack extends WizardPage {
 				}
 			}
 
-			// Check if all packages have the same transport layer and software component
 			List<IApackDependency> apackDependencies = this.cloneData.apackManifest.getDescriptor().getDependencies();
-			IAdtTransportCheckData[] dependencyCheckData = buildPackageCheckData(apackDependencies);
+			if (!validatePackagesUnique(apackDependencies)) {
+				return false;
+			}
 
+			// Check if all packages have the same transport layer and software component
+			IAdtTransportCheckData[] dependencyCheckData = buildPackageCheckData(apackDependencies);
 			if (!validateCheckData(apackDependencies, dependencyCheckData)) {
 				return false;
 			}
 			return validatePackageTransportLayer(dependencyCheckData);
+		}
+		return true;
+	}
+
+	private boolean validatePackagesUnique(List<IApackDependency> apackDependencies) {
+		List<String> usedPackages = new ArrayList<String>();
+		usedPackages.add(this.cloneData.packageRef.getName());
+		for (IApackDependency apackDependency : apackDependencies) {
+			String newPackageName = apackDependency.getTargetPackage().getName();
+			if (usedPackages.contains(newPackageName)) {
+				setMessage(NLS.bind(Messages.AbapGitWizardPageApack_task_package_used_multiple_times, newPackageName), DialogPage.ERROR);
+				setPageComplete(false);
+				return false;
+			} else {
+				usedPackages.add(newPackageName);
+			}
 		}
 		return true;
 	}
@@ -254,10 +273,8 @@ public class AbapGitWizardPageApack extends WizardPage {
 		for (int i = 1; i < dependencyCheckData.length; i++) {
 			if (!referenceCheckData.getPackageSoftwareComponent().equals(dependencyCheckData[i].getPackageSoftwareComponent())
 					|| !referenceCheckData.getPackageTransportLayer().equals(dependencyCheckData[i].getPackageTransportLayer())) {
-				setMessage(
-						NLS.bind(Messages.AbapGitWizardPageApack_task_transport_layers_differ,
-								referenceCheckData.getObjectName(), dependencyCheckData[i].getObjectName()),
-						DialogPage.ERROR);
+				setMessage(NLS.bind(Messages.AbapGitWizardPageApack_task_transport_layers_differ, referenceCheckData.getObjectName(),
+						dependencyCheckData[i].getObjectName()), DialogPage.ERROR);
 				setPageComplete(false);
 				return false;
 			}
@@ -305,8 +322,7 @@ public class AbapGitWizardPageApack extends WizardPage {
 						List<IAdtObjectReference> packageReferences = packageServiceUI.find(AbapGitWizardPageApack.this.destination,
 								packageName, monitor);
 						if (packageReferences == null || packageReferences.isEmpty()) {
-							setMessage(NLS.bind(Messages.AbapGitWizardPageApack_task_package_not_existing, packageName),
-									DialogPage.ERROR);
+							setMessage(NLS.bind(Messages.AbapGitWizardPageApack_task_package_not_existing, packageName), DialogPage.ERROR);
 							setPageComplete(false);
 						}
 					}

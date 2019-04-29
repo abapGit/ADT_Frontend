@@ -56,6 +56,7 @@ public class Messages extends NLS {
 	public static String AbapGitWizardPageApack_task_error_retrieving_transport_data;
 	public static String AbapGitWizardPageApack_task_invalid_package_assignment;
 	public static String AbapGitWizardPageApack_task_package_not_existing;
+	public static String AbapGitWizardPageApack_task_package_used_multiple_times;
 	public static String AbapGitWizardPageApack_task_transport_layers_differ;
 	public static String AbapGitWizardPageApack_task_validating_package;
 	public static String AbapGitWizardPageApack_text_no_information_available;
