@@ -4,12 +4,15 @@ import java.net.URL;
 import java.util.List;
 
 import org.abapgit.adt.backend.IObject;
+import org.abapgit.adt.backend.IRepository;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.RowLayoutFactory;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
@@ -18,12 +21,15 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.ISharedImages;
@@ -32,30 +38,62 @@ import org.eclipse.ui.dialogs.FilteredTree;
 import org.eclipse.ui.dialogs.PatternFilter;
 import org.osgi.framework.Bundle;
 
+import com.sap.adt.tools.core.ui.AbapCoreUi;
+
 public class AbapGitDialogObjLog extends TitleAreaDialog {
 
 	private TreeViewer abapObjTable;
+	private PatternFilter objLogFilter;
 	public final List<IObject> abapObjects;
+	private final IRepository repodata;
 
-	public AbapGitDialogObjLog(Shell parentShell, List<IObject> pullObjects) {
+	public AbapGitDialogObjLog(Shell parentShell, List<IObject> pullObjects, IRepository repository) {
 		super(parentShell);
 		this.abapObjects = pullObjects;
+		this.repodata = repository;
+
 	}
 
 	@Override
 	public void create() {
 		super.create();
 		setTitle(Messages.AbapGitDialogPageObjLog_title);
-		setMessage(Messages.AbapGitDialogPageObjLog_description, IMessageProvider.INFORMATION);
+
+		int dialogMessageIcon = IMessageProvider.INFORMATION;
+		String dialogStatusFlag = this.repodata.getStatusFlag();
+		if (dialogStatusFlag != null && dialogStatusFlag.equals("W")) { //$NON-NLS-1$
+			dialogMessageIcon = IMessageProvider.WARNING;
+		}
+
+		if (dialogStatusFlag != null && (dialogStatusFlag.equals("E") || dialogStatusFlag.equals("A"))) { //$NON-NLS-1$ //$NON-NLS-2$
+			dialogMessageIcon = IMessageProvider.ERROR;
+		}
+
+		if (dialogStatusFlag != null && dialogStatusFlag.equals("S")) { //$NON-NLS-1$
+		}
+		setMessage(this.repodata.getStatusText() + "\n " + Messages.AbapGitDialogPageObjLog_description, dialogMessageIcon); //$NON-NLS-1$
 	}
 
 	@Override
 	protected Control createDialogArea(Composite parent) {
 
 		Composite area = new Composite(parent, SWT.NONE);
-		area.setLayout(new GridLayout(1, true));
+		GridLayout gl = new GridLayout();
+//		gl.marginHeight = 0;
+//		gl.marginWidth = 100;
+		area.setLayout(gl);
+		GridDataFactory.swtDefaults().grab(true, true).applyTo(area);
+//		area.setLayout(new GridLayout(1, true));
 
-		PatternFilter filter = new PatternFilter() {
+		// create filter buttons by default
+//		Label lblFilters = new Label(area, SWT.RIGHT);
+//		lblFilters.setText("Filters: ");
+
+		ToolBar bar = new ToolBar(area, SWT.FLAT);
+		GridDataFactory.swtDefaults().grab(true, false).align(SWT.END, SWT.END).applyTo(bar);
+		RowLayoutFactory.fillDefaults().pack(true).applyTo(bar);
+
+		this.objLogFilter = new PatternFilter() {
 			@Override
 			protected boolean isLeafMatch(final Viewer viewer, final Object element) {
 				TreeViewer treeViewer = (TreeViewer) viewer;
@@ -63,7 +101,6 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 				for (int columnIndex = 0; columnIndex < numberOfColumns; columnIndex++) {
 					ColumnLabelProvider labelProvider = (ColumnLabelProvider) treeViewer.getLabelProvider(columnIndex);
 					String labelText = labelProvider.getText(element);
-//					String labelText = ((IObject) element).getObjType();
 					if (wordMatches(labelText)) {
 						return true;
 					}
@@ -79,18 +116,59 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 
 		};
 
-		FilteredTree tree = new FilteredTree(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL, filter, true);
+		ToolItem filterErrorToolItem = new ToolItem(bar, SWT.PUSH | SWT.FLAT);
+		filterErrorToolItem.setText("Error");
+		filterErrorToolItem.setToolTipText("Filter Error messages");
+		filterErrorToolItem.setImage(AbapCoreUi.getSharedImages().getImage(com.sap.adt.tools.core.ui.ISharedImages.ERROR));
+		filterErrorToolItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				AbapGitDialogObjLog.this.objLogFilter.setPattern("Error");
+				AbapGitDialogObjLog.this.abapObjTable.refresh();
+			}
+		});
+
+		ToolItem filterWarningToolItem = new ToolItem(bar, SWT.PUSH | SWT.FLAT);
+		filterWarningToolItem.setText("Warning");
+		filterWarningToolItem.setToolTipText("Filter Warning messages");
+		filterWarningToolItem.setImage(AbapCoreUi.getSharedImages().getImage(com.sap.adt.tools.core.ui.ISharedImages.WARNING));
+		filterWarningToolItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				AbapGitDialogObjLog.this.objLogFilter.setPattern("Warning");
+				AbapGitDialogObjLog.this.abapObjTable.refresh();
+			}
+		});
+
+		ToolItem filterAllToolItem = new ToolItem(bar, SWT.PUSH | SWT.FLAT);
+		filterAllToolItem.setText("All");
+		filterAllToolItem.setToolTipText("Filter All messages");
+		filterAllToolItem.setImage(AbapCoreUi.getSharedImages().getImage(com.sap.adt.tools.core.ui.ISharedImages.ABAP_LOG));
+//		filterSuccessToolItem.setImage(PDEPluginImages.DESC_WARNING_CO.createImage());
+		filterAllToolItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				AbapGitDialogObjLog.this.objLogFilter.setPattern(null);
+				AbapGitDialogObjLog.this.abapObjTable.refresh();
+			}
+		});
+
+		//-> CLEANUP
+
+		FilteredTree tree = new FilteredTree(area, SWT.MULTI | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, this.objLogFilter, true);
 
 		this.abapObjTable = tree.getViewer();
 		this.abapObjTable.setContentProvider(new ObjectTreeContentProvider());
-
 		Tree table = this.abapObjTable.getTree();
+
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(tree);
+
+		table.setFocus();
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
-		table.setLayoutData(new GridData(GridData.FILL_BOTH));
+//		table.setLayoutData(new GridData(GridData.FILL_BOTH));
 
 		createColumns();
-
 
 		this.abapObjTable.setInput(this.abapObjects);
 		table.setSortColumn(table.getColumn(1));
@@ -98,6 +176,7 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 
 		return area;
 	}
+
 
 
 	private void createColumns() {
@@ -124,13 +203,13 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 
 		});
 
-		createTableViewerColumn(Messages.AbapGitDialogImport_column_obj_name, 200).setLabelProvider(new ColumnLabelProvider() {
-			@Override
-			public String getText(Object element) {
-				IObject p = (IObject) element;
-				return p.getObjName();
-			}
-		});
+//		createTableViewerColumn(Messages.AbapGitDialogImport_column_obj_name, 200).setLabelProvider(new ColumnLabelProvider() {
+//			@Override
+//			public String getText(Object element) {
+//				IObject p = (IObject) element;
+//				return p.getObjName();
+//			}
+//		});
 
 		createTableViewerColumn(Messages.AbapGitDialogImport_column_obj_status, 200).setLabelProvider(new ColumnLabelProvider() {
 			@Override
@@ -282,7 +361,7 @@ class ObjectTreeContentProvider implements ITreeContentProvider {
 	@Override
 	public Object getParent(Object element) {
 		IObject abapObj = (IObject) element;
-		return abapObj.getMsgParent();
+		return abapObj.getParent();
 	}
 
 	@Override

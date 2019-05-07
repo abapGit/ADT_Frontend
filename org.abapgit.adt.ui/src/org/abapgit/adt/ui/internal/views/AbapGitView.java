@@ -732,7 +732,8 @@ public class AbapGitView extends ViewPart {
 			} catch (InterruptedException e) {
 			}
 
-			TitleAreaDialog objLogDialog = new AbapGitDialogObjLog(AbapGitView.this.viewer.getControl().getShell(), objectLogItems);
+			TitleAreaDialog objLogDialog = new AbapGitDialogObjLog(AbapGitView.this.viewer.getControl().getShell(), objectLogItems,
+					GetObjLogAction.this.repository);
 			objLogDialog.open();
 
 //			int dialogResult = objLogDialog.open();

@@ -18,7 +18,9 @@ public interface IObject {
 
 	public List<IObject> listMessages();
 
-	public Object getMsgParent();
+	public void resetChildren();
+
+	public Object getParent();
 
 	public void setObjType(String type);
 

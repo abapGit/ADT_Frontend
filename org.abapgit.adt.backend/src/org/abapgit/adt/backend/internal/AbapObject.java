@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.abapgit.adt.backend.IObject;
 
+
 public class AbapObject implements IObject {
 
 	private String type;
@@ -92,9 +93,14 @@ public class AbapObject implements IObject {
 	}
 
 	@Override
-	public Object getMsgParent() {
-		// TODO Auto-generated method stub
+	public Object getParent() {
+
 		return null;
+	}
+
+	@Override
+	public void resetChildren() {
+		this.abapLogObjectChildren.clear();
 	}
 
 }
