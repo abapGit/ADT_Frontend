@@ -271,7 +271,7 @@ public class AbapGitView extends ViewPart {
 			}
 		});
 
-		createTableViewerColumn(Messages.AbapGitView_column_repo_status, 100).setLabelProvider(new ColumnLabelProvider() {
+		createTableViewerColumn(Messages.AbapGitView_column_repo_status, 400).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				IRepository p = (IRepository) element;
@@ -720,11 +720,24 @@ public class AbapGitView extends ViewPart {
 								.createRepositoryService(getDestination(GetObjLogAction.this.project), monitor)
 								.getRepoObjLog(monitor, GetObjLogAction.this.repository).getObjects();
 
+//						for (IObject typeObject : abapObjects) {
+//							for (IObject abapObject : typeObject.listChildObjects()) {
+//								IAdtObjectReference objRef = null;
+//								try {
+//									objRef = new AdtObjectReferenceFinder().find(GetObjLogAction.this.project, abapObject.getObjName(),
+//											abapObject.getObjType(), new NullProgressMonitor());
+//								} catch (CoreException e) {
+//									e.printStackTrace();
+//								}
+//
+//								abapObject.setAdtObjRef(objRef);
+//							}
+//						}
 						objectLogItems.addAll(abapObjects);
 
 					}
 				});
-//				updateView(true);
+
 			} catch (InvocationTargetException e) {
 				StatusManager.getManager().handle(
 						new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, "Check status error", e.getTargetException()), //$NON-NLS-1$
@@ -736,10 +749,6 @@ public class AbapGitView extends ViewPart {
 					GetObjLogAction.this.repository);
 			objLogDialog.open();
 
-//			int dialogResult = objLogDialog.open();
-//			if (dialogResult == objLogDialog.CANCEL) {
-////				System.out.println("CANCEL presed");
-//			}
 
 		}
 
