@@ -24,6 +24,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -38,19 +39,36 @@ import org.eclipse.ui.dialogs.FilteredTree;
 import org.eclipse.ui.dialogs.PatternFilter;
 import org.osgi.framework.Bundle;
 
-import com.sap.adt.tools.core.ui.AbapCoreUi;
 
 public class AbapGitDialogObjLog extends TitleAreaDialog {
 
-	private TreeViewer abapObjTable;
+	TreeViewer abapObjTable;
 	private PatternFilter objLogFilter;
+	public FilteredTree tree;
 	public final List<IObject> abapObjects;
 	private final IRepository repodata;
+	private final Bundle jdtDocUserBundle;
+	private final Image warningImage;
+	private final Image errorImage;
+	private final Image successImage;
+	private final Image infoImage;
 
 	public AbapGitDialogObjLog(Shell parentShell, List<IObject> pullObjects, IRepository repository) {
 		super(parentShell);
 		this.abapObjects = pullObjects;
 		this.repodata = repository;
+
+		//Icons
+		this.jdtDocUserBundle = Platform.getBundle("org.eclipse.jdt.doc.user"); //$NON-NLS-1$
+		URL imgUrlWarning = FileLocator.find(this.jdtDocUserBundle, new Path("images/org.eclipse.jdt.ui/obj16/warning_obj.png"), null); //$NON-NLS-1$
+		URL imgUrlError = FileLocator.find(this.jdtDocUserBundle, new Path("images/org.eclipse.jdt.ui/obj16/error_obj.png"), null); //$NON-NLS-1$
+		URL imgUrlSuccess = FileLocator.find(this.jdtDocUserBundle, new Path("images/org.eclipse.jdt.junit/obj16/testok.png"), null); //$NON-NLS-1$
+		URL imgUrlInfo = FileLocator.find(this.jdtDocUserBundle, new Path("images/org.eclipse.jdt.ui/obj16/info_obj.png"), null); //$NON-NLS-1$
+
+		this.warningImage = ImageDescriptor.createFromURL(imgUrlWarning).createImage();
+		this.errorImage = ImageDescriptor.createFromURL(imgUrlError).createImage();
+		this.successImage = ImageDescriptor.createFromURL(imgUrlSuccess).createImage();
+		this.infoImage = ImageDescriptor.createFromURL(imgUrlInfo).createImage();
 
 	}
 
@@ -77,19 +95,10 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 	@Override
 	protected Control createDialogArea(Composite parent) {
 
-		Composite area = new Composite(parent, SWT.NONE);
 		GridLayout gl = new GridLayout();
-//		gl.marginHeight = 0;
-//		gl.marginWidth = 100;
-		area.setLayout(gl);
-		GridDataFactory.swtDefaults().grab(true, true).applyTo(area);
-//		area.setLayout(new GridLayout(1, true));
+		parent.setLayout(gl);
 
-		// create filter buttons by default
-//		Label lblFilters = new Label(area, SWT.RIGHT);
-//		lblFilters.setText("Filters: ");
-
-		ToolBar bar = new ToolBar(area, SWT.FLAT);
+		ToolBar bar = new ToolBar(parent, SWT.FLAT);
 		GridDataFactory.swtDefaults().grab(true, false).align(SWT.END, SWT.END).applyTo(bar);
 		RowLayoutFactory.fillDefaults().pack(true).applyTo(bar);
 
@@ -110,41 +119,64 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 
 			@Override
 			protected boolean isParentMatch(Viewer viewer, Object element) {
-
 				return super.isParentMatch(viewer, element);
 			}
 
 		};
 
+		ToolItem expandAllToolItem = new ToolItem(bar, SWT.PUSH | SWT.FLAT);
+		expandAllToolItem.setText(Messages.AbapGitDialogPageObjLog_filter_expand_all);
+		expandAllToolItem.setToolTipText(Messages.AbapGitDialogPageObjLog_filter_expand_all_tooltip);
+
+		URL expandAllToolItemimgUrl = FileLocator.find(this.jdtDocUserBundle, new Path("images/org.eclipse.debug.ui/elcl16/expandall.png"), //$NON-NLS-1$
+				null);
+		expandAllToolItem.setImage(ImageDescriptor.createFromURL(expandAllToolItemimgUrl).createImage());
+		expandAllToolItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				AbapGitDialogObjLog.this.tree.getViewer().expandAll();
+			}
+		});
+
+		ToolItem collapseAllToolItem = new ToolItem(bar, SWT.PUSH | SWT.FLAT);
+		collapseAllToolItem.setText(Messages.AbapGitDialogPageObjLog_filter_collapse_all);
+		collapseAllToolItem.setToolTipText(Messages.AbapGitDialogPageObjLog_filter_collapse_all_tooltip);
+		collapseAllToolItem.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_ELCL_COLLAPSEALL));
+		collapseAllToolItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				AbapGitDialogObjLog.this.tree.getViewer().collapseAll();
+			}
+		});
+
 		ToolItem filterErrorToolItem = new ToolItem(bar, SWT.PUSH | SWT.FLAT);
-		filterErrorToolItem.setText("Error");
-		filterErrorToolItem.setToolTipText("Filter Error messages");
-		filterErrorToolItem.setImage(AbapCoreUi.getSharedImages().getImage(com.sap.adt.tools.core.ui.ISharedImages.ERROR));
+		filterErrorToolItem.setText(Messages.AbapGitDialogPageObjLog_filter_error);
+		filterErrorToolItem.setToolTipText(Messages.AbapGitDialogPageObjLog_filter_error_tooltip);
+		filterErrorToolItem.setImage(AbapGitDialogObjLog.this.errorImage);
 		filterErrorToolItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				AbapGitDialogObjLog.this.objLogFilter.setPattern("Error");
+				AbapGitDialogObjLog.this.objLogFilter.setPattern("Error"); //$NON-NLS-1$
 				AbapGitDialogObjLog.this.abapObjTable.refresh();
 			}
 		});
 
 		ToolItem filterWarningToolItem = new ToolItem(bar, SWT.PUSH | SWT.FLAT);
-		filterWarningToolItem.setText("Warning");
-		filterWarningToolItem.setToolTipText("Filter Warning messages");
-		filterWarningToolItem.setImage(AbapCoreUi.getSharedImages().getImage(com.sap.adt.tools.core.ui.ISharedImages.WARNING));
+		filterWarningToolItem.setText(Messages.AbapGitDialogPageObjLog_filter_warning);
+		filterWarningToolItem.setToolTipText(Messages.AbapGitDialogPageObjLog_filter_warning_tooltip);
+		filterWarningToolItem.setImage(AbapGitDialogObjLog.this.warningImage);
 		filterWarningToolItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				AbapGitDialogObjLog.this.objLogFilter.setPattern("Warning");
+				AbapGitDialogObjLog.this.objLogFilter.setPattern("Warning"); //$NON-NLS-1$
 				AbapGitDialogObjLog.this.abapObjTable.refresh();
 			}
 		});
 
 		ToolItem filterAllToolItem = new ToolItem(bar, SWT.PUSH | SWT.FLAT);
-		filterAllToolItem.setText("All");
-		filterAllToolItem.setToolTipText("Filter All messages");
-		filterAllToolItem.setImage(AbapCoreUi.getSharedImages().getImage(com.sap.adt.tools.core.ui.ISharedImages.ABAP_LOG));
-//		filterSuccessToolItem.setImage(PDEPluginImages.DESC_WARNING_CO.createImage());
+		filterAllToolItem.setText(Messages.AbapGitDialogPageObjLog_filter_all);
+		filterAllToolItem.setToolTipText(Messages.AbapGitDialogPageObjLog_filter_all_tooltip);
+		filterAllToolItem.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FILE));
 		filterAllToolItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -153,69 +185,72 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 			}
 		});
 
-		//-> CLEANUP
+		this.tree = new FilteredTree(parent, SWT.MULTI | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, this.objLogFilter, true);
 
-		FilteredTree tree = new FilteredTree(area, SWT.MULTI | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, this.objLogFilter, true);
-
-		this.abapObjTable = tree.getViewer();
+		this.abapObjTable = this.tree.getViewer();
 		this.abapObjTable.setContentProvider(new ObjectTreeContentProvider());
 		Tree table = this.abapObjTable.getTree();
 
-		GridDataFactory.fillDefaults().grab(true, true).applyTo(tree);
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(this.tree);
 
 		table.setFocus();
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
-//		table.setLayoutData(new GridData(GridData.FILL_BOTH));
+		table.setLayoutData(new GridData(GridData.FILL_BOTH));
 
 		createColumns();
 
 		this.abapObjTable.setInput(this.abapObjects);
-		table.setSortColumn(table.getColumn(1));
-		table.setSortDirection(SWT.UP);
 
-		return area;
+		return parent;
 	}
 
-
-
 	private void createColumns() {
-		createTableViewerColumn(Messages.AbapGitDialogImport_column_obj_type, 200).setLabelProvider(new ColumnLabelProvider() {
 
+		createTableViewerColumn(Messages.AbapGitDialogImport_column_obj_name, 400).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				IObject p = (IObject) element;
-				return p.getObjType();
-			}
 
-			@Override
-			public Image getImage(Object element) {
-				IObject p = (IObject) element;
-				String objType = p.getObjType();
-				Image Message = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FILE);
-
-				if (objType != null && objType.equals("Message")) { //$NON-NLS-1$
-					return Message;
+				int objCounter = p.countChildren();
+				String result = p.getObjName();
+				if (objCounter > 0) {
+					result = result + " (" + p.countChildren() + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 				}
 
-				return null;
+				return result;
 			}
 
+//			@Override
+//			public Image getImage(Object element) {
+//
+//				if (element instanceof IObject) {
+//					IObject abapObj = (IObject) element;
+//
+//					if (abapObj.countChildren() != 0) {
+//						abapObj = abapObj.listChildObjects().get(0);
+//					}
+//
+//					IAdtObjectReference objRef = abapObj.getAdtObjRef();
+//					IAdtObjectTypeInfoUi objectType = null;
+//
+//					if (objRef != null) {
+//						objectType = AbapCoreUi.getObjectTypeRegistry().getObjectTypeByGlobalWorkbenchType(objRef.getType());
+//					}
+//
+//					if (objectType != null) {
+//						return objectType.getImage();
+//					}
+//					return AbapCoreUi.getSharedImages().getImage(com.sap.adt.tools.core.ui.ISharedImages.IMG_OBJECT_VISUAL_INTEGRATED);
+//
+//				}
+//				return null;
+//			}
 		});
 
-//		createTableViewerColumn(Messages.AbapGitDialogImport_column_obj_name, 200).setLabelProvider(new ColumnLabelProvider() {
-//			@Override
-//			public String getText(Object element) {
-//				IObject p = (IObject) element;
-//				return p.getObjName();
-//			}
-//		});
-
-		createTableViewerColumn(Messages.AbapGitDialogImport_column_obj_status, 200).setLabelProvider(new ColumnLabelProvider() {
+		createTableViewerColumn(Messages.AbapGitDialogImport_column_obj_status, 50).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-//				IObject p = (IObject) element;
-//				return p.getObjStatus();
 				return null;
 			}
 
@@ -223,17 +258,16 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 			public Image getImage(Object element) {
 				IObject p = (IObject) element;
 				String objStatus = p.getObjStatus();
-//				String objType = p.getObjType();
 
-				Bundle bundle = Platform.getBundle("org.eclipse.jdt.doc.user"); //$NON-NLS-1$
+				Bundle bundle = AbapGitDialogObjLog.this.jdtDocUserBundle;
 				URL imgUrl = null;
 
 				if (objStatus != null && objStatus.equals("W")) { //$NON-NLS-1$
-					imgUrl = FileLocator.find(bundle, new Path("images/org.eclipse.jdt.ui/obj16/warning_obj.png"), null); //$NON-NLS-1$
+					return AbapGitDialogObjLog.this.warningImage;
 				}
 
 				if (objStatus != null && objStatus.equals("E")) { //$NON-NLS-1$
-					imgUrl = FileLocator.find(bundle, new Path("images/org.eclipse.jdt.ui/obj16/error_obj.png"), null); //$NON-NLS-1$
+					return AbapGitDialogObjLog.this.errorImage;
 				}
 
 				if (objStatus != null && objStatus.equals("A")) { //$NON-NLS-1$
@@ -241,11 +275,11 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 				}
 
 				if (objStatus != null && objStatus.equals("S")) { //$NON-NLS-1$
-					imgUrl = FileLocator.find(bundle, new Path("images/org.eclipse.jdt.junit/obj16/testok.png"), null); //$NON-NLS-1$
+					return AbapGitDialogObjLog.this.successImage;
 				}
 
 				if (objStatus != null && objStatus.equals("I")) { //$NON-NLS-1$
-					imgUrl = FileLocator.find(bundle, new Path("images/org.eclipse.jdt.ui/obj16/info_obj.png"), null); //$NON-NLS-1$
+					return AbapGitDialogObjLog.this.infoImage;
 				}
 
 //				if (objType != null && objType.equals("Message")) { //$NON-NLS-1$
@@ -312,13 +346,24 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 			}
 		});
 
-		createTableViewerColumn(Messages.AbapGitDialogImport_column_msg_text, 500).setLabelProvider(new ColumnLabelProvider() {
+		createTableViewerColumn(Messages.AbapGitDialogImport_column_msg_text, 700).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				IObject p = (IObject) element;
 				return p.getMsgText();
 			}
 		});
+
+		createTableViewerColumn(Messages.AbapGitDialogImport_column_obj_type, 1).setLabelProvider(new ColumnLabelProvider() {
+
+			@Override
+			public String getText(Object element) {
+				IObject p = (IObject) element;
+				return p.getObjType();
+			}
+
+		});
+
 	}
 
 	private TreeViewerColumn createTableViewerColumn(String title, int bound) {
@@ -328,9 +373,13 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 		column.setWidth(bound);
 		column.setResizable(true);
 		column.setMoveable(true);
+		//-> still present for proper search
+		if (column.getText().equals("Type")) { //$NON-NLS-1$
+			column.setWidth(0);
+			column.setResizable(false);
+		}
 		return viewerColumn;
 	}
-
 
 	@Override
 	protected boolean isResizable() {
@@ -344,7 +393,6 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 
 }
 
-
 class ObjectTreeContentProvider implements ITreeContentProvider {
 
 	@Override
@@ -355,7 +403,7 @@ class ObjectTreeContentProvider implements ITreeContentProvider {
 	@Override
 	public Object[] getChildren(Object parentElement) {
 		IObject abapObj = (IObject) parentElement;
-		return abapObj.listMessages().toArray();
+		return abapObj.listChildObjects().toArray();
 	}
 
 	@Override
@@ -368,7 +416,7 @@ class ObjectTreeContentProvider implements ITreeContentProvider {
 	public boolean hasChildren(Object element) {
 		if (element instanceof IObject) {
 			IObject line = (IObject) element;
-			return line.listMessages().size() != 0;
+			return line.listChildObjects().size() != 0;
 		}
 		return false;
 	}

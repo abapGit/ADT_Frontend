@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.abapgit.adt.backend.IObject;
 
+import com.sap.adt.tools.core.model.adtcore.IAdtObjectReference;
 
 public class AbapObject implements IObject {
 
@@ -17,6 +18,7 @@ public class AbapObject implements IObject {
 	private String pckg;
 	private String msg_type;
 	private String msg_text;
+	private IAdtObjectReference adtObjRef;
 //	private final Map<String, URI> links = new HashMap<>();
 
 	private final List<IObject> abapLogObjectChildren = new ArrayList<IObject>();
@@ -88,7 +90,7 @@ public class AbapObject implements IObject {
 	}
 
 	@Override
-	public List<IObject> listMessages() {
+	public List<IObject> listChildObjects() {
 		return this.abapLogObjectChildren;
 	}
 
@@ -101,6 +103,21 @@ public class AbapObject implements IObject {
 	@Override
 	public void resetChildren() {
 		this.abapLogObjectChildren.clear();
+	}
+
+	@Override
+	public int countChildren() {
+		return this.abapLogObjectChildren.size();
+	}
+
+	@Override
+	public IAdtObjectReference getAdtObjRef() {
+		return this.adtObjRef;
+	}
+
+	@Override
+	public void setAdtObjRef(IAdtObjectReference adtObjRef) {
+		this.adtObjRef = adtObjRef;
 	}
 
 }

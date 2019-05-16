@@ -2,6 +2,8 @@ package org.abapgit.adt.backend;
 
 import java.util.List;
 
+import com.sap.adt.tools.core.model.adtcore.IAdtObjectReference;
+
 public interface IObject {
 
 	public String getObjType();
@@ -16,7 +18,9 @@ public interface IObject {
 
 	public String getMsgText();
 
-	public List<IObject> listMessages();
+	public IAdtObjectReference getAdtObjRef();
+
+	public List<IObject> listChildObjects();
 
 	public void resetChildren();
 
@@ -34,6 +38,10 @@ public interface IObject {
 
 	public void setMsgText(String msg_text);
 
+	public void setAdtObjRef(IAdtObjectReference adtObjRef);
+
 	public void addChild(IObject abapLogObject);
+
+	public int countChildren();
 
 }
