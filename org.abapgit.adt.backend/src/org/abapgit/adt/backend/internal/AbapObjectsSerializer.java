@@ -20,12 +20,20 @@ public class AbapObjectsSerializer {
 					IObject deserializedObj = new AbapObjectSerializer().deserializeAbapObject(xmlReader, contentType);
 					String objStatus = deserializedObj.getObjStatus();
 
-
-
 					////-> Object Type already exists = use existing type & add child
 					if (objects.getObjects().stream().anyMatch(r -> r.getObjType().equals(deserializedObj.getObjType()))) {
 						IObject existingObj = objects.getObjects().stream().filter(b -> b.getObjType().equals(deserializedObj.getObjType()))
 								.findFirst().get();
+
+						//-> set object error status based on message flag
+						if (objStatus != null && (objStatus.equals("W") || objStatus.equals("E") || objStatus.equals("I"))) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+							if (existingObj.listChildObjects().stream().anyMatch(o -> o.getObjStatus().equals(objStatus))) {
+
+
+								existingObj.setObjStatus(objStatus);
+							}
+						}
+
 						existingObj.addChild(deserializedObj);
 					}
 					////-> New Object Type = create new type & add child
@@ -38,7 +46,7 @@ public class AbapObjectsSerializer {
 						objects.add(newObj_type);
 					}
 
-					//-> set object status based on message flag
+					//-> set new object status based on message flag
 					if (objStatus != null && (objStatus.equals("W") || objStatus.equals("E") || objStatus.equals("I"))) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						newObj_type.setObjStatus(objStatus);
 					}
@@ -52,8 +60,6 @@ public class AbapObjectsSerializer {
 
 					//-> Set Parent name
 					newObj_type.setObjName(newObj_type.getObjType());
-
-//					objects.add(deserializedObj);
 
 					break;
 				default:
