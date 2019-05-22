@@ -720,19 +720,6 @@ public class AbapGitView extends ViewPart {
 								.createRepositoryService(getDestination(GetObjLogAction.this.project), monitor)
 								.getRepoObjLog(monitor, GetObjLogAction.this.repository).getObjects();
 
-//						for (IObject typeObject : abapObjects) {
-//							for (IObject abapObject : typeObject.listChildObjects()) {
-//								IAdtObjectReference objRef = null;
-//								try {
-//									objRef = new AdtObjectReferenceFinder().find(GetObjLogAction.this.project, abapObject.getObjName(),
-//											abapObject.getObjType(), new NullProgressMonitor());
-//								} catch (CoreException e) {
-//									e.printStackTrace();
-//								}
-//
-//								abapObject.setAdtObjRef(objRef);
-//							}
-//						}
 						objectLogItems.addAll(abapObjects);
 
 					}

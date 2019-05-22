@@ -33,12 +33,10 @@ public class AbapObjectSerializer {
 					object.setPackage(xmlReader.getElementText());
 					break;
 				case "msg_type": //$NON-NLS-1$
-//					object.setMsgType(xmlReader.getElementText());
 					object_msg.setMsgType(xmlReader.getElementText());
 					message_exists = true;
 					break;
 				case "msg_text": //$NON-NLS-1$
-//					object.setMsgText(xmlReader.getElementText());
 					object_msg.setMsgText(xmlReader.getElementText());
 					if (message_exists) {
 						object.addChild(object_msg);

@@ -25,15 +25,6 @@ public class AbapObjectsSerializer {
 						IObject existingObj = objects.getObjects().stream().filter(b -> b.getObjType().equals(deserializedObj.getObjType()))
 								.findFirst().get();
 
-						//-> set object error status based on message flag
-						if (objStatus != null && (objStatus.equals("W") || objStatus.equals("E") || objStatus.equals("I"))) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-							if (existingObj.listChildObjects().stream().anyMatch(o -> o.getObjStatus().equals(objStatus))) {
-
-
-								existingObj.setObjStatus(objStatus);
-							}
-						}
-
 						existingObj.addChild(deserializedObj);
 					}
 					////-> New Object Type = create new type & add child
@@ -44,11 +35,6 @@ public class AbapObjectsSerializer {
 						newObj_type.addChild(deserializedObj);
 
 						objects.add(newObj_type);
-					}
-
-					//-> set new object status based on message flag
-					if (objStatus != null && (objStatus.equals("W") || objStatus.equals("E") || objStatus.equals("I"))) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-						newObj_type.setObjStatus(objStatus);
 					}
 
 					//-> only 1 message is present
