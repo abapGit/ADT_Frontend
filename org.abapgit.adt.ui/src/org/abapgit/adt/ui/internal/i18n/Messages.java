@@ -74,6 +74,16 @@ public class Messages extends NLS {
 	public static String AbapGitWizardPageBranchAndPackage_text_package_message;
 	public static String AbapGitDialogPageObjLog_title;
 	public static String AbapGitDialogPageObjLog_description;
+	public static String AbapGitDialogPageObjLog_filter_expand_all;
+	public static String AbapGitDialogPageObjLog_filter_collapse_all;
+	public static String AbapGitDialogPageObjLog_filter_warning;
+	public static String AbapGitDialogPageObjLog_filter_error;
+	public static String AbapGitDialogPageObjLog_filter_all;
+	public static String AbapGitDialogPageObjLog_filter_expand_all_tooltip;
+	public static String AbapGitDialogPageObjLog_filter_collapse_all_tooltip;
+	public static String AbapGitDialogPageObjLog_filter_warning_tooltip;
+	public static String AbapGitDialogPageObjLog_filter_error_tooltip;
+	public static String AbapGitDialogPageObjLog_filter_all_tooltip;
 	public static String AbapGitWizardPageBranchAndPackage_title;
 	public static String AbapGitWizardPageRepositoryAndCredentials_description;
 	public static String AbapGitWizardPageRepositoryAndCredentials_label_password;

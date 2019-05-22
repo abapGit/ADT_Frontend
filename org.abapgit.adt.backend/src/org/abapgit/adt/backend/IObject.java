@@ -16,9 +16,11 @@ public interface IObject {
 
 	public String getMsgText();
 
-	public List<IObject> listMessages();
+	public List<IObject> listChildObjects();
 
-	public Object getMsgParent();
+	public void resetChildren();
+
+	public Object getParent();
 
 	public void setObjType(String type);
 
@@ -33,5 +35,7 @@ public interface IObject {
 	public void setMsgText(String msg_text);
 
 	public void addChild(IObject abapLogObject);
+
+	public int countChildren();
 
 }

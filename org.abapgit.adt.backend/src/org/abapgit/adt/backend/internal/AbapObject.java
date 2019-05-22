@@ -87,14 +87,24 @@ public class AbapObject implements IObject {
 	}
 
 	@Override
-	public List<IObject> listMessages() {
+	public List<IObject> listChildObjects() {
 		return this.abapLogObjectChildren;
 	}
 
 	@Override
-	public Object getMsgParent() {
-		// TODO Auto-generated method stub
+	public Object getParent() {
+
 		return null;
+	}
+
+	@Override
+	public void resetChildren() {
+		this.abapLogObjectChildren.clear();
+	}
+
+	@Override
+	public int countChildren() {
+		return this.abapLogObjectChildren.size();
 	}
 
 }
