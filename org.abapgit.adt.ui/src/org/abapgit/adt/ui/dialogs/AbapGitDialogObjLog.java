@@ -46,11 +46,11 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 	private final Image errorImage;
 	private final Image successImage;
 	private final Image infoImage;
-	private final Image blankImage;
-	private final String ERROR_FLAG = "E"; //$NON-NLS-1$
-	private final String WARNING_FLAG = "W"; //$NON-NLS-1$
-	private final String INFO_FLAG = "I"; //$NON-NLS-1$
-	private final String SUCCESS_FLAG = "S"; //$NON-NLS-1$
+//	private final Image blankImage;
+	private final static String ERROR_FLAG = "E"; //$NON-NLS-1$
+	private final static String WARNING_FLAG = "W"; //$NON-NLS-1$
+	private final static String INFO_FLAG = "I"; //$NON-NLS-1$
+	private final static String SUCCESS_FLAG = "S"; //$NON-NLS-1$
 
 	public AbapGitDialogObjLog(Shell parentShell, List<IObject> pullObjects, IRepository repository) {
 		super(parentShell);
@@ -62,7 +62,7 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 		this.errorImage = AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui", "icons/full/obj16/error_tsk.png").createImage(); //$NON-NLS-1$ //$NON-NLS-2$
 		this.successImage = AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui", "icons/full/obj16/activity.png").createImage(); //$NON-NLS-1$//$NON-NLS-2$
 		this.infoImage = AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui", "icons/full/obj16/info_tsk.png").createImage(); //$NON-NLS-1$ //$NON-NLS-2$
-		this.blankImage = AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui", "icons/full/obj16/blank.png").createImage(); //$NON-NLS-1$ //$NON-NLS-2$
+//		this.blankImage = AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui", "icons/full/obj16/blank.png").createImage(); //$NON-NLS-1$ //$NON-NLS-2$
 
 	}
 
@@ -73,15 +73,15 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 
 		int dialogMessageIcon = IMessageProvider.INFORMATION;
 		String dialogStatusFlag = this.repodata.getStatusFlag();
-		if (dialogStatusFlag != null && dialogStatusFlag.equals(this.WARNING_FLAG)) {
+		if (dialogStatusFlag != null && dialogStatusFlag.equals(WARNING_FLAG)) {
 			dialogMessageIcon = IMessageProvider.WARNING;
 		}
 
-		if (dialogStatusFlag != null && (dialogStatusFlag.equals(this.ERROR_FLAG) || dialogStatusFlag.equals("A"))) { //$NON-NLS-1$
+		if (dialogStatusFlag != null && (dialogStatusFlag.equals(ERROR_FLAG) || dialogStatusFlag.equals("A"))) { //$NON-NLS-1$
 			dialogMessageIcon = IMessageProvider.ERROR;
 		}
 
-		if (dialogStatusFlag != null && dialogStatusFlag.equals(this.SUCCESS_FLAG)) {
+		if (dialogStatusFlag != null && dialogStatusFlag.equals(SUCCESS_FLAG)) {
 		}
 		setMessage(this.repodata.getStatusText() + "\n " + Messages.AbapGitDialogPageObjLog_description, dialogMessageIcon); //$NON-NLS-1$
 	}
@@ -153,7 +153,7 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 		filterErrorToolItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				contProv.filter(AbapGitDialogObjLog.this.ERROR_FLAG);
+				contProv.filter(AbapGitDialogObjLog.ERROR_FLAG);
 				AbapGitDialogObjLog.this.abapObjTable.refresh();
 			}
 		});
@@ -165,7 +165,7 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 		filterWarningToolItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				contProv.filter(AbapGitDialogObjLog.this.WARNING_FLAG);
+				contProv.filter(AbapGitDialogObjLog.WARNING_FLAG);
 				AbapGitDialogObjLog.this.abapObjTable.refresh();
 			}
 		});
@@ -274,19 +274,19 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 					return ""; //$NON-NLS-1$
 				}
 
-				if (textMsgType != null && textMsgType.equals(AbapGitDialogObjLog.this.WARNING_FLAG)) {
+				if (textMsgType != null && textMsgType.equals(AbapGitDialogObjLog.WARNING_FLAG)) {
 					return "Warning"; //$NON-NLS-1$
 				}
 
-				if (textMsgType != null && textMsgType.equals(AbapGitDialogObjLog.this.ERROR_FLAG)) {
+				if (textMsgType != null && textMsgType.equals(AbapGitDialogObjLog.ERROR_FLAG)) {
 					return "Error"; //$NON-NLS-1$
 				}
 
-				if (textMsgType != null && textMsgType.equals(AbapGitDialogObjLog.this.SUCCESS_FLAG)) {
+				if (textMsgType != null && textMsgType.equals(AbapGitDialogObjLog.SUCCESS_FLAG)) {
 					return "Success"; //$NON-NLS-1$
 				}
 
-				if (textMsgType != null && textMsgType.equals(AbapGitDialogObjLog.this.INFO_FLAG)) {
+				if (textMsgType != null && textMsgType.equals(AbapGitDialogObjLog.INFO_FLAG)) {
 					return "Info"; //$NON-NLS-1$
 				}
 
@@ -306,35 +306,35 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 					p.setMsgType(childObjStatus);
 
 					//-> Set TYPE object status to error/warning/info if any child has this status
-					if (p.listChildObjects().stream().anyMatch(o -> o.getObjStatus().equals(AbapGitDialogObjLog.this.WARNING_FLAG))) {
-						p.setObjStatus(AbapGitDialogObjLog.this.WARNING_FLAG);
-						p.setMsgType(AbapGitDialogObjLog.this.WARNING_FLAG);
+					if (p.listChildObjects().stream().anyMatch(o -> o.getObjStatus().equals(AbapGitDialogObjLog.WARNING_FLAG))) {
+						p.setObjStatus(AbapGitDialogObjLog.WARNING_FLAG);
+						p.setMsgType(AbapGitDialogObjLog.WARNING_FLAG);
 					}
-					if (p.listChildObjects().stream().anyMatch(o -> o.getObjStatus().equals(AbapGitDialogObjLog.this.ERROR_FLAG))) {
-						p.setObjStatus(AbapGitDialogObjLog.this.ERROR_FLAG);
-						p.setMsgType(AbapGitDialogObjLog.this.ERROR_FLAG);
+					if (p.listChildObjects().stream().anyMatch(o -> o.getObjStatus().equals(AbapGitDialogObjLog.ERROR_FLAG))) {
+						p.setObjStatus(AbapGitDialogObjLog.ERROR_FLAG);
+						p.setMsgType(AbapGitDialogObjLog.ERROR_FLAG);
 					}
-					if (p.listChildObjects().stream().anyMatch(o -> o.getObjStatus().equals(AbapGitDialogObjLog.this.INFO_FLAG))) {
-						p.setObjStatus(AbapGitDialogObjLog.this.INFO_FLAG);
-						p.setMsgType(AbapGitDialogObjLog.this.INFO_FLAG);
+					if (p.listChildObjects().stream().anyMatch(o -> o.getObjStatus().equals(AbapGitDialogObjLog.INFO_FLAG))) {
+						p.setObjStatus(AbapGitDialogObjLog.INFO_FLAG);
+						p.setMsgType(AbapGitDialogObjLog.INFO_FLAG);
 					}
 				}
 
 				String textMsgType = p.getMsgType();
 
-				if (textMsgType != null && textMsgType.equals(AbapGitDialogObjLog.this.WARNING_FLAG)) {
+				if (textMsgType != null && textMsgType.equals(AbapGitDialogObjLog.WARNING_FLAG)) {
 					return AbapGitDialogObjLog.this.warningImage;
 				}
 
-				if (textMsgType != null && textMsgType.equals(AbapGitDialogObjLog.this.ERROR_FLAG)) {
+				if (textMsgType != null && textMsgType.equals(AbapGitDialogObjLog.ERROR_FLAG)) {
 					return AbapGitDialogObjLog.this.errorImage;
 				}
 
-				if (textMsgType != null && textMsgType.equals(AbapGitDialogObjLog.this.INFO_FLAG)) {
+				if (textMsgType != null && textMsgType.equals(AbapGitDialogObjLog.INFO_FLAG)) {
 					return AbapGitDialogObjLog.this.infoImage;
 				}
 
-				if (textMsgType != null && textMsgType.equals(AbapGitDialogObjLog.this.SUCCESS_FLAG)) {
+				if (textMsgType != null && textMsgType.equals(AbapGitDialogObjLog.SUCCESS_FLAG)) {
 					return AbapGitDialogObjLog.this.successImage;
 				}
 
@@ -393,6 +393,7 @@ class ObjectTreeContentProvider implements ITreeContentProvider {
 
 	public String filter;
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object[] getElements(Object inputElement) {
 

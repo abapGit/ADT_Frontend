@@ -61,13 +61,13 @@ public class RepositorySerializer {
 
 					}
 
-					if (lv_type_attr != null && lv_type_attr.equals("status")) { //$NON-NLS-1$
+					if (lv_type_attr.equals("status")) { //$NON-NLS-1$
 						repository.addStatusLink(xmlReader.getAttributeValue(null, "rel"), //$NON-NLS-1$
 								URI.create(xmlReader.getAttributeValue(null, "href"))); //$NON-NLS-1$
 
 					}
 
-					if (lv_type_attr != null && lv_type_attr.equals("log")) { //$NON-NLS-1$
+					if (lv_type_attr.equals("log")) { //$NON-NLS-1$
 						repository.addLogLink(xmlReader.getAttributeValue(null, "rel"), //$NON-NLS-1$
 								URI.create(xmlReader.getAttributeValue(null, "href"))); //$NON-NLS-1$
 
