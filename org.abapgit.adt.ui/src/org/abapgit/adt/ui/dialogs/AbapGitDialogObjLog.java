@@ -5,17 +5,24 @@ import java.util.List;
 import org.abapgit.adt.backend.IObject;
 import org.abapgit.adt.backend.IRepository;
 import org.abapgit.adt.ui.internal.i18n.Messages;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.RowLayoutFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.Clipboard;
+import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
@@ -23,6 +30,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
@@ -46,7 +54,7 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 	private final Image errorImage;
 	private final Image successImage;
 	private final Image infoImage;
-//	private final Image blankImage;
+	private Action actionCopy;
 	private final static String ERROR_FLAG = "E"; //$NON-NLS-1$
 	private final static String WARNING_FLAG = "W"; //$NON-NLS-1$
 	private final static String INFO_FLAG = "I"; //$NON-NLS-1$
@@ -62,7 +70,6 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 		this.errorImage = AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui", "icons/full/obj16/error_tsk.png").createImage(); //$NON-NLS-1$ //$NON-NLS-2$
 		this.successImage = AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui", "icons/full/obj16/activity.png").createImage(); //$NON-NLS-1$//$NON-NLS-2$
 		this.infoImage = AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui", "icons/full/obj16/info_tsk.png").createImage(); //$NON-NLS-1$ //$NON-NLS-2$
-//		this.blankImage = AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui", "icons/full/obj16/blank.png").createImage(); //$NON-NLS-1$ //$NON-NLS-2$
 
 	}
 
@@ -120,7 +127,6 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 		};
 
 		ToolItem expandAllToolItem = new ToolItem(bar, SWT.PUSH | SWT.FLAT);
-//		expandAllToolItem.setText(Messages.AbapGitDialogPageObjLog_filter_expand_all);
 		expandAllToolItem.setToolTipText(Messages.AbapGitDialogPageObjLog_filter_expand_all_tooltip);
 		expandAllToolItem
 				.setImage(AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui", "icons/full/elcl16/expandall.png").createImage()); //$NON-NLS-1$ //$NON-NLS-2$
@@ -134,7 +140,6 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 		});
 
 		ToolItem collapseAllToolItem = new ToolItem(bar, SWT.PUSH | SWT.FLAT);
-//		collapseAllToolItem.setText(Messages.AbapGitDialogPageObjLog_filter_collapse_all);
 		collapseAllToolItem.setToolTipText(Messages.AbapGitDialogPageObjLog_filter_collapse_all_tooltip);
 		collapseAllToolItem.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_ELCL_COLLAPSEALL));
 		collapseAllToolItem.addSelectionListener(new SelectionAdapter() {
@@ -147,7 +152,6 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 		});
 
 		ToolItem filterErrorToolItem = new ToolItem(bar, SWT.PUSH | SWT.FLAT);
-//		filterErrorToolItem.setText(Messages.AbapGitDialogPageObjLog_filter_error);
 		filterErrorToolItem.setToolTipText(Messages.AbapGitDialogPageObjLog_filter_error_tooltip);
 		filterErrorToolItem.setImage(this.errorImage);
 		filterErrorToolItem.addSelectionListener(new SelectionAdapter() {
@@ -159,7 +163,6 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 		});
 
 		ToolItem filterWarningToolItem = new ToolItem(bar, SWT.PUSH | SWT.FLAT);
-//		filterWarningToolItem.setText(Messages.AbapGitDialogPageObjLog_filter_warning);
 		filterWarningToolItem.setToolTipText(Messages.AbapGitDialogPageObjLog_filter_warning_tooltip);
 		filterWarningToolItem.setImage(this.warningImage);
 		filterWarningToolItem.addSelectionListener(new SelectionAdapter() {
@@ -171,7 +174,6 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 		});
 
 		ToolItem filterAllToolItem = new ToolItem(bar, SWT.PUSH | SWT.FLAT);
-//		filterAllToolItem.setText(Messages.AbapGitDialogPageObjLog_filter_all);
 		filterAllToolItem.setToolTipText(Messages.AbapGitDialogPageObjLog_filter_all_tooltip);
 		filterAllToolItem.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FILE));
 		filterAllToolItem.addSelectionListener(new SelectionAdapter() {
@@ -198,6 +200,10 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 		createColumns(contProv);
 
 		this.abapObjTable.setInput(this.abapObjects);
+
+
+		makeActions();
+//		hookContextMenu();
 
 		return parent;
 	}
@@ -227,42 +233,7 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 				return result;
 			}
 		});
-
-//		createTableViewerColumn(Messages.AbapGitDialogImport_column_obj_status, 50).setLabelProvider(new ColumnLabelProvider() {
-//			@Override
-//			public String getText(Object element) {
-//				return null;
-//			}
-//
-//			@Override
-//			public Image getImage(Object element) {
-//				IObject p = (IObject) element;
-//				String objStatus = p.getObjStatus();
-//
-//				if (objStatus != null && objStatus.equals("W")) { //$NON-NLS-1$
-//					return AbapGitDialogObjLog.this.warningImage;
-//				}
-//
-//				if (objStatus != null && objStatus.equals("E")) { //$NON-NLS-1$
-//					return AbapGitDialogObjLog.this.errorImage;
-//				}
-//
-//				if (objStatus != null && objStatus.equals("A")) { //$NON-NLS-1$
-//					return AbapGitDialogObjLog.this.stopImage;
-//				}
-//
-//				if (objStatus != null && objStatus.equals("S")) { //$NON-NLS-1$
-//					return AbapGitDialogObjLog.this.successImage;
-//				}
-//
-//				if (objStatus != null && objStatus.equals("I")) { //$NON-NLS-1$
-//					return AbapGitDialogObjLog.this.infoImage;
-//				}
-//
-//				return AbapGitDialogObjLog.this.blankImage;
-//			}
-//
-//		});
+		hookContextMenu(this.abapObjTable);
 
 		createTableViewerColumn(Messages.AbapGitDialogImport_column_msg_type, 200).setLabelProvider(new ColumnLabelProvider() {
 			@Override
@@ -377,6 +348,45 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 		return viewerColumn;
 	}
 
+	private void hookContextMenu(TreeViewer treeViewer) {
+		final MenuManager menuManager = new MenuManager("#PopupMenu"); //$NON-NLS-1$
+		menuManager.setRemoveAllWhenShown(true);
+
+		Menu menu = menuManager.createContextMenu(treeViewer.getTree());
+		treeViewer.getTree().setMenu(menu);
+
+		menuManager.addMenuListener(new IMenuListener() {
+			@Override
+			public void menuAboutToShow(IMenuManager manager) {
+				fillContextMenu(manager);
+			}
+
+			private void fillContextMenu(IMenuManager manager) {
+
+				IStructuredSelection selection = (IStructuredSelection) AbapGitDialogObjLog.this.tree.getViewer().getSelection();
+				if (selection.size() != 1) {
+					return;
+				}
+				menuManager.add(AbapGitDialogObjLog.this.actionCopy);
+
+			}
+		});
+
+	}
+
+	private void makeActions() {
+		this.actionCopy = new Action() {
+			public void run() {
+				copy();
+			}
+		};
+		this.actionCopy.setText(Messages.AbapGitView_action_copy);
+		this.actionCopy.setToolTipText(Messages.AbapGitView_action_copy);
+
+		this.actionCopy.setAccelerator(SWT.ALT | 'C');
+		this.actionCopy.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_COPY));
+	}
+
 	@Override
 	protected boolean isResizable() {
 		return true;
@@ -387,7 +397,29 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 		super.okPressed();
 	}
 
+	/**
+	 * Copies the current selection to the clipboard.
+	 *
+	 * @param table
+	 *            the data source
+	 */
+	protected void copy() {
+
+		Object firstElement = AbapGitDialogObjLog.this.tree.getViewer().getStructuredSelection().getFirstElement();
+		final StringBuilder data = new StringBuilder();
+
+		IObject selectedAbapObj = (IObject) firstElement;
+		data.append(selectedAbapObj.getObjName() + " | " + selectedAbapObj.getObjType() + " | " + selectedAbapObj.getMsgType() + " | " //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+				+ selectedAbapObj.getMsgText());
+
+		final Clipboard clipboard = new Clipboard(AbapGitDialogObjLog.this.tree.getViewer().getControl().getDisplay());
+		clipboard.setContents(new String[] { data.toString() }, new TextTransfer[] { TextTransfer.getInstance() });
+		clipboard.dispose();
+
+	}
+
 }
+
 
 class ObjectTreeContentProvider implements ITreeContentProvider {
 

@@ -492,7 +492,16 @@ public class AbapGitView extends ViewPart {
 
 					WizardDialog wizardDialog = new WizardDialog(AbapGitView.this.viewer.getControl().getShell(),
 							new AbapGitWizardPull(AbapGitView.this.lastProject, this.selRepo, allRepositories));
-					wizardDialog.open();
+
+					// customized MessageDialog with configured buttons
+					MessageDialog dialog = new MessageDialog(getSite().getShell(), Messages.AbapGitView_ConfDialog_title, null,
+							Messages.AbapGitView_ConfDialog_MsgText,
+							MessageDialog.CONFIRM,
+							new String[] { Messages.AbapGitView_ConfDialog_Btn_confirm, Messages.AbapGitView_ConfDialog_Btn_cancel }, 0);
+					int confirmResult = dialog.open();
+					if (confirmResult == 0) {
+						wizardDialog.open();
+					}
 
 				}
 
