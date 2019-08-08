@@ -38,6 +38,10 @@ public class Messages extends NLS {
 	public static String AbapGitView_repos_not_loaded;
 	public static String AbapGitView_task_fetch_repos;
 	public static String AbapGitView_task_fetch_repos_error;
+	public static String AbapGitView_ConfDialog_title;
+	public static String AbapGitView_ConfDialog_MsgText;
+	public static String AbapGitView_ConfDialog_Btn_confirm;
+	public static String AbapGitView_ConfDialog_Btn_cancel;
 	public static String AbapGitWizard_task_cloning_repository;
 	public static String AbapGitWizard_task_pulling_repository;
 	public static String AbapGitWizard_title;
