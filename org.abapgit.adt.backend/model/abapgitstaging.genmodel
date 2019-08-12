@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/org.abapgit.adt.backend/src" editDirectory="/org.abapgit.adt.backend.edit/src"
+    editorDirectory="/org.abapgit.adt.backend.editor/src" modelPluginID="org.abapgit.adt.backend"
+    modelName="Abapgitstaging" rootExtendsClass="org.eclipse.emf.ecore.impl.MinimalEObjectImpl$Container"
+    importerID="org.eclipse.xsd.ecore.importer" complianceLevel="5.0" copyrightFields="false"
+    editPluginID="org.abapgit.adt.backend.edit" editorPluginID="org.abapgit.adt.backend.editor"
+    usedGenPackages="../../com.sap.adt.tools.core.base/model/adtcore.genmodel#//adtcore ../../com.sap.adt.tools.core.base/model/atom.genmodel#//atom ../../org.eclipse.emf.ecore/model/XMLNamespace.genmodel#//namespace"
+    interfaceNamePattern="I{0}" operationReflection="true" importOrganizing="true">
+  <foreignModel>../../org.abapgit.adt.backend/model/abapgitstaging.xsd</foreignModel>
+  <genPackages prefix="Abapgitstaging" basePackage="org.abapgit.adt.backend.model"
+      resource="XML" disposableProviderFactory="true" ecorePackage="abapgitstaging.ecore#/">
+    <genClasses ecoreClass="abapgitstaging.ecore#//AbapGitStaging">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitstaging.ecore#//AbapGitStaging/link"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitstaging.ecore#//AbapGitStaging/unstagedObjects"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitstaging.ecore#//AbapGitStaging/stagedObjects"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitstaging.ecore#//AbapGitStaging/ignoredObjects"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitstaging.ecore#//AbapGitStaging/commitMessage"/>
+    </genClasses>
+    <genClasses ecoreClass="abapgitstaging.ecore#//DocumentRoot">
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EAttribute abapgitstaging.ecore#//DocumentRoot/mixed"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference abapgitstaging.ecore#//DocumentRoot/xMLNSPrefixMap"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference abapgitstaging.ecore#//DocumentRoot/xSISchemaLocation"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitstaging.ecore#//DocumentRoot/abapgitstaging"/>
+    </genClasses>
+    <genClasses ecoreClass="abapgitstaging.ecore#//AbapGitCommitMessage">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitstaging.ecore#//AbapGitCommitMessage/message"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitstaging.ecore#//AbapGitCommitMessage/author"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitstaging.ecore#//AbapGitCommitMessage/committer"/>
+    </genClasses>
+    <genClasses ecoreClass="abapgitstaging.ecore#//AbapGitObject">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitstaging.ecore#//AbapGitObject/version"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitstaging.ecore#//AbapGitObject/files"/>
+    </genClasses>
+    <genClasses ecoreClass="abapgitstaging.ecore#//AbapGitFile">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitstaging.ecore#//AbapGitFile/name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitstaging.ecore#//AbapGitFile/path"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitstaging.ecore#//AbapGitFile/localState"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitstaging.ecore#//AbapGitFile/remoteState"/>
+    </genClasses>
+    <genClasses ecoreClass="abapgitstaging.ecore#//Author">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitstaging.ecore#//Author/name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitstaging.ecore#//Author/email"/>
+    </genClasses>
+    <genClasses ecoreClass="abapgitstaging.ecore#//Committer">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitstaging.ecore#//Committer/name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitstaging.ecore#//Committer/email"/>
+    </genClasses>
+    <genClasses ecoreClass="abapgitstaging.ecore#//UnstagedObjects">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitstaging.ecore#//UnstagedObjects/abapgitobject"/>
+    </genClasses>
+    <genClasses ecoreClass="abapgitstaging.ecore#//StagedObjects">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitstaging.ecore#//StagedObjects/abapgitobject"/>
+    </genClasses>
+    <genClasses ecoreClass="abapgitstaging.ecore#//IgnoredObjects">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitstaging.ecore#//IgnoredObjects/abapgitobject"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>
