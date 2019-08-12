@@ -111,6 +111,19 @@ public class Messages extends NLS {
 	public static String AbapGitDialogPageObjLog_export_log_obj_type;
 	public static String AbapGitDialogPageObjLog_export_log_obj_msg;
 	public static String AbapGitDialogPageObjLog_export_log_obj_flag;
+
+	//ABAPGIT STAGING MESSAGES
+	public static String AbapGitStaging_no_repository_selected;
+	public static String AbapGitStaging_unstaged_changes_section_header;
+	public static String AbapGitStaging_staged_changes_section_header;
+	public static String AbapGitStaging_commit_section_header;
+	public static String AbapGitStaging_author;
+	public static String AbapGitStaging_committer;
+	public static String AbapGitStaging_commit_button;
+	public static String AbapGitStaging_ignored_objects_xtol;
+	public static String AbapGitStaging_action_stage;
+	public static String AbapGitStaging_action_unstage;
+
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
