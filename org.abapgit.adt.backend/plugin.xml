@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+
+<!--
+-->
+
+<plugin>
+
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated abapgitstaging -->
+      <package
+            uri="http://www.sap.com/adt/abapgit/staging"
+            class="org.abapgit.adt.backend.model.abapgitstaging.IAbapgitstagingPackage"
+            genModel="model/abapgitstaging.genmodel"/>
+   </extension>
+
+   <extension point="org.eclipse.emf.ecore.extension_parser">
+      <!-- @generated abapgitstaging -->
+      <parser
+            type="abapgitstaging"
+            class="org.abapgit.adt.backend.model.abapgitstaging.util.AbapgitstagingResourceFactoryImpl"/>
+   </extension>
+
+</plugin>
