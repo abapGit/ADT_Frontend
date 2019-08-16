@@ -10,6 +10,9 @@ import org.abapgit.adt.backend.RepositoryServiceFactory;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitFile;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitStaging;
+import org.abapgit.adt.backend.model.abapgitstaging.IAbapgitstagingFactory;
+import org.abapgit.adt.backend.model.abapgitstaging.IAuthor;
+import org.abapgit.adt.backend.model.abapgitstaging.ICommitter;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.eclipse.core.resources.IProject;
@@ -28,6 +31,10 @@ import org.eclipse.jface.layout.LayoutConstants;
 import org.eclipse.jface.layout.RowLayoutFactory;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.MarginPainter;
 import org.eclipse.jface.text.TextViewer;
 import org.eclipse.jface.util.LocalSelectionTransfer;
@@ -133,9 +140,8 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		this.createCommitComposite(mainSashForm);
 		this.createStagedComposite(stagingSashForm);
 
-		//do the initial validation
-		validateInputs();
-		updateButtonsState();
+		validateInputs(); //do the initial validation
+		updateButtonsState(); //update button state
 	}
 
 	private SashForm createSashForm(Composite parent, int style) {
@@ -589,7 +595,125 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	 * Validator method for UI inputs
 	 */
 	private void validateInputs() {
-		//TODO: implement logic
+		boolean valid = true;
+
+		//check commit message
+		String commitMessage = this.commitMessageTextViewer.getTextWidget().getText();
+		IDocument commitMessageDocument = new Document(commitMessage);
+		if (commitMessageDocument.getNumberOfLines() > 1) {
+			try {
+				IRegion lineInfo = commitMessageDocument.getLineInformation(1);
+				if (lineInfo.getLength() > 0) {
+					valid = false;
+					setWarnings(Messages.AbapGitStaging_commit_message_second_line_not_empty);
+				}
+			} catch (BadLocationException e) {
+				AbapGitUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getMessage(), e));
+			}
+		}
+
+		//check author
+		String authorText = this.authorText.getText();
+		if (getAuthorFromUIText(authorText) == null) {
+			setWarnings(Messages.AbapGitStaging_invalid_author);
+			valid = false;
+		}
+
+		//check committer
+		String committerText = this.committerText.getText();
+		if (getCommitterFromUIText(committerText) == null) {
+			setWarnings(Messages.AbapGitStaging_invalid_committer);
+			valid = false;
+		}
+
+		if (valid) {
+			hideWarnings();
+		}
+	}
+
+	private IAuthor getAuthorFromUIText(String authorText) {
+		if (!validatePersonInput(authorText)) {
+			return null;
+		}
+
+		int indexEmailStartBracket = authorText.indexOf('<');
+		int indexEmailEndBracket = authorText.indexOf('>');
+
+		String name = authorText.substring(0, indexEmailStartBracket).trim();
+		if (name == null || name.isEmpty()) {
+			return null;
+		}
+
+		String email = authorText.substring(indexEmailStartBracket + 1, indexEmailEndBracket).trim();
+		if (email == null || email.isEmpty()) {
+			return null;
+		}
+
+		IAuthor author = IAbapgitstagingFactory.eINSTANCE.createAuthor();
+		author.setEmail(email);
+		author.setName(name);
+		return author;
+	}
+
+	private ICommitter getCommitterFromUIText(String committerText) {
+		if (!validatePersonInput(committerText)) {
+			return null;
+		}
+
+		int indexEmailStartBracket = committerText.indexOf('<');
+		int indexEmailEndBracket = committerText.indexOf('>');
+
+		String name = committerText.substring(0, indexEmailStartBracket).trim();
+		if (name == null || name.isEmpty()) {
+			return null;
+		}
+
+		String email = committerText.substring(indexEmailStartBracket + 1, indexEmailEndBracket).trim();
+		if (email == null || email.isEmpty()) {
+			return null;
+		}
+
+		ICommitter committer = IAbapgitstagingFactory.eINSTANCE.createCommitter();
+		committer.setEmail(email);
+		committer.setName(name);
+		return committer;
+	}
+
+	private boolean validatePersonInput(String text) {
+		text = text.trim();
+		int indexEmailStartBracket = text.indexOf('<');
+		int indexEmailEndBracket = text.indexOf('>');
+
+		//email start bracket not found
+		if (indexEmailStartBracket == -1 || indexEmailStartBracket == 0) {
+			return false;
+		}
+		//character before the email start bracket should be a space
+		if (text.charAt(indexEmailStartBracket - 1) != ' ') {
+			return false;
+		}
+		//email end bracket not found
+		if (indexEmailEndBracket == -1) {
+			return false;
+		}
+		//email end bracket before email start bracket
+		if (indexEmailEndBracket < indexEmailStartBracket) {
+			return false;
+		}
+		//email end bracket not end of text
+		if (indexEmailEndBracket != text.length() - 1) {
+			return false;
+		}
+		return true;
+	}
+
+	private void setWarnings(String message) {
+		this.warningText.setText(message);
+		changeWarningsVisibility(true);
+	}
+
+	private void hideWarnings() {
+		changeWarningsVisibility(false);
 	}
 
 	private void commit() {
