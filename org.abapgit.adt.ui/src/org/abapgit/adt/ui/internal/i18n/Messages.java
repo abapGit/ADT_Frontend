@@ -123,6 +123,8 @@ public class Messages extends NLS {
 	public static String AbapGitStaging_ignored_objects_xtol;
 	public static String AbapGitStaging_action_stage;
 	public static String AbapGitStaging_action_unstage;
+	public static String AbapGitView_task_fetch_repos_staging;
+	public static String AbapGitView_task_fetch_repos_staging_error;
 
 	static {
 		// initialize resource bundle

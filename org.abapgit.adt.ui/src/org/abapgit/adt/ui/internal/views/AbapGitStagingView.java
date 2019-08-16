@@ -1,23 +1,32 @@
 package org.abapgit.adt.ui.internal.views;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.abapgit.adt.backend.IRepository;
+import org.abapgit.adt.backend.IRepositoryService;
+import org.abapgit.adt.backend.RepositoryServiceFactory;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitFile;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitStaging;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.ToolBarManager;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.layout.LayoutConstants;
 import org.eclipse.jface.layout.RowLayoutFactory;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.MarginPainter;
 import org.eclipse.jface.text.TextViewer;
@@ -25,6 +34,7 @@ import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.dnd.DND;
@@ -40,6 +50,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
@@ -51,7 +62,9 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.ui.statushandlers.StatusManager;
 
+import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
 import com.sap.adt.util.ui.SWTUtil;
 
 public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView {
@@ -61,8 +74,10 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	private static final int MAX_COMMIT_MESSAGE_LINE_LENGTH = 72;
 
 	private IProject project;
+	private String destinationId;
 	private IRepository currentRepo;
 	private IAbapGitStaging stagingModel;
+	private IRepositoryService repoService;
 
 	//UI controls
 	private FormToolkit toolkit;
@@ -120,7 +135,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 
 		//do the initial validation
 		validateInputs();
-		toggleButtonsState();
+		updateButtonsState();
 	}
 
 	private SashForm createSashForm(Composite parent, int style) {
@@ -425,11 +440,149 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		return abapGitObjects;
 	}
 
+	@Override
+	public void loadStagingView(IRepository repository, IProject project) {
+		if (repository != null && project != null) {
+			resetStagingView(); //reset view
+
+			AbapGitStagingView.this.project = project;
+			AbapGitStagingView.this.destinationId = getDestination(project);
+			if (this.destinationId != null) {
+				this.repoService = getRepositoryService(this.destinationId);
+				if (this.repoService == null) { //AbapGit not supported
+					MessageDialog.openError(getSite().getShell(),
+							NLS.bind(Messages.AbapGitView_not_supported, AbapGitStagingView.this.project.getName()),
+							NLS.bind(Messages.AbapGitView_not_supported, AbapGitStagingView.this.project.getName()));
+
+					return;
+				}
+
+				try {
+					PlatformUI.getWorkbench().getProgressService().busyCursorWhile(new IRunnableWithProgress() {
+						@Override
+						public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+							monitor.beginTask(Messages.AbapGitView_task_fetch_repos_staging, IProgressMonitor.UNKNOWN);
+							AbapGitStagingView.this.stagingModel = AbapGitStagingView.this.repoService.getRepositoryStaging(repository,
+									monitor);
+							if (AbapGitStagingView.this.stagingModel != null) {
+								AbapGitStagingView.this.currentRepo = repository;
+								refresh(); //refresh view
+							}
+						}
+					});
+
+				} catch (InvocationTargetException | InterruptedException e) {
+					StatusManager.getManager().handle(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID,
+							Messages.AbapGitView_task_fetch_repos_staging_error, e.getCause()), StatusManager.SHOW);
+				}
+			}
+		}
+	}
+
 	/**
 	 * Refreshes the staging view
 	 */
 	private void refresh() {
-		//TODO: implement logic
+		Display.getDefault().syncExec(new Runnable() {
+			public void run() {
+				//TODO : have a better format for form header
+				AbapGitStagingView.this.mainForm.setText(getRepoNameFromUrl(AbapGitStagingView.this.currentRepo.getUrl()) + " [" //$NON-NLS-1$
+						+ AbapGitStagingView.this.currentRepo.getPackage() + "]" + " [" //$NON-NLS-1$//$NON-NLS-2$
+						+ getBranchName(AbapGitStagingView.this.currentRepo.getBranch()) + "]" + " [" //$NON-NLS-1$//$NON-NLS-2$
+						+ AbapGitStagingView.this.project.getName() + "]"); //$NON-NLS-1$
+
+				List<IAbapGitObject> unstagedInput = getUnstagedObjectsFromModel(AbapGitStagingView.this.stagingModel);
+				//TODO : enable ignored objects handling
+				List<IAbapGitObject> stagedInput = getStagedObjectsFromModel(AbapGitStagingView.this.stagingModel);
+
+				//update the tree viewers
+				AbapGitStagingView.this.unstagedTreeViewer.setInput(unstagedInput);
+				AbapGitStagingView.this.stagedTreeViewer.setInput(stagedInput);
+
+				//update the commit message section
+				AbapGitStagingView.this.authorText
+						.setText(AbapGitStagingView.this.stagingModel.getCommitMessage().getAuthor().getName() + " <" //$NON-NLS-1$
+								+ AbapGitStagingView.this.stagingModel.getCommitMessage().getAuthor().getEmail() + ">"); //$NON-NLS-1$
+				AbapGitStagingView.this.committerText
+						.setText(AbapGitStagingView.this.stagingModel.getCommitMessage().getCommitter().getName() + " <" //$NON-NLS-1$
+								+ AbapGitStagingView.this.stagingModel.getCommitMessage().getCommitter().getEmail() + ">"); //$NON-NLS-1$
+
+				updateSectionHeaders();
+				updateButtonsState();
+				validateInputs();
+			}
+		});
+	}
+
+	/**
+	 * Resets the staging view
+	 */
+	private void resetStagingView() {
+		this.stagingModel = null;
+		this.currentRepo = null;
+
+		this.mainForm.setText(Messages.AbapGitStaging_no_repository_selected);
+		this.commitMessageTextViewer.getTextWidget().setText(""); //$NON-NLS-1$
+		this.authorText.setText(""); //$NON-NLS-1$
+		this.committerText.setText(""); //$NON-NLS-1$
+
+		this.unstagedTreeViewer.setInput(null);
+		this.stagedTreeViewer.setInput(null);
+
+		updateSectionHeaders();
+		updateButtonsState();
+	}
+
+	/**
+	 * Updates the header text for unstaged and staged changes section with the
+	 * tree item count
+	 */
+	private void updateSectionHeaders() {
+		//update the unstaged section header
+		this.unstagedSection.setText(
+				Messages.AbapGitStaging_unstaged_changes_section_header + " (" + this.unstagedTreeViewer.getTree().getItemCount() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+		//update the staged section header
+		this.stagedSection.setText(
+				Messages.AbapGitStaging_staged_changes_section_header + " (" + this.stagedTreeViewer.getTree().getItemCount() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	/**
+	 * Updates the state of UI buttons
+	 */
+	private void updateButtonsState() {
+		this.commitAndPushButton.setEnabled(this.currentRepo == null ? false : true); //disabled if no repository is loaded
+		this.stageAction.setEnabled(this.unstagedTreeViewer.getTree().getItemCount() > 0 ? true : false);
+		this.unstageAction.setEnabled(this.stagedTreeViewer.getTree().getItemCount() > 0 ? true : false);
+	}
+
+	private List<IAbapGitObject> getUnstagedObjectsFromModel(IAbapGitStaging staging) {
+		List<IAbapGitObject> objects = (List<IAbapGitObject>) staging.getUnstagedObjects().getAbapgitobject();
+		return objects;
+	}
+
+	private List<IAbapGitObject> getStagedObjectsFromModel(IAbapGitStaging staging) {
+		List<IAbapGitObject> objects = (List<IAbapGitObject>) staging.getStagedObjects().getAbapgitobject();
+		return objects;
+	}
+
+	private String getRepoNameFromUrl(String repoURL) {
+		if (repoURL != null && !repoURL.isEmpty()) {
+			String[] tokens = repoURL.split("/"); //$NON-NLS-1$
+			String repoName = tokens[tokens.length - 1];
+			if (repoName.endsWith(".git")) { //$NON-NLS-1$
+				repoName = repoName.replace(".git", ""); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			return repoName;
+		}
+		return null;
+	}
+
+	private String getBranchName(String branch) {
+		if (branch != null && !branch.isEmpty()) {
+			String[] tokens = branch.split("/"); //$NON-NLS-1$
+			return tokens[tokens.length - 1];
+		}
+		return null;
 	}
 
 	/**
@@ -444,19 +597,8 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	}
 
 	@Override
-	public void loadStagingView(IRepository repository, IProject project) {
-		//TODO: implement
-	}
-
-	@Override
 	public void setFocus() {
 		this.unstagedTreeViewer.getControl().setFocus();
-	}
-
-	private void toggleButtonsState() {
-		this.commitAndPushButton.setEnabled(this.currentRepo == null ? false : true); //disabled if no repository is loaded
-		this.stageAction.setEnabled(this.unstagedTreeViewer.getTree().getItemCount() > 0 ? true : false);
-		this.unstageAction.setEnabled(this.stagedTreeViewer.getTree().getItemCount() > 0 ? true : false);
 	}
 
 	private void addDragAndDropSupport(TreeViewer viewer, final boolean unstaged) {
@@ -482,6 +624,14 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 						}
 					}
 				});
+	}
+
+	private static String getDestination(IProject project) {
+		return AdtProjectServiceFactory.createProjectService().getDestinationId(project);
+	}
+
+	private IRepositoryService getRepositoryService(String destinationId) {
+		return RepositoryServiceFactory.createRepositoryService(destinationId, new NullProgressMonitor());
 	}
 
 }

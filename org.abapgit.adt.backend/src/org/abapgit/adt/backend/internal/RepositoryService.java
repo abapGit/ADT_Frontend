@@ -6,6 +6,7 @@ import org.abapgit.adt.backend.IObjects;
 import org.abapgit.adt.backend.IRepositories;
 import org.abapgit.adt.backend.IRepository;
 import org.abapgit.adt.backend.IRepositoryService;
+import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitStaging;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import com.sap.adt.communication.content.IContentHandler;
@@ -158,6 +159,23 @@ public class RepositoryService implements IRepositoryService {
 
 		restResource.post(monitor, null, repositories);
 
+	}
+
+	@Override
+	public IAbapGitStaging getRepositoryStaging(IRepository repository, IProgressMonitor monitor) {
+		URI stagingUri = repository.getLogLink(IRepositoryService.RELATION_STAGE);
+
+		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory().createResourceWithStatelessSession(stagingUri,
+				this.destinationId);
+
+		IContentHandler<IAbapGitStaging> responseContentHandlerV1 = new AbapGitStagingContentHandler();
+		restResource.addContentHandler(responseContentHandlerV1);
+
+		IAdtCompatibleRestResourceFilter compatibilityFilter = AdtCompatibleRestResourceFilterFactory
+				.createFilter(responseContentHandlerV1);
+		restResource.addRequestFilter(compatibilityFilter);
+		restResource.addResponseFilter(compatibilityFilter);
+		return restResource.get(monitor, IAbapGitStaging.class);
 	}
 
 }
