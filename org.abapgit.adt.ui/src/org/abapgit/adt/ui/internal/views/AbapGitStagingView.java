@@ -21,10 +21,16 @@ import org.eclipse.jface.layout.RowLayoutFactory;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.MarginPainter;
 import org.eclipse.jface.text.TextViewer;
+import org.eclipse.jface.util.LocalSelectionTransfer;
+import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DropTargetAdapter;
+import org.eclipse.swt.dnd.DropTargetEvent;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -138,6 +144,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		this.unstagedSection.setClient(unstagedComposite);
 
 		this.unstagedTreeViewer = this.createTreeViewer(unstagedComposite);
+		addDragAndDropSupport(this.stagedTreeViewer, true);
 	}
 
 	private void createUnstagedSectionToolbar() {
@@ -168,6 +175,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		this.stagedSection.setClient(stagedComposite);
 
 		this.stagedTreeViewer = this.createTreeViewer(stagedComposite);
+		addDragAndDropSupport(this.stagedTreeViewer, false);
 	}
 
 	private void createStagedSectionToolbar() {
@@ -449,6 +457,31 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		this.commitAndPushButton.setEnabled(this.currentRepo == null ? false : true); //disabled if no repository is loaded
 		this.stageAction.setEnabled(this.unstagedTreeViewer.getTree().getItemCount() > 0 ? true : false);
 		this.unstageAction.setEnabled(this.stagedTreeViewer.getTree().getItemCount() > 0 ? true : false);
+	}
+
+	private void addDragAndDropSupport(TreeViewer viewer, final boolean unstaged) {
+		viewer.addDragSupport(DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_LINK,
+				new Transfer[] { LocalSelectionTransfer.getTransfer(), LocalSelectionTransfer.getTransfer() },
+				new StagingDragListener(viewer, ArrayContentProvider.getInstance(), unstaged));
+
+		viewer.addDropSupport(DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_LINK, new Transfer[] { LocalSelectionTransfer.getTransfer() },
+				new DropTargetAdapter() {
+					public void drop(DropTargetEvent event) {
+						event.detail = DND.DROP_COPY;
+						if (event.data instanceof IStructuredSelection) {
+							IStructuredSelection selection = (IStructuredSelection) event.data;
+							if (selection instanceof StagingDragSelection
+									&& ((StagingDragSelection) selection).isFromUnstaged() == unstaged) {
+								return;
+							}
+							if (((StagingDragSelection) selection).isFromUnstaged()) {
+								stageSelectedObjects(selection);
+							} else {
+								unstageSelectedObjects(selection);
+							}
+						}
+					}
+				});
 	}
 
 }
