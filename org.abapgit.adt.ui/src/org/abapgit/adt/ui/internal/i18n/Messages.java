@@ -125,9 +125,6 @@ public class Messages extends NLS {
 	public static String AbapGitStaging_action_unstage;
 	public static String AbapGitView_task_fetch_repos_staging;
 	public static String AbapGitView_task_fetch_repos_staging_error;
-	public static String AbapGitStaging_commit_message_second_line_not_empty;
-	public static String AbapGitStaging_invalid_author;
-	public static String AbapGitStaging_invalid_committer;
 
 	static {
 		// initialize resource bundle
