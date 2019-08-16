@@ -144,7 +144,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		this.unstagedSection.setClient(unstagedComposite);
 
 		this.unstagedTreeViewer = this.createTreeViewer(unstagedComposite);
-		addDragAndDropSupport(this.stagedTreeViewer, true);
+		addDragAndDropSupport(this.unstagedTreeViewer, true);
 	}
 
 	private void createUnstagedSectionToolbar() {
