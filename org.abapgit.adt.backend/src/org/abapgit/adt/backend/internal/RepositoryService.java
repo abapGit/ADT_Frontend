@@ -164,7 +164,7 @@ public class RepositoryService implements IRepositoryService {
 
 	@Override
 	public IAbapGitStaging getRepositoryStaging(IRepository repository, IProgressMonitor monitor) {
-		URI stagingUri = repository.getLogLink(IRepositoryService.RELATION_STAGE);
+		URI stagingUri = repository.getStageLink(IRepositoryService.RELATION_STAGE);
 
 		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory().createResourceWithStatelessSession(stagingUri,
 				this.destinationId);
@@ -182,7 +182,7 @@ public class RepositoryService implements IRepositoryService {
 	@Override
 	public void commit(IProgressMonitor monitor, IAbapGitStaging staging, IRepository repository,
 			IExternalRepositoryInfoRequest externalRepo) {
-		URI commitUri = repository.getLogLink(IRepositoryService.RELATION_COMMIT);
+		URI commitUri = repository.getCommitLink(IRepositoryService.RELATION_COMMIT);
 
 		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory().createResourceWithStatelessSession(commitUri,
 				this.destinationId);
