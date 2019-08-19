@@ -1,4 +1,4 @@
-package org.abapgit.adt.backend.internal;
+package org.abapgit.adt.backend;
 
 public interface IExternalRepositoryInfoRequest {
 

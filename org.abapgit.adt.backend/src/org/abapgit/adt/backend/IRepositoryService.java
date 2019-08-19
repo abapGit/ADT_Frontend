@@ -9,6 +9,7 @@ public interface IRepositoryService {
 	String RELATION_STATUS = "http://www.sap.com/adt/abapgit/relations/status"; //$NON-NLS-1$
 	String RELATION_LOG = "http://www.sap.com/adt/abapgit/relations/log"; //$NON-NLS-1$
 	String RELATION_STAGE = "http://www.sap.com/adt/abapgit/relations/staging"; //$NON-NLS-1$
+	String RELATION_COMMIT = "http://www.sap.com/adt/abapgit/relations/commit"; //$NON-NLS-1$
 
 	IRepositories getRepositories(IProgressMonitor monitor);
 
@@ -34,5 +35,20 @@ public interface IRepositoryService {
 	 * @return Staging model for the given repository
 	 */
 	IAbapGitStaging getRepositoryStaging(IRepository repository, IProgressMonitor monitor);
+
+	/**
+	 * Commits the staged changes to the repository
+	 *
+	 * @param monitor
+	 *            Progress monitor
+	 * @param staging
+	 *            Model which contains the staged objects which are to be
+	 *            committed
+	 * @param repository
+	 *            Repository to which the commit has to happen
+	 * @param externalRepo
+	 *            External repository credentials
+	 */
+	void commit(IProgressMonitor monitor, IAbapGitStaging staging, IRepository repository, IExternalRepositoryInfoRequest externalRepo);
 
 }

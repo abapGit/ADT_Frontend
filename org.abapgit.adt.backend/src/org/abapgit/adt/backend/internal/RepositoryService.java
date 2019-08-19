@@ -2,6 +2,7 @@ package org.abapgit.adt.backend.internal;
 
 import java.net.URI;
 
+import org.abapgit.adt.backend.IExternalRepositoryInfoRequest;
 import org.abapgit.adt.backend.IObjects;
 import org.abapgit.adt.backend.IRepositories;
 import org.abapgit.adt.backend.IRepository;
@@ -176,6 +177,24 @@ public class RepositoryService implements IRepositoryService {
 		restResource.addRequestFilter(compatibilityFilter);
 		restResource.addResponseFilter(compatibilityFilter);
 		return restResource.get(monitor, IAbapGitStaging.class);
+	}
+
+	@Override
+	public void commit(IProgressMonitor monitor, IAbapGitStaging staging, IRepository repository,
+			IExternalRepositoryInfoRequest externalRepo) {
+		URI commitUri = repository.getLogLink(IRepositoryService.RELATION_COMMIT);
+
+		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory().createResourceWithStatelessSession(commitUri,
+				this.destinationId);
+
+		IContentHandler<IAbapGitStaging> responseContentHandlerV1 = new AbapGitStagingContentHandler();
+		restResource.addContentHandler(responseContentHandlerV1);
+
+		IAdtCompatibleRestResourceFilter compatibilityFilter = AdtCompatibleRestResourceFilterFactory
+				.createFilter(responseContentHandlerV1);
+		restResource.addRequestFilter(compatibilityFilter);
+		restResource.addResponseFilter(compatibilityFilter);
+		restResource.post(monitor, null, staging);
 	}
 
 }

@@ -3,7 +3,9 @@ package org.abapgit.adt.ui.internal.views;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
+import org.abapgit.adt.backend.IExternalRepositoryInfoRequest;
 import org.abapgit.adt.backend.IRepository;
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
@@ -14,16 +16,20 @@ import org.abapgit.adt.backend.model.abapgitstaging.IAbapgitstagingFactory;
 import org.abapgit.adt.backend.model.abapgitstaging.IAuthor;
 import org.abapgit.adt.backend.model.abapgitstaging.ICommitter;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
+import org.abapgit.adt.ui.dialogs.AbapGitStagingCredentialsDialog;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.ToolBarManager;
+import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -79,6 +85,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	public static final String VIEW_ID = "org.abapgit.adt.ui.views.AbapGitStagingView"; //$NON-NLS-1$
 
 	private static final int MAX_COMMIT_MESSAGE_LINE_LENGTH = 72;
+	private static final Pattern ANY_NON_WHITESPACE = Pattern.compile("[^\\h\\v]"); //$NON-NLS-1$
 
 	private IProject project;
 	private String destinationId;
@@ -717,7 +724,58 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	}
 
 	private void commit() {
-		//TODO: implement
+		//check if any repo is selected
+		if (this.currentRepo == null) {
+			MessageDialog.openWarning(getSite().getShell(), Messages.AbapGitStaging_no_repository_selected,
+					Messages.AbapGitStaging_commit_error_no_repo_loaded_desc);
+			return;
+		}
+
+		//check commit message
+		String commitMessage = this.commitMessageTextViewer.getTextWidget().getText();
+		if (!ANY_NON_WHITESPACE.matcher(commitMessage).find()) {
+			MessageDialog.openWarning(getSite().getShell(), Messages.AbapGitStaging_commit_error_invalid_commit_msg_title,
+					Messages.AbapGitStaging_commit_error_invalid_commit_msg_desc);
+			return;
+		}
+
+		//check author
+		IAuthor author;
+		if ((author = getAuthorFromUIText(this.authorText.getText())) == null) {
+			MessageDialog.openWarning(getSite().getShell(), Messages.AbapGitStaging_commit_error_invalid_author_title,
+					Messages.AbapGitStaging_invalid_author);
+			return;
+		}
+
+		//check committer
+		ICommitter committer;
+		if ((committer = getCommitterFromUIText(this.committerText.getText())) == null) {
+			MessageDialog.openWarning(getSite().getShell(), Messages.AbapGitStaging_commit_error_invalid_committer_title,
+					Messages.AbapGitStaging_invalid_committer);
+			return;
+		}
+
+		//update model
+		this.stagingModel.getCommitMessage().setMessage(commitMessage);
+		this.stagingModel.getCommitMessage().setAuthor(author);
+		this.stagingModel.getCommitMessage().setCommitter(committer);
+
+		//open the user credentials pop-up
+		Dialog userCredentialsDialog = new AbapGitStagingCredentialsDialog(getSite().getShell());
+		int result = userCredentialsDialog.open();
+		if (result == IDialogConstants.OK_ID) {
+			IExternalRepositoryInfoRequest externalRepo = ((AbapGitStagingCredentialsDialog) userCredentialsDialog).getExternalRepoInfo();
+			Job commitJob = new Job(Messages.AbapGitStaging_commit_job_title) {
+				@Override
+				protected IStatus run(IProgressMonitor monitor) {
+					AbapGitStagingView.this.repoService.commit(new NullProgressMonitor(), AbapGitStagingView.this.stagingModel,
+							AbapGitStagingView.this.currentRepo,
+							externalRepo);
+					return Status.OK_STATUS;
+				}
+			};
+			commitJob.schedule();
+		}
 	}
 
 	@Override

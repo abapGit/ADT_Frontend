@@ -128,6 +128,18 @@ public class Messages extends NLS {
 	public static String AbapGitStaging_commit_message_second_line_not_empty;
 	public static String AbapGitStaging_invalid_author;
 	public static String AbapGitStaging_invalid_committer;
+	public static String AbapGitStaging_commit_error_no_repo_loaded_desc;
+	public static String AbapGitStaging_commit_error_invalid_commit_msg_title;
+	public static String AbapGitStaging_commit_error_invalid_commit_msg_desc;
+	public static String AbapGitStaging_commit_error_invalid_author_title;
+	public static String AbapGitStaging_commit_error_invalid_committer_title;
+	public static String AbapGitStaging_commit_job_title;
+	public static String AbapGitStaging_credentials_dialog_title;
+	public static String AbapGitStaging_credentials_dialog_desc;
+	public static String AbapGitStaging_credentials_dialog_username;
+	public static String AbapGitStaging_credentials_dialog_password;
+	public static String AbapGitStaging_credentials_dialog_error_invalid_username;
+	public static String AbapGitStaging_credentials_dialog_error_invalid_password;
 
 	static {
 		// initialize resource bundle
