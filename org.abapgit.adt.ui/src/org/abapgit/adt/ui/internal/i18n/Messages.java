@@ -33,6 +33,7 @@ public class Messages extends NLS {
 	public static String AbapGitView_context_pull_error;
 	public static String AbapGitView_context_dialog_pull_message;
 	public static String AbapGitView_context_dialog_pull_title;
+	public static String AbapGitView_context_staging;
 	public static String AbapGitView_no_abap_project;
 	public static String AbapGitView_not_supported;
 	public static String AbapGitView_repos_in_project;

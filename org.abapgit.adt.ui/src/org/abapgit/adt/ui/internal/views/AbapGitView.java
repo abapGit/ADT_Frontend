@@ -82,7 +82,7 @@ public class AbapGitView extends ViewPart {
 	public static final String ID = "org.abapgit.adt.ui.views.AbapGitView"; //$NON-NLS-1$
 
 	private TableViewer viewer;
-	private Action actionRefresh, actionWizard, actionCopy, actionOpen, actionShowMyRepos, actionPullWizard;
+	private Action actionRefresh, actionWizard, actionCopy, actionOpen, actionShowMyRepos, actionPullWizard, actionOpenStagingView;
 	private ISelection lastSelection;
 	private IProject lastProject;
 	private ViewerFilter searchFilter;
@@ -366,6 +366,11 @@ public class AbapGitView extends ViewPart {
 
 							manager.add(new Separator());
 							manager.add(new UnlinkAction(AbapGitView.this.lastProject, (IRepository) firstElement));
+
+							if (((IRepository) firstElement).getStageLink(IRepositoryService.RELATION_STAGE) != null) {
+								manager.add(new Separator());
+								manager.add(new OpenStagingViewAction(AbapGitView.this.lastProject, (IRepository) firstElement));
+							}
 						}
 
 					}
@@ -752,6 +757,31 @@ public class AbapGitView extends ViewPart {
 			objLogDialog.open();
 
 
+		}
+
+	}
+
+	private class OpenStagingViewAction extends Action {
+
+		private final IProject project;
+		private final IRepository repository;
+
+		public OpenStagingViewAction(IProject project, IRepository repository) {
+			this.project = project;
+			this.repository = repository;
+			setText(Messages.AbapGitView_context_staging);
+			setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID, "icons/view/abapgit.png")); //$NON-NLS-1$
+		}
+
+		@Override
+		public void run() {
+			try {
+				IAbapGitStagingView stagingView = ((IAbapGitStagingView) PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+						.getActivePage().showView(AbapGitStagingView.VIEW_ID));
+				stagingView.loadStagingView(this.repository, this.project);
+			} catch (PartInitException e) {
+				AbapGitUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getMessage(), e));
+			}
 		}
 
 	}
