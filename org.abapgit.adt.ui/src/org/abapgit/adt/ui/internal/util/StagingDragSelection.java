@@ -1,4 +1,4 @@
-package org.abapgit.adt.ui.internal.views;
+package org.abapgit.adt.ui.internal.util;
 
 import java.util.Iterator;
 import java.util.List;

@@ -18,6 +18,8 @@ import org.abapgit.adt.backend.model.abapgitstaging.ICommitter;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.dialogs.AbapGitStagingCredentialsDialog;
 import org.abapgit.adt.ui.internal.i18n.Messages;
+import org.abapgit.adt.ui.internal.util.StagingDragListener;
+import org.abapgit.adt.ui.internal.util.StagingDragSelection;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
