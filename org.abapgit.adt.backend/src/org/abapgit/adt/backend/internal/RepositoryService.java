@@ -1,6 +1,7 @@
 package org.abapgit.adt.backend.internal;
 
 import java.net.URI;
+import java.util.Base64;
 
 import org.abapgit.adt.backend.IExternalRepositoryInfoRequest;
 import org.abapgit.adt.backend.IObjects;
@@ -11,6 +12,8 @@ import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitStaging;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import com.sap.adt.communication.content.IContentHandler;
+import com.sap.adt.communication.message.HeadersFactory;
+import com.sap.adt.communication.message.IHeaders;
 import com.sap.adt.communication.resources.AdtRestResourceFactory;
 import com.sap.adt.communication.resources.IRestResource;
 import com.sap.adt.communication.resources.UriBuilder;
@@ -163,28 +166,52 @@ public class RepositoryService implements IRepositoryService {
 	}
 
 	@Override
-	public IAbapGitStaging getRepositoryStaging(IRepository repository, IProgressMonitor monitor) {
-		URI stagingUri = repository.getStageLink(IRepositoryService.RELATION_STAGE);
-
-		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory().createResourceWithStatelessSession(stagingUri,
-				this.destinationId);
-
-		IContentHandler<IAbapGitStaging> responseContentHandlerV1 = new AbapGitStagingContentHandler();
-		restResource.addContentHandler(responseContentHandlerV1);
-
-		IAdtCompatibleRestResourceFilter compatibilityFilter = AdtCompatibleRestResourceFilterFactory
-				.createFilter(responseContentHandlerV1);
-		restResource.addRequestFilter(compatibilityFilter);
-		restResource.addResponseFilter(compatibilityFilter);
+	public IAbapGitStaging getStagingInfo(IRepository repository, IProgressMonitor monitor) {
+		IRestResource restResource = getStagingRestResource(repository);
 		return restResource.get(monitor, IAbapGitStaging.class);
+	}
+
+	@Override
+	public IAbapGitStaging getStagingInfo(IRepository repository, IExternalRepositoryInfoRequest externalRepo,
+			IProgressMonitor monitor) {
+		IRestResource restResource = getStagingRestResource(repository);
+		return restResource.get(monitor, getHttpHeadersForCredentials(externalRepo.getUser(), externalRepo.getPassword()),
+				IAbapGitStaging.class);
+	}
+
+	private IRestResource getStagingRestResource(IRepository repository) {
+		URI stagingUri = repository.getStageLink(IRepositoryService.RELATION_STAGE);
+		return getRestResourceForAbapGitStaging(stagingUri);
 	}
 
 	@Override
 	public void commit(IProgressMonitor monitor, IAbapGitStaging staging, IRepository repository,
 			IExternalRepositoryInfoRequest externalRepo) {
 		URI commitUri = repository.getCommitLink(IRepositoryService.RELATION_COMMIT);
+		IRestResource restResource = getRestResourceForAbapGitStaging(commitUri);
+		restResource.post(monitor, getHttpHeadersForCredentials(externalRepo.getUser(), externalRepo.getPassword()), null, staging);
+	}
 
-		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory().createResourceWithStatelessSession(commitUri,
+	/**
+	 * Returns the request headers for sending github account user name and
+	 * password to back-end
+	 */
+	private IHeaders getHttpHeadersForCredentials(String username, String password) {
+		IHeaders headers = HeadersFactory.newHeaders();
+		IHeaders.IField userField = HeadersFactory.newField("Github-Username", username); //$NON-NLS-1$
+		headers.addField(userField);
+		Base64.Encoder encoder = Base64.getMimeEncoder();
+		IHeaders.IField passwordField = HeadersFactory.newField("Github-Password", //$NON-NLS-1$
+				encoder.encodeToString(password.getBytes()));
+		headers.addField(passwordField);
+		return headers;
+	}
+
+	/**
+	 * Returns the rest resource for REST calls from AbapGit Staging view
+	 */
+	private IRestResource getRestResourceForAbapGitStaging(URI uri) {
+		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory().createResourceWithStatelessSession(uri,
 				this.destinationId);
 
 		IContentHandler<IAbapGitStaging> responseContentHandlerV1 = new AbapGitStagingContentHandler();
@@ -194,7 +221,7 @@ public class RepositoryService implements IRepositoryService {
 				.createFilter(responseContentHandlerV1);
 		restResource.addRequestFilter(compatibilityFilter);
 		restResource.addResponseFilter(compatibilityFilter);
-		restResource.post(monitor, null, staging);
+		return restResource;
 	}
 
 }

@@ -34,7 +34,20 @@ public interface IRepositoryService {
 	 *            Progress monitor
 	 * @return Staging model for the given repository
 	 */
-	IAbapGitStaging getRepositoryStaging(IRepository repository, IProgressMonitor monitor);
+	IAbapGitStaging getStagingInfo(IRepository repository, IProgressMonitor monitor);
+
+	/**
+	 * Returns the staging data for the given repository
+	 *
+	 * @param repository
+	 *            Repository for which the staging data has to be loaded
+	 * @param externalRepo
+	 *            External repository credentials, if the repository is private
+	 * @param monitor
+	 *            Progress monitor
+	 * @return Staging model for the given repository
+	 */
+	IAbapGitStaging getStagingInfo(IRepository repository, IExternalRepositoryInfoRequest externalRepo, IProgressMonitor monitor);
 
 	/**
 	 * Commits the staged changes to the repository

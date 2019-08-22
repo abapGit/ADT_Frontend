@@ -5,7 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.abapgit.adt.backend.IExternalRepositoryInfo;
+import org.abapgit.adt.backend.IExternalRepositoryInfo.AccessMode;
 import org.abapgit.adt.backend.IExternalRepositoryInfoRequest;
+import org.abapgit.adt.backend.IExternalRepositoryInfoService;
 import org.abapgit.adt.backend.IRepository;
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
@@ -476,22 +479,53 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 					PlatformUI.getWorkbench().getProgressService().busyCursorWhile(new IRunnableWithProgress() {
 						@Override
 						public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-							monitor.beginTask(Messages.AbapGitView_task_fetch_repos_staging, IProgressMonitor.UNKNOWN);
-							AbapGitStagingView.this.stagingModel = AbapGitStagingView.this.repoService.getRepositoryStaging(repository,
-									monitor);
+							//fetch the external repository details
+							monitor.beginTask(Messages.AbapGitWizardPageRepositoryAndCredentials_task_fetch_repo_info, IProgressMonitor.UNKNOWN);
+							IExternalRepositoryInfo externalRepoInfo = getExternalRepositoryInfo(repository, monitor);
+							if (externalRepoInfo != null) {
+								//fetch the staging data
+								monitor.beginTask(Messages.AbapGitView_task_fetch_repos_staging, IProgressMonitor.UNKNOWN);
+								//check if the repository is private
+								if (externalRepoInfo.getAccessMode() == AccessMode.PRIVATE) {
+									Display.getDefault().syncExec(new Runnable() {
+										public void run() {
+											//open the user credentials pop-up
+											Dialog userCredentialsDialog = new AbapGitStagingCredentialsDialog(getSite().getShell());
+											int result = userCredentialsDialog.open();
+											if (result == IDialogConstants.OK_ID) {
+												IExternalRepositoryInfoRequest externalRepo = ((AbapGitStagingCredentialsDialog) userCredentialsDialog)
+														.getExternalRepoInfo();
+												AbapGitStagingView.this.stagingModel = AbapGitStagingView.this.repoService
+														.getStagingInfo(repository, externalRepo, monitor);
+											}
+										}
+									});
+								} else {
+									AbapGitStagingView.this.stagingModel = AbapGitStagingView.this.repoService.getStagingInfo(repository,
+											monitor);
+								}
+							}
 							if (AbapGitStagingView.this.stagingModel != null) {
 								AbapGitStagingView.this.currentRepo = repository;
 								refresh(); //refresh view
 							}
 						}
 					});
-
 				} catch (InvocationTargetException | InterruptedException e) {
 					StatusManager.getManager().handle(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID,
 							Messages.AbapGitView_task_fetch_repos_staging_error, e.getCause()), StatusManager.SHOW);
 				}
 			}
 		}
+	}
+
+	/**
+	 * Returns the repository details
+	 */
+	private IExternalRepositoryInfo getExternalRepositoryInfo(IRepository repository, IProgressMonitor monitor) {
+		IExternalRepositoryInfoService externalRepoInfoService = RepositoryServiceFactory
+				.createExternalRepositoryInfoService(AbapGitStagingView.this.destinationId, monitor);
+		return externalRepoInfoService.getExternalRepositoryInfo(repository.getUrl(), null, null, monitor);
 	}
 
 	/**
