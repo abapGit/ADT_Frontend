@@ -27,6 +27,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
@@ -82,6 +83,8 @@ import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.statushandlers.StatusManager;
 
+import com.sap.adt.communication.exceptions.CommunicationException;
+import com.sap.adt.communication.resources.ResourceException;
 import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
 import com.sap.adt.util.ui.SWTUtil;
 
@@ -483,31 +486,42 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 							monitor.beginTask(Messages.AbapGitWizardPageRepositoryAndCredentials_task_fetch_repo_info, IProgressMonitor.UNKNOWN);
 							IExternalRepositoryInfo externalRepoInfo = getExternalRepositoryInfo(repository, monitor);
 							if (externalRepoInfo != null) {
-								//fetch the staging data
-								monitor.beginTask(Messages.AbapGitView_task_fetch_repos_staging, IProgressMonitor.UNKNOWN);
-								//check if the repository is private
-								if (externalRepoInfo.getAccessMode() == AccessMode.PRIVATE) {
-									Display.getDefault().syncExec(new Runnable() {
-										public void run() {
-											//open the user credentials pop-up
-											Dialog userCredentialsDialog = new AbapGitStagingCredentialsDialog(getSite().getShell());
-											int result = userCredentialsDialog.open();
-											if (result == IDialogConstants.OK_ID) {
-												IExternalRepositoryInfoRequest externalRepo = ((AbapGitStagingCredentialsDialog) userCredentialsDialog)
-														.getExternalRepoInfo();
-												AbapGitStagingView.this.stagingModel = AbapGitStagingView.this.repoService
-														.getStagingInfo(repository, externalRepo, monitor);
+
+									//fetch the staging data
+									monitor.beginTask(Messages.AbapGitView_task_fetch_repos_staging, IProgressMonitor.UNKNOWN);
+									//check if the repository is private
+									if (externalRepoInfo.getAccessMode() == AccessMode.PRIVATE) {
+										Display.getDefault().syncExec(new Runnable() {
+											public void run() {
+												//open the user credentials pop-up
+												Dialog userCredentialsDialog = new AbapGitStagingCredentialsDialog(getSite().getShell());
+												int result = userCredentialsDialog.open();
+												if (result == IDialogConstants.OK_ID) {
+
+												try {
+													IExternalRepositoryInfoRequest externalRepo = ((AbapGitStagingCredentialsDialog) userCredentialsDialog)
+															.getExternalRepoInfo();
+													AbapGitStagingView.this.stagingModel = AbapGitStagingView.this.repoService
+															.getStagingInfo(repository, externalRepo, monitor);
+												} catch (CommunicationException | ResourceException | OperationCanceledException e) {
+													openErrorDialog(null, e.getMessage(), true);
+												}
+
+												}
 											}
-										}
-									});
-								} else {
-									AbapGitStagingView.this.stagingModel = AbapGitStagingView.this.repoService.getStagingInfo(repository,
-											monitor);
-								}
+										});
+									} else {
+									try {
+										AbapGitStagingView.this.stagingModel = AbapGitStagingView.this.repoService
+												.getStagingInfo(repository, monitor);
+									} catch (CommunicationException | ResourceException | OperationCanceledException e) {
+										openErrorDialog(null, e.getMessage(), true);
+									}
 							}
 							if (AbapGitStagingView.this.stagingModel != null) {
 								AbapGitStagingView.this.currentRepo = repository;
 								refresh(); //refresh view
+							}
 							}
 						}
 					});
@@ -804,10 +818,15 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 			Job commitJob = new Job(Messages.AbapGitStaging_commit_job_title) {
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
-					AbapGitStagingView.this.repoService.commit(new NullProgressMonitor(), AbapGitStagingView.this.stagingModel,
-							AbapGitStagingView.this.currentRepo,
-							externalRepo);
-					return Status.OK_STATUS;
+					try {
+						AbapGitStagingView.this.repoService.commit(new NullProgressMonitor(), AbapGitStagingView.this.stagingModel,
+								AbapGitStagingView.this.currentRepo, externalRepo);
+						//TODO : response dialog
+						return Status.OK_STATUS;
+					} catch (CommunicationException | ResourceException | OperationCanceledException e) {
+						openErrorDialog(null, e.getMessage(), true);
+					}
+					return Status.CANCEL_STATUS;
 				}
 			};
 			commitJob.schedule();
@@ -850,6 +869,18 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 
 	private IRepositoryService getRepositoryService(String destinationId) {
 		return RepositoryServiceFactory.createRepositoryService(destinationId, new NullProgressMonitor());
+	}
+
+	private void openErrorDialog(String title, String message, boolean runInUIThread) {
+		if (runInUIThread) {
+			Display.getDefault().syncExec(new Runnable() {
+				public void run() {
+					MessageDialog.openError(getSite().getShell(), title, message);
+				}
+			});
+		} else {
+			MessageDialog.openError(getSite().getShell(), title, message);
+		}
 	}
 
 }

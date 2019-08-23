@@ -2,13 +2,17 @@ package org.abapgit.adt.backend;
 
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitStaging;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
+
+import com.sap.adt.communication.exceptions.CommunicationException;
+import com.sap.adt.communication.resources.ResourceException;
 
 public interface IRepositoryService {
 
 	String RELATION_PULL = "http://www.sap.com/adt/abapgit/relations/pull"; //$NON-NLS-1$
 	String RELATION_STATUS = "http://www.sap.com/adt/abapgit/relations/status"; //$NON-NLS-1$
 	String RELATION_LOG = "http://www.sap.com/adt/abapgit/relations/log"; //$NON-NLS-1$
-	String RELATION_STAGE = "http://www.sap.com/adt/abapgit/relations/staging"; //$NON-NLS-1$
+	String RELATION_STAGE = "http://www.sap.com/adt/abapgit/relations/stage"; //$NON-NLS-1$
 	String RELATION_COMMIT = "http://www.sap.com/adt/abapgit/relations/commit"; //$NON-NLS-1$
 
 	IRepositories getRepositories(IProgressMonitor monitor);
@@ -34,7 +38,8 @@ public interface IRepositoryService {
 	 *            Progress monitor
 	 * @return Staging model for the given repository
 	 */
-	IAbapGitStaging getStagingInfo(IRepository repository, IProgressMonitor monitor);
+	IAbapGitStaging getStagingInfo(IRepository repository, IProgressMonitor monitor)
+			throws CommunicationException, ResourceException, OperationCanceledException;
 
 	/**
 	 * Returns the staging data for the given repository
@@ -47,7 +52,8 @@ public interface IRepositoryService {
 	 *            Progress monitor
 	 * @return Staging model for the given repository
 	 */
-	IAbapGitStaging getStagingInfo(IRepository repository, IExternalRepositoryInfoRequest externalRepo, IProgressMonitor monitor);
+	IAbapGitStaging getStagingInfo(IRepository repository, IExternalRepositoryInfoRequest externalRepo, IProgressMonitor monitor)
+			throws CommunicationException, ResourceException, OperationCanceledException;
 
 	/**
 	 * Commits the staged changes to the repository
@@ -62,6 +68,7 @@ public interface IRepositoryService {
 	 * @param externalRepo
 	 *            External repository credentials
 	 */
-	void commit(IProgressMonitor monitor, IAbapGitStaging staging, IRepository repository, IExternalRepositoryInfoRequest externalRepo);
+	void commit(IProgressMonitor monitor, IAbapGitStaging staging, IRepository repository, IExternalRepositoryInfoRequest externalRepo)
+			throws CommunicationException, ResourceException, OperationCanceledException;
 
 }

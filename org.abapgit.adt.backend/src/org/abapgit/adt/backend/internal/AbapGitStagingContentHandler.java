@@ -19,7 +19,7 @@ import com.sap.adt.communication.util.FileUtils;
 
 public class AbapGitStagingContentHandler implements IContentHandler<IAbapGitStaging> {
 
-	private static final String STAGING_CONTENT_TYPE = "application/abapgit.adt.repos.staging.v1+xml"; //$NON-NLS-1$
+	private static final String STAGING_CONTENT_TYPE = "application/abapgit.adt.repo.stage.v1+xml"; //$NON-NLS-1$
 	private static final String RESOURCE_NAME = "resource.agitstage"; //$NON-NLS-1$
 	private final org.eclipse.emf.common.util.URI virtualResourceUri = org.eclipse.emf.common.util.URI.createURI(RESOURCE_NAME);
 

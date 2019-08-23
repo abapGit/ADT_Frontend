@@ -18,6 +18,9 @@ public class AbapGitStagingCredentialsDialog extends TitleAreaDialog {
 	private Text usernameField;
 	private Text passwordField;
 
+	private String username;
+	private String password;
+
 	public AbapGitStagingCredentialsDialog(Shell parentShell) {
 		super(parentShell);
 	}
@@ -67,16 +70,18 @@ public class AbapGitStagingCredentialsDialog extends TitleAreaDialog {
 	}
 
 	private boolean validateAndSetMessage() {
-		String username = this.usernameField.getText().trim();
-		if (username.isEmpty()) {
+		this.username = this.usernameField.getText().trim();
+		if (this.username.isEmpty()) {
 			setMessage(Messages.AbapGitStaging_credentials_dialog_error_invalid_username, IMessageProvider.ERROR);
 			return false;
 		}
-		String password = this.passwordField.getText();
-		if (password.isEmpty()) {
+
+		this.password = this.passwordField.getText();
+		if (this.password.isEmpty()) {
 			setMessage(Messages.AbapGitStaging_credentials_dialog_error_invalid_password, IMessageProvider.ERROR);
 			return false;
 		}
+
 		setMessage(null);
 		return true;
 	}
@@ -85,7 +90,7 @@ public class AbapGitStagingCredentialsDialog extends TitleAreaDialog {
 		IExternalRepositoryInfoRequest info = new IExternalRepositoryInfoRequest() {
 			@Override
 			public String getUser() {
-				return AbapGitStagingCredentialsDialog.this.usernameField.getText().trim();
+				return AbapGitStagingCredentialsDialog.this.username;
 			}
 
 			@Override
@@ -95,7 +100,7 @@ public class AbapGitStagingCredentialsDialog extends TitleAreaDialog {
 
 			@Override
 			public String getPassword() {
-				return AbapGitStagingCredentialsDialog.this.passwordField.getText();
+				return AbapGitStagingCredentialsDialog.this.password;
 			}
 		};
 		return info;
