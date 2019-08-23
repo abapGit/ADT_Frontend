@@ -24,6 +24,21 @@ import org.eclipse.emf.ecore.EObject;
  * @generated
  */
 public interface IAbapGitFile extends EObject {
+
+	public enum Status {
+		ADDED('A'), REMOVED('D'), MODIFIED('M');
+
+		private final char status;
+
+		private Status(char status) {
+			this.status = status;
+		}
+
+		public char getChar() {
+			return status;
+		}
+	}
+
 	/**
 	 * Returns the value of the '<em><b>Name</b></em>' attribute.
 	 * <!-- begin-user-doc -->

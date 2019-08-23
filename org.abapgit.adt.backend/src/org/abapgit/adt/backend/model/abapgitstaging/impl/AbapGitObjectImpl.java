@@ -26,6 +26,7 @@ import com.sap.adt.tools.core.model.adtcore.impl.AdtObjectReferenceImpl;
  * The following features are implemented:
  * </p>
  * <ul>
+ *   <li>{@link org.abapgit.adt.backend.model.abapgitstaging.impl.AbapGitObjectImpl#getWbkey <em>Wbkey</em>}</li>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitstaging.impl.AbapGitObjectImpl#getVersion <em>Version</em>}</li>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitstaging.impl.AbapGitObjectImpl#getFiles <em>Files</em>}</li>
  * </ul>
@@ -33,6 +34,26 @@ import com.sap.adt.tools.core.model.adtcore.impl.AdtObjectReferenceImpl;
  * @generated
  */
 public class AbapGitObjectImpl extends AdtObjectReferenceImpl implements IAbapGitObject {
+	/**
+	 * The default value of the '{@link #getWbkey() <em>Wbkey</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getWbkey()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String WBKEY_EDEFAULT = null;
+
+	/**
+	 * The cached value of the '{@link #getWbkey() <em>Wbkey</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getWbkey()
+	 * @generated
+	 * @ordered
+	 */
+	protected String wbkey = WBKEY_EDEFAULT;
+
 	/**
 	 * The default value of the '{@link #getVersion() <em>Version</em>}' attribute.
 	 * <!-- begin-user-doc -->
@@ -87,8 +108,29 @@ public class AbapGitObjectImpl extends AdtObjectReferenceImpl implements IAbapGi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public String getWbkey() {
+		return wbkey;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setWbkey(String newWbkey) {
+		String oldWbkey = wbkey;
+		wbkey = newWbkey;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitstagingPackage.ABAP_GIT_OBJECT__WBKEY, oldWbkey, wbkey));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public String getVersion() {
-		return this.version;
+		return version;
 	}
 
 	/**
@@ -97,11 +139,10 @@ public class AbapGitObjectImpl extends AdtObjectReferenceImpl implements IAbapGi
 	 * @generated
 	 */
 	public void setVersion(String newVersion) {
-		String oldVersion = this.version;
-		this.version = newVersion;
-		if (eNotificationRequired()) {
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitstagingPackage.ABAP_GIT_OBJECT__VERSION, oldVersion, this.version));
-		}
+		String oldVersion = version;
+		version = newVersion;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitstagingPackage.ABAP_GIT_OBJECT__VERSION, oldVersion, version));
 	}
 
 	/**
@@ -110,10 +151,10 @@ public class AbapGitObjectImpl extends AdtObjectReferenceImpl implements IAbapGi
 	 * @generated
 	 */
 	public EList<IAbapGitFile> getFiles() {
-		if (this.files == null) {
-			this.files = new EObjectContainmentEList<IAbapGitFile>(IAbapGitFile.class, this, IAbapgitstagingPackage.ABAP_GIT_OBJECT__FILES);
+		if (files == null) {
+			files = new EObjectContainmentEList<IAbapGitFile>(IAbapGitFile.class, this, IAbapgitstagingPackage.ABAP_GIT_OBJECT__FILES);
 		}
-		return this.files;
+		return files;
 	}
 
 	/**
@@ -138,6 +179,8 @@ public class AbapGitObjectImpl extends AdtObjectReferenceImpl implements IAbapGi
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
+			case IAbapgitstagingPackage.ABAP_GIT_OBJECT__WBKEY:
+				return getWbkey();
 			case IAbapgitstagingPackage.ABAP_GIT_OBJECT__VERSION:
 				return getVersion();
 			case IAbapgitstagingPackage.ABAP_GIT_OBJECT__FILES:
@@ -155,6 +198,9 @@ public class AbapGitObjectImpl extends AdtObjectReferenceImpl implements IAbapGi
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
+			case IAbapgitstagingPackage.ABAP_GIT_OBJECT__WBKEY:
+				setWbkey((String)newValue);
+				return;
 			case IAbapgitstagingPackage.ABAP_GIT_OBJECT__VERSION:
 				setVersion((String)newValue);
 				return;
@@ -174,6 +220,9 @@ public class AbapGitObjectImpl extends AdtObjectReferenceImpl implements IAbapGi
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
+			case IAbapgitstagingPackage.ABAP_GIT_OBJECT__WBKEY:
+				setWbkey(WBKEY_EDEFAULT);
+				return;
 			case IAbapgitstagingPackage.ABAP_GIT_OBJECT__VERSION:
 				setVersion(VERSION_EDEFAULT);
 				return;
@@ -192,10 +241,12 @@ public class AbapGitObjectImpl extends AdtObjectReferenceImpl implements IAbapGi
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
+			case IAbapgitstagingPackage.ABAP_GIT_OBJECT__WBKEY:
+				return WBKEY_EDEFAULT == null ? wbkey != null : !WBKEY_EDEFAULT.equals(wbkey);
 			case IAbapgitstagingPackage.ABAP_GIT_OBJECT__VERSION:
-				return VERSION_EDEFAULT == null ? this.version != null : !VERSION_EDEFAULT.equals(this.version);
+				return VERSION_EDEFAULT == null ? version != null : !VERSION_EDEFAULT.equals(version);
 			case IAbapgitstagingPackage.ABAP_GIT_OBJECT__FILES:
-				return this.files != null && !this.files.isEmpty();
+				return files != null && !files.isEmpty();
 		}
 		return super.eIsSet(featureID);
 	}
@@ -207,13 +258,13 @@ public class AbapGitObjectImpl extends AdtObjectReferenceImpl implements IAbapGi
 	 */
 	@Override
 	public String toString() {
-		if (eIsProxy()) {
-			return super.toString();
-		}
+		if (eIsProxy()) return super.toString();
 
 		StringBuilder result = new StringBuilder(super.toString());
-		result.append(" (version: "); //$NON-NLS-1$
-		result.append(this.version);
+		result.append(" (wbkey: ");
+		result.append(wbkey);
+		result.append(", version: ");
+		result.append(version);
 		result.append(')');
 		return result.toString();
 	}

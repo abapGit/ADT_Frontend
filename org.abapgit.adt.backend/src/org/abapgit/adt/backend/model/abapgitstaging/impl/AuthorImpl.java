@@ -89,7 +89,7 @@ public class AuthorImpl extends MinimalEObjectImpl.Container implements IAuthor 
 	 * @generated
 	 */
 	public String getName() {
-		return this.name;
+		return name;
 	}
 
 	/**
@@ -98,11 +98,10 @@ public class AuthorImpl extends MinimalEObjectImpl.Container implements IAuthor 
 	 * @generated
 	 */
 	public void setName(String newName) {
-		String oldName = this.name;
-		this.name = newName;
-		if (eNotificationRequired()) {
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitstagingPackage.AUTHOR__NAME, oldName, this.name));
-		}
+		String oldName = name;
+		name = newName;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitstagingPackage.AUTHOR__NAME, oldName, name));
 	}
 
 	/**
@@ -111,7 +110,7 @@ public class AuthorImpl extends MinimalEObjectImpl.Container implements IAuthor 
 	 * @generated
 	 */
 	public String getEmail() {
-		return this.email;
+		return email;
 	}
 
 	/**
@@ -120,11 +119,10 @@ public class AuthorImpl extends MinimalEObjectImpl.Container implements IAuthor 
 	 * @generated
 	 */
 	public void setEmail(String newEmail) {
-		String oldEmail = this.email;
-		this.email = newEmail;
-		if (eNotificationRequired()) {
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitstagingPackage.AUTHOR__EMAIL, oldEmail, this.email));
-		}
+		String oldEmail = email;
+		email = newEmail;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitstagingPackage.AUTHOR__EMAIL, oldEmail, email));
 	}
 
 	/**
@@ -188,9 +186,9 @@ public class AuthorImpl extends MinimalEObjectImpl.Container implements IAuthor 
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
 			case IAbapgitstagingPackage.AUTHOR__NAME:
-				return NAME_EDEFAULT == null ? this.name != null : !NAME_EDEFAULT.equals(this.name);
+				return NAME_EDEFAULT == null ? name != null : !NAME_EDEFAULT.equals(name);
 			case IAbapgitstagingPackage.AUTHOR__EMAIL:
-				return EMAIL_EDEFAULT == null ? this.email != null : !EMAIL_EDEFAULT.equals(this.email);
+				return EMAIL_EDEFAULT == null ? email != null : !EMAIL_EDEFAULT.equals(email);
 		}
 		return super.eIsSet(featureID);
 	}
@@ -202,15 +200,13 @@ public class AuthorImpl extends MinimalEObjectImpl.Container implements IAuthor 
 	 */
 	@Override
 	public String toString() {
-		if (eIsProxy()) {
-			return super.toString();
-		}
+		if (eIsProxy()) return super.toString();
 
 		StringBuilder result = new StringBuilder(super.toString());
-		result.append(" (name: "); //$NON-NLS-1$
-		result.append(this.name);
-		result.append(", email: "); //$NON-NLS-1$
-		result.append(this.email);
+		result.append(" (name: ");
+		result.append(name);
+		result.append(", email: ");
+		result.append(email);
 		result.append(')');
 		return result.toString();
 	}

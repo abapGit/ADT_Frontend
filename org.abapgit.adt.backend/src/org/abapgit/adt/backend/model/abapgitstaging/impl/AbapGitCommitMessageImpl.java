@@ -94,7 +94,7 @@ public class AbapGitCommitMessageImpl extends MinimalEObjectImpl.Container imple
 	 * @generated
 	 */
 	public String getMessage() {
-		return this.message;
+		return message;
 	}
 
 	/**
@@ -103,11 +103,10 @@ public class AbapGitCommitMessageImpl extends MinimalEObjectImpl.Container imple
 	 * @generated
 	 */
 	public void setMessage(String newMessage) {
-		String oldMessage = this.message;
-		this.message = newMessage;
-		if (eNotificationRequired()) {
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitstagingPackage.ABAP_GIT_COMMIT_MESSAGE__MESSAGE, oldMessage, this.message));
-		}
+		String oldMessage = message;
+		message = newMessage;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitstagingPackage.ABAP_GIT_COMMIT_MESSAGE__MESSAGE, oldMessage, message));
 	}
 
 	/**
@@ -116,7 +115,7 @@ public class AbapGitCommitMessageImpl extends MinimalEObjectImpl.Container imple
 	 * @generated
 	 */
 	public IAuthor getAuthor() {
-		return this.author;
+		return author;
 	}
 
 	/**
@@ -125,15 +124,11 @@ public class AbapGitCommitMessageImpl extends MinimalEObjectImpl.Container imple
 	 * @generated
 	 */
 	public NotificationChain basicSetAuthor(IAuthor newAuthor, NotificationChain msgs) {
-		IAuthor oldAuthor = this.author;
-		this.author = newAuthor;
+		IAuthor oldAuthor = author;
+		author = newAuthor;
 		if (eNotificationRequired()) {
 			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, IAbapgitstagingPackage.ABAP_GIT_COMMIT_MESSAGE__AUTHOR, oldAuthor, newAuthor);
-			if (msgs == null) {
-				msgs = notification;
-			} else {
-				msgs.add(notification);
-			}
+			if (msgs == null) msgs = notification; else msgs.add(notification);
 		}
 		return msgs;
 	}
@@ -144,22 +139,17 @@ public class AbapGitCommitMessageImpl extends MinimalEObjectImpl.Container imple
 	 * @generated
 	 */
 	public void setAuthor(IAuthor newAuthor) {
-		if (newAuthor != this.author) {
+		if (newAuthor != author) {
 			NotificationChain msgs = null;
-			if (this.author != null) {
-				msgs = ((InternalEObject)this.author).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - IAbapgitstagingPackage.ABAP_GIT_COMMIT_MESSAGE__AUTHOR, null, msgs);
-			}
-			if (newAuthor != null) {
+			if (author != null)
+				msgs = ((InternalEObject)author).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - IAbapgitstagingPackage.ABAP_GIT_COMMIT_MESSAGE__AUTHOR, null, msgs);
+			if (newAuthor != null)
 				msgs = ((InternalEObject)newAuthor).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - IAbapgitstagingPackage.ABAP_GIT_COMMIT_MESSAGE__AUTHOR, null, msgs);
-			}
 			msgs = basicSetAuthor(newAuthor, msgs);
-			if (msgs != null) {
-				msgs.dispatch();
-			}
+			if (msgs != null) msgs.dispatch();
 		}
-		else if (eNotificationRequired()) {
+		else if (eNotificationRequired())
 			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitstagingPackage.ABAP_GIT_COMMIT_MESSAGE__AUTHOR, newAuthor, newAuthor));
-		}
 	}
 
 	/**
@@ -168,7 +158,7 @@ public class AbapGitCommitMessageImpl extends MinimalEObjectImpl.Container imple
 	 * @generated
 	 */
 	public ICommitter getCommitter() {
-		return this.committer;
+		return committer;
 	}
 
 	/**
@@ -177,15 +167,11 @@ public class AbapGitCommitMessageImpl extends MinimalEObjectImpl.Container imple
 	 * @generated
 	 */
 	public NotificationChain basicSetCommitter(ICommitter newCommitter, NotificationChain msgs) {
-		ICommitter oldCommitter = this.committer;
-		this.committer = newCommitter;
+		ICommitter oldCommitter = committer;
+		committer = newCommitter;
 		if (eNotificationRequired()) {
 			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, IAbapgitstagingPackage.ABAP_GIT_COMMIT_MESSAGE__COMMITTER, oldCommitter, newCommitter);
-			if (msgs == null) {
-				msgs = notification;
-			} else {
-				msgs.add(notification);
-			}
+			if (msgs == null) msgs = notification; else msgs.add(notification);
 		}
 		return msgs;
 	}
@@ -196,22 +182,17 @@ public class AbapGitCommitMessageImpl extends MinimalEObjectImpl.Container imple
 	 * @generated
 	 */
 	public void setCommitter(ICommitter newCommitter) {
-		if (newCommitter != this.committer) {
+		if (newCommitter != committer) {
 			NotificationChain msgs = null;
-			if (this.committer != null) {
-				msgs = ((InternalEObject)this.committer).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - IAbapgitstagingPackage.ABAP_GIT_COMMIT_MESSAGE__COMMITTER, null, msgs);
-			}
-			if (newCommitter != null) {
+			if (committer != null)
+				msgs = ((InternalEObject)committer).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - IAbapgitstagingPackage.ABAP_GIT_COMMIT_MESSAGE__COMMITTER, null, msgs);
+			if (newCommitter != null)
 				msgs = ((InternalEObject)newCommitter).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - IAbapgitstagingPackage.ABAP_GIT_COMMIT_MESSAGE__COMMITTER, null, msgs);
-			}
 			msgs = basicSetCommitter(newCommitter, msgs);
-			if (msgs != null) {
-				msgs.dispatch();
-			}
+			if (msgs != null) msgs.dispatch();
 		}
-		else if (eNotificationRequired()) {
+		else if (eNotificationRequired())
 			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitstagingPackage.ABAP_GIT_COMMIT_MESSAGE__COMMITTER, newCommitter, newCommitter));
-		}
 	}
 
 	/**
@@ -299,11 +280,11 @@ public class AbapGitCommitMessageImpl extends MinimalEObjectImpl.Container imple
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
 			case IAbapgitstagingPackage.ABAP_GIT_COMMIT_MESSAGE__MESSAGE:
-				return MESSAGE_EDEFAULT == null ? this.message != null : !MESSAGE_EDEFAULT.equals(this.message);
+				return MESSAGE_EDEFAULT == null ? message != null : !MESSAGE_EDEFAULT.equals(message);
 			case IAbapgitstagingPackage.ABAP_GIT_COMMIT_MESSAGE__AUTHOR:
-				return this.author != null;
+				return author != null;
 			case IAbapgitstagingPackage.ABAP_GIT_COMMIT_MESSAGE__COMMITTER:
-				return this.committer != null;
+				return committer != null;
 		}
 		return super.eIsSet(featureID);
 	}
@@ -315,13 +296,11 @@ public class AbapGitCommitMessageImpl extends MinimalEObjectImpl.Container imple
 	 */
 	@Override
 	public String toString() {
-		if (eIsProxy()) {
-			return super.toString();
-		}
+		if (eIsProxy()) return super.toString();
 
 		StringBuilder result = new StringBuilder(super.toString());
-		result.append(" (message: "); //$NON-NLS-1$
-		result.append(this.message);
+		result.append(" (message: ");
+		result.append(message);
 		result.append(')');
 		return result.toString();
 	}

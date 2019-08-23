@@ -323,7 +323,7 @@ public class AbapgitstagingPackageImpl extends EPackageImpl implements IAbapgits
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getAbapGitObject_Version() {
+	public EAttribute getAbapGitObject_Wbkey() {
 		return (EAttribute)abapGitObjectEClass.getEStructuralFeatures().get(0);
 	}
 
@@ -332,8 +332,17 @@ public class AbapgitstagingPackageImpl extends EPackageImpl implements IAbapgits
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EAttribute getAbapGitObject_Version() {
+		return (EAttribute)abapGitObjectEClass.getEStructuralFeatures().get(1);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EReference getAbapGitObject_Files() {
-		return (EReference)abapGitObjectEClass.getEStructuralFeatures().get(1);
+		return (EReference)abapGitObjectEClass.getEStructuralFeatures().get(2);
 	}
 
 	/**
@@ -536,6 +545,7 @@ public class AbapgitstagingPackageImpl extends EPackageImpl implements IAbapgits
 		createEReference(abapGitCommitMessageEClass, ABAP_GIT_COMMIT_MESSAGE__COMMITTER);
 
 		abapGitObjectEClass = createEClass(ABAP_GIT_OBJECT);
+		createEAttribute(abapGitObjectEClass, ABAP_GIT_OBJECT__WBKEY);
 		createEAttribute(abapGitObjectEClass, ABAP_GIT_OBJECT__VERSION);
 		createEReference(abapGitObjectEClass, ABAP_GIT_OBJECT__FILES);
 
@@ -618,6 +628,7 @@ public class AbapgitstagingPackageImpl extends EPackageImpl implements IAbapgits
 		initEReference(getAbapGitCommitMessage_Committer(), this.getCommitter(), null, "committer", null, 1, 1, IAbapGitCommitMessage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(abapGitObjectEClass, IAbapGitObject.class, "AbapGitObject", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
+		initEAttribute(getAbapGitObject_Wbkey(), theXMLTypePackage.getString(), "wbkey", null, 0, 1, IAbapGitObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getAbapGitObject_Version(), theXMLTypePackage.getString(), "version", null, 0, 1, IAbapGitObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getAbapGitObject_Files(), this.getAbapGitFile(), null, "files", null, 0, -1, IAbapGitObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
@@ -780,6 +791,14 @@ public class AbapgitstagingPackageImpl extends EPackageImpl implements IAbapgits
 		   new String[] {
 			   "name", "abapgitobject",
 			   "kind", "elementOnly"
+		   });
+		addAnnotation
+		  (getAbapGitObject_Wbkey(),
+		   source,
+		   new String[] {
+			   "kind", "attribute",
+			   "namespace", "##targetNamespace",
+			   "name", "wbkey"
 		   });
 		addAnnotation
 		  (getAbapGitObject_Version(),

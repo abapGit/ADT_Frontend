@@ -29,6 +29,7 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitstaging.ecore#//AbapGitCommitMessage/committer"/>
     </genClasses>
     <genClasses ecoreClass="abapgitstaging.ecore#//AbapGitObject">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitstaging.ecore#//AbapGitObject/wbkey"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitstaging.ecore#//AbapGitObject/version"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitstaging.ecore#//AbapGitObject/files"/>
     </genClasses>

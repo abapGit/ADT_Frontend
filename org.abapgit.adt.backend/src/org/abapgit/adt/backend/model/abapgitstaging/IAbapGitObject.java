@@ -15,6 +15,7 @@ import org.eclipse.emf.common.util.EList;
  * The following features are supported:
  * </p>
  * <ul>
+ *   <li>{@link org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject#getWbkey <em>Wbkey</em>}</li>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject#getVersion <em>Version</em>}</li>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject#getFiles <em>Files</em>}</li>
  * </ul>
@@ -24,6 +25,29 @@ import org.eclipse.emf.common.util.EList;
  * @generated
  */
 public interface IAbapGitObject extends IAdtObjectReference {
+	/**
+	 * Returns the value of the '<em><b>Wbkey</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Wbkey</em>' attribute.
+	 * @see #setWbkey(String)
+	 * @see org.abapgit.adt.backend.model.abapgitstaging.IAbapgitstagingPackage#getAbapGitObject_Wbkey()
+	 * @model dataType="org.eclipse.emf.ecore.xml.type.String"
+	 *        extendedMetaData="kind='attribute' namespace='##targetNamespace' name='wbkey'"
+	 * @generated
+	 */
+	String getWbkey();
+
+	/**
+	 * Sets the value of the '{@link org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject#getWbkey <em>Wbkey</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Wbkey</em>' attribute.
+	 * @see #getWbkey()
+	 * @generated
+	 */
+	void setWbkey(String value);
+
 	/**
 	 * Returns the value of the '<em><b>Version</b></em>' attribute.
 	 * <!-- begin-user-doc -->

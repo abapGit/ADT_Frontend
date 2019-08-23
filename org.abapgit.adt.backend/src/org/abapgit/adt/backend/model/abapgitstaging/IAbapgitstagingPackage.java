@@ -416,13 +416,22 @@ public interface IAbapgitstagingPackage extends EPackage {
 	int ABAP_GIT_OBJECT__URI = IAdtCorePackage.ADT_OBJECT_REFERENCE__URI;
 
 	/**
+	 * The feature id for the '<em><b>Wbkey</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ABAP_GIT_OBJECT__WBKEY = IAdtCorePackage.ADT_OBJECT_REFERENCE_FEATURE_COUNT + 0;
+
+	/**
 	 * The feature id for the '<em><b>Version</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int ABAP_GIT_OBJECT__VERSION = IAdtCorePackage.ADT_OBJECT_REFERENCE_FEATURE_COUNT + 0;
+	int ABAP_GIT_OBJECT__VERSION = IAdtCorePackage.ADT_OBJECT_REFERENCE_FEATURE_COUNT + 1;
 
 	/**
 	 * The feature id for the '<em><b>Files</b></em>' containment reference list.
@@ -431,7 +440,7 @@ public interface IAbapgitstagingPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int ABAP_GIT_OBJECT__FILES = IAdtCorePackage.ADT_OBJECT_REFERENCE_FEATURE_COUNT + 1;
+	int ABAP_GIT_OBJECT__FILES = IAdtCorePackage.ADT_OBJECT_REFERENCE_FEATURE_COUNT + 2;
 
 	/**
 	 * The number of structural features of the '<em>Abap Git Object</em>' class.
@@ -440,7 +449,7 @@ public interface IAbapgitstagingPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int ABAP_GIT_OBJECT_FEATURE_COUNT = IAdtCorePackage.ADT_OBJECT_REFERENCE_FEATURE_COUNT + 2;
+	int ABAP_GIT_OBJECT_FEATURE_COUNT = IAdtCorePackage.ADT_OBJECT_REFERENCE_FEATURE_COUNT + 3;
 
 	/**
 	 * The number of operations of the '<em>Abap Git Object</em>' class.
@@ -892,6 +901,17 @@ public interface IAbapgitstagingPackage extends EPackage {
 	EClass getAbapGitObject();
 
 	/**
+	 * Returns the meta object for the attribute '{@link org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject#getWbkey <em>Wbkey</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Wbkey</em>'.
+	 * @see org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject#getWbkey()
+	 * @see #getAbapGitObject()
+	 * @generated
+	 */
+	EAttribute getAbapGitObject_Wbkey();
+
+	/**
 	 * Returns the meta object for the attribute '{@link org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject#getVersion <em>Version</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -1252,6 +1272,14 @@ public interface IAbapgitstagingPackage extends EPackage {
 		 * @generated
 		 */
 		EClass ABAP_GIT_OBJECT = eINSTANCE.getAbapGitObject();
+
+		/**
+		 * The meta object literal for the '<em><b>Wbkey</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute ABAP_GIT_OBJECT__WBKEY = eINSTANCE.getAbapGitObject_Wbkey();
 
 		/**
 		 * The meta object literal for the '<em><b>Version</b></em>' attribute feature.
