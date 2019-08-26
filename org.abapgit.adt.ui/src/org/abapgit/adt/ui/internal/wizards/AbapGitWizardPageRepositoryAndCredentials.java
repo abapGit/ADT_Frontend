@@ -79,9 +79,9 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 		this.r = Pattern.compile(this.ptrn);
 
 		this.txtURL.addModifyListener(event -> {
-			this.cloneData.url = this.txtURL.getText();
+			//remove trailing blanks from URL
+			this.cloneData.url = this.txtURL.getText().trim();
 			this.cloneData.externalRepoInfo = null;
-//			setUserAndPassControlsVisible(false);
 			validateClientOnly();
 		});
 		this.txtURL.setLayoutData(gd);
@@ -172,6 +172,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 	private boolean validateClientOnly() {
 		setMessage(null);
 		setPageComplete(true);
+
 		if (this.txtURL.getText().isEmpty() || !this.txtURL.getText().startsWith("https://")) { //$NON-NLS-1$
 			setMessage(Messages.AbapGitWizardPageRepositoryAndCredentials_validate_url_error, DialogPage.INFORMATION);
 			setPageComplete(false);
