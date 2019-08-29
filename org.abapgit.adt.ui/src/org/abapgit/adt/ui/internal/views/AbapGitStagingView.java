@@ -1,6 +1,5 @@
 package org.abapgit.adt.ui.internal.views;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -41,7 +40,6 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.layout.LayoutConstants;
 import org.eclipse.jface.layout.RowLayoutFactory;
-import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
@@ -81,10 +79,11 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.eclipse.ui.statushandlers.StatusManager;
+import org.eclipse.ui.progress.IProgressService;
 
 import com.sap.adt.communication.exceptions.CommunicationException;
 import com.sap.adt.communication.resources.ResourceException;
+import com.sap.adt.destinations.ui.logon.AdtLogonServiceUIFactory;
 import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
 import com.sap.adt.util.ui.SWTUtil;
 
@@ -97,9 +96,13 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 
 	private IProject project;
 	private String destinationId;
-	private IRepository currentRepo;
-	private IAbapGitStaging stagingModel;
 	private IRepositoryService repoService;
+
+	//UI Model
+	private IAbapGitStaging model;
+	private IRepository repository;
+	private IExternalRepositoryInfo repositoryExternalInfo;
+	private IExternalRepositoryInfoRequest repositoryCredentials;
 
 	//UI controls
 	private FormToolkit toolkit;
@@ -275,7 +278,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		SWTUtil.setButtonWidthHint(this.commitAndPushButton);
 		this.commitAndPushButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				commit();
+				commitAndPush();
 			}
 		});
 	}
@@ -398,8 +401,9 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	private void createRefreshAction() {
 		this.actionRefresh = new Action() {
 			public void run() {
-				//refresh the view
-				loadStagingView(AbapGitStagingView.this.currentRepo, AbapGitStagingView.this.project);
+				if (AbapGitStagingView.this.repository != null && AbapGitStagingView.this.project != null) {
+					refresh();
+				}
 			}
 		};
 		this.actionRefresh.setText(Messages.AbapGitView_action_refresh);
@@ -436,101 +440,129 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	}
 
 	private void stageSelectedObjects(IStructuredSelection selection) {
+		//TODO : implement single file mode
 		List<IAbapGitObject> abapGitObjects = getAbapObjectsFromSelection(selection);
-		this.stagingModel.getUnstagedObjects().getAbapgitobject().removeAll(abapGitObjects);
-		this.stagingModel.getStagedObjects().getAbapgitobject().addAll(abapGitObjects);
-		refresh();
+		this.model.getUnstagedObjects().getAbapgitobject().removeAll(abapGitObjects);
+		this.model.getStagedObjects().getAbapgitobject().addAll(abapGitObjects);
+		refreshUI();
 	}
 
 	private void unstageSelectedObjects(IStructuredSelection selection) {
+		//TODO : implement single file mode
 		List<IAbapGitObject> abapGitObjects = getAbapObjectsFromSelection(selection);
-		this.stagingModel.getStagedObjects().getAbapgitobject().removeAll(abapGitObjects);
-		this.stagingModel.getUnstagedObjects().getAbapgitobject().addAll(abapGitObjects);
-		refresh();
+		this.model.getStagedObjects().getAbapgitobject().removeAll(abapGitObjects);
+		this.model.getUnstagedObjects().getAbapgitobject().addAll(abapGitObjects);
+		refreshUI();
 	}
 
 	private List<IAbapGitObject> getAbapObjectsFromSelection(IStructuredSelection selection) {
 		List<IAbapGitObject> abapGitObjects = new ArrayList<>();
+		IAbapGitObject abapObject = null;
 		for (Object object : selection.toList()) {
 			if (object instanceof IAbapGitObject) {
-				abapGitObjects.add((IAbapGitObject) object);
-			} else if (object instanceof IAbapGitFile) { //TODO : validate whether this behavior is okay for the first release, to stage/unstage the complete object even if a single file is selected under the object
-				abapGitObjects.add((IAbapGitObject) ((IAbapGitFile) object).eContainer());
+				abapObject = (IAbapGitObject) object;
+			} else if (object instanceof IAbapGitFile) {
+				abapObject = (IAbapGitObject) ((IAbapGitFile) object).eContainer();
+			}
+			if (!abapGitObjects.contains(abapObject)) {
+				abapGitObjects.add(abapObject);
 			}
 		}
 		return abapGitObjects;
 	}
 
 	@Override
-	public void loadStagingView(IRepository repository, IProject project) {
+	public void openStagingView(IRepository repository, IProject project) {
 		if (repository != null && project != null) {
-			resetStagingView(); //reset view
+			loadRepository(repository, project);
+		}
+	}
 
-			AbapGitStagingView.this.project = project;
-			AbapGitStagingView.this.destinationId = getDestination(project);
-			if (this.destinationId != null) {
-				this.repoService = getRepositoryService(this.destinationId);
-				if (this.repoService == null) { //AbapGit not supported
-					MessageDialog.openError(getSite().getShell(),
-							NLS.bind(Messages.AbapGitView_not_supported, AbapGitStagingView.this.project.getName()),
-							NLS.bind(Messages.AbapGitView_not_supported, AbapGitStagingView.this.project.getName()));
+	private void loadRepository(IRepository repository, IProject project) {
+		//reset the staging view to initial
+		resetStagingView();
 
-					return;
-				}
+		//logon if required
+		if (!AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(project).isOK()) {
+			return;
+		}
 
-				try {
-					PlatformUI.getWorkbench().getProgressService().busyCursorWhile(new IRunnableWithProgress() {
-						@Override
-						public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-							//fetch the external repository details
-							monitor.beginTask(Messages.AbapGitWizardPageRepositoryAndCredentials_task_fetch_repo_info, IProgressMonitor.UNKNOWN);
-							IExternalRepositoryInfo externalRepoInfo = getExternalRepositoryInfo(repository, monitor);
-							if (externalRepoInfo != null) {
+		AbapGitStagingView.this.project = project;
+		AbapGitStagingView.this.destinationId = getDestination(project);
+		this.repoService = getRepositoryService(this.destinationId);
+		if (this.repoService == null) { //AbapGit not supported
+			MessageDialog.openError(getSite().getShell(),
+					NLS.bind(Messages.AbapGitView_not_supported, AbapGitStagingView.this.project.getName()),
+					NLS.bind(Messages.AbapGitView_not_supported, AbapGitStagingView.this.project.getName()));
+			return;
+		}
 
-									//fetch the staging data
-									monitor.beginTask(Messages.AbapGitView_task_fetch_repos_staging, IProgressMonitor.UNKNOWN);
-									//check if the repository is private
-									if (externalRepoInfo.getAccessMode() == AccessMode.PRIVATE) {
-										Display.getDefault().syncExec(new Runnable() {
-											public void run() {
-												//open the user credentials pop-up
-												Dialog userCredentialsDialog = new AbapGitStagingCredentialsDialog(getSite().getShell());
-												int result = userCredentialsDialog.open();
-												if (result == IDialogConstants.OK_ID) {
+		AbapGitStagingView.this.repository = repository;
+		//load staging data and refresh UI
+		refresh();
+	}
 
-												try {
-													IExternalRepositoryInfoRequest externalRepo = ((AbapGitStagingCredentialsDialog) userCredentialsDialog)
-															.getExternalRepoInfo();
-													AbapGitStagingView.this.stagingModel = AbapGitStagingView.this.repoService
-															.getStagingInfo(repository, externalRepo, monitor);
-												} catch (CommunicationException | ResourceException | OperationCanceledException e) {
-													openErrorDialog(null, e.getMessage(), true);
-												}
+	private boolean checkIfCredentialsRequired(IRepository repository, IProgressMonitor monitor) {
+		if (this.repositoryExternalInfo == null) {
+			monitor.beginTask(Messages.AbapGitWizardPageRepositoryAndCredentials_task_fetch_repo_info, IProgressMonitor.UNKNOWN);
+			AbapGitStagingView.this.repositoryExternalInfo = getExternalRepositoryInfo(repository, monitor);
+		}
 
-												}
-											}
-										});
-									} else {
-									try {
-										AbapGitStagingView.this.stagingModel = AbapGitStagingView.this.repoService
-												.getStagingInfo(repository, monitor);
-									} catch (CommunicationException | ResourceException | OperationCanceledException e) {
-										openErrorDialog(null, e.getMessage(), true);
-									}
-							}
-							if (AbapGitStagingView.this.stagingModel != null) {
-								AbapGitStagingView.this.currentRepo = repository;
-								refresh(); //refresh view
-							}
-							}
-						}
-					});
-				} catch (InvocationTargetException | InterruptedException e) {
-					StatusManager.getManager().handle(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID,
-							Messages.AbapGitView_task_fetch_repos_staging_error, e.getCause()), StatusManager.SHOW);
+		//check whether the repo is private
+		if (AbapGitStagingView.this.repositoryExternalInfo.getAccessMode() == AccessMode.PRIVATE) {
+			return true;
+		}else {
+			return false;
+		}
+	}
+
+	private boolean getUserCredentials() {
+		//open the user credentials pop-up
+		Display.getDefault().syncExec(new Runnable() {
+			@Override
+			public void run() {
+				Dialog userCredentialsDialog = new AbapGitStagingCredentialsDialog(getSite().getShell());
+				if (userCredentialsDialog.open() == IDialogConstants.OK_ID) {
+					AbapGitStagingView.this.repositoryCredentials = ((AbapGitStagingCredentialsDialog) userCredentialsDialog)
+							.getExternalRepoInfo();
 				}
 			}
-		}
+		});
+
+		return this.repositoryCredentials != null ? true : false;
+	}
+
+	private void refresh() {
+		Job refreshJob = new Job(Messages.AbapGitView_task_fetch_repos_staging) {
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				try {
+					if (AbapGitStagingView.this.repositoryCredentials == null) {
+						if (checkIfCredentialsRequired(AbapGitStagingView.this.repository, monitor)) {
+							if (!getUserCredentials()) {
+								return Status.CANCEL_STATUS;
+							}
+						}
+					}
+					//fetch the staging data
+					monitor.beginTask(Messages.AbapGitView_task_fetch_repos_staging, IProgressMonitor.UNKNOWN);
+					AbapGitStagingView.this.model = AbapGitStagingView.this.repoService
+							.stage(AbapGitStagingView.this.repository, AbapGitStagingView.this.repositoryCredentials, monitor);
+
+					if (AbapGitStagingView.this.model != null) {
+						//refresh UI
+						refreshUI();
+					}
+				} catch (CommunicationException | ResourceException | OperationCanceledException e) {
+					openErrorDialog(Messages.AbapGitView_task_fetch_repos_staging_error, e.getMessage(), true);
+				}
+				return Status.OK_STATUS;
+			}
+		};
+
+		IProgressService service = PlatformUI.getWorkbench().getProgressService();
+		service.showInDialog(getSite().getShell(), refreshJob);
+		refreshJob.schedule();
 	}
 
 	/**
@@ -545,18 +577,18 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	/**
 	 * Refreshes the staging view
 	 */
-	private void refresh() {
+	private void refreshUI() {
 		Display.getDefault().syncExec(new Runnable() {
 			public void run() {
 				//TODO : have a better format for form header
-				AbapGitStagingView.this.mainForm.setText(getRepoNameFromUrl(AbapGitStagingView.this.currentRepo.getUrl()) + " [" //$NON-NLS-1$
-						+ AbapGitStagingView.this.currentRepo.getPackage() + "]" + " [" //$NON-NLS-1$//$NON-NLS-2$
-						+ getBranchName(AbapGitStagingView.this.currentRepo.getBranch()) + "]" + " [" //$NON-NLS-1$//$NON-NLS-2$
+				AbapGitStagingView.this.mainForm.setText(getRepoNameFromUrl(AbapGitStagingView.this.repository.getUrl()) + " [" //$NON-NLS-1$
+						+ AbapGitStagingView.this.repository.getPackage() + "]" + " [" //$NON-NLS-1$//$NON-NLS-2$
+						+ getBranchName(AbapGitStagingView.this.repository.getBranch()) + "]" + " [" //$NON-NLS-1$//$NON-NLS-2$
 						+ AbapGitStagingView.this.project.getName() + "]"); //$NON-NLS-1$
 
-				List<IAbapGitObject> unstagedInput = getUnstagedObjectsFromModel(AbapGitStagingView.this.stagingModel);
+				List<IAbapGitObject> unstagedInput = getUnstagedObjectsFromModel(AbapGitStagingView.this.model);
 				//TODO : enable ignored objects handling
-				List<IAbapGitObject> stagedInput = getStagedObjectsFromModel(AbapGitStagingView.this.stagingModel);
+				List<IAbapGitObject> stagedInput = getStagedObjectsFromModel(AbapGitStagingView.this.model);
 
 				//update the tree viewers
 				AbapGitStagingView.this.unstagedTreeViewer.setInput(unstagedInput);
@@ -564,11 +596,11 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 
 				//update the commit message section
 				AbapGitStagingView.this.authorText
-						.setText(AbapGitStagingView.this.stagingModel.getCommitMessage().getAuthor().getName() + " <" //$NON-NLS-1$
-								+ AbapGitStagingView.this.stagingModel.getCommitMessage().getAuthor().getEmail() + ">"); //$NON-NLS-1$
+						.setText(AbapGitStagingView.this.model.getCommitMessage().getAuthor().getName() + " <" //$NON-NLS-1$
+								+ AbapGitStagingView.this.model.getCommitMessage().getAuthor().getEmail() + ">"); //$NON-NLS-1$
 				AbapGitStagingView.this.committerText
-						.setText(AbapGitStagingView.this.stagingModel.getCommitMessage().getCommitter().getName() + " <" //$NON-NLS-1$
-								+ AbapGitStagingView.this.stagingModel.getCommitMessage().getCommitter().getEmail() + ">"); //$NON-NLS-1$
+						.setText(AbapGitStagingView.this.model.getCommitMessage().getCommitter().getName() + " <" //$NON-NLS-1$
+								+ AbapGitStagingView.this.model.getCommitMessage().getCommitter().getEmail() + ">"); //$NON-NLS-1$
 
 				updateSectionHeaders();
 				updateButtonsState();
@@ -581,9 +613,21 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	 * Resets the staging view
 	 */
 	private void resetStagingView() {
-		this.stagingModel = null;
-		this.currentRepo = null;
+		resetModel();
+		resetUI();
+	}
 
+	private void resetModel() {
+		this.model = null;
+		this.repository = null;
+		this.repositoryExternalInfo = null;
+		this.repositoryCredentials = null;
+		this.project = null;
+		this.destinationId = null;
+		this.repoService = null;
+	}
+
+	private void resetUI() {
 		this.mainForm.setText(Messages.AbapGitStaging_no_repository_selected);
 		this.commitMessageTextViewer.getTextWidget().setText(""); //$NON-NLS-1$
 		this.authorText.setText(""); //$NON-NLS-1$
@@ -613,9 +657,10 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	 * Updates the state of UI buttons
 	 */
 	private void updateButtonsState() {
-		this.commitAndPushButton.setEnabled(this.currentRepo == null ? false : true); //disabled if no repository is loaded
+		this.commitAndPushButton.setEnabled(this.repository == null ? false : true); //disabled if no repository is loaded
 		this.stageAction.setEnabled(this.unstagedTreeViewer.getTree().getItemCount() > 0 ? true : false);
 		this.unstageAction.setEnabled(this.stagedTreeViewer.getTree().getItemCount() > 0 ? true : false);
+		this.actionRefresh.setEnabled(this.repository == null ? false : true);
 	}
 
 	private List<IAbapGitObject> getUnstagedObjectsFromModel(IAbapGitStaging staging) {
@@ -773,9 +818,9 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		changeWarningsVisibility(false);
 	}
 
-	private void commit() {
+	private void commitAndPush() {
 		//check if any repo is selected
-		if (this.currentRepo == null) {
+		if (this.repository == null) {
 			MessageDialog.openWarning(getSite().getShell(), Messages.AbapGitStaging_no_repository_selected,
 					Messages.AbapGitStaging_commit_error_no_repo_loaded_desc);
 			return;
@@ -806,31 +851,50 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		}
 
 		//update model
-		this.stagingModel.getCommitMessage().setMessage(commitMessage);
-		this.stagingModel.getCommitMessage().setAuthor(author);
-		this.stagingModel.getCommitMessage().setCommitter(committer);
+		this.model.getCommitMessage().setMessage(commitMessage);
+		this.model.getCommitMessage().setAuthor(author);
+		this.model.getCommitMessage().setCommitter(committer);
 
-		//open the user credentials pop-up
-		Dialog userCredentialsDialog = new AbapGitStagingCredentialsDialog(getSite().getShell());
-		int result = userCredentialsDialog.open();
-		if (result == IDialogConstants.OK_ID) {
-			IExternalRepositoryInfoRequest externalRepo = ((AbapGitStagingCredentialsDialog) userCredentialsDialog).getExternalRepoInfo();
-			Job commitJob = new Job(Messages.AbapGitStaging_commit_job_title) {
-				@Override
-				protected IStatus run(IProgressMonitor monitor) {
-					try {
-						AbapGitStagingView.this.repoService.commit(new NullProgressMonitor(), AbapGitStagingView.this.stagingModel,
-								AbapGitStagingView.this.currentRepo, externalRepo);
-						//TODO : response dialog
-						return Status.OK_STATUS;
-					} catch (CommunicationException | ResourceException | OperationCanceledException e) {
-						openErrorDialog(null, e.getMessage(), true);
-					}
-					return Status.CANCEL_STATUS;
-				}
-			};
-			commitJob.schedule();
+		//get credentials
+		if (this.repositoryCredentials == null) {
+			//open the user credentials pop-up
+			Dialog userCredentialsDialog = new AbapGitStagingCredentialsDialog(getSite().getShell());
+			if (userCredentialsDialog.open() == IDialogConstants.OK_ID) {
+				AbapGitStagingView.this.repositoryCredentials = ((AbapGitStagingCredentialsDialog) userCredentialsDialog)
+						.getExternalRepoInfo();
+			} else {
+				return;
+			}
 		}
+
+		//push
+		Job pushJob = new Job(Messages.AbapGitStaging_push_job_title) {
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				try {
+					AbapGitStagingView.this.repoService.push(new NullProgressMonitor(), AbapGitStagingView.this.model,
+							AbapGitStagingView.this.repository, AbapGitStagingView.this.repositoryCredentials);
+
+					//push successful
+					Display.getDefault().syncExec(new Runnable() {
+						public void run() {
+							MessageDialog.openInformation(getSite().getShell(), Messages.AbapGitStaging_push_job_successful,
+									Messages.AbapGitStaging_push_job_successful);
+							AbapGitStagingView.this.commitMessageTextViewer.getTextWidget().setText(""); //$NON-NLS-1$
+							refresh(); // refresh
+						}
+					});
+					return Status.OK_STATUS;
+				} catch (CommunicationException | ResourceException | OperationCanceledException e) {
+					openErrorDialog(Messages.AbapGitStaging_push_job_error, e.getMessage(), true);
+				}
+				return Status.CANCEL_STATUS;
+			}
+		};
+
+		IProgressService service = PlatformUI.getWorkbench().getProgressService();
+		service.showInDialog(getSite().getShell(), pushJob);
+		pushJob.schedule();
 	}
 
 	@Override

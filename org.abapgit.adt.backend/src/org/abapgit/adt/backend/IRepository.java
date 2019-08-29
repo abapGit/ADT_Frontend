@@ -71,6 +71,6 @@ public interface IRepository {
 
 	public URI getStageLink(String relation);
 
-	public URI getCommitLink(String relation);
+	public URI getPushLink(String relation);
 
 }

@@ -26,16 +26,16 @@ import org.eclipse.emf.ecore.EObject;
 public interface IAbapGitFile extends EObject {
 
 	public enum Status {
-		ADDED('A'), REMOVED('D'), MODIFIED('M');
+		ADDED("A"), DELETED("D"), MODIFIED("M"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
-		private final char status;
+		private final String status;
 
-		private Status(char status) {
+		private Status(String status) {
 			this.status = status;
 		}
 
-		public char getChar() {
-			return status;
+		public String getStatus() {
+			return this.status;
 		}
 	}
 
@@ -90,12 +90,13 @@ public interface IAbapGitFile extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Local State</em>' attribute.
-	 * @see #setLocalState(char)
+	 * @see #setLocalState(String)
 	 * @see org.abapgit.adt.backend.model.abapgitstaging.IAbapgitstagingPackage#getAbapGitFile_LocalState()
-	 * @model extendedMetaData="kind='attribute' namespace='##targetNamespace' name='localState'"
+	 * @model dataType="org.eclipse.emf.ecore.xml.type.String"
+	 *        extendedMetaData="kind='attribute' namespace='##targetNamespace' name='localState'"
 	 * @generated
 	 */
-	char getLocalState();
+	String getLocalState();
 
 	/**
 	 * Sets the value of the '{@link org.abapgit.adt.backend.model.abapgitstaging.IAbapGitFile#getLocalState <em>Local State</em>}' attribute.
@@ -105,19 +106,20 @@ public interface IAbapGitFile extends EObject {
 	 * @see #getLocalState()
 	 * @generated
 	 */
-	void setLocalState(char value);
+	void setLocalState(String value);
 
 	/**
 	 * Returns the value of the '<em><b>Remote State</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Remote State</em>' attribute.
-	 * @see #setRemoteState(char)
+	 * @see #setRemoteState(String)
 	 * @see org.abapgit.adt.backend.model.abapgitstaging.IAbapgitstagingPackage#getAbapGitFile_RemoteState()
-	 * @model extendedMetaData="kind='attribute' namespace='##targetNamespace' name='remoteState'"
+	 * @model dataType="org.eclipse.emf.ecore.xml.type.String"
+	 *        extendedMetaData="kind='attribute' namespace='##targetNamespace' name='remoteState'"
 	 * @generated
 	 */
-	char getRemoteState();
+	String getRemoteState();
 
 	/**
 	 * Sets the value of the '{@link org.abapgit.adt.backend.model.abapgitstaging.IAbapGitFile#getRemoteState <em>Remote State</em>}' attribute.
@@ -127,6 +129,6 @@ public interface IAbapGitFile extends EObject {
 	 * @see #getRemoteState()
 	 * @generated
 	 */
-	void setRemoteState(char value);
+	void setRemoteState(String value);
 
 } // IAbapGitFile

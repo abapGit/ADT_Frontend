@@ -778,7 +778,7 @@ public class AbapGitView extends ViewPart {
 			try {
 				IAbapGitStagingView stagingView = ((IAbapGitStagingView) PlatformUI.getWorkbench().getActiveWorkbenchWindow()
 						.getActivePage().showView(AbapGitStagingView.VIEW_ID));
-				stagingView.loadStagingView(this.repository, this.project);
+				stagingView.openStagingView(this.repository, this.project);
 			} catch (PartInitException e) {
 				AbapGitUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getMessage(), e));
 			}

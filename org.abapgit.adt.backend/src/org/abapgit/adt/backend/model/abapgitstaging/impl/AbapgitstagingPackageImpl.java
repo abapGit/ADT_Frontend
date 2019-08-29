@@ -635,8 +635,8 @@ public class AbapgitstagingPackageImpl extends EPackageImpl implements IAbapgits
 		initEClass(abapGitFileEClass, IAbapGitFile.class, "AbapGitFile", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getAbapGitFile_Name(), theXMLTypePackage.getString(), "name", null, 0, 1, IAbapGitFile.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getAbapGitFile_Path(), theXMLTypePackage.getString(), "path", null, 0, 1, IAbapGitFile.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getAbapGitFile_LocalState(), ecorePackage.getEChar(), "localState", null, 0, 1, IAbapGitFile.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getAbapGitFile_RemoteState(), ecorePackage.getEChar(), "remoteState", null, 0, 1, IAbapGitFile.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getAbapGitFile_LocalState(), theXMLTypePackage.getString(), "localState", null, 0, 1, IAbapGitFile.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getAbapGitFile_RemoteState(), theXMLTypePackage.getString(), "remoteState", null, 0, 1, IAbapGitFile.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(authorEClass, IAuthor.class, "Author", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getAuthor_Name(), theXMLTypePackage.getString(), "name", null, 0, 1, IAuthor.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);

@@ -166,29 +166,26 @@ public class RepositoryService implements IRepositoryService {
 	}
 
 	@Override
-	public IAbapGitStaging getStagingInfo(IRepository repository, IProgressMonitor monitor) {
-		IRestResource restResource = getStagingRestResource(repository);
-		return restResource.get(monitor, IAbapGitStaging.class);
-	}
-
-	@Override
-	public IAbapGitStaging getStagingInfo(IRepository repository, IExternalRepositoryInfoRequest externalRepo,
+	public IAbapGitStaging stage(IRepository repository, IExternalRepositoryInfoRequest externalRepo,
 			IProgressMonitor monitor) {
-		IRestResource restResource = getStagingRestResource(repository);
-		return restResource.get(monitor, getHttpHeadersForCredentials(externalRepo.getUser(), externalRepo.getPassword()),
-				IAbapGitStaging.class);
+		IHeaders headers = null;
+		IRestResource restResource = getStageRestResource(repository);
+		if (externalRepo != null) {
+			headers = getHttpHeadersForCredentials(externalRepo.getUser(), externalRepo.getPassword());
+		}
+		return restResource.get(monitor, headers, IAbapGitStaging.class);
 	}
 
-	private IRestResource getStagingRestResource(IRepository repository) {
+	private IRestResource getStageRestResource(IRepository repository) {
 		URI stagingUri = repository.getStageLink(IRepositoryService.RELATION_STAGE);
-		return getRestResourceForAbapGitStaging(stagingUri);
+		return getRestResource(stagingUri);
 	}
 
 	@Override
-	public void commit(IProgressMonitor monitor, IAbapGitStaging staging, IRepository repository,
+	public void push(IProgressMonitor monitor, IAbapGitStaging staging, IRepository repository,
 			IExternalRepositoryInfoRequest externalRepo) {
-		URI commitUri = repository.getCommitLink(IRepositoryService.RELATION_COMMIT);
-		IRestResource restResource = getRestResourceForAbapGitStaging(commitUri);
+		URI pushUri = repository.getPushLink(IRepositoryService.RELATION_PUSH);
+		IRestResource restResource = getRestResource(pushUri);
 		restResource.post(monitor, getHttpHeadersForCredentials(externalRepo.getUser(), externalRepo.getPassword()), null, staging);
 	}
 
@@ -198,10 +195,10 @@ public class RepositoryService implements IRepositoryService {
 	 */
 	private IHeaders getHttpHeadersForCredentials(String username, String password) {
 		IHeaders headers = HeadersFactory.newHeaders();
-		IHeaders.IField userField = HeadersFactory.newField("Github-Username", username); //$NON-NLS-1$
+		IHeaders.IField userField = HeadersFactory.newField("Username", username); //$NON-NLS-1$
 		headers.addField(userField);
 		Base64.Encoder encoder = Base64.getMimeEncoder();
-		IHeaders.IField passwordField = HeadersFactory.newField("Github-Password", //$NON-NLS-1$
+		IHeaders.IField passwordField = HeadersFactory.newField("Password", //$NON-NLS-1$
 				encoder.encodeToString(password.getBytes()));
 		headers.addField(passwordField);
 		return headers;
@@ -210,7 +207,7 @@ public class RepositoryService implements IRepositoryService {
 	/**
 	 * Returns the rest resource for REST calls from AbapGit Staging view
 	 */
-	private IRestResource getRestResourceForAbapGitStaging(URI uri) {
+	private IRestResource getRestResource(URI uri) {
 		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory().createResourceWithStatelessSession(uri,
 				this.destinationId);
 

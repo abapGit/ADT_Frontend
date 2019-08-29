@@ -78,8 +78,8 @@ public class RepositorySerializer {
 						repository.addStageLink(linkRel, URI.create(linkHref));
 					}
 
-					if (linkRelType.equals("commit")) { //$NON-NLS-1$
-						repository.addCommitLink(linkRel, URI.create(linkHref));
+					if (linkRelType.equals("push")) { //$NON-NLS-1$
+						repository.addPushLink(linkRel, URI.create(linkHref));
 					}
 
 					depth++;
