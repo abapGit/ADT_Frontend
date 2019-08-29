@@ -1,5 +1,7 @@
 package org.abapgit.adt.ui.internal.views;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -49,6 +51,8 @@ import org.eclipse.jface.text.MarginPainter;
 import org.eclipse.jface.text.TextViewer;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.osgi.util.NLS;
@@ -84,7 +88,11 @@ import org.eclipse.ui.progress.IProgressService;
 import com.sap.adt.communication.exceptions.CommunicationException;
 import com.sap.adt.communication.resources.ResourceException;
 import com.sap.adt.destinations.ui.logon.AdtLogonServiceUIFactory;
+import com.sap.adt.tools.core.AdtObjectReference;
+import com.sap.adt.tools.core.IAdtObjectReference;
+import com.sap.adt.tools.core.model.util.AdtObjectReferenceAdapterFactory;
 import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
+import com.sap.adt.tools.core.ui.navigation.AdtNavigationServiceFactory;
 import com.sap.adt.util.ui.SWTUtil;
 
 public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView {
@@ -235,6 +243,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		viewer.getTree().setData(FormToolkit.KEY_DRAW_BORDER, FormToolkit.TREE_BORDER);
 		viewer.setLabelProvider(new AbapGitStagingLabelProvider());
 		viewer.setContentProvider(new AbapGitStagingContentProvider());
+		addDoubleClickListener(viewer);
 		return viewer;
 	}
 
@@ -925,6 +934,34 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 						}
 					}
 				});
+	}
+
+	private void addDoubleClickListener(TreeViewer viewer) {
+		viewer.addDoubleClickListener(new IDoubleClickListener() {
+			@Override
+			public void doubleClick(DoubleClickEvent event) {
+				//open the object
+				if (event.getSelection() instanceof IStructuredSelection) {
+					IStructuredSelection selection = (IStructuredSelection) event.getSelection();
+					Object object = selection.getFirstElement();
+					if (object instanceof IAbapGitObject) {
+						IAbapGitObject abapObject = (IAbapGitObject) object;
+						try {
+							if (abapObject.getUri() != null && !abapObject.getUri().isEmpty()) {
+								URI objectURI = new URI(abapObject.getUri());
+								IAdtObjectReference ref = new AdtObjectReference(objectURI, abapObject.getName(), abapObject.getWbkey(),
+										null);
+								AdtNavigationServiceFactory.createNavigationService().navigate(AbapGitStagingView.this.project,
+										AdtObjectReferenceAdapterFactory.createFromNonEmfReference(ref), true);
+							}
+						} catch (URISyntaxException e) {
+							AbapGitUIPlugin.getDefault().getLog()
+									.log(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getMessage(), e));
+						}
+					}
+				}
+			}
+		});
 	}
 
 	private static String getDestination(IProject project) {
