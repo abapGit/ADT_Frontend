@@ -115,6 +115,7 @@ public class Messages extends NLS {
 
 	//ABAPGIT STAGING MESSAGES
 	public static String AbapGitStaging_no_repository_selected;
+	public static String AbapGitStaging_object_filter_text;
 	public static String AbapGitStaging_unstaged_changes_section_header;
 	public static String AbapGitStaging_staged_changes_section_header;
 	public static String AbapGitStaging_commit_section_header;
