@@ -56,6 +56,8 @@ import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -256,6 +258,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		viewer.getTree().setData(FormToolkit.KEY_DRAW_BORDER, FormToolkit.TREE_BORDER);
 		viewer.setLabelProvider(new AbapGitStagingLabelProvider());
 		viewer.setContentProvider(new AbapGitStagingContentProvider());
+		viewer.setComparator(new TreeComparator());
 		addDoubleClickListener(viewer);
 		addKeyListener(viewer, unstaged);
 		return viewer;
@@ -439,7 +442,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	 * Action for staging an object from unstaged section to staged section
 	 */
 	private void createStageAction() {
-		this.stageAction = new Action(Messages.AbapGitStaging_action_stage,
+		this.stageAction = new Action(Messages.AbapGitStaging_action_stage_xtol,
 				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJ_ADD)) {
 			public void run() {
 				IStructuredSelection selection = (IStructuredSelection) AbapGitStagingView.this.unstagedTreeViewer.getSelection();
@@ -453,7 +456,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	 */
 	private void createUnstageAction() {
 		//TODO: icon
-		this.unstageAction = new Action(Messages.AbapGitStaging_action_unstage,
+		this.unstageAction = new Action(Messages.AbapGitStaging_action_unstage_xtol,
 				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_REMOVE)) {
 			public void run() {
 				IStructuredSelection selection = (IStructuredSelection) AbapGitStagingView.this.stagedTreeViewer.getSelection();
@@ -1037,6 +1040,28 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		super.dispose();
 		this.unstagedMenuFactory.dispose();
 		this.stagedMenuFactory.dispose();
+	}
+
+	private class TreeComparator extends ViewerComparator {
+		@Override
+		public int compare(Viewer viewer, Object e1, Object e2) {
+			return compareElements(viewer, e1, e2);
+		}
+	}
+
+	private int compareElements(Viewer viewer, Object e1, Object e2) {
+		TreeViewer treeViewer = (TreeViewer) viewer;
+		IAbapGitObject object1 = (IAbapGitObject) e1;
+		IAbapGitObject object2 = (IAbapGitObject) e2;
+		//set "non-code and meta files" as the first node
+		if (object1.getType() == null) {
+			return treeViewer.getTree().getSortDirection() == SWT.UP ? 1 : -1;
+		}
+		if (object2.getType() == null) {
+			return treeViewer.getTree().getSortDirection() == SWT.UP ? -1 : 1;
+		}
+		int result = object1.getName().compareToIgnoreCase(object2.getName());
+		return treeViewer.getTree().getSortDirection() == SWT.UP ? result : -result;
 	}
 
 }
