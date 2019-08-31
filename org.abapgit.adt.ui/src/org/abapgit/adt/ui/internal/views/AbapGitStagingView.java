@@ -35,6 +35,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.ToolBarManager;
+import org.eclipse.jface.bindings.keys.KeyStroke;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -58,10 +59,14 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DropTargetAdapter;
 import org.eclipse.swt.dnd.DropTargetEvent;
+import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -120,11 +125,13 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	private Section unstagedSection;
 	private TreeViewer unstagedTreeViewer;
 	private ToolBarManager unstagedToolbarManager;
+	private AbapGitStagingObjectMenuFactory unstagedMenuFactory;
 
 	//staged section controls
 	private Section stagedSection;
 	private TreeViewer stagedTreeViewer;
 	private ToolBarManager stagedToolbarManager;
+	private AbapGitStagingObjectMenuFactory stagedMenuFactory;
 
 	//commit section controls
 	private Section commitSection;
@@ -139,6 +146,8 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	private IAction actionRefresh;
 	private IAction stageAction;
 	private IAction unstageAction;
+
+	private static final KeyStroke KEY_STROKE_COPY = KeyStroke.getInstance(SWT.ALT, 'C' | 'c');
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -190,8 +199,10 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		GridLayoutFactory.fillDefaults().applyTo(unstagedComposite);
 		this.unstagedSection.setClient(unstagedComposite);
 
-		this.unstagedTreeViewer = this.createTreeViewer(unstagedComposite);
+		this.unstagedTreeViewer = this.createTreeViewer(unstagedComposite, true);
 		addDragAndDropSupport(this.unstagedTreeViewer, true);
+
+		this.unstagedMenuFactory = new AbapGitStagingObjectMenuFactory(this.unstagedTreeViewer, true, this);
 	}
 
 	private void createUnstagedSectionToolbar() {
@@ -221,8 +232,10 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		GridLayoutFactory.fillDefaults().applyTo(stagedComposite);
 		this.stagedSection.setClient(stagedComposite);
 
-		this.stagedTreeViewer = this.createTreeViewer(stagedComposite);
+		this.stagedTreeViewer = this.createTreeViewer(stagedComposite, false);
 		addDragAndDropSupport(this.stagedTreeViewer, false);
+
+		this.stagedMenuFactory = new AbapGitStagingObjectMenuFactory(this.stagedTreeViewer, false, this);
 	}
 
 	private void createStagedSectionToolbar() {
@@ -237,13 +250,14 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		this.stagedToolbarManager.createControl(stagedToolbarComposite);
 	}
 
-	private TreeViewer createTreeViewer(Composite parent) {
+	private TreeViewer createTreeViewer(Composite parent, Boolean unstaged) {
 		TreeViewer viewer = this.createTree(parent);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(viewer.getControl());
 		viewer.getTree().setData(FormToolkit.KEY_DRAW_BORDER, FormToolkit.TREE_BORDER);
 		viewer.setLabelProvider(new AbapGitStagingLabelProvider());
 		viewer.setContentProvider(new AbapGitStagingContentProvider());
 		addDoubleClickListener(viewer);
+		addKeyListener(viewer, unstaged);
 		return viewer;
 	}
 
@@ -448,7 +462,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		};
 	}
 
-	private void stageSelectedObjects(IStructuredSelection selection) {
+	protected void stageSelectedObjects(IStructuredSelection selection) {
 		//TODO : implement single file mode
 		List<IAbapGitObject> abapGitObjects = getAbapObjectsFromSelection(selection);
 		this.model.getUnstagedObjects().getAbapgitobject().removeAll(abapGitObjects);
@@ -456,7 +470,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		refreshUI();
 	}
 
-	private void unstageSelectedObjects(IStructuredSelection selection) {
+	protected void unstageSelectedObjects(IStructuredSelection selection) {
 		//TODO : implement single file mode
 		List<IAbapGitObject> abapGitObjects = getAbapObjectsFromSelection(selection);
 		this.model.getStagedObjects().getAbapgitobject().removeAll(abapGitObjects);
@@ -945,23 +959,57 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 					IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 					Object object = selection.getFirstElement();
 					if (object instanceof IAbapGitObject) {
-						IAbapGitObject abapObject = (IAbapGitObject) object;
-						try {
-							if (abapObject.getUri() != null && !abapObject.getUri().isEmpty()) {
-								URI objectURI = new URI(abapObject.getUri());
-								IAdtObjectReference ref = new AdtObjectReference(objectURI, abapObject.getName(), abapObject.getWbkey(),
-										null);
-								AdtNavigationServiceFactory.createNavigationService().navigate(AbapGitStagingView.this.project,
-										AdtObjectReferenceAdapterFactory.createFromNonEmfReference(ref), true);
-							}
-						} catch (URISyntaxException e) {
-							AbapGitUIPlugin.getDefault().getLog()
-									.log(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getMessage(), e));
-						}
+						openAbapObject((IAbapGitObject) object);
 					}
 				}
 			}
 		});
+	}
+
+	private void addKeyListener(TreeViewer viewer, boolean unstaged) {
+		viewer.getTree().addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.keyCode == KEY_STROKE_COPY.getNaturalKey() && e.stateMask == KEY_STROKE_COPY.getModifierKeys()) {
+					IStructuredSelection selection = null;
+					if (unstaged) {
+						selection = (IStructuredSelection) AbapGitStagingView.this.unstagedTreeViewer.getSelection();
+					} else {
+						selection = (IStructuredSelection) AbapGitStagingView.this.stagedTreeViewer.getSelection();
+					}
+					if (selection != null && selection.getFirstElement() != null) {
+						copy(selection.getFirstElement());
+					}
+				}
+			}
+		});
+	}
+
+	protected void openAbapObject(IAbapGitObject abapObject) {
+		try {
+			if (abapObject.getUri() != null && !abapObject.getUri().isEmpty()) {
+				URI objectURI = new URI(abapObject.getUri());
+				IAdtObjectReference ref = new AdtObjectReference(objectURI, abapObject.getName(), abapObject.getWbkey(), null);
+				AdtNavigationServiceFactory.createNavigationService().navigate(AbapGitStagingView.this.project,
+						AdtObjectReferenceAdapterFactory.createFromNonEmfReference(ref), true);
+			}
+		} catch (URISyntaxException e) {
+			AbapGitUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getMessage(), e));
+		}
+	}
+
+	protected void copy(Object object) {
+		final StringBuilder data = new StringBuilder();
+
+		if (object instanceof IAbapGitObject) {
+			data.append(((IAbapGitObject) object).getName());
+		} else if (object instanceof IAbapGitFile) {
+			data.append(((IAbapGitFile) object).getName());
+		}
+
+		final Clipboard clipboard = new Clipboard(this.getViewSite().getShell().getDisplay());
+		clipboard.setContents(new String[] { data.toString() }, new TextTransfer[] { TextTransfer.getInstance() });
+		clipboard.dispose();
 	}
 
 	private static String getDestination(IProject project) {
@@ -982,6 +1030,13 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		} else {
 			MessageDialog.openError(getSite().getShell(), title, message);
 		}
+	}
+
+	@Override
+	public void dispose() {
+		super.dispose();
+		this.unstagedMenuFactory.dispose();
+		this.stagedMenuFactory.dispose();
 	}
 
 }
