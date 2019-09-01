@@ -109,7 +109,7 @@ public class AbapGitObjectImpl extends AdtObjectReferenceImpl implements IAbapGi
 	 * @generated
 	 */
 	public String getWbkey() {
-		return wbkey;
+		return this.wbkey;
 	}
 
 	/**
@@ -118,10 +118,11 @@ public class AbapGitObjectImpl extends AdtObjectReferenceImpl implements IAbapGi
 	 * @generated
 	 */
 	public void setWbkey(String newWbkey) {
-		String oldWbkey = wbkey;
-		wbkey = newWbkey;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitstagingPackage.ABAP_GIT_OBJECT__WBKEY, oldWbkey, wbkey));
+		String oldWbkey = this.wbkey;
+		this.wbkey = newWbkey;
+		if (eNotificationRequired()) {
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitstagingPackage.ABAP_GIT_OBJECT__WBKEY, oldWbkey, this.wbkey));
+		}
 	}
 
 	/**
@@ -130,7 +131,7 @@ public class AbapGitObjectImpl extends AdtObjectReferenceImpl implements IAbapGi
 	 * @generated
 	 */
 	public String getVersion() {
-		return version;
+		return this.version;
 	}
 
 	/**
@@ -139,10 +140,11 @@ public class AbapGitObjectImpl extends AdtObjectReferenceImpl implements IAbapGi
 	 * @generated
 	 */
 	public void setVersion(String newVersion) {
-		String oldVersion = version;
-		version = newVersion;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitstagingPackage.ABAP_GIT_OBJECT__VERSION, oldVersion, version));
+		String oldVersion = this.version;
+		this.version = newVersion;
+		if (eNotificationRequired()) {
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitstagingPackage.ABAP_GIT_OBJECT__VERSION, oldVersion, this.version));
+		}
 	}
 
 	/**
@@ -151,10 +153,10 @@ public class AbapGitObjectImpl extends AdtObjectReferenceImpl implements IAbapGi
 	 * @generated
 	 */
 	public EList<IAbapGitFile> getFiles() {
-		if (files == null) {
-			files = new EObjectContainmentEList<IAbapGitFile>(IAbapGitFile.class, this, IAbapgitstagingPackage.ABAP_GIT_OBJECT__FILES);
+		if (this.files == null) {
+			this.files = new EObjectContainmentEList<IAbapGitFile>(IAbapGitFile.class, this, IAbapgitstagingPackage.ABAP_GIT_OBJECT__FILES);
 		}
-		return files;
+		return this.files;
 	}
 
 	/**
@@ -242,11 +244,11 @@ public class AbapGitObjectImpl extends AdtObjectReferenceImpl implements IAbapGi
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
 			case IAbapgitstagingPackage.ABAP_GIT_OBJECT__WBKEY:
-				return WBKEY_EDEFAULT == null ? wbkey != null : !WBKEY_EDEFAULT.equals(wbkey);
+				return WBKEY_EDEFAULT == null ? this.wbkey != null : !WBKEY_EDEFAULT.equals(this.wbkey);
 			case IAbapgitstagingPackage.ABAP_GIT_OBJECT__VERSION:
-				return VERSION_EDEFAULT == null ? version != null : !VERSION_EDEFAULT.equals(version);
+				return VERSION_EDEFAULT == null ? this.version != null : !VERSION_EDEFAULT.equals(this.version);
 			case IAbapgitstagingPackage.ABAP_GIT_OBJECT__FILES:
-				return files != null && !files.isEmpty();
+				return this.files != null && !this.files.isEmpty();
 		}
 		return super.eIsSet(featureID);
 	}
@@ -258,13 +260,15 @@ public class AbapGitObjectImpl extends AdtObjectReferenceImpl implements IAbapGi
 	 */
 	@Override
 	public String toString() {
-		if (eIsProxy()) return super.toString();
+		if (eIsProxy()) {
+			return super.toString();
+		}
 
 		StringBuilder result = new StringBuilder(super.toString());
 		result.append(" (wbkey: ");
-		result.append(wbkey);
+		result.append(this.wbkey);
 		result.append(", version: ");
-		result.append(version);
+		result.append(this.version);
 		result.append(')');
 		return result.toString();
 	}
@@ -278,6 +282,10 @@ public class AbapGitObjectImpl extends AdtObjectReferenceImpl implements IAbapGi
 						&& (this.getUri().equals(object.getUri()))) {
 					return true;
 				}
+			}
+			//sepcial handling for "non-code and meta files" node
+			if (this.getName() != null && object.getName() != null && this.getType() == null && object.getType() == null) {
+				return true;
 			}
 		}
 		return super.equals(obj);

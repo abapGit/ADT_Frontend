@@ -24,6 +24,8 @@ import org.abapgit.adt.backend.model.abapgitstaging.ICommitter;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.dialogs.AbapGitStagingCredentialsDialog;
 import org.abapgit.adt.ui.internal.i18n.Messages;
+import org.abapgit.adt.ui.internal.util.FileStagingModelUtil;
+import org.abapgit.adt.ui.internal.util.ObjectStaginModeUtil;
 import org.abapgit.adt.ui.internal.util.StagingDragListener;
 import org.abapgit.adt.ui.internal.util.StagingDragSelection;
 import org.eclipse.core.resources.IProject;
@@ -166,6 +168,14 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	private IAction actionCollapseAllStaged;
 
 	private static final KeyStroke KEY_STROKE_COPY = KeyStroke.getInstance(SWT.ALT, 'C' | 'c');
+
+	/**
+	 * Set singleFileStageMode = true, to enable file staging/unstaging and drag
+	 * and drop mode. If it is set to false, always the parent object is moved
+	 * across unstaged and staged changes even on drag and drop of a file under
+	 * the parent object
+	 */
+	private final boolean singleFileStageMode = false;
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -603,51 +613,29 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	}
 
 	protected void stageSelectedObjects(IStructuredSelection selection) {
-		//TODO : implement single file mode
-		List<IAbapGitObject> abapGitObjects = getAbapObjectsFromSelection(selection);
 		List<Object> expandedNodes = new ArrayList<>();
-		for (IAbapGitObject object : abapGitObjects) {
-			if (this.unstagedTreeViewer.getExpandedState(object)) {
-				expandedNodes.add(object);
-			}
+		if (!this.singleFileStageMode) {
+			ObjectStaginModeUtil.stageObjects(this.unstagedTreeViewer, selection, this.model, expandedNodes);
+		} else {
+			FileStagingModelUtil.stageObjects(this.unstagedTreeViewer, selection, this.model, expandedNodes);
 		}
-		this.model.getUnstagedObjects().getAbapgitobject().removeAll(abapGitObjects);
-		this.model.getStagedObjects().getAbapgitobject().addAll(abapGitObjects);
+
 		refreshUI();
 		expandedNodes.addAll(Arrays.asList(this.stagedTreeViewer.getExpandedElements()));
 		this.stagedTreeViewer.setExpandedElements(expandedNodes.toArray());
 	}
 
 	protected void unstageSelectedObjects(IStructuredSelection selection) {
-		//TODO : implement single file mode
-		List<IAbapGitObject> abapGitObjects = getAbapObjectsFromSelection(selection);
 		List<Object> expandedNodes = new ArrayList<>();
-		for (IAbapGitObject object : abapGitObjects) {
-			if (this.stagedTreeViewer.getExpandedState(object)) {
-				expandedNodes.add(object);
-			}
+		if (!this.singleFileStageMode) {
+			ObjectStaginModeUtil.unstageObjects(this.stagedTreeViewer, selection, this.model, expandedNodes);
+		} else {
+			FileStagingModelUtil.unstageObjects(this.stagedTreeViewer, selection, this.model, expandedNodes);
 		}
-		this.model.getStagedObjects().getAbapgitobject().removeAll(abapGitObjects);
-		this.model.getUnstagedObjects().getAbapgitobject().addAll(abapGitObjects);
+
 		refreshUI();
 		expandedNodes.addAll(Arrays.asList(this.unstagedTreeViewer.getExpandedElements()));
 		this.unstagedTreeViewer.setExpandedElements(expandedNodes.toArray());
-	}
-
-	private List<IAbapGitObject> getAbapObjectsFromSelection(IStructuredSelection selection) {
-		List<IAbapGitObject> abapGitObjects = new ArrayList<>();
-		IAbapGitObject abapObject = null;
-		for (Object object : selection.toList()) {
-			if (object instanceof IAbapGitObject) {
-				abapObject = (IAbapGitObject) object;
-			} else if (object instanceof IAbapGitFile) {
-				abapObject = (IAbapGitObject) ((IAbapGitFile) object).eContainer();
-			}
-			if (!abapGitObjects.contains(abapObject)) {
-				abapGitObjects.add(abapObject);
-			}
-		}
-		return abapGitObjects;
 	}
 
 	@Override
