@@ -11,6 +11,7 @@ public class Messages extends NLS {
 	public static String AbapGitView_action_showMyRepos;
 	public static String AbapGitView_action_pull;
 	public static String AbapGitView_action_open;
+	public static String AbapGitView_action_open_xtol;
 	public static String AbapGitView_action_objectlog;
 	public static String AbapGitView_column_branch;
 	public static String AbapGitView_column_firstcommitat;
@@ -116,6 +117,7 @@ public class Messages extends NLS {
 	//ABAPGIT STAGING MESSAGES
 	public static String AbapGitStaging_no_repository_selected;
 	public static String AbapGitStaging_object_filter_text;
+	public static String AbapGitStaging_collapse_all_xbut;
 	public static String AbapGitStaging_unstaged_changes_section_header;
 	public static String AbapGitStaging_staged_changes_section_header;
 	public static String AbapGitStaging_commit_section_header;

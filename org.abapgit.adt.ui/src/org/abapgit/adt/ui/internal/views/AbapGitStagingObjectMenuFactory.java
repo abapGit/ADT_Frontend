@@ -1,6 +1,7 @@
 package org.abapgit.adt.ui.internal.views;
 
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject;
+import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -14,6 +15,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.BaseSelectionListenerAction;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 
 public class AbapGitStagingObjectMenuFactory {
@@ -111,7 +113,7 @@ public class AbapGitStagingObjectMenuFactory {
 		protected UnstageAction(String text) {
 			super(text);
 			setToolTipText(Messages.AbapGitStaging_action_unstage_xtol);
-			setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_REMOVE));
+			setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID, "icons/etool/unstage.png")); //$NON-NLS-1$
 		}
 
 		@Override

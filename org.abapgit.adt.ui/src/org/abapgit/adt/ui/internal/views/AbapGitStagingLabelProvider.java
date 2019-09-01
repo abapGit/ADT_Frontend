@@ -15,15 +15,22 @@ import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.jface.viewers.StyledCellLabelProvider;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.ViewerCell;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.TextStyle;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.forms.IFormColors;
+import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.internal.util.BundleUtility;
 import org.osgi.framework.Bundle;
 
 import com.sap.adt.tools.core.ui.AbapCoreUi;
 import com.sap.adt.tools.core.ui.IAdtObjectTypeInfoUi;
 import com.sap.adt.tools.core.ui.IAdtObjectTypeRegistryUi;
+import com.sap.adt.util.ui.viewers.ColorStyler;
 import com.sap.adt.util.ui.viewers.ColorStyler.GrayStyler;
 
 public class AbapGitStagingLabelProvider extends StyledCellLabelProvider {
@@ -32,6 +39,7 @@ public class AbapGitStagingLabelProvider extends StyledCellLabelProvider {
 
 	IAdtObjectTypeRegistryUi objectTypeRegistry = AbapCoreUi.getObjectTypeRegistry();
 	GrayStyler grayStyler = new GrayStyler();
+	CustomStyler customStyler = new CustomStyler();
 
 	@Override
 	public String getToolTipText(Object element) {
@@ -58,7 +66,8 @@ public class AbapGitStagingLabelProvider extends StyledCellLabelProvider {
 	private void updateObjectCell(ViewerCell cell, IAbapGitObject object) {
 		StyledString text = new StyledString();
 		if (object.getType() == null || object.getType().isEmpty()) { //non-code and meta files
-			text.append(object.getName().toLowerCase(Locale.ENGLISH), this.grayStyler);
+			text.append(object.getName().toLowerCase(Locale.ENGLISH), this.customStyler);
+			cell.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FOLDER));
 		} else {
 			if (object.eContainer() instanceof IIgnoredObjects) { //Ignored Objects will be shown as greyed out
 				text.append(object.getName().toUpperCase(Locale.ENGLISH), this.grayStyler);
@@ -120,6 +129,13 @@ public class AbapGitStagingLabelProvider extends StyledCellLabelProvider {
 		DecorationOverlayIcon doi = new DecorationOverlayIcon(//
 				baseImage, ImageDescriptor.createFromURL(fullPathString), IDecoration.BOTTOM_RIGHT);
 		return doi.createImage();
+	}
+
+	public static final class CustomStyler extends ColorStyler {
+		public void applyStyles(TextStyle textStyle) {
+			textStyle.foreground = new FormToolkit(Display.getDefault()).getColors().getColor(IFormColors.TB_TOGGLE);
+			((StyleRange) textStyle).fontStyle = SWT.ITALIC;
+		}
 	}
 
 }
