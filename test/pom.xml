@@ -1,0 +1,23 @@
+<project
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.abapgit.adt</groupId>
+  <artifactId>tests</artifactId>
+  <version>0.13.2</version>
+  <name>Test Fragments</name>
+  <packaging>pom</packaging>
+  <description>Test Fragments</description>
+
+  <parent>
+    <groupId>org.abapgit.adt</groupId>
+    <artifactId>org.abapgit.adt.parent</artifactId>
+    <version>0.13.2</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <modules>
+    <module>org.abapgit.adt.backend.test</module>
+  </modules>
+
+</project>

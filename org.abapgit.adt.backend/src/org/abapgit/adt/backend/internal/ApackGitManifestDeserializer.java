@@ -104,6 +104,9 @@ public class ApackGitManifestDeserializer {
 				case "git_url": //$NON-NLS-1$
 					apackDependency.setGitUrl(xmlReader.getElementText());
 					break;
+				case "version": //$NON-NLS-1$
+					apackDependency.setVersion(new ApackVersionDependency(xmlReader.getElementText()));
+					break;
 				case "target_package": //$NON-NLS-1$
 					// Manually deserialize until we have found an open ADT Core API
 					IAdtObjectReference objectReference = IAdtCoreFactory.eINSTANCE.createAdtObjectReference();

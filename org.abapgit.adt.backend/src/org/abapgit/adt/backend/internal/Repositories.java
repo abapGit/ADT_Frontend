@@ -22,7 +22,9 @@ public class Repositories implements IRepositories {
 
 	@Override
 	public void add(IRepository repository) {
-		this.repositories.add(repository);
+		if (!this.repositories.contains(repository)) {
+			this.repositories.add(repository);
+		}
 	}
 
 	@Override

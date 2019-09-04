@@ -8,11 +8,45 @@ public interface IApackManifest {
 
 	public static final String MASTER_BRANCH = "refs/heads/master"; //$NON-NLS-1$
 
+	public enum EApackVersionDependencyClassifier {
+		inclusive, exclusive;
+	}
+
+	public interface IApackVersionDependency {
+		String getMinimum();
+
+		EApackVersionDependencyClassifier getMinimumClassifier();
+
+		String getMaximum();
+
+		EApackVersionDependencyClassifier getMaximumClassifier();
+
+		boolean isVersionCompatible(String version);
+
+		int getMinimumMajor();
+
+		int getMinimumMinor();
+
+		int getMinimumPatch();
+
+		int getMaximumMajor();
+
+		int getMaximumMinor();
+
+		int getMaximumPatch();
+
+		boolean hasRange();
+
+		boolean isValid();
+	}
+
 	public interface IApackDependency {
 
 		String getGroupId();
 
 		String getArtifactId();
+
+		IApackVersionDependency getVersion();
 
 		String getGitUrl();
 

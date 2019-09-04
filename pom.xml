@@ -11,6 +11,7 @@
     <module>org.abapgit.adt.ui</module>
     <module>org.abapgit.adt.feature</module>
     <module>org.abapgit.adt.updatesite</module>
+    <module>test</module>
   </modules>
   <profiles>
     <profile>

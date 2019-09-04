@@ -1,6 +1,7 @@
 package org.abapgit.adt.backend.internal;
 
 import org.abapgit.adt.backend.IApackManifest.IApackDependency;
+import org.abapgit.adt.backend.IApackManifest.IApackVersionDependency;
 
 import com.sap.adt.tools.core.model.adtcore.IAdtObjectReference;
 
@@ -8,6 +9,7 @@ public class ApackDependency implements IApackDependency {
 
 	private String groupId;
 	private String artifactId;
+	private IApackVersionDependency version;
 	private String gitUrl;
 	private IAdtObjectReference targetPackage;
 	private boolean requiresSynchronization;
@@ -50,6 +52,8 @@ public class ApackDependency implements IApackDependency {
 		builder.append(this.groupId);
 		builder.append(", artifactId="); //$NON-NLS-1$
 		builder.append(this.artifactId);
+		builder.append(", version="); //$NON-NLS-1$
+		builder.append(this.version);
 		builder.append(", gitUrl="); //$NON-NLS-1$
 		builder.append(this.gitUrl);
 		builder.append(", targetPackage="); //$NON-NLS-1$
@@ -66,8 +70,9 @@ public class ApackDependency implements IApackDependency {
 		int result = 1;
 		result = prime * result + ((this.groupId == null) ? 0 : this.groupId.hashCode());
 		result = prime * result + ((this.artifactId == null) ? 0 : this.artifactId.hashCode());
+		result = prime * result + ((this.version == null) ? 0 : this.version.hashCode());
 		result = prime * result + ((this.gitUrl == null) ? 0 : this.gitUrl.hashCode());
-		result = prime * result + ((this.targetPackage == null) ? 0 : this.targetPackage.hashCode());
+		// No target package as it doesn't implement a correct equals and is also not really relevant for comparison ;)
 		result = prime * result + (this.requiresSynchronization ? 1337 : 7331);
 		return result;
 	}
@@ -98,6 +103,13 @@ public class ApackDependency implements IApackDependency {
 		} else if (!this.artifactId.equals(other.artifactId)) {
 			return false;
 		}
+		if (this.version == null) {
+			if (other.version != null) {
+				return false;
+			}
+		} else if (!this.version.equals(other.version)) {
+			return false;
+		}
 		if (this.gitUrl == null) {
 			if (other.gitUrl != null) {
 				return false;
@@ -105,13 +117,7 @@ public class ApackDependency implements IApackDependency {
 		} else if (!this.gitUrl.equals(other.gitUrl)) {
 			return false;
 		}
-		if (this.targetPackage == null) {
-			if (other.targetPackage != null) {
-				return false;
-			}
-		} else if (!this.targetPackage.equals(other.targetPackage)) {
-			return false;
-		}
+		// No target package as it doesn't implement a correct equals and is also not really relevant for comparison ;)
 		return this.requiresSynchronization == other.requiresSynchronization;
 	}
 
@@ -139,6 +145,15 @@ public class ApackDependency implements IApackDependency {
 	@Override
 	public void setRequiresSynchronization(boolean requiresSynchronization) {
 		this.requiresSynchronization = requiresSynchronization;
+	}
+
+	@Override
+	public IApackVersionDependency getVersion() {
+		return this.version;
+	}
+
+	public void setVersion(IApackVersionDependency version) {
+		this.version = version;
 	}
 
 }
