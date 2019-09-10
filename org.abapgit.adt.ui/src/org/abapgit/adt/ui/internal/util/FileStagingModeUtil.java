@@ -10,7 +10,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 
 //TODO Refactor code
-public class FileStagingModelUtil {
+public class FileStagingModeUtil {
 
 	public static void stageObjects(TreeViewer unstagedTreeViewer, IStructuredSelection selection, IAbapGitStaging model,
 			List<Object> expandedNodes) {

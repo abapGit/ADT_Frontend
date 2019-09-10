@@ -15,8 +15,8 @@ import org.eclipse.swt.widgets.Text;
 
 public class AbapGitStagingCredentialsDialog extends TitleAreaDialog {
 
-	private Text usernameField;
-	private Text passwordField;
+	protected Text usernameField;
+	protected Text passwordField;
 
 	private String username;
 	private String password;
@@ -63,7 +63,7 @@ public class AbapGitStagingCredentialsDialog extends TitleAreaDialog {
 	}
 
 	@Override
-	protected void okPressed() {
+	public void okPressed() {
 		if (validateAndSetMessage()) {
 			super.okPressed();
 		}
