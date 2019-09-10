@@ -6,6 +6,7 @@ import org.eclipse.core.runtime.OperationCanceledException;
 
 import com.sap.adt.communication.exceptions.CommunicationException;
 import com.sap.adt.communication.resources.ResourceException;
+import com.sap.adt.compatibility.exceptions.OutDatedClientException;
 
 public interface IRepositoryService {
 
@@ -41,7 +42,7 @@ public interface IRepositoryService {
 	 * @return Staging model for the given repository
 	 */
 	IAbapGitStaging stage(IRepository repository, IExternalRepositoryInfoRequest externalRepo, IProgressMonitor monitor)
-			throws CommunicationException, ResourceException, OperationCanceledException;
+			throws CommunicationException, ResourceException, OperationCanceledException, OutDatedClientException;
 
 	/**
 	 * Commits the staged changes to the repository
@@ -57,6 +58,6 @@ public interface IRepositoryService {
 	 *            External repository credentials
 	 */
 	void push(IProgressMonitor monitor, IAbapGitStaging staging, IRepository repository, IExternalRepositoryInfoRequest externalRepo)
-			throws CommunicationException, ResourceException, OperationCanceledException;
+			throws CommunicationException, ResourceException, OperationCanceledException, OutDatedClientException;
 
 }

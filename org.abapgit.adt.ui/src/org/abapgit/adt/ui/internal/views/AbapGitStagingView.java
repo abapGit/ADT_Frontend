@@ -104,6 +104,7 @@ import org.eclipse.ui.progress.IProgressService;
 
 import com.sap.adt.communication.exceptions.CommunicationException;
 import com.sap.adt.communication.resources.ResourceException;
+import com.sap.adt.compatibility.exceptions.OutDatedClientException;
 import com.sap.adt.destinations.ui.logon.AdtLogonServiceUIFactory;
 import com.sap.adt.tools.core.AdtObjectReference;
 import com.sap.adt.tools.core.IAdtObjectReference;
@@ -112,6 +113,7 @@ import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
 import com.sap.adt.tools.core.ui.navigation.AdtNavigationServiceFactory;
 import com.sap.adt.tools.core.ui.packages.AdtPackageServiceUIFactory;
 import com.sap.adt.tools.core.ui.packages.IAdtPackageServiceUI;
+import com.sap.adt.util.ui.AdtUtilUiPlugin;
 import com.sap.adt.util.ui.SWTUtil;
 
 public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView {
@@ -727,6 +729,8 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 				} catch (CommunicationException | ResourceException | OperationCanceledException e) {
 					AbapGitStagingView.this.repositoryCredentials = null;
 					openErrorDialog(Messages.AbapGitView_task_fetch_repos_staging_error, e.getMessage(), true);
+				} catch (OutDatedClientException e) {
+					AdtUtilUiPlugin.getDefault().getAdtStatusService().handle(e, null);
 				}
 				return Status.OK_STATUS;
 			}
@@ -1101,6 +1105,8 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 				} catch (CommunicationException | ResourceException | OperationCanceledException e) {
 					AbapGitStagingView.this.repositoryCredentials = null;
 					openErrorDialog(Messages.AbapGitStaging_push_job_error, e.getMessage(), true);
+				} catch (OutDatedClientException e) {
+					AdtUtilUiPlugin.getDefault().getAdtStatusService().handle(e, null);
 				}
 				return Status.CANCEL_STATUS;
 			}
