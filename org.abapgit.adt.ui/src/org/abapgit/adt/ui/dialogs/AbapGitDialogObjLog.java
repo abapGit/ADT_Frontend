@@ -1,10 +1,16 @@
 package org.abapgit.adt.ui.dialogs;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
 import java.util.List;
 
 import org.abapgit.adt.backend.IObject;
 import org.abapgit.adt.backend.IRepository;
 import org.abapgit.adt.ui.internal.i18n.Messages;
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -30,6 +36,8 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
@@ -42,7 +50,7 @@ import org.eclipse.ui.dialogs.FilteredTree;
 import org.eclipse.ui.dialogs.PatternFilter;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
-public class AbapGitDialogObjLog extends TitleAreaDialog {
+public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceChangeListener {
 
 	TreeViewer abapObjTable;
 	private PatternFilter objLogFilter;
@@ -126,6 +134,40 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 
 		};
 
+		ToolItem exportToolItem = new ToolItem(bar, SWT.PUSH | SWT.FLAT);
+
+		exportToolItem.setToolTipText(Messages.AbapGitDialogPageObjLog_export_log_tooltip);
+		exportToolItem.setImage(AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui.views.log", "icons/elcl16/export_log.png") //$NON-NLS-1$//$NON-NLS-2$
+				.createImage());
+		exportToolItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+
+				Display display = AbapGitDialogObjLog.this.tree.getViewer().getControl().getDisplay();
+				Shell shell = new Shell(display);
+				FileDialog dialog = new FileDialog(shell, SWT.SAVE);
+				dialog.setFilterNames(new String[] { "*.log" }); //$NON-NLS-1$
+				dialog.setFilterExtensions(new String[] { "*.log" }); //$NON-NLS-1$
+				dialog.setFilterPath("c:\\"); // Windows path //$NON-NLS-1$
+				dialog.setFileName(Messages.AbapGitDialogPageObjLog_default_filename);
+
+				String dialogResult = dialog.open();
+//				System.out.println(Messages.AbapGitDialogPageObjLog_default_path + dialogResult);
+
+				if (dialogResult != null) {
+					saveObjectLog(AbapGitDialogObjLog.this.tree.getViewer(), dialogResult);
+				}
+
+				while (!shell.isDisposed()) {
+					if (!display.readAndDispatch()) {
+						display.sleep();
+					}
+				}
+				display.dispose();
+
+			}
+		});
+
 		ToolItem expandAllToolItem = new ToolItem(bar, SWT.PUSH | SWT.FLAT);
 		expandAllToolItem.setToolTipText(Messages.AbapGitDialogPageObjLog_filter_expand_all_tooltip);
 		expandAllToolItem
@@ -201,11 +243,45 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 
 		this.abapObjTable.setInput(this.abapObjects);
 
-
 		makeActions();
-//		hookContextMenu();
 
 		return parent;
+	}
+
+	private void saveObjectLog(TreeViewer treeViewer, String pathname) {
+
+		try (PrintWriter writer = new PrintWriter(new FileOutputStream(new File(pathname), false))) {
+
+			writer.println(Messages.AbapGitDialogPageObjLog_export_error_msg + this.repodata.getStatusText());
+			if (!this.abapObjects.isEmpty()) {
+				writer.write(String.format("%-50s %-20s %-10s %-20s%n", Messages.AbapGitDialogPageObjLog_export_log_obj_name, //$NON-NLS-1$
+						Messages.AbapGitDialogPageObjLog_export_log_obj_type, Messages.AbapGitDialogPageObjLog_export_log_obj_flag,
+						Messages.AbapGitDialogPageObjLog_export_log_obj_msg));
+			}
+
+			for (IObject typeNode : this.abapObjects) {
+
+				String logObjType = typeNode.getObjName();
+				writer.println(
+						"______________________________________________________________________________________________________________"); //$NON-NLS-1$
+
+				writer.write(String.format("%-50s %-20s %-10s %-20s%n", logObjType + "(" + typeNode.countChildren() + ")", "", "", "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+
+				List<IObject> logObjects = typeNode.listChildObjects();
+
+				for (IObject logObject : logObjects) {
+					String logObjName = logObject.getObjName();
+					if (logObjName != null) {
+						writer.write(String.format("%-50s %-20s %-10s %-20s%n", "   " + logObjName, logObjType, //$NON-NLS-1$ //$NON-NLS-2$
+								logObject.getMsgType(), logObject.getMsgText()));
+					}
+				}
+
+			}
+		} catch (FileNotFoundException ex) {
+			System.out.println("File not found exception: " + ex.getMessage()); //$NON-NLS-1$
+		}
+
 	}
 
 	private void createColumns(ObjectTreeContentProvider contProv) {
@@ -418,8 +494,13 @@ public class AbapGitDialogObjLog extends TitleAreaDialog {
 
 	}
 
-}
+	@Override
+	public void resourceChanged(IResourceChangeEvent event) {
+		// TODO Auto-generated method stub
 
+	}
+
+}
 
 class ObjectTreeContentProvider implements ITreeContentProvider {
 
