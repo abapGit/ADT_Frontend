@@ -241,10 +241,16 @@ public class AbapGitView extends ViewPart {
 			@Override
 			public String getText(Object element) {
 				IRepository repo = (IRepository) element;
-				String lastChangedBy = repo.getDeserializedBy();
+
+				String lastChangedBy = repo.getDeserializedEmail();
+				if (lastChangedBy == null || lastChangedBy.isEmpty()) {
+					lastChangedBy = repo.getCreatedEmail();
+				}
+
 				if (lastChangedBy == null || lastChangedBy.isEmpty()) {
 					lastChangedBy = repo.getCreatedBy();
 				}
+
 				return lastChangedBy;
 			}
 		});

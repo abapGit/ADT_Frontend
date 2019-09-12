@@ -15,7 +15,11 @@ public interface IRepository {
 
 	public String getCreatedBy();
 
+	public String getCreatedEmail();
+
 	public String getDeserializedBy();
+
+	public String getDeserializedEmail();
 
 	public String getDeserializedAt();
 
@@ -41,7 +45,11 @@ public interface IRepository {
 
 	public void setCreatedBy(String createdBy);
 
+	public void setCreatedEmail(String createdEmail);
+
 	public void setDeserializedBy(String deserializedBy);
+
+	public void setDeserializedEmail(String deserializedEmail);
 
 	public void setDeserializedAt(String deserializedAt);
 
