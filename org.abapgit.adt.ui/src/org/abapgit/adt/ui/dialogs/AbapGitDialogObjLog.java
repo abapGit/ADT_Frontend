@@ -3,7 +3,9 @@ package org.abapgit.adt.ui.dialogs;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import org.abapgit.adt.backend.IObject;
@@ -250,8 +252,7 @@ public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceCha
 
 	private void saveObjectLog(TreeViewer treeViewer, String pathname) {
 
-		try (PrintWriter writer = new PrintWriter(new FileOutputStream(new File(pathname), false))) {
-
+		try (PrintWriter writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(new File(pathname)), "UTF-8"))) { //$NON-NLS-1$
 			writer.println(Messages.AbapGitDialogPageObjLog_export_error_msg + this.repodata.getStatusText());
 			if (!this.abapObjects.isEmpty()) {
 				writer.write(String.format("%-50s %-20s %-10s %-20s%n", Messages.AbapGitDialogPageObjLog_export_log_obj_name, //$NON-NLS-1$
@@ -280,6 +281,8 @@ public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceCha
 			}
 		} catch (FileNotFoundException ex) {
 			System.out.println("File not found exception: " + ex.getMessage()); //$NON-NLS-1$
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
 		}
 
 	}

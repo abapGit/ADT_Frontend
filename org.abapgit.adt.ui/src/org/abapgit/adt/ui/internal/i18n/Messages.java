@@ -107,10 +107,10 @@ public class Messages extends NLS {
 	public static String AbapGitDialogPageObjLog_default_path;
 	public static String AbapGitDialogPageObjLog_export_log_tooltip;
 	public static String AbapGitDialogPageObjLog_export_error_msg;
-	public static Object AbapGitDialogPageObjLog_export_log_obj_name;
-	public static Object AbapGitDialogPageObjLog_export_log_obj_type;
-	public static Object AbapGitDialogPageObjLog_export_log_obj_flag;
-	public static Object AbapGitDialogPageObjLog_export_log_obj_msg;
+	public static String AbapGitDialogPageObjLog_export_log_obj_name;
+	public static String AbapGitDialogPageObjLog_export_log_obj_type;
+	public static String AbapGitDialogPageObjLog_export_log_obj_msg;
+	public static String AbapGitDialogPageObjLog_export_log_obj_flag;
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
