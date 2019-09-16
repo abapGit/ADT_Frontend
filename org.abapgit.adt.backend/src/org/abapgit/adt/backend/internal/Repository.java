@@ -15,7 +15,9 @@ public class Repository implements IRepository {
 	private String pckg;
 	private String firstCommit;
 	private String createdBy;
+	private String createdEmail;
 	private String deserializedBy;
+	private String deserializedEmail;
 	private String deserializedAt;
 	private String remotePassword;
 	private String statusFlag;
@@ -205,6 +207,26 @@ public class Repository implements IRepository {
 
 	public void addStatusLink(String relation, URI uri) {
 		this.statusLink.put(relation, uri);
+	}
+
+	@Override
+	public String getCreatedEmail() {
+		return this.createdEmail;
+	}
+
+	public void setCreatedEmail(String createdEmail) {
+		this.createdEmail = createdEmail;
+
+	}
+
+	@Override
+	public String getDeserializedEmail() {
+		return this.deserializedEmail;
+	}
+
+	public void setDeserializedEmail(String deserializedEmail) {
+		this.deserializedEmail = deserializedEmail;
+
 	}
 
 	@Override

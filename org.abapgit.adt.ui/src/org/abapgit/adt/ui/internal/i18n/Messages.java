@@ -4,6 +4,7 @@ import org.eclipse.osgi.util.NLS;
 
 public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "org.abapgit.adt.ui.internal.i18n.messages"; //$NON-NLS-1$
+	public static String AbapGitDialogPageObjLog_default_filename;
 	public static String AbapGitView_action_clone;
 	public static String AbapGitView_action_refresh;
 	public static String AbapGitView_action_copy;
@@ -103,6 +104,13 @@ public class Messages extends NLS {
 	public static String AbapGitWizardPageRepositoryAndCredentials_validate_password_error;
 	public static String AbapGitWizardPageRepositoryAndCredentials_validate_url_error;
 	public static String AbapGitWizardPageRepositoryAndCredentials_validate_user_error;
+	public static String AbapGitDialogPageObjLog_default_path;
+	public static String AbapGitDialogPageObjLog_export_log_tooltip;
+	public static String AbapGitDialogPageObjLog_export_error_msg;
+	public static String AbapGitDialogPageObjLog_export_log_obj_name;
+	public static String AbapGitDialogPageObjLog_export_log_obj_type;
+	public static String AbapGitDialogPageObjLog_export_log_obj_msg;
+	public static String AbapGitDialogPageObjLog_export_log_obj_flag;
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);

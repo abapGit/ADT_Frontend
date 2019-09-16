@@ -33,11 +33,17 @@ public class RepositorySerializer {
 				case "created_by": //$NON-NLS-1$
 					repository.setCreatedBy(xmlReader.getElementText());
 					break;
+				case "created_email": //$NON-NLS-1$
+					repository.setCreatedEmail(xmlReader.getElementText());
+					break;
 				case "created_at": //$NON-NLS-1$
 					repository.setFirstCommit(xmlReader.getElementText());
 					break;
 				case "deserialized_by": //$NON-NLS-1$
 					repository.setDeserializedBy(xmlReader.getElementText());
+					break;
+				case "deserialized_email": //$NON-NLS-1$
+					repository.setDeserializedEmail(xmlReader.getElementText());
 					break;
 				case "deserialized_at": //$NON-NLS-1$
 					repository.setDeserializedAt(xmlReader.getElementText());
