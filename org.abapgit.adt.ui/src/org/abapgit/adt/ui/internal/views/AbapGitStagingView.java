@@ -1,7 +1,11 @@
 package org.abapgit.adt.ui.internal.views;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -26,9 +30,11 @@ import org.abapgit.adt.ui.dialogs.AbapGitStagingCredentialsDialog;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.util.FileStagingModeUtil;
 import org.abapgit.adt.ui.internal.util.ObjectStagingModeUtil;
+import org.abapgit.adt.ui.internal.util.ProjectChangeListener;
 import org.abapgit.adt.ui.internal.util.StagingDragListener;
 import org.abapgit.adt.ui.internal.util.StagingDragSelection;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -127,6 +133,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	private String destinationId;
 	protected IRepositoryService repoService;
 	protected IExternalRepositoryInfoService repoExternaService;
+	private ProjectChangeListener projectChangeListener; // project change listener
 
 	//UI Model
 	private IAbapGitStaging model;
@@ -170,6 +177,12 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	private IAction actionCollapseAllUnstaged;
 	private IAction actionCollapseAllStaged;
 
+	/**
+	 * for testing. this is required for preventing project logon screen during
+	 * testing
+	 */
+	protected boolean testMode = false;
+
 	private static final KeyStroke KEY_STROKE_COPY = KeyStroke.getInstance(SWT.ALT, 'C' | 'c');
 
 	/**
@@ -210,6 +223,9 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 
 		validateInputs(); //do the initial validation
 		updateButtonsState(); //update button state
+
+		//create project change listener
+		this.projectChangeListener = new ProjectChangeListener(this, ResourcesPlugin.getWorkspace());
 	}
 
 	private SashForm createSashForm(Composite parent, int style) {
@@ -653,13 +669,14 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		resetStagingView();
 
 		//logon if required
-		if (!AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(project).isOK()) {
+		if (!isLoggedOn(project)) {
 			return;
 		}
 
 		if(this.project != project) {
 			AbapGitStagingView.this.project = project;
 			AbapGitStagingView.this.destinationId = getDestination(project);
+			this.projectChangeListener.setProject(project);
 			this.repoService = getRepositoryService(this.destinationId);
 			if (this.repoService == null) { //AbapGit not supported
 				MessageDialog.openError(getSite().getShell(),
@@ -673,6 +690,17 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		AbapGitStagingView.this.repository = repository;
 		//load staging data and refresh UI
 		refresh();
+	}
+
+	private boolean isLoggedOn(IProject project) {
+		//Return true if the test is running. If not the logon pop will block the testing.
+		if (this.testMode) {
+			return true;
+		}
+		if (AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(project).isOK()) {
+			return true;
+		}
+		return false;
 	}
 
 	private boolean checkIfCredentialsRequired(IRepository repository, IProgressMonitor monitor) {
@@ -728,7 +756,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 					}
 				} catch (CommunicationException | ResourceException | OperationCanceledException e) {
 					AbapGitStagingView.this.repositoryCredentials = null;
-					openErrorDialog(Messages.AbapGitView_task_fetch_repos_staging_error, e.getMessage(), true);
+					handleException(e);
 				} catch (OutDatedClientException e) {
 					AdtUtilUiPlugin.getDefault().getAdtStatusService().handle(e, null);
 				}
@@ -790,7 +818,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	/**
 	 * Resets the staging view
 	 */
-	protected void resetStagingView() {
+	public void resetStagingView() {
 		resetModel();
 		resetUI();
 	}
@@ -849,7 +877,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	 * Updates the state of UI buttons
 	 */
 	private void updateButtonsState() {
-		this.commitAndPushButton.setEnabled(this.repository == null ? false : true); //disabled if no repository is loaded
+		this.commitAndPushButton.setEnabled(this.stagedTreeViewer.getTree().getItemCount() > 0 ? true : false); //disabled if no staged changes
 		this.actionStage.setEnabled(this.unstagedTreeViewer.getTree().getItemCount() > 0 ? true : false);
 		this.actionCollapseAllUnstaged.setEnabled(this.unstagedTreeViewer.getTree().getItemCount() > 0 ? true : false);
 		this.actionUnstage.setEnabled(this.stagedTreeViewer.getTree().getItemCount() > 0 ? true : false);
@@ -1089,22 +1117,29 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
+					//push changes
 					AbapGitStagingView.this.repoService.push(new NullProgressMonitor(), AbapGitStagingView.this.model,
 							AbapGitStagingView.this.repository, AbapGitStagingView.this.repositoryCredentials);
 
-					//push successful
+					//refresh
 					Display.getDefault().syncExec(new Runnable() {
 						public void run() {
 							MessageDialog.openInformation(getSite().getShell(), Messages.AbapGitStaging_push_job_successful,
-									Messages.AbapGitStaging_push_job_successful);
+									Messages.AbapGitStaging_push_job_successful_desc);
+							//clear commit message
 							AbapGitStagingView.this.commitMessageTextViewer.getTextWidget().setText(""); //$NON-NLS-1$
-							refresh(); // refresh
+							//clear staged changes
+							AbapGitStagingView.this.stagedTreeViewerInput.clear();
+							AbapGitStagingView.this.stagedTreeViewer.refresh();
+							//update view
+							updateButtonsState();
+							updateSectionHeaders();
 						}
 					});
 					return Status.OK_STATUS;
 				} catch (CommunicationException | ResourceException | OperationCanceledException e) {
 					AbapGitStagingView.this.repositoryCredentials = null;
-					openErrorDialog(Messages.AbapGitStaging_push_job_error, e.getMessage(), true);
+					handleException(e);
 				} catch (OutDatedClientException e) {
 					AdtUtilUiPlugin.getDefault().getAdtStatusService().handle(e, null);
 				}
@@ -1117,9 +1152,37 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		pushJob.schedule();
 	}
 
+	private static String getExceptionText(ResourceException exception) {
+		try {
+			InputStream inputStream = exception.getResponse().getBody().getContent();
+			ByteArrayOutputStream result = new ByteArrayOutputStream();
+			byte[] buffer = new byte[1024];
+			int length;
+			while ((length = inputStream.read(buffer)) != -1) {
+				result.write(buffer, 0, length);
+			}
+			return result.toString(StandardCharsets.UTF_8.name());
+		} catch (IOException e) {
+			return null;
+		}
+	}
+
 	@Override
 	public void setFocus() {
 		this.unstagedTreeViewer.getControl().setFocus();
+	}
+
+	private void handleException(Exception e) {
+		String excMessage = null;
+		//handle the error code 409 from back-end ( HTTP 409 is the error code returned by the back-end in case of process
+		//conflicts eg: triggering a push while a push is already running ). In such case the exception text is part of the response body
+		if (e instanceof ResourceException && ((ResourceException) e).getStatus() == 409) {
+			excMessage = getExceptionText((ResourceException) e);
+		}
+		if (excMessage == null || excMessage.isEmpty()) {
+			excMessage = e.getMessage();
+		}
+		openErrorDialog(Messages.AbapGitView_task_fetch_repos_staging_error, excMessage, true);
 	}
 
 	private void addDragAndDropSupport(TreeViewer viewer, final boolean unstaged) {
@@ -1243,6 +1306,8 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		super.dispose();
 		this.unstagedMenuFactory.dispose();
 		this.stagedMenuFactory.dispose();
+
+		ResourcesPlugin.getWorkspace().removeResourceChangeListener(this.projectChangeListener);
 	}
 
 	private class TreeComparator extends ViewerComparator {

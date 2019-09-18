@@ -142,6 +142,7 @@ public class Messages extends NLS {
 	public static String AbapGitStaging_commit_error_invalid_committer_title;
 	public static String AbapGitStaging_push_job_title;
 	public static String AbapGitStaging_push_job_successful;
+	public static String AbapGitStaging_push_job_successful_desc;
 	public static String AbapGitStaging_push_job_error;
 	public static String AbapGitStaging_credentials_dialog_title;
 	public static String AbapGitStaging_credentials_dialog_desc;
