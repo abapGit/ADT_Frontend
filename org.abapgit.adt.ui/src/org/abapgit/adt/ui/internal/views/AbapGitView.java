@@ -296,8 +296,10 @@ public class AbapGitView extends ViewPart {
 
 				Bundle bundle = Platform.getBundle("org.eclipse.platform.doc.user"); //$NON-NLS-1$
 				URL imgUrl = null;
-				Image statusWarning = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_WARN_TSK);
-				Image statusError = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_ERROR_TSK);
+				Image statusWarning = AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.jdt.ui", "icons/full/obj16/warning_obj.png") //$NON-NLS-1$//$NON-NLS-2$
+						.createImage();
+				Image statusError = AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.jdt.ui", "icons/full/obj16/error_obj.png") //$NON-NLS-1$//$NON-NLS-2$
+						.createImage();
 
 				if (statusFlag != null && statusFlag.equals("W")) { //$NON-NLS-1$
 					return statusWarning;
@@ -311,9 +313,9 @@ public class AbapGitView extends ViewPart {
 					return imageDesc.createImage();
 				}
 				if (statusFlag != null && statusFlag.equals("S")) { //$NON-NLS-1$
-					imgUrl = FileLocator.find(bundle, new Path("images/ref-18.png"), null); //$NON-NLS-1$
-					ImageDescriptor imageDesc = ImageDescriptor.createFromURL(imgUrl);
-					return imageDesc.createImage();
+					Image statusReady = AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui", "icons/full/eview16/tasks_tsk.gif") //$NON-NLS-1$//$NON-NLS-2$
+							.createImage();
+					return statusReady;
 				}
 				if (statusFlag != null && statusFlag.equals("R")) { //$NON-NLS-1$
 					imgUrl = FileLocator.find(bundle, new Path("images/up_nav.png"), null); //$NON-NLS-1$
