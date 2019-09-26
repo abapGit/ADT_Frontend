@@ -10,7 +10,7 @@ import org.eclipse.swt.widgets.Display;
 
 /**
  * Listener for project delete and close event. This is to reset the abapgit
- * staging view in case the selected project is closed.
+ * staging view in case the selected project is closed or deleted.
  */
 public class ProjectChangeListener implements IResourceChangeListener {
 
@@ -34,12 +34,8 @@ public class ProjectChangeListener implements IResourceChangeListener {
 		if (resource instanceof IProject) {
 			if (event.getType() == IResourceChangeEvent.PRE_DELETE || event.getType() == IResourceChangeEvent.PRE_CLOSE) {
 				if (this.project.equals(resource)) {
-					Display.getDefault().syncExec(new Runnable() {
-						@Override
-						public void run() {
-							ProjectChangeListener.this.view.resetStagingView();
-						}
-					});
+					//reset the staging view to initial
+					Display.getDefault().syncExec(() -> ProjectChangeListener.this.view.resetStagingView());
 				}
 			}
 		}

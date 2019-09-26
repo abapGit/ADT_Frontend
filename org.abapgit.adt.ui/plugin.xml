@@ -16,7 +16,7 @@
             allowMultiple="false"
             category="com.sap.adt.views"
             class="org.abapgit.adt.ui.internal.views.AbapGitStagingView"
-            icon="icons/view/abapgit.png"
+            icon="icons/view/abapgit_staging.png"
             id="org.abapgit.adt.ui.views.AbapGitStagingView"
             name="%abapgit.staging.view.name">
       </view>

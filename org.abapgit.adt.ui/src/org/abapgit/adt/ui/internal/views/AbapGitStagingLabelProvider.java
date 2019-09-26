@@ -134,7 +134,9 @@ public class AbapGitStagingLabelProvider extends StyledCellLabelProvider {
 	public static final class CustomStyler extends ColorStyler {
 		public void applyStyles(TextStyle textStyle) {
 			textStyle.foreground = new FormToolkit(Display.getDefault()).getColors().getColor(IFormColors.TB_TOGGLE);
-			((StyleRange) textStyle).fontStyle = SWT.ITALIC;
+			if (textStyle instanceof StyleRange) {
+				((StyleRange) textStyle).fontStyle = SWT.ITALIC;
+			}
 		}
 	}
 

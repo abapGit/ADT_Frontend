@@ -9,11 +9,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.abapgit.adt.backend.IExternalRepositoryInfo;
-import org.abapgit.adt.backend.IExternalRepositoryInfo.AccessMode;
 import org.abapgit.adt.backend.IExternalRepositoryInfoRequest;
 import org.abapgit.adt.backend.IExternalRepositoryInfoService;
 import org.abapgit.adt.backend.IRepository;
@@ -26,9 +24,13 @@ import org.abapgit.adt.backend.model.abapgitstaging.IAbapgitstagingFactory;
 import org.abapgit.adt.backend.model.abapgitstaging.IAuthor;
 import org.abapgit.adt.backend.model.abapgitstaging.ICommitter;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
-import org.abapgit.adt.ui.dialogs.AbapGitStagingCredentialsDialog;
 import org.abapgit.adt.ui.internal.i18n.Messages;
+import org.abapgit.adt.ui.internal.util.AbapGitStagingService;
+import org.abapgit.adt.ui.internal.util.AbapGitStagingTreeComparator;
+import org.abapgit.adt.ui.internal.util.AbapGitStagingTreeFilter;
 import org.abapgit.adt.ui.internal.util.FileStagingModeUtil;
+import org.abapgit.adt.ui.internal.util.GitCredentialsService;
+import org.abapgit.adt.ui.internal.util.IAbapGitStagingService;
 import org.abapgit.adt.ui.internal.util.ObjectStagingModeUtil;
 import org.abapgit.adt.ui.internal.util.ProjectChangeListener;
 import org.abapgit.adt.ui.internal.util.StagingDragListener;
@@ -48,8 +50,6 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.bindings.keys.KeyStroke;
-import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -65,13 +65,8 @@ import org.eclipse.jface.text.MarginPainter;
 import org.eclipse.jface.text.TextViewer;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.ArrayContentProvider;
-import org.eclipse.jface.viewers.DoubleClickEvent;
-import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.viewers.ViewerComparator;
-import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -83,8 +78,6 @@ import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
@@ -111,7 +104,6 @@ import org.eclipse.ui.progress.IProgressService;
 import com.sap.adt.communication.exceptions.CommunicationException;
 import com.sap.adt.communication.resources.ResourceException;
 import com.sap.adt.compatibility.exceptions.OutDatedClientException;
-import com.sap.adt.destinations.ui.logon.AdtLogonServiceUIFactory;
 import com.sap.adt.tools.core.AdtObjectReference;
 import com.sap.adt.tools.core.IAdtObjectReference;
 import com.sap.adt.tools.core.model.util.AdtObjectReferenceAdapterFactory;
@@ -133,6 +125,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	private String destinationId;
 	protected IRepositoryService repoService;
 	protected IExternalRepositoryInfoService repoExternaService;
+	protected IAbapGitStagingService stagingService;
 	private ProjectChangeListener projectChangeListener; // project change listener
 
 	//UI Model
@@ -144,7 +137,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	private FormToolkit toolkit;
 	protected Form mainForm;
 	protected Text filterText;
-	private TreeFilter treeFilter;
+	private AbapGitStagingTreeFilter treeFilter;
 
 	//unstaged section controls
 	private Section unstagedSection;
@@ -177,12 +170,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	private IAction actionCollapseAllUnstaged;
 	private IAction actionCollapseAllStaged;
 
-	/**
-	 * for testing. this is required for preventing project logon screen during
-	 * testing
-	 */
-	protected boolean testMode = false;
-
+	//key binding for copy text
 	private static final KeyStroke KEY_STROKE_COPY = KeyStroke.getInstance(SWT.ALT, 'C' | 'c');
 
 	/**
@@ -191,7 +179,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	 * across unstaged and staged changes even on drag and drop of a file under
 	 * the parent object
 	 */
-	private final boolean singleFileStageMode = true;
+	private static final boolean singleFileStageMode = true;
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -248,10 +236,12 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		GridLayoutFactory.fillDefaults().applyTo(unstagedComposite);
 		this.unstagedSection.setClient(unstagedComposite);
 
+		//create the treeviewer
 		this.unstagedTreeViewer = this.createTreeViewer(unstagedComposite, true);
 		this.unstagedTreeViewer.setInput(this.unstagedTreeViewerInput);
 		addDragAndDropSupport(this.unstagedTreeViewer, true);
 
+		//add context menu support to the tree viewer
 		this.unstagedMenuFactory = new AbapGitStagingObjectMenuFactory(this.unstagedTreeViewer, true, this);
 	}
 
@@ -264,21 +254,10 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		this.unstagedToolbarManager = new ToolBarManager(SWT.FLAT | SWT.HORIZONTAL);
 		this.unstagedToolbarManager.add(this.actionStage);
 		this.unstagedToolbarManager.add(new Separator());
-		this.actionCollapseAllUnstaged = new Action(Messages.AbapGitStaging_collapse_all_xbut) {
-			@Override
-			public ImageDescriptor getImageDescriptor() {
-				return PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_COLLAPSEALL);
-			}
-			@Override
-			public void run() {
-				AbapGitStagingView.this.unstagedTreeViewer.collapseAll();
-			}
-		};
+		this.actionCollapseAllUnstaged = new CollapseAllAction(true);
 		this.unstagedToolbarManager.add(this.actionCollapseAllUnstaged);
 		this.unstagedToolbarManager.update(true);
 		this.unstagedToolbarManager.createControl(unstagedToolbarComposite);
-
-		//TODO : toolbar action for hide/show ignored files in unstaged changes tree viewer
 	}
 
 	private void createStagedComposite(Composite parent) {
@@ -294,10 +273,12 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		GridLayoutFactory.fillDefaults().applyTo(stagedComposite);
 		this.stagedSection.setClient(stagedComposite);
 
+		//create the treeviewer
 		this.stagedTreeViewer = this.createTreeViewer(stagedComposite, false);
 		this.stagedTreeViewer.setInput(this.stagedTreeViewerInput);
 		addDragAndDropSupport(this.stagedTreeViewer, false);
 
+		//add context menu support to the tree viewer
 		this.stagedMenuFactory = new AbapGitStagingObjectMenuFactory(this.stagedTreeViewer, false, this);
 	}
 
@@ -310,16 +291,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		this.stagedToolbarManager = new ToolBarManager(SWT.FLAT | SWT.HORIZONTAL);
 		this.stagedToolbarManager.add(this.actionUnstage);
 		this.stagedToolbarManager.add(new Separator());
-		this.actionCollapseAllStaged = new Action(Messages.AbapGitStaging_collapse_all_xbut) {
-			@Override
-			public ImageDescriptor getImageDescriptor() {
-				return PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_COLLAPSEALL);
-			}
-			@Override
-			public void run() {
-				AbapGitStagingView.this.stagedTreeViewer.collapseAll();
-			}
-		};
+		this.actionCollapseAllStaged = new CollapseAllAction(false);
 		this.stagedToolbarManager.add(this.actionCollapseAllStaged);
 		this.stagedToolbarManager.update(true);
 		this.stagedToolbarManager.createControl(stagedToolbarComposite);
@@ -331,10 +303,10 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		viewer.getTree().setData(FormToolkit.KEY_DRAW_BORDER, FormToolkit.TREE_BORDER);
 		viewer.setLabelProvider(new AbapGitStagingLabelProvider());
 		viewer.setContentProvider(new AbapGitStagingContentProvider());
-		viewer.setComparator(new TreeComparator());
+		viewer.setComparator(new AbapGitStagingTreeComparator());
 		viewer.getTree().setSortDirection(SWT.UP);
 		if (this.treeFilter == null) {
-			this.treeFilter = new TreeFilter();
+			this.treeFilter = new AbapGitStagingTreeFilter();
 		}
 		viewer.setFilters(this.treeFilter);
 		addDoubleClickListener(viewer);
@@ -378,15 +350,18 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		//commit button
 		this.commitAndPushButton = this.toolkit.createButton(commitComposite, Messages.AbapGitStaging_commit_button, SWT.PUSH);
 		this.commitAndPushButton.setLayoutData(GridDataFactory.fillDefaults().align(SWT.RIGHT, SWT.BEGINNING).create());
-		//TODO: icon
 		SWTUtil.setButtonWidthHint(this.commitAndPushButton);
 		this.commitAndPushButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				commitAndPush();
+				validateInputAndPushChanges();
 			}
 		});
 	}
 
+	/**
+	 * Creates a composite to display warnings and errors in commit section like
+	 * invalid author, commit message etc..
+	 */
 	private void createToggleableWarningsComposite(Composite parent) {
 		this.warningsComposite = new Composite(parent, SWT.NONE);
 		this.warningsComposite.setVisible(false);
@@ -423,47 +398,30 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		//draw a line to hint the max commit line length
 		createMarginPainter(this.commitMessageTextViewer);
 
-		this.commitMessageTextViewer.getTextWidget().addModifyListener(new ModifyListener() {
-			@Override
-			public void modifyText(ModifyEvent e) {
-				validateInputs();
-			}
-		});
+		this.commitMessageTextViewer.getTextWidget().addModifyListener(e -> validateInputs());
 	}
 
 	private void createMarginPainter(TextViewer commitMessageTextViewer) {
 		MarginPainter marginPainter = new MarginPainter(commitMessageTextViewer);
-		marginPainter.setMarginRulerColumn(MAX_COMMIT_MESSAGE_LINE_LENGTH);
+		marginPainter.setMarginRulerColumn(MAX_COMMIT_MESSAGE_LINE_LENGTH); //maximum recommended commit message line length is 72
 		marginPainter.setMarginRulerColor(PlatformUI.getWorkbench().getDisplay().getSystemColor(SWT.COLOR_GRAY));
 		commitMessageTextViewer.addPainter(marginPainter);
 	}
 
 	private void createAuthorComposite(Composite parent) {
-		//TODO: icon
 		this.createPersonLabel(parent, null, Messages.AbapGitStaging_author);
 		this.authorText = this.toolkit.createText(parent, null);
 		this.authorText.setData(FormToolkit.KEY_DRAW_BORDER, FormToolkit.TREE_BORDER);
 		this.authorText.setLayoutData(GridDataFactory.fillDefaults().indent(5, 0).grab(true, false).create());
-		this.authorText.addModifyListener(new ModifyListener() {
-			@Override
-			public void modifyText(ModifyEvent e) {
-				validateInputs();
-			}
-		});
+		this.authorText.addModifyListener(e -> validateInputs());
 	}
 
 	private void createCommitterComposite(Composite parent) {
-		//TODO: icon
 		this.createPersonLabel(parent, null, Messages.AbapGitStaging_committer);
 		this.committerText = this.toolkit.createText(parent, null);
 		this.committerText.setData(FormToolkit.KEY_DRAW_BORDER, FormToolkit.TREE_BORDER);
 		this.committerText.setLayoutData(GridDataFactory.fillDefaults().indent(5, 0).grab(true, false).create());
-		this.committerText.addModifyListener(new ModifyListener() {
-			@Override
-			public void modifyText(ModifyEvent e) {
-				validateInputs();
-			}
-		});
+		this.committerText.addModifyListener(e -> validateInputs());
 	}
 
 	private void createPersonLabel(Composite parent, Image image, String text) {
@@ -473,9 +431,11 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		textLabel.setForeground(this.toolkit.getColors().getColor(IFormColors.TB_TOGGLE));
 	}
 
+	/**
+	 * Adds actions to the view toolbar
+	 */
 	private void contributeToActionBars() {
 		IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
-
 		//filter text box
 		toolBarManager.add(createObjectsFilterText());
 		//refresh action
@@ -490,6 +450,9 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		}
 	}
 
+	/**
+	 * Adds a filter text box in the view toolbar
+	 */
 	private ControlContribution createObjectsFilterText() {
 		//create filter text composite
 		ControlContribution filterTextboxContribution = new ControlContribution("AbapGitStagingView.filterText") { //$NON-NLS-1$
@@ -504,27 +467,33 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 				data.minimumWidth = 150;
 				AbapGitStagingView.this.filterText.setLayoutData(data);
 
-				AbapGitStagingView.this.filterText.addModifyListener(e -> {
-					String filterString = AbapGitStagingView.this.filterText.getText();
-					AbapGitStagingView.this.treeFilter.setPattern(filterString);
-
-					Object[] unstagedExpanded = AbapGitStagingView.this.unstagedTreeViewer.getVisibleExpandedElements();
-					Object[] stagedExpanded = AbapGitStagingView.this.stagedTreeViewer.getVisibleExpandedElements();
-					setRedraw(false);
-					try {
-						refreshTreeViewers();
-						AbapGitStagingView.this.unstagedTreeViewer.setExpandedElements(unstagedExpanded);
-						AbapGitStagingView.this.stagedTreeViewer.setExpandedElements(stagedExpanded);
-					} finally {
-						setRedraw(true);
-					}
-					updateSectionHeaders();
-				});
+				AbapGitStagingView.this.filterText.addModifyListener(e -> applyFilter());
 				return filterComposite;
 			}
 		};
-
 		return filterTextboxContribution;
+	}
+
+	/**
+	 * Applies filter on the treeviewers
+	 */
+	private void applyFilter() {
+		String filterString = AbapGitStagingView.this.filterText.getText();
+		AbapGitStagingView.this.treeFilter.setPattern(filterString);
+
+		//get the expanded elements in the tree viewers
+		Object[] unstagedExpanded = AbapGitStagingView.this.unstagedTreeViewer.getVisibleExpandedElements();
+		Object[] stagedExpanded = AbapGitStagingView.this.stagedTreeViewer.getVisibleExpandedElements();
+		setRedraw(false);
+		try {
+			refreshTreeViewers();
+			//restore the tree expansion state
+			AbapGitStagingView.this.unstagedTreeViewer.setExpandedElements(unstagedExpanded);
+			AbapGitStagingView.this.stagedTreeViewer.setExpandedElements(stagedExpanded);
+		} finally {
+			setRedraw(true);
+		}
+		updateSectionHeaders();
 	}
 
 	private void setRedraw(boolean redraw) {
@@ -542,27 +511,28 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		if (this.actionRefresh == null) {
 			createRefreshAction();
 		}
-
 		//stage object action
 		if (this.actionStage == null) {
 			createStageAction();
 		}
-
 		//un-stage object action
 		if (this.actionUnstage == null) {
 			createUnstageAction();
 		}
-
+		//open linked package action
 		if (this.actionOpenPackage == null) {
 			createOpenPackageAction();
 		}
 	}
 
+	/**
+	 * Action for opening the package linked with the repository
+	 */
 	private void createOpenPackageAction() {
 		this.actionOpenPackage = new Action() {
 			public void run() {
 				if (AbapGitStagingView.this.repository != null && AbapGitStagingView.this.project != null) {
-					if (!AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(AbapGitStagingView.this.project).isOK()) {
+					if (!isLoggedOn(AbapGitStagingView.this.project)) {
 						return;
 					}
 					openPackage();
@@ -621,7 +591,6 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	 * Action for unstaging an object from staged section to unstaged section
 	 */
 	private void createUnstageAction() {
-		//TODO: icon
 		this.actionUnstage = new Action(Messages.AbapGitStaging_action_unstage_xtol,
 				AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID, "icons/etool/unstage.png")) { //$NON-NLS-1$
 			public void run() {
@@ -633,7 +602,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 
 	protected void stageSelectedObjects(IStructuredSelection selection) {
 		List<Object> expandedNodes = new ArrayList<>();
-		if (!this.singleFileStageMode) {
+		if (!AbapGitStagingView.singleFileStageMode) {
 			ObjectStagingModeUtil.stageObjects(this.unstagedTreeViewer, selection, this.model, expandedNodes);
 		} else {
 			FileStagingModeUtil.stageObjects(this.unstagedTreeViewer, selection, this.model, expandedNodes);
@@ -646,7 +615,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 
 	protected void unstageSelectedObjects(IStructuredSelection selection) {
 		List<Object> expandedNodes = new ArrayList<>();
-		if (!this.singleFileStageMode) {
+		if (!AbapGitStagingView.singleFileStageMode) {
 			ObjectStagingModeUtil.unstageObjects(this.stagedTreeViewer, selection, this.model, expandedNodes);
 		} else {
 			FileStagingModeUtil.unstageObjects(this.stagedTreeViewer, selection, this.model, expandedNodes);
@@ -673,6 +642,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 			return;
 		}
 
+		//if a new project, refresh the services
 		if(this.project != project) {
 			AbapGitStagingView.this.project = project;
 			AbapGitStagingView.this.destinationId = getDestination(project);
@@ -692,47 +662,9 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		refresh();
 	}
 
-	private boolean isLoggedOn(IProject project) {
-		//Return true if the test is running. If not the logon pop will block the testing.
-		if (this.testMode) {
-			return true;
-		}
-		if (AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(project).isOK()) {
-			return true;
-		}
-		return false;
-	}
-
-	private boolean checkIfCredentialsRequired(IRepository repository, IProgressMonitor monitor) {
-		if (this.repositoryExternalInfo == null) {
-			monitor.beginTask(Messages.AbapGitWizardPageRepositoryAndCredentials_task_fetch_repo_info, IProgressMonitor.UNKNOWN);
-			AbapGitStagingView.this.repositoryExternalInfo = getExternalRepositoryInfo(repository, monitor);
-		}
-
-		//check whether the repo is private
-		if (AbapGitStagingView.this.repositoryExternalInfo.getAccessMode() == AccessMode.PRIVATE) {
-			return true;
-		}else {
-			return false;
-		}
-	}
-
-	private boolean getUserCredentials() {
-		//open the user credentials pop-up
-		Display.getDefault().syncExec(new Runnable() {
-			@Override
-			public void run() {
-				Dialog userCredentialsDialog = new AbapGitStagingCredentialsDialog(getSite().getShell());
-				if (userCredentialsDialog.open() == IDialogConstants.OK_ID) {
-					AbapGitStagingView.this.repositoryCredentials = ((AbapGitStagingCredentialsDialog) userCredentialsDialog)
-							.getExternalRepoInfo();
-				}
-			}
-		});
-
-		return this.repositoryCredentials != null ? true : false;
-	}
-
+	/**
+	 * Refresh/Load the staging contents from the back-end and updates the UI
+	 */
 	private void refresh() {
 		Job refreshJob = new Job(Messages.AbapGitView_task_fetch_repos_staging) {
 			@Override
@@ -740,7 +672,9 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 				try {
 					if (AbapGitStagingView.this.repositoryCredentials == null) {
 						if (checkIfCredentialsRequired(AbapGitStagingView.this.repository, monitor)) {
-							if (!getUserCredentials()) {
+							AbapGitStagingView.this.repositoryCredentials = GitCredentialsService
+									.getUserCredentialsFromUser(getSite().getShell());
+							if (AbapGitStagingView.this.repositoryCredentials == null) { //user cancelled
 								return Status.CANCEL_STATUS;
 							}
 						}
@@ -749,7 +683,6 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 					monitor.beginTask(Messages.AbapGitView_task_fetch_repos_staging, IProgressMonitor.UNKNOWN);
 					AbapGitStagingView.this.model = AbapGitStagingView.this.repoService
 							.stage(AbapGitStagingView.this.repository, AbapGitStagingView.this.repositoryCredentials, monitor);
-
 					if (AbapGitStagingView.this.model != null) {
 						//refresh UI
 						refreshUI();
@@ -770,6 +703,48 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	}
 
 	/**
+	 * Refreshes the staging view
+	 */
+	private void refreshUI() {
+		Display.getDefault().syncExec(() -> {
+			//set form header
+			AbapGitStagingView.this.mainForm.setText(getRepoNameFromUrl(AbapGitStagingView.this.repository.getUrl()) + " [" //$NON-NLS-1$
+					+ getBranchName(AbapGitStagingView.this.repository.getBranch()) + "]" + " [" + this.project.getName() + "]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+			AbapGitStagingView.this.unstagedTreeViewerInput.clear();
+			AbapGitStagingView.this.unstagedTreeViewerInput.addAll(getUnstagedObjectsFromModel(AbapGitStagingView.this.model));
+			AbapGitStagingView.this.stagedTreeViewerInput.clear();
+			AbapGitStagingView.this.stagedTreeViewerInput.addAll(getStagedObjectsFromModel(AbapGitStagingView.this.model));
+
+			//update the tree viewers
+			AbapGitStagingView.this.unstagedTreeViewer.refresh();
+			AbapGitStagingView.this.stagedTreeViewer.refresh();
+
+			//update the commit message section
+			AbapGitStagingView.this.authorText.setText(AbapGitStagingView.this.model.getCommitMessage().getAuthor().getName() + " <" //$NON-NLS-1$
+					+ AbapGitStagingView.this.model.getCommitMessage().getAuthor().getEmail() + ">"); //$NON-NLS-1$
+			AbapGitStagingView.this.committerText.setText(AbapGitStagingView.this.model.getCommitMessage().getCommitter().getName() + " <" //$NON-NLS-1$
+					+ AbapGitStagingView.this.model.getCommitMessage().getCommitter().getEmail() + ">"); //$NON-NLS-1$
+
+			updateSectionHeaders();
+			updateButtonsState();
+			validateInputs();
+		});
+	}
+
+	private boolean isLoggedOn(IProject project) {
+		return getStagingService().isLoggedOn(project);
+	}
+
+	private boolean checkIfCredentialsRequired(IRepository repository, IProgressMonitor monitor) {
+		if (this.repositoryExternalInfo == null) {
+			monitor.beginTask(Messages.AbapGitWizardPageRepositoryAndCredentials_task_fetch_repo_info, IProgressMonitor.UNKNOWN);
+			AbapGitStagingView.this.repositoryExternalInfo = getExternalRepositoryInfo(repository, monitor);
+		}
+		return GitCredentialsService.checkIfCredentialsRequired(this.repositoryExternalInfo, monitor);
+	}
+
+	/**
 	 * Returns the repository details
 	 */
 	private IExternalRepositoryInfo getExternalRepositoryInfo(IRepository repository, IProgressMonitor monitor) {
@@ -778,41 +753,6 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 
 	private IExternalRepositoryInfoService getExternalRepositoryService(IProgressMonitor monitor) {
 		return RepositoryServiceFactory.createExternalRepositoryInfoService(AbapGitStagingView.this.destinationId, monitor);
-	}
-
-	/**
-	 * Refreshes the staging view
-	 */
-	private void refreshUI() {
-		Display.getDefault().syncExec(new Runnable() {
-			public void run() {
-				//set form header
-				AbapGitStagingView.this.mainForm.setText(getRepoNameFromUrl(AbapGitStagingView.this.repository.getUrl()) + " [" //$NON-NLS-1$
-						+ getBranchName(AbapGitStagingView.this.repository.getBranch()) + "]"); //$NON-NLS-1$
-
-				AbapGitStagingView.this.unstagedTreeViewerInput.clear();
-				AbapGitStagingView.this.unstagedTreeViewerInput.addAll(getUnstagedObjectsFromModel(AbapGitStagingView.this.model));
-				//TODO : enable ignored objects handling
-				AbapGitStagingView.this.stagedTreeViewerInput.clear();
-				AbapGitStagingView.this.stagedTreeViewerInput.addAll(getStagedObjectsFromModel(AbapGitStagingView.this.model));
-
-				//update the tree viewers
-				AbapGitStagingView.this.unstagedTreeViewer.refresh();
-				AbapGitStagingView.this.stagedTreeViewer.refresh();
-
-				//update the commit message section
-				AbapGitStagingView.this.authorText
-						.setText(AbapGitStagingView.this.model.getCommitMessage().getAuthor().getName() + " <" //$NON-NLS-1$
-								+ AbapGitStagingView.this.model.getCommitMessage().getAuthor().getEmail() + ">"); //$NON-NLS-1$
-				AbapGitStagingView.this.committerText
-						.setText(AbapGitStagingView.this.model.getCommitMessage().getCommitter().getName() + " <" //$NON-NLS-1$
-								+ AbapGitStagingView.this.model.getCommitMessage().getCommitter().getEmail() + ">"); //$NON-NLS-1$
-
-				updateSectionHeaders();
-				updateButtonsState();
-				validateInputs();
-			}
-		});
 	}
 
 	/**
@@ -835,7 +775,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		this.commitMessageTextViewer.getTextWidget().setText(""); //$NON-NLS-1$
 		this.authorText.setText(""); //$NON-NLS-1$
 		this.committerText.setText(""); //$NON-NLS-1$
-		resetFilter();
+		resetTreeFilter();
 
 		this.unstagedTreeViewerInput.clear();
 		this.unstagedTreeViewer.setInput(this.unstagedTreeViewerInput);
@@ -846,7 +786,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		updateButtonsState();
 	}
 
-	private void resetFilter() {
+	private void resetTreeFilter() {
 		this.filterText.setText(""); //$NON-NLS-1$
 		this.treeFilter.setPattern(""); //$NON-NLS-1$
 	}
@@ -866,10 +806,10 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		} else {
 			//update the unstaged section header
 			this.unstagedSection.setText(Messages.AbapGitStaging_unstaged_changes_section_header + " (" //$NON-NLS-1$
-					+ this.unstagedTreeViewer.getTree().getItemCount() + "/" + getUnstagedObjectsCount() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+					+ this.unstagedTreeViewer.getTree().getItemCount() + "/" + getObjectsCount(true) + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 			//update the staged section header
 			this.stagedSection.setText(Messages.AbapGitStaging_staged_changes_section_header + " (" //$NON-NLS-1$
-					+ this.stagedTreeViewer.getTree().getItemCount() + "/" + getStagedObjectsCount() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+					+ this.stagedTreeViewer.getTree().getItemCount() + "/" + getObjectsCount(false) + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 
@@ -896,20 +836,14 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		return objects;
 	}
 
-	private int getUnstagedObjectsCount() {
-		if (this.model.getUnstagedObjects() == null) {
+	private int getObjectsCount(boolean unstaged) {
+		if (unstaged && this.model.getUnstagedObjects() == null) {
+			return 0;
+		} else if (!unstaged && this.model.getStagedObjects() == null) {
 			return 0;
 		}
-		List<IAbapGitObject> objects = this.model.getUnstagedObjects().getAbapgitobject();
-		return objects.size();
-	}
-
-	private int getStagedObjectsCount() {
-		if (this.model.getStagedObjects() == null) {
-			return 0;
-		}
-		List<IAbapGitObject> objects = this.model.getStagedObjects().getAbapgitobject();
-		return objects.size();
+		return unstaged ? this.model.getUnstagedObjects().getAbapgitobject().size()
+				: this.model.getStagedObjects().getAbapgitobject().size();
 	}
 
 	private String getRepoNameFromUrl(String repoURL) {
@@ -933,7 +867,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	}
 
 	/**
-	 * Validator method for UI inputs
+	 * Validates the UI inputs
 	 */
 	protected int validateInputs() {
 		int errorCode = 0;
@@ -1063,7 +997,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		changeWarningsVisibility(false);
 	}
 
-	private void commitAndPush() {
+	private void validateInputAndPushChanges() {
 		//check if any repo is selected
 		if (this.repository == null) {
 			MessageDialog.openWarning(getSite().getShell(), Messages.AbapGitStaging_no_repository_selected,
@@ -1100,16 +1034,14 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		this.model.getCommitMessage().setAuthor(author);
 		this.model.getCommitMessage().setCommitter(committer);
 
+		commitAndPush();
+	}
+
+	private void commitAndPush() {
 		//get credentials
+		AbapGitStagingView.this.repositoryCredentials = GitCredentialsService.getUserCredentialsFromUser(getSite().getShell());
 		if (this.repositoryCredentials == null) {
-			//open the user credentials pop-up
-			Dialog userCredentialsDialog = new AbapGitStagingCredentialsDialog(getSite().getShell());
-			if (userCredentialsDialog.open() == IDialogConstants.OK_ID) {
-				AbapGitStagingView.this.repositoryCredentials = ((AbapGitStagingCredentialsDialog) userCredentialsDialog)
-						.getExternalRepoInfo();
-			} else {
-				return;
-			}
+			return;
 		}
 
 		//push
@@ -1122,19 +1054,17 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 							AbapGitStagingView.this.repository, AbapGitStagingView.this.repositoryCredentials);
 
 					//refresh
-					Display.getDefault().syncExec(new Runnable() {
-						public void run() {
-							MessageDialog.openInformation(getSite().getShell(), Messages.AbapGitStaging_push_job_successful,
-									Messages.AbapGitStaging_push_job_successful_desc);
-							//clear commit message
-							AbapGitStagingView.this.commitMessageTextViewer.getTextWidget().setText(""); //$NON-NLS-1$
-							//clear staged changes
-							AbapGitStagingView.this.stagedTreeViewerInput.clear();
-							AbapGitStagingView.this.stagedTreeViewer.refresh();
-							//update view
-							updateButtonsState();
-							updateSectionHeaders();
-						}
+					Display.getDefault().syncExec(() -> {
+						MessageDialog.openInformation(getSite().getShell(), Messages.AbapGitStaging_push_job_successful,
+								Messages.AbapGitStaging_push_job_successful_desc);
+						//clear commit message
+						AbapGitStagingView.this.commitMessageTextViewer.getTextWidget().setText(""); //$NON-NLS-1$
+						//clear staged changes
+						AbapGitStagingView.this.stagedTreeViewerInput.clear();
+						AbapGitStagingView.this.stagedTreeViewer.refresh();
+						//update view
+						updateButtonsState();
+						updateSectionHeaders();
 					});
 					return Status.OK_STATUS;
 				} catch (CommunicationException | ResourceException | OperationCanceledException e) {
@@ -1152,7 +1082,26 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		pushJob.schedule();
 	}
 
-	private static String getExceptionText(ResourceException exception) {
+	@Override
+	public void setFocus() {
+		this.unstagedTreeViewer.getControl().setFocus();
+	}
+
+	private void handleException(Exception e) {
+		String excMessage = null;
+		//handle the error code 409 from back-end ( HTTP 409 is the error code returned by the back-end in case of process
+		//conflicts eg: triggering a push while a push is already running ). In such case the exception text is part of the response body
+		if (e instanceof ResourceException && ((ResourceException) e).getStatus() == 409) {
+			excMessage = getExceptionTextFromResponse((ResourceException) e);
+		}
+		if (excMessage == null || excMessage.isEmpty()) {
+			excMessage = e.getMessage();
+		}
+		openErrorDialog(Messages.AbapGitView_task_fetch_repos_staging_error, excMessage, true);
+	}
+
+	private static String getExceptionTextFromResponse(ResourceException exception) {
+		//Exception text in case of 409 error is part of the response body
 		try {
 			InputStream inputStream = exception.getResponse().getBody().getContent();
 			ByteArrayOutputStream result = new ByteArrayOutputStream();
@@ -1165,24 +1114,6 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		} catch (IOException e) {
 			return null;
 		}
-	}
-
-	@Override
-	public void setFocus() {
-		this.unstagedTreeViewer.getControl().setFocus();
-	}
-
-	private void handleException(Exception e) {
-		String excMessage = null;
-		//handle the error code 409 from back-end ( HTTP 409 is the error code returned by the back-end in case of process
-		//conflicts eg: triggering a push while a push is already running ). In such case the exception text is part of the response body
-		if (e instanceof ResourceException && ((ResourceException) e).getStatus() == 409) {
-			excMessage = getExceptionText((ResourceException) e);
-		}
-		if (excMessage == null || excMessage.isEmpty()) {
-			excMessage = e.getMessage();
-		}
-		openErrorDialog(Messages.AbapGitView_task_fetch_repos_staging_error, excMessage, true);
 	}
 
 	private void addDragAndDropSupport(TreeViewer viewer, final boolean unstaged) {
@@ -1211,35 +1142,13 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	}
 
 	private void addDoubleClickListener(TreeViewer viewer) {
-		viewer.addDoubleClickListener(new IDoubleClickListener() {
-			@Override
-			public void doubleClick(DoubleClickEvent event) {
-				//open the object
-				if (event.getSelection() instanceof IStructuredSelection) {
-					IStructuredSelection selection = (IStructuredSelection) event.getSelection();
-					Object object = selection.getFirstElement();
-					if (object instanceof IAbapGitObject) {
-						openAbapObject((IAbapGitObject) object);
-					}
-				}
-			}
-		});
-	}
-
-	private void addKeyListener(TreeViewer viewer, boolean unstaged) {
-		viewer.getTree().addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if (e.keyCode == KEY_STROKE_COPY.getNaturalKey() && e.stateMask == KEY_STROKE_COPY.getModifierKeys()) {
-					IStructuredSelection selection = null;
-					if (unstaged) {
-						selection = (IStructuredSelection) AbapGitStagingView.this.unstagedTreeViewer.getSelection();
-					} else {
-						selection = (IStructuredSelection) AbapGitStagingView.this.stagedTreeViewer.getSelection();
-					}
-					if (selection != null && selection.getFirstElement() != null) {
-						copy(selection.getFirstElement());
-					}
+		viewer.addDoubleClickListener((event) -> {
+			//open the object
+			if (event.getSelection() instanceof IStructuredSelection) {
+				IStructuredSelection selection = (IStructuredSelection) event.getSelection();
+				Object object = selection.getFirstElement();
+				if (object instanceof IAbapGitObject) {
+					openAbapObject((IAbapGitObject) object);
 				}
 			}
 		});
@@ -1258,7 +1167,27 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		}
 	}
 
-	protected void copy(Object object) {
+	private void addKeyListener(TreeViewer viewer, boolean unstaged) {
+		viewer.getTree().addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				//add key listener for text copy
+				if (e.keyCode == KEY_STROKE_COPY.getNaturalKey() && e.stateMask == KEY_STROKE_COPY.getModifierKeys()) {
+					IStructuredSelection selection = null;
+					if (unstaged) {
+						selection = (IStructuredSelection) AbapGitStagingView.this.unstagedTreeViewer.getSelection();
+					} else {
+						selection = (IStructuredSelection) AbapGitStagingView.this.stagedTreeViewer.getSelection();
+					}
+					if (selection != null && selection.getFirstElement() != null) {
+						copyTextToClipboard(selection.getFirstElement());
+					}
+				}
+			}
+		});
+	}
+
+	protected void copyTextToClipboard(Object object) {
 		final StringBuilder data = new StringBuilder();
 
 		if (object instanceof IAbapGitObject) {
@@ -1280,18 +1209,36 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		return RepositoryServiceFactory.createRepositoryService(destinationId, new NullProgressMonitor());
 	}
 
+	private IAbapGitStagingService getStagingService() {
+		if (this.stagingService == null) {
+			this.stagingService = AbapGitStagingService.getInstance();
+			return this.stagingService;
+		} else {
+			return this.stagingService;
+		}
+	}
+
+	/**
+	 * Opens an error dialog box
+	 *
+	 * @param title
+	 *            Title for the error dialog box
+	 * @param message
+	 *            Message to be displayed in the dialog box
+	 * @param runInUIThread
+	 *            Set it to true, if this method is called from a non UI thread
+	 */
 	private void openErrorDialog(String title, String message, boolean runInUIThread) {
 		if (runInUIThread) {
-			Display.getDefault().syncExec(new Runnable() {
-				public void run() {
-					MessageDialog.openError(getSite().getShell(), title, message);
-				}
-			});
+			Display.getDefault().syncExec(() -> MessageDialog.openError(getSite().getShell(), title, message));
 		} else {
 			MessageDialog.openError(getSite().getShell(), title, message);
 		}
 	}
 
+	/**
+	 * Returns whether the tree filter is currently active or not
+	 */
 	private boolean isFilterActive() {
 		String filter = this.filterText.getText();
 		if (filter.isEmpty()) {
@@ -1306,87 +1253,31 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		super.dispose();
 		this.unstagedMenuFactory.dispose();
 		this.stagedMenuFactory.dispose();
-
 		ResourcesPlugin.getWorkspace().removeResourceChangeListener(this.projectChangeListener);
 	}
 
-	private class TreeComparator extends ViewerComparator {
-		@Override
-		public int compare(Viewer viewer, Object e1, Object e2) {
-			return compareElements(viewer, e1, e2);
-		}
-	}
+	//actions
+	private class CollapseAllAction extends Action {
+		private final boolean unstaged;
 
-	private int compareElements(Viewer viewer, Object e1, Object e2) {
-		TreeViewer treeViewer = (TreeViewer) viewer;
-		if (e1 instanceof IAbapGitObject && e2 instanceof IAbapGitObject) {
-			IAbapGitObject object1 = (IAbapGitObject) e1;
-			IAbapGitObject object2 = (IAbapGitObject) e2;
-			//set "non-code and meta files" as the first node
-			if (object1.getType() == null) {
-				return treeViewer.getTree().getSortDirection() == SWT.UP ? -1 : 1;
-			}
-			if (object2.getType() == null) {
-				return treeViewer.getTree().getSortDirection() == SWT.UP ? 1 : -1;
-			}
-			int result = object1.getName().compareToIgnoreCase(object2.getName());
-			return treeViewer.getTree().getSortDirection() == SWT.UP ? result : -result;
-		}
-		return 0;
-	}
-
-	private class TreeFilter extends ViewerFilter {
-
-		private Pattern pattern;
-
-		public void setPattern(String filter) {
-			this.pattern = wildcardToRegex(filter);
+		CollapseAllAction(boolean unstaged) {
+			super(Messages.AbapGitStaging_collapse_all_xbut);
+			this.unstaged = unstaged;
 		}
 
 		@Override
-		public boolean select(Viewer viewer, Object parentElement, Object element) {
-			if (this.pattern == null) {
-				return true;
-			}
-			if (element instanceof IAbapGitObject) {
-				String name = ((IAbapGitObject) element).getName();
-				if (this.pattern.matcher(name).find()) {
-					return true;
-				}
-				return hasVisibleChildren((IAbapGitObject) element);
-			} else if (element instanceof IAbapGitFile) {
-				String name = ((IAbapGitFile) element).getName();
-				if (this.pattern.matcher(name).find()) {
-					return true;
-				}
-			}
-			return false;
+		public ImageDescriptor getImageDescriptor() {
+			return PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_COLLAPSEALL);
 		}
 
-		boolean hasVisibleChildren(IAbapGitObject object) {
-			for (Object file : object.getFiles()) {
-				String name = ((IAbapGitFile) file).getName();
-				if (this.pattern.matcher(name).find()) {
-					return true;
-				}
+		@Override
+		public void run() {
+			if (this.unstaged) {
+				AbapGitStagingView.this.unstagedTreeViewer.collapseAll();
+			} else {
+				AbapGitStagingView.this.stagedTreeViewer.collapseAll();
 			}
-			return false;
 		}
-
-		private Pattern wildcardToRegex(String filter) {
-			String trimmed = filter.trim();
-			if (trimmed.isEmpty()) {
-				return null;
-			}
-			String regex = (trimmed.contains("*") ? "^" : "") + "\\Q"//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-					+ trimmed.replaceAll("\\*", //$NON-NLS-1$
-							Matcher.quoteReplacement("\\E.*?\\Q")) //$NON-NLS-1$
-					+ "\\E";//$NON-NLS-1$
-			// remove potentially empty quotes at begin or end
-			regex = regex.replaceAll(Pattern.quote("\\Q\\E"), ""); //$NON-NLS-1$ //$NON-NLS-2$
-			return Pattern.compile(regex);
-		}
-
 	}
 
 }

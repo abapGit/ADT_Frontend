@@ -761,7 +761,7 @@ public class AbapGitView extends ViewPart {
 
 	}
 
-	private class OpenStagingViewAction extends Action {
+	private static class OpenStagingViewAction extends Action {
 
 		private final IProject project;
 		private final IRepository repository;
@@ -770,7 +770,7 @@ public class AbapGitView extends ViewPart {
 			this.project = project;
 			this.repository = repository;
 			setText(Messages.AbapGitView_context_staging);
-			setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID, "icons/view/abapgit.png")); //$NON-NLS-1$
+			setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID, "icons/view/abapgit_staging.png")); //$NON-NLS-1$
 		}
 
 		@Override

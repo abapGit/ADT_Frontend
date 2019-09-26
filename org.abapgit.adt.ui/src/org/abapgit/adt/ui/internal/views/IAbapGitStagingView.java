@@ -5,8 +5,7 @@ import org.eclipse.core.resources.IProject;
 
 public interface IAbapGitStagingView {
 	/**
-	 * Open AbapGit Staging view with the staging details of the given
-	 * repository
+	 * Opens AbapGit Staging view for the given repository
 	 *
 	 * @param repository
 	 *            repository whose details are to be loaded in the staging view

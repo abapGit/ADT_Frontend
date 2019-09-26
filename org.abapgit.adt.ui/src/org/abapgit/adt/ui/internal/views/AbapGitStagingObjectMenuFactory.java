@@ -168,7 +168,7 @@ public class AbapGitStagingObjectMenuFactory {
 		@Override
 		public void run() {
 			IStructuredSelection selection = (IStructuredSelection) AbapGitStagingObjectMenuFactory.this.treeViewer.getSelection();
-			AbapGitStagingObjectMenuFactory.this.view.copy(selection.getFirstElement());
+			AbapGitStagingObjectMenuFactory.this.view.copyTextToClipboard(selection.getFirstElement());
 		}
 	}
 
