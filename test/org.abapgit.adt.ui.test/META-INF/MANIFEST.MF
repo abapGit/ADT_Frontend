@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: AbapGit UI tests
+Bundle-SymbolicName: org.abapgit.adt.ui.test;singleton:=true
+Bundle-Version: 0.13.2
+Bundle-ClassPath: .
+Bundle-Vendor: abapGit
+Fragment-Host: org.abapgit.adt.ui;bundle-version="0.13.2"
+Automatic-Module-Name: org.abapgit.adt.ui.test
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.junit;bundle-version="4.12.0",
+ org.easymock;bundle-version="3.6.0"
