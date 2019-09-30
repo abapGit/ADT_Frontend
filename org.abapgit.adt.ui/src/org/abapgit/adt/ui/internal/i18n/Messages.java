@@ -131,6 +131,8 @@ public class Messages extends NLS {
 	public static String AbapGitStaging_action_stage_xtol;
 	public static String AbapGitStaging_action_unstage_xtol;
 	public static String AbapGitStaging_action_open;
+	public static String AbapGitStaging_action_compare;
+	public static String AbapGitStaging_action_copy;
 	public static String AbapGitStaging_task_fetch_repos_staging;
 	public static String AbapGitStaging_task_fetch_repos_staging_error;
 	public static String AbapGitStaging_commit_message_second_line_not_empty;
@@ -151,6 +153,13 @@ public class Messages extends NLS {
 	public static String AbapGitStaging_credentials_dialog_password;
 	public static String AbapGitStaging_credentials_dialog_error_invalid_username;
 	public static String AbapGitStaging_credentials_dialog_error_invalid_password;
+	public static String AbapGitStaging_open_file_editor_job_title;
+	public static String AbapGitStaging_open_file_editor_not_supported_dialog_title;
+	public static String AbapGitStaging_open_file_editor_not_supported_xmg;
+	public static String AbapGitStaging_compare_job_title;
+	public static String AbapGitStaging_compare_objects_dialog_title;
+	public static String AbapGitStaging_compare_objects_identical_xmsg;
+	public static String AbapGitStaging_compare_not_supported_xmg;
 
 	static {
 		// initialize resource bundle

@@ -2,12 +2,19 @@
  */
 package org.abapgit.adt.backend.model.abapgitstaging.impl;
 
+import com.sap.adt.tools.core.model.atom.IAtomLink;
+import java.util.Collection;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitFile;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapgitstagingPackage;
 import org.eclipse.emf.common.notify.Notification;
+import org.eclipse.emf.common.notify.NotificationChain;
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
+import org.eclipse.emf.ecore.util.EObjectContainmentEList;
+import org.eclipse.emf.ecore.util.InternalEList;
 
 /**
  * <!-- begin-user-doc -->
@@ -21,6 +28,7 @@ import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
  *   <li>{@link org.abapgit.adt.backend.model.abapgitstaging.impl.AbapGitFileImpl#getPath <em>Path</em>}</li>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitstaging.impl.AbapGitFileImpl#getLocalState <em>Local State</em>}</li>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitstaging.impl.AbapGitFileImpl#getRemoteState <em>Remote State</em>}</li>
+ *   <li>{@link org.abapgit.adt.backend.model.abapgitstaging.impl.AbapGitFileImpl#getLinks <em>Links</em>}</li>
  * </ul>
  *
  * @generated
@@ -107,6 +115,16 @@ public class AbapGitFileImpl extends MinimalEObjectImpl.Container implements IAb
 	protected String remoteState = REMOTE_STATE_EDEFAULT;
 
 	/**
+	 * The cached value of the '{@link #getLinks() <em>Links</em>}' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getLinks()
+	 * @generated
+	 * @ordered
+	 */
+	protected EList<IAtomLink> links;
+
+	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
@@ -131,7 +149,7 @@ public class AbapGitFileImpl extends MinimalEObjectImpl.Container implements IAb
 	 * @generated
 	 */
 	public String getName() {
-		return this.name;
+		return name;
 	}
 
 	/**
@@ -140,11 +158,10 @@ public class AbapGitFileImpl extends MinimalEObjectImpl.Container implements IAb
 	 * @generated
 	 */
 	public void setName(String newName) {
-		String oldName = this.name;
-		this.name = newName;
-		if (eNotificationRequired()) {
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitstagingPackage.ABAP_GIT_FILE__NAME, oldName, this.name));
-		}
+		String oldName = name;
+		name = newName;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitstagingPackage.ABAP_GIT_FILE__NAME, oldName, name));
 	}
 
 	/**
@@ -153,7 +170,7 @@ public class AbapGitFileImpl extends MinimalEObjectImpl.Container implements IAb
 	 * @generated
 	 */
 	public String getPath() {
-		return this.path;
+		return path;
 	}
 
 	/**
@@ -162,11 +179,10 @@ public class AbapGitFileImpl extends MinimalEObjectImpl.Container implements IAb
 	 * @generated
 	 */
 	public void setPath(String newPath) {
-		String oldPath = this.path;
-		this.path = newPath;
-		if (eNotificationRequired()) {
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitstagingPackage.ABAP_GIT_FILE__PATH, oldPath, this.path));
-		}
+		String oldPath = path;
+		path = newPath;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitstagingPackage.ABAP_GIT_FILE__PATH, oldPath, path));
 	}
 
 	/**
@@ -175,7 +191,7 @@ public class AbapGitFileImpl extends MinimalEObjectImpl.Container implements IAb
 	 * @generated
 	 */
 	public String getLocalState() {
-		return this.localState;
+		return localState;
 	}
 
 	/**
@@ -184,11 +200,10 @@ public class AbapGitFileImpl extends MinimalEObjectImpl.Container implements IAb
 	 * @generated
 	 */
 	public void setLocalState(String newLocalState) {
-		String oldLocalState = this.localState;
-		this.localState = newLocalState;
-		if (eNotificationRequired()) {
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitstagingPackage.ABAP_GIT_FILE__LOCAL_STATE, oldLocalState, this.localState));
-		}
+		String oldLocalState = localState;
+		localState = newLocalState;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitstagingPackage.ABAP_GIT_FILE__LOCAL_STATE, oldLocalState, localState));
 	}
 
 	/**
@@ -197,7 +212,7 @@ public class AbapGitFileImpl extends MinimalEObjectImpl.Container implements IAb
 	 * @generated
 	 */
 	public String getRemoteState() {
-		return this.remoteState;
+		return remoteState;
 	}
 
 	/**
@@ -206,11 +221,36 @@ public class AbapGitFileImpl extends MinimalEObjectImpl.Container implements IAb
 	 * @generated
 	 */
 	public void setRemoteState(String newRemoteState) {
-		String oldRemoteState = this.remoteState;
-		this.remoteState = newRemoteState;
-		if (eNotificationRequired()) {
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitstagingPackage.ABAP_GIT_FILE__REMOTE_STATE, oldRemoteState, this.remoteState));
+		String oldRemoteState = remoteState;
+		remoteState = newRemoteState;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitstagingPackage.ABAP_GIT_FILE__REMOTE_STATE, oldRemoteState, remoteState));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EList<IAtomLink> getLinks() {
+		if (links == null) {
+			links = new EObjectContainmentEList<IAtomLink>(IAtomLink.class, this, IAbapgitstagingPackage.ABAP_GIT_FILE__LINKS);
 		}
+		return links;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
+		switch (featureID) {
+			case IAbapgitstagingPackage.ABAP_GIT_FILE__LINKS:
+				return ((InternalEList<?>)getLinks()).basicRemove(otherEnd, msgs);
+		}
+		return super.eInverseRemove(otherEnd, featureID, msgs);
 	}
 
 	/**
@@ -229,6 +269,8 @@ public class AbapGitFileImpl extends MinimalEObjectImpl.Container implements IAb
 				return getLocalState();
 			case IAbapgitstagingPackage.ABAP_GIT_FILE__REMOTE_STATE:
 				return getRemoteState();
+			case IAbapgitstagingPackage.ABAP_GIT_FILE__LINKS:
+				return getLinks();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -238,6 +280,7 @@ public class AbapGitFileImpl extends MinimalEObjectImpl.Container implements IAb
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
@@ -252,6 +295,10 @@ public class AbapGitFileImpl extends MinimalEObjectImpl.Container implements IAb
 				return;
 			case IAbapgitstagingPackage.ABAP_GIT_FILE__REMOTE_STATE:
 				setRemoteState((String)newValue);
+				return;
+			case IAbapgitstagingPackage.ABAP_GIT_FILE__LINKS:
+				getLinks().clear();
+				getLinks().addAll((Collection<? extends IAtomLink>)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -277,6 +324,9 @@ public class AbapGitFileImpl extends MinimalEObjectImpl.Container implements IAb
 			case IAbapgitstagingPackage.ABAP_GIT_FILE__REMOTE_STATE:
 				setRemoteState(REMOTE_STATE_EDEFAULT);
 				return;
+			case IAbapgitstagingPackage.ABAP_GIT_FILE__LINKS:
+				getLinks().clear();
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -290,13 +340,15 @@ public class AbapGitFileImpl extends MinimalEObjectImpl.Container implements IAb
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
 			case IAbapgitstagingPackage.ABAP_GIT_FILE__NAME:
-				return NAME_EDEFAULT == null ? this.name != null : !NAME_EDEFAULT.equals(this.name);
+				return NAME_EDEFAULT == null ? name != null : !NAME_EDEFAULT.equals(name);
 			case IAbapgitstagingPackage.ABAP_GIT_FILE__PATH:
-				return PATH_EDEFAULT == null ? this.path != null : !PATH_EDEFAULT.equals(this.path);
+				return PATH_EDEFAULT == null ? path != null : !PATH_EDEFAULT.equals(path);
 			case IAbapgitstagingPackage.ABAP_GIT_FILE__LOCAL_STATE:
-				return LOCAL_STATE_EDEFAULT == null ? this.localState != null : !LOCAL_STATE_EDEFAULT.equals(this.localState);
+				return LOCAL_STATE_EDEFAULT == null ? localState != null : !LOCAL_STATE_EDEFAULT.equals(localState);
 			case IAbapgitstagingPackage.ABAP_GIT_FILE__REMOTE_STATE:
-				return REMOTE_STATE_EDEFAULT == null ? this.remoteState != null : !REMOTE_STATE_EDEFAULT.equals(this.remoteState);
+				return REMOTE_STATE_EDEFAULT == null ? remoteState != null : !REMOTE_STATE_EDEFAULT.equals(remoteState);
+			case IAbapgitstagingPackage.ABAP_GIT_FILE__LINKS:
+				return links != null && !links.isEmpty();
 		}
 		return super.eIsSet(featureID);
 	}
@@ -308,19 +360,17 @@ public class AbapGitFileImpl extends MinimalEObjectImpl.Container implements IAb
 	 */
 	@Override
 	public String toString() {
-		if (eIsProxy()) {
-			return super.toString();
-		}
+		if (eIsProxy()) return super.toString();
 
 		StringBuilder result = new StringBuilder(super.toString());
 		result.append(" (name: ");
-		result.append(this.name);
+		result.append(name);
 		result.append(", path: ");
-		result.append(this.path);
+		result.append(path);
 		result.append(", localState: ");
-		result.append(this.localState);
+		result.append(localState);
 		result.append(", remoteState: ");
-		result.append(this.remoteState);
+		result.append(remoteState);
 		result.append(')');
 		return result.toString();
 	}

@@ -188,7 +188,7 @@ public class AbapgitstagingPackageImpl extends EPackageImpl implements IAbapgits
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EReference getAbapGitStaging_Link() {
+	public EReference getAbapGitStaging_UnstagedObjects() {
 		return (EReference)abapGitStagingEClass.getEStructuralFeatures().get(0);
 	}
 
@@ -197,7 +197,7 @@ public class AbapgitstagingPackageImpl extends EPackageImpl implements IAbapgits
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EReference getAbapGitStaging_UnstagedObjects() {
+	public EReference getAbapGitStaging_StagedObjects() {
 		return (EReference)abapGitStagingEClass.getEStructuralFeatures().get(1);
 	}
 
@@ -206,7 +206,7 @@ public class AbapgitstagingPackageImpl extends EPackageImpl implements IAbapgits
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EReference getAbapGitStaging_StagedObjects() {
+	public EReference getAbapGitStaging_IgnoredObjects() {
 		return (EReference)abapGitStagingEClass.getEStructuralFeatures().get(2);
 	}
 
@@ -215,7 +215,7 @@ public class AbapgitstagingPackageImpl extends EPackageImpl implements IAbapgits
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EReference getAbapGitStaging_IgnoredObjects() {
+	public EReference getAbapGitStaging_CommitMessage() {
 		return (EReference)abapGitStagingEClass.getEStructuralFeatures().get(3);
 	}
 
@@ -224,7 +224,7 @@ public class AbapgitstagingPackageImpl extends EPackageImpl implements IAbapgits
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EReference getAbapGitStaging_CommitMessage() {
+	public EReference getAbapGitStaging_Links() {
 		return (EReference)abapGitStagingEClass.getEStructuralFeatures().get(4);
 	}
 
@@ -350,6 +350,15 @@ public class AbapgitstagingPackageImpl extends EPackageImpl implements IAbapgits
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EReference getAbapGitObject_Links() {
+		return (EReference)abapGitObjectEClass.getEStructuralFeatures().get(3);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EClass getAbapGitFile() {
 		return abapGitFileEClass;
 	}
@@ -388,6 +397,15 @@ public class AbapgitstagingPackageImpl extends EPackageImpl implements IAbapgits
 	 */
 	public EAttribute getAbapGitFile_RemoteState() {
 		return (EAttribute)abapGitFileEClass.getEStructuralFeatures().get(3);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EReference getAbapGitFile_Links() {
+		return (EReference)abapGitFileEClass.getEStructuralFeatures().get(4);
 	}
 
 	/**
@@ -527,11 +545,11 @@ public class AbapgitstagingPackageImpl extends EPackageImpl implements IAbapgits
 
 		// Create classes and their features
 		abapGitStagingEClass = createEClass(ABAP_GIT_STAGING);
-		createEReference(abapGitStagingEClass, ABAP_GIT_STAGING__LINK);
 		createEReference(abapGitStagingEClass, ABAP_GIT_STAGING__UNSTAGED_OBJECTS);
 		createEReference(abapGitStagingEClass, ABAP_GIT_STAGING__STAGED_OBJECTS);
 		createEReference(abapGitStagingEClass, ABAP_GIT_STAGING__IGNORED_OBJECTS);
 		createEReference(abapGitStagingEClass, ABAP_GIT_STAGING__COMMIT_MESSAGE);
+		createEReference(abapGitStagingEClass, ABAP_GIT_STAGING__LINKS);
 
 		documentRootEClass = createEClass(DOCUMENT_ROOT);
 		createEAttribute(documentRootEClass, DOCUMENT_ROOT__MIXED);
@@ -548,12 +566,14 @@ public class AbapgitstagingPackageImpl extends EPackageImpl implements IAbapgits
 		createEAttribute(abapGitObjectEClass, ABAP_GIT_OBJECT__WBKEY);
 		createEAttribute(abapGitObjectEClass, ABAP_GIT_OBJECT__VERSION);
 		createEReference(abapGitObjectEClass, ABAP_GIT_OBJECT__FILES);
+		createEReference(abapGitObjectEClass, ABAP_GIT_OBJECT__LINKS);
 
 		abapGitFileEClass = createEClass(ABAP_GIT_FILE);
 		createEAttribute(abapGitFileEClass, ABAP_GIT_FILE__NAME);
 		createEAttribute(abapGitFileEClass, ABAP_GIT_FILE__PATH);
 		createEAttribute(abapGitFileEClass, ABAP_GIT_FILE__LOCAL_STATE);
 		createEAttribute(abapGitFileEClass, ABAP_GIT_FILE__REMOTE_STATE);
+		createEReference(abapGitFileEClass, ABAP_GIT_FILE__LINKS);
 
 		authorEClass = createEClass(AUTHOR);
 		createEAttribute(authorEClass, AUTHOR__NAME);
@@ -610,11 +630,11 @@ public class AbapgitstagingPackageImpl extends EPackageImpl implements IAbapgits
 
 		// Initialize classes, features, and operations; add parameters
 		initEClass(abapGitStagingEClass, IAbapGitStaging.class, "AbapGitStaging", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEReference(getAbapGitStaging_Link(), theAtomPackage.getAtomLink(), null, "link", null, 1, 1, IAbapGitStaging.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getAbapGitStaging_UnstagedObjects(), this.getUnstagedObjects(), null, "unstagedObjects", null, 0, 1, IAbapGitStaging.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getAbapGitStaging_StagedObjects(), this.getStagedObjects(), null, "stagedObjects", null, 0, 1, IAbapGitStaging.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getAbapGitStaging_IgnoredObjects(), this.getIgnoredObjects(), null, "ignoredObjects", null, 0, 1, IAbapGitStaging.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getAbapGitStaging_CommitMessage(), this.getAbapGitCommitMessage(), null, "commitMessage", null, 1, 1, IAbapGitStaging.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getAbapGitStaging_Links(), theAtomPackage.getAtomLink(), null, "links", null, 0, -1, IAbapGitStaging.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(documentRootEClass, IDocumentRoot.class, "DocumentRoot", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getDocumentRoot_Mixed(), ecorePackage.getEFeatureMapEntry(), "mixed", null, 0, -1, null, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -631,12 +651,14 @@ public class AbapgitstagingPackageImpl extends EPackageImpl implements IAbapgits
 		initEAttribute(getAbapGitObject_Wbkey(), theXMLTypePackage.getString(), "wbkey", null, 0, 1, IAbapGitObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getAbapGitObject_Version(), theXMLTypePackage.getString(), "version", null, 0, 1, IAbapGitObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getAbapGitObject_Files(), this.getAbapGitFile(), null, "files", null, 0, -1, IAbapGitObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getAbapGitObject_Links(), theAtomPackage.getAtomLink(), null, "links", null, 0, -1, IAbapGitObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(abapGitFileEClass, IAbapGitFile.class, "AbapGitFile", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getAbapGitFile_Name(), theXMLTypePackage.getString(), "name", null, 0, 1, IAbapGitFile.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getAbapGitFile_Path(), theXMLTypePackage.getString(), "path", null, 0, 1, IAbapGitFile.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getAbapGitFile_LocalState(), theXMLTypePackage.getString(), "localState", null, 0, 1, IAbapGitFile.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getAbapGitFile_RemoteState(), theXMLTypePackage.getString(), "remoteState", null, 0, 1, IAbapGitFile.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getAbapGitFile_Links(), theAtomPackage.getAtomLink(), null, "links", null, 0, -1, IAbapGitFile.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(authorEClass, IAuthor.class, "Author", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getAuthor_Name(), theXMLTypePackage.getString(), "name", null, 0, 1, IAuthor.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -679,14 +701,6 @@ public class AbapgitstagingPackageImpl extends EPackageImpl implements IAbapgits
 			   "kind", "elementOnly"
 		   });
 		addAnnotation
-		  (getAbapGitStaging_Link(),
-		   source,
-		   new String[] {
-			   "kind", "element",
-			   "namespace", "##targetNamespace",
-			   "name", "link"
-		   });
-		addAnnotation
 		  (getAbapGitStaging_UnstagedObjects(),
 		   source,
 		   new String[] {
@@ -717,6 +731,14 @@ public class AbapgitstagingPackageImpl extends EPackageImpl implements IAbapgits
 			   "kind", "element",
 			   "namespace", "##targetNamespace",
 			   "name", "abapgit_comment"
+		   });
+		addAnnotation
+		  (getAbapGitStaging_Links(),
+		   source,
+		   new String[] {
+			   "kind", "element",
+			   "name", "link",
+			   "namespace", "http://www.w3.org/2005/Atom"
 		   });
 		addAnnotation
 		  (documentRootEClass,
@@ -817,6 +839,14 @@ public class AbapgitstagingPackageImpl extends EPackageImpl implements IAbapgits
 			   "name", "abapgitfile"
 		   });
 		addAnnotation
+		  (getAbapGitObject_Links(),
+		   source,
+		   new String[] {
+			   "kind", "element",
+			   "name", "link",
+			   "namespace", "http://www.w3.org/2005/Atom"
+		   });
+		addAnnotation
 		  (abapGitFileEClass,
 		   source,
 		   new String[] {
@@ -854,6 +884,14 @@ public class AbapgitstagingPackageImpl extends EPackageImpl implements IAbapgits
 			   "kind", "attribute",
 			   "namespace", "##targetNamespace",
 			   "name", "remoteState"
+		   });
+		addAnnotation
+		  (getAbapGitFile_Links(),
+		   source,
+		   new String[] {
+			   "kind", "element",
+			   "name", "link",
+			   "namespace", "http://www.w3.org/2005/Atom"
 		   });
 		addAnnotation
 		  (authorEClass,

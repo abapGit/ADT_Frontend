@@ -161,22 +161,13 @@ public interface IAbapgitstagingPackage extends EPackage {
 	int ABAP_GIT_STAGING = 0;
 
 	/**
-	 * The feature id for the '<em><b>Link</b></em>' containment reference.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int ABAP_GIT_STAGING__LINK = 0;
-
-	/**
 	 * The feature id for the '<em><b>Unstaged Objects</b></em>' containment reference.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int ABAP_GIT_STAGING__UNSTAGED_OBJECTS = 1;
+	int ABAP_GIT_STAGING__UNSTAGED_OBJECTS = 0;
 
 	/**
 	 * The feature id for the '<em><b>Staged Objects</b></em>' containment reference.
@@ -185,7 +176,7 @@ public interface IAbapgitstagingPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int ABAP_GIT_STAGING__STAGED_OBJECTS = 2;
+	int ABAP_GIT_STAGING__STAGED_OBJECTS = 1;
 
 	/**
 	 * The feature id for the '<em><b>Ignored Objects</b></em>' containment reference.
@@ -194,7 +185,7 @@ public interface IAbapgitstagingPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int ABAP_GIT_STAGING__IGNORED_OBJECTS = 3;
+	int ABAP_GIT_STAGING__IGNORED_OBJECTS = 2;
 
 	/**
 	 * The feature id for the '<em><b>Commit Message</b></em>' containment reference.
@@ -203,7 +194,16 @@ public interface IAbapgitstagingPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int ABAP_GIT_STAGING__COMMIT_MESSAGE = 4;
+	int ABAP_GIT_STAGING__COMMIT_MESSAGE = 3;
+
+	/**
+	 * The feature id for the '<em><b>Links</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ABAP_GIT_STAGING__LINKS = 4;
 
 	/**
 	 * The number of structural features of the '<em>Abap Git Staging</em>' class.
@@ -443,13 +443,22 @@ public interface IAbapgitstagingPackage extends EPackage {
 	int ABAP_GIT_OBJECT__FILES = IAdtCorePackage.ADT_OBJECT_REFERENCE_FEATURE_COUNT + 2;
 
 	/**
+	 * The feature id for the '<em><b>Links</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ABAP_GIT_OBJECT__LINKS = IAdtCorePackage.ADT_OBJECT_REFERENCE_FEATURE_COUNT + 3;
+
+	/**
 	 * The number of structural features of the '<em>Abap Git Object</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int ABAP_GIT_OBJECT_FEATURE_COUNT = IAdtCorePackage.ADT_OBJECT_REFERENCE_FEATURE_COUNT + 3;
+	int ABAP_GIT_OBJECT_FEATURE_COUNT = IAdtCorePackage.ADT_OBJECT_REFERENCE_FEATURE_COUNT + 4;
 
 	/**
 	 * The number of operations of the '<em>Abap Git Object</em>' class.
@@ -507,13 +516,22 @@ public interface IAbapgitstagingPackage extends EPackage {
 	int ABAP_GIT_FILE__REMOTE_STATE = 3;
 
 	/**
+	 * The feature id for the '<em><b>Links</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ABAP_GIT_FILE__LINKS = 4;
+
+	/**
 	 * The number of structural features of the '<em>Abap Git File</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int ABAP_GIT_FILE_FEATURE_COUNT = 4;
+	int ABAP_GIT_FILE_FEATURE_COUNT = 5;
 
 	/**
 	 * The number of operations of the '<em>Abap Git File</em>' class.
@@ -739,17 +757,6 @@ public interface IAbapgitstagingPackage extends EPackage {
 	EClass getAbapGitStaging();
 
 	/**
-	 * Returns the meta object for the containment reference '{@link org.abapgit.adt.backend.model.abapgitstaging.IAbapGitStaging#getLink <em>Link</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the containment reference '<em>Link</em>'.
-	 * @see org.abapgit.adt.backend.model.abapgitstaging.IAbapGitStaging#getLink()
-	 * @see #getAbapGitStaging()
-	 * @generated
-	 */
-	EReference getAbapGitStaging_Link();
-
-	/**
 	 * Returns the meta object for the containment reference '{@link org.abapgit.adt.backend.model.abapgitstaging.IAbapGitStaging#getUnstagedObjects <em>Unstaged Objects</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -792,6 +799,17 @@ public interface IAbapgitstagingPackage extends EPackage {
 	 * @generated
 	 */
 	EReference getAbapGitStaging_CommitMessage();
+
+	/**
+	 * Returns the meta object for the containment reference list '{@link org.abapgit.adt.backend.model.abapgitstaging.IAbapGitStaging#getLinks <em>Links</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Links</em>'.
+	 * @see org.abapgit.adt.backend.model.abapgitstaging.IAbapGitStaging#getLinks()
+	 * @see #getAbapGitStaging()
+	 * @generated
+	 */
+	EReference getAbapGitStaging_Links();
 
 	/**
 	 * Returns the meta object for class '{@link org.abapgit.adt.backend.model.abapgitstaging.IDocumentRoot <em>Document Root</em>}'.
@@ -934,6 +952,17 @@ public interface IAbapgitstagingPackage extends EPackage {
 	EReference getAbapGitObject_Files();
 
 	/**
+	 * Returns the meta object for the containment reference list '{@link org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject#getLinks <em>Links</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Links</em>'.
+	 * @see org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject#getLinks()
+	 * @see #getAbapGitObject()
+	 * @generated
+	 */
+	EReference getAbapGitObject_Links();
+
+	/**
 	 * Returns the meta object for class '{@link org.abapgit.adt.backend.model.abapgitstaging.IAbapGitFile <em>Abap Git File</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -986,6 +1015,17 @@ public interface IAbapgitstagingPackage extends EPackage {
 	 * @generated
 	 */
 	EAttribute getAbapGitFile_RemoteState();
+
+	/**
+	 * Returns the meta object for the containment reference list '{@link org.abapgit.adt.backend.model.abapgitstaging.IAbapGitFile#getLinks <em>Links</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Links</em>'.
+	 * @see org.abapgit.adt.backend.model.abapgitstaging.IAbapGitFile#getLinks()
+	 * @see #getAbapGitFile()
+	 * @generated
+	 */
+	EReference getAbapGitFile_Links();
 
 	/**
 	 * Returns the meta object for class '{@link org.abapgit.adt.backend.model.abapgitstaging.IAuthor <em>Author</em>}'.
@@ -1148,14 +1188,6 @@ public interface IAbapgitstagingPackage extends EPackage {
 		EClass ABAP_GIT_STAGING = eINSTANCE.getAbapGitStaging();
 
 		/**
-		 * The meta object literal for the '<em><b>Link</b></em>' containment reference feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EReference ABAP_GIT_STAGING__LINK = eINSTANCE.getAbapGitStaging_Link();
-
-		/**
 		 * The meta object literal for the '<em><b>Unstaged Objects</b></em>' containment reference feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
@@ -1186,6 +1218,14 @@ public interface IAbapgitstagingPackage extends EPackage {
 		 * @generated
 		 */
 		EReference ABAP_GIT_STAGING__COMMIT_MESSAGE = eINSTANCE.getAbapGitStaging_CommitMessage();
+
+		/**
+		 * The meta object literal for the '<em><b>Links</b></em>' containment reference list feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference ABAP_GIT_STAGING__LINKS = eINSTANCE.getAbapGitStaging_Links();
 
 		/**
 		 * The meta object literal for the '{@link org.abapgit.adt.backend.model.abapgitstaging.impl.DocumentRootImpl <em>Document Root</em>}' class.
@@ -1298,6 +1338,14 @@ public interface IAbapgitstagingPackage extends EPackage {
 		EReference ABAP_GIT_OBJECT__FILES = eINSTANCE.getAbapGitObject_Files();
 
 		/**
+		 * The meta object literal for the '<em><b>Links</b></em>' containment reference list feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference ABAP_GIT_OBJECT__LINKS = eINSTANCE.getAbapGitObject_Links();
+
+		/**
 		 * The meta object literal for the '{@link org.abapgit.adt.backend.model.abapgitstaging.impl.AbapGitFileImpl <em>Abap Git File</em>}' class.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
@@ -1338,6 +1386,14 @@ public interface IAbapgitstagingPackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute ABAP_GIT_FILE__REMOTE_STATE = eINSTANCE.getAbapGitFile_RemoteState();
+
+		/**
+		 * The meta object literal for the '<em><b>Links</b></em>' containment reference list feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference ABAP_GIT_FILE__LINKS = eINSTANCE.getAbapGitFile_Links();
 
 		/**
 		 * The meta object literal for the '{@link org.abapgit.adt.backend.model.abapgitstaging.impl.AuthorImpl <em>Author</em>}' class.

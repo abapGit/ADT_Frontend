@@ -11,11 +11,11 @@
   <genPackages prefix="Abapgitstaging" basePackage="org.abapgit.adt.backend.model"
       resource="XML" disposableProviderFactory="true" ecorePackage="abapgitstaging.ecore#/">
     <genClasses ecoreClass="abapgitstaging.ecore#//AbapGitStaging">
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitstaging.ecore#//AbapGitStaging/link"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitstaging.ecore#//AbapGitStaging/unstagedObjects"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitstaging.ecore#//AbapGitStaging/stagedObjects"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitstaging.ecore#//AbapGitStaging/ignoredObjects"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitstaging.ecore#//AbapGitStaging/commitMessage"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitstaging.ecore#//AbapGitStaging/links"/>
     </genClasses>
     <genClasses ecoreClass="abapgitstaging.ecore#//DocumentRoot">
       <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EAttribute abapgitstaging.ecore#//DocumentRoot/mixed"/>
@@ -32,12 +32,14 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitstaging.ecore#//AbapGitObject/wbkey"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitstaging.ecore#//AbapGitObject/version"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitstaging.ecore#//AbapGitObject/files"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitstaging.ecore#//AbapGitObject/links"/>
     </genClasses>
     <genClasses ecoreClass="abapgitstaging.ecore#//AbapGitFile">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitstaging.ecore#//AbapGitFile/name"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitstaging.ecore#//AbapGitFile/path"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitstaging.ecore#//AbapGitFile/localState"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitstaging.ecore#//AbapGitFile/remoteState"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitstaging.ecore#//AbapGitFile/links"/>
     </genClasses>
     <genClasses ecoreClass="abapgitstaging.ecore#//Author">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitstaging.ecore#//Author/name"/>
