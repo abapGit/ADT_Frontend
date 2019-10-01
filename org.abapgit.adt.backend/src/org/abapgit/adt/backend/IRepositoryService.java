@@ -15,6 +15,7 @@ public interface IRepositoryService {
 	String RELATION_LOG = "http://www.sap.com/adt/abapgit/relations/log"; //$NON-NLS-1$
 	String RELATION_STAGE = "http://www.sap.com/adt/abapgit/relations/stage"; //$NON-NLS-1$
 	String RELATION_PUSH = "http://www.sap.com/adt/abapgit/relations/push"; //$NON-NLS-1$
+	String RELATION_CHECK = "http://www.sap.com/adt/abapgit/relations/check"; //$NON-NLS-1$
 
 	IRepositories getRepositories(IProgressMonitor monitor);
 
@@ -58,6 +59,20 @@ public interface IRepositoryService {
 	 *            External repository credentials
 	 */
 	void push(IProgressMonitor monitor, IAbapGitStaging staging, IRepository repository, IExternalRepositoryInfoRequest externalRepo)
+			throws CommunicationException, ResourceException, OperationCanceledException, OutDatedClientException;
+
+	/**
+	 * Performs basic checks on repository eg: connection checks, credentials
+	 * checks ...
+	 *
+	 * @param monitor
+	 *            Progress monitor
+	 * @param repository
+	 *            Repository to which the commit has to happen
+	 * @param externalRepo
+	 *            External repository credentials
+	 */
+	void repositoryChecks(IProgressMonitor monitor, IRepository repository, IExternalRepositoryInfoRequest externalRepo)
 			throws CommunicationException, ResourceException, OperationCanceledException, OutDatedClientException;
 
 }

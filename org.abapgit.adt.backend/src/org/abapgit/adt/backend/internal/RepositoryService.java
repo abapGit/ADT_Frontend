@@ -11,13 +11,17 @@ import org.abapgit.adt.backend.IRepository;
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitStaging;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 
 import com.sap.adt.communication.content.IContentHandler;
+import com.sap.adt.communication.exceptions.CommunicationException;
 import com.sap.adt.communication.message.HeadersFactory;
 import com.sap.adt.communication.message.IHeaders;
 import com.sap.adt.communication.resources.AdtRestResourceFactory;
 import com.sap.adt.communication.resources.IRestResource;
+import com.sap.adt.communication.resources.ResourceException;
 import com.sap.adt.communication.resources.UriBuilder;
+import com.sap.adt.compatibility.exceptions.OutDatedClientException;
 import com.sap.adt.compatibility.filter.AdtCompatibleRestResourceFilterFactory;
 import com.sap.adt.compatibility.filter.IAdtCompatibleRestResourceFilter;
 
@@ -190,8 +194,24 @@ public class RepositoryService implements IRepositoryService {
 		restResource.post(monitor, getHttpHeadersForCredentials(externalRepo.getUser(), externalRepo.getPassword()), null, staging);
 	}
 
+	@Override
+	public void repositoryChecks(IProgressMonitor monitor, IRepository repository, IExternalRepositoryInfoRequest externalRepo)
+			throws CommunicationException, ResourceException, OperationCanceledException, OutDatedClientException {
+		IHeaders headers = null;
+		URI checkUri = repository.getChecksLink(IRepositoryService.RELATION_CHECK);
+		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory().createResourceWithStatelessSession(checkUri,
+				this.destinationId);
+		IAdtCompatibleRestResourceFilter compatibilityFilter = AdtCompatibleRestResourceFilterFactory.createFilter("text/plain"); //$NON-NLS-1$
+		restResource.addRequestFilter(compatibilityFilter);
+		restResource.addResponseFilter(compatibilityFilter);
+		if (externalRepo != null) {
+			headers = getHttpHeadersForCredentials(externalRepo.getUser(), externalRepo.getPassword());
+		}
+		restResource.post(monitor, headers, null);
+	}
+
 	/**
-	 * Returns the request headers for sending github account user name and
+	 * Returns the request headers for sending git account user name and
 	 * password to back-end
 	 */
 	private IHeaders getHttpHeadersForCredentials(String username, String password) {
