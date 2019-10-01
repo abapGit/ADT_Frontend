@@ -1083,12 +1083,31 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	}
 
 	private void fetchCredentialsAndCommit() {
-		if (getGitCredentials().equals(Status.OK_STATUS)) {
-			commitAndPush();
+		if (this.repository.getChecksLink(IRepositoryService.RELATION_CHECK) == null) {
+			//compatibility handling for credentials checks for 1911
+			//TODO: remove this check once customers upgrade to 2002
+			IExternalRepositoryInfoRequest credentials;
+			if (this.repositoryCredentials != null) {
+				credentials = this.repositoryCredentials;
+			} else {
+				credentials = GitCredentialsService.getCredentialsFromUser(getSite().getShell(), null);
+				if (credentials == null) {
+					return;
+				}
+			}
+			commitAndPush(credentials);
+		}
+		//from 2002 release, we have a better way of handling the credentials, so no need to always read the credentials before commit
+		//if the user has entered credentials while doing the previous commit, the credentials will be validated before we do a push
+		//hence we can always rely on the value of the variable repositoryCredentials
+		else {
+			if (getGitCredentials().equals(Status.OK_STATUS)) {
+				commitAndPush(this.repositoryCredentials);
+			}
 		}
 	}
 
-	private void commitAndPush() {
+	private void commitAndPush(IExternalRepositoryInfoRequest credentials) {
 		//push
 		Job pushJob = new Job(Messages.AbapGitStaging_push_job_title) {
 			@Override
@@ -1100,7 +1119,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 					//push changes
 					monitor.beginTask(Messages.AbapGitStaging_push_job_title, IProgressMonitor.UNKNOWN);
 					AbapGitStagingView.this.repoService.push(new NullProgressMonitor(), AbapGitStagingView.this.model,
-							AbapGitStagingView.this.repository, AbapGitStagingView.this.repositoryCredentials);
+							AbapGitStagingView.this.repository, credentials);
 
 					//refresh
 					Display.getDefault().syncExec(() -> {
@@ -1145,21 +1164,15 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	}
 
 	private void handleException(Exception e, final String action) {
-		//compatibility handling for credentials checks for 1911
-		//TODO: remove this check once customers upgrade to 2002
-		if (this.repository.getChecksLink(IRepositoryService.RELATION_CHECK) == null) {
-			AbapGitStagingView.this.repositoryCredentials = null;
-		}
-
 		//invalid credentials : this condition check is only valid from 2002
-		if (e instanceof ResourceException && GitCredentialsService.isAuthenticationIssue(((ResourceException) e).getStatus())) {
+		if (e instanceof ResourceException && GitCredentialsService.isAuthenticationIssue((ResourceException) e)) {
 			AbapGitStagingView.this.repositoryCredentials = null;
 			if (getGitCredentials(e.getLocalizedMessage()).equals(Status.OK_STATUS)) {
 				//re-trigger action
 				if (action.equals(stage)) {
 					refresh();
 				} else if (action.equals(push)) {
-					commitAndPush();
+					commitAndPush(this.repositoryCredentials);
 				}
 			}
 		} else {
@@ -1171,6 +1184,11 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 			}
 			if (excMessage == null || excMessage.isEmpty()) {
 				excMessage = e.getMessage();
+				//compatibility handling for credentials checks for 1911
+				//TODO: remove this check once customers upgrade to 2002
+				if (this.repository.getChecksLink(IRepositoryService.RELATION_CHECK) == null) {
+					AbapGitStagingView.this.repositoryCredentials = null;
+				}
 			}
 
 			if (action.equals(push)) {

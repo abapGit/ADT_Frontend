@@ -147,7 +147,6 @@ public class Messages extends NLS {
 	public static String AbapGitStaging_push_job_error;
 	public static String AbapGitStaging_credentials_dialog_title;
 	public static String AbapGitStaging_credentials_dialog_desc;
-	public static String AbapGitStaging_credentials_dialog_error_desc;
 	public static String AbapGitStaging_credentials_dialog_username;
 	public static String AbapGitStaging_credentials_dialog_password;
 	public static String AbapGitStaging_credentials_dialog_error_invalid_username;

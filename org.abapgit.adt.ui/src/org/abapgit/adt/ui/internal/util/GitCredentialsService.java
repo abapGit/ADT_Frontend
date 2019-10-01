@@ -9,11 +9,14 @@ import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
+import com.sap.adt.communication.resources.ResourceException;
+
 /**
  * Utility class for handling git credentials
  */
 public class GitCredentialsService {
 	private static IExternalRepositoryInfoRequest repositoryCredentials;
+	private static final String keyhttpStatus = "http_status"; //$NON-NLS-1$
 
 	/**
 	 * Checks if the credentials are required for a repository while loading.
@@ -61,15 +64,21 @@ public class GitCredentialsService {
 	 *            Http status code from the exception
 	 * @return true if the error code is of type authentication issue
 	 */
-	public static boolean isAuthenticationIssue(int httpStatus) {
-		/*
-		 * Authentication issues will result in error codes 401, 403 and 404
-		 * Check the following documentation from Guthub :
-		 * "There are two ways to authenticate through GitHub API v3. Requests that require authentication will return  404 Not Found ,
-		 *  instead of  403 Forbidden , in some places. This is to prevent the accidental leakage of private repositories to unauthorized users."
-		 */
-		if (httpStatus == 401 || httpStatus == 403 || httpStatus == 404) {
-			return true;
+	public static boolean isAuthenticationIssue(ResourceException exception) {
+		if (exception.getExceptionProperties() != null) {
+			String httpStatusValue = exception.getExceptionProperties().get(keyhttpStatus);
+			if (httpStatusValue != null && httpStatusValue.length() > 0) {
+				int httpStatus = Integer.parseInt(httpStatusValue);
+				/*
+				 * Authentication issues will result in error codes 401, 403 and 404
+				 * Check the following documentation from Guthub :
+				 * "There are two ways to authenticate through GitHub API v3. Requests that require authentication will return  404 Not Found ,
+				 *  instead of  403 Forbidden , in some places. This is to prevent the accidental leakage of private repositories to unauthorized users."
+				 */
+				if (httpStatus == 401 || httpStatus == 403 || httpStatus == 404) {
+					return true;
+				}
+			}
 		}
 		return false;
 	}
