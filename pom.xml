@@ -124,7 +124,6 @@
 		<groupId>org.easymock</groupId>
     	<artifactId>easymock</artifactId>
     	<version>3.6</version>
-    	<scope>test</scope>
       </plugin>
     </plugins>
   </build>
