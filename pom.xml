@@ -122,15 +122,8 @@
       </plugin>
 	  <plugin>
 	    <groupId>org.easymock</groupId>
-	    <artifactId>easymock-maven-plugin</artifactId>
+	    <artifactId>easymock</artifactId>
         <version>3.6.0</version>
-        <dependencies>
-          <dependency>
-            <groupId>org.easymock</groupId>
-            <artifactId>easymock</artifactId>
-            <version>3.6.0</version>
-          </dependency>
-        </dependencies>
       </plugin>
     </plugins>
   </build>
