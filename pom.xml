@@ -13,6 +13,14 @@
     <module>org.abapgit.adt.updatesite</module>
     <module>test</module>
   </modules>
+  <dependencies>
+    <dependency>
+	  <groupId>org.easymock</groupId>
+	  <artifactId>easymock</artifactId>
+	  <version>3.6</version>
+	  <scope>test</scope>
+    </dependency>
+  </dependencies>
   <profiles>
     <profile>
     <id>dev</id>
@@ -120,11 +128,6 @@
           </execution>
         </executions>
       </plugin>
-	  <plugin>
-		<groupId>org.easymock</groupId>
-    	<artifactId>easymock</artifactId>
-    	<version>3.6</version>
-      </plugin>
     </plugins>
   </build>
   <repositories>
@@ -136,6 +139,11 @@
     <repository>
       <id>adt-2018-12</id>
       <url>https://tools.hana.ondemand.com/2018-12</url>
+      <layout>p2</layout>
+    </repository>
+    <repository>
+      <id>maven2</id>
+      <url>https://repo.maven.apache.org/maven2/</url>
       <layout>p2</layout>
     </repository>
   </repositories>
