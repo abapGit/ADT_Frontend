@@ -15,7 +15,6 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
   
   <properties>
     <tycho-version>1.4.0</tycho-version>
-    <testRuntime>default</testRuntime>
     <testPatternUnit>**/test/suite/AllUnitTests*</testPatternUnit>
     <testPatternPde>**/test/suite/AllPdeTests*</testPatternPde>
     <testPatternIntegration>**/test/suite/AllIntegrationTests*</testPatternIntegration>
@@ -25,7 +24,6 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 	<!-- empty default value to make this working without handing over additional arguments on command line -->
 	<additionalTestArgs></additionalTestArgs>
     <os-jvm-flags/>
-    <test.vmparams></test.vmparams>
   </properties>
   
   <profiles>
@@ -38,43 +36,6 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
         <os-jvm-flags>-XstartOnFirstThread</os-jvm-flags>
       </properties>
     </profile>
-    <profile>
-      <id>skip-ui-tests</id>
-      <activation>
-        <property>
-          <name>skip-ui-tests</name>
-        </property>
-      </activation>
-      <properties>
-        <maven.test.skip>true</maven.test.skip>
-      </properties>
-    </profile>
-    
-    <profile>
-      <id>unittest</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.eclipse.tycho</groupId>
-            <artifactId>tycho-surefire-plugin</artifactId>
-            <version>${tycho-version}</version>
-            <configuration>
-              <testRuntime>${testRuntime}</testRuntime>
-              <includes>
-				<include>${testPatternUnit}</include>
-				<include>${testPatternPde}</include>
-              </includes>
-              <useUIHarness>true</useUIHarness>
-              <useUIThread>true</useUIThread>
-			  <skip>false</skip>
-			  <failIfNoTests>false</failIfNoTests>
-			  <appArgLine>${testAppArgLine}</appArgLine>
-			  <argLine>${tycho.testArgLine} ${os-jvm-flags} ${additionalTestArgs}</argLine>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
   </profiles>
 
   <build>
@@ -83,27 +44,6 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
         <groupId>org.eclipse.tycho</groupId>
         <artifactId>target-platform-configuration</artifactId>
         <version>${tycho-version}</version>
-        <configuration>
-          <dependency-resolution>
-            <extraRequirements>
-              <requirement>
-                <type>eclipse-feature</type>
-                <id>org.eclipse.e4.rcp</id>
-                <versionRange>0.0.0</versionRange>
-              </requirement>
-              <requirement>
-                <type>eclipse-feature</type>
-                <id>org.eclipse.pde</id>
-                <versionRange>0.0.0</versionRange>
-              </requirement>
-              <requirement>
-                <type>eclipse-feature</type>
-                <id>org.eclipse.cvs</id>
-                <versionRange>0.0.0</versionRange>
-              </requirement>
-            </extraRequirements>
-          </dependency-resolution>
-        </configuration>
       </plugin>
       <plugin>
         <groupId>org.eclipse.tycho</groupId>
