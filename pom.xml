@@ -141,10 +141,5 @@
       <url>https://tools.hana.ondemand.com/2018-12</url>
       <layout>p2</layout>
     </repository>
-    <repository>
-      <id>maven2</id>
-      <url>https://repo.maven.apache.org/maven2/</url>
-      <layout>p2</layout>
-    </repository>
   </repositories>
 </project>
