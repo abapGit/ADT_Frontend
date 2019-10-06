@@ -63,7 +63,7 @@ public class AbapGitStagingContentHandler implements IContentHandler<IAbapGitSta
 		return new MessageBody(outputStream);
 	}
 
-	private class MessageBody extends AbstractMessageBody {
+	private static class MessageBody extends AbstractMessageBody {
 		ByteArrayInputStream stream = null;
 
 		protected MessageBody(ByteArrayOutputStream outputStream) {
