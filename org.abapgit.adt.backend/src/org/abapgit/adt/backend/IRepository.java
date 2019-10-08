@@ -69,4 +69,8 @@ public interface IRepository {
 
 	public URI getStatusLink(String relation);
 
+	public URI getStageLink(String relation);
+
+	public URI getPushLink(String relation);
+
 }

@@ -1,5 +1,7 @@
 package org.abapgit.adt.backend.internal;
 
+import org.abapgit.adt.backend.IExternalRepositoryInfoRequest;
+
 public class ExternalRepositoryInfoRequest implements IExternalRepositoryInfoRequest {
 
 	private String url;

@@ -3,6 +3,8 @@ package org.abapgit.adt.backend.internal;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.abapgit.adt.backend.IExternalRepositoryInfoRequest;
+
 public class ExternalRepositoryInfoRequestSerializer {
 
 	public void serializeExternalRepositoryInfoRequest(IExternalRepositoryInfoRequest externalRepositoryInfoRequest,

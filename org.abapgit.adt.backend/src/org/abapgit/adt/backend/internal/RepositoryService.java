@@ -1,14 +1,20 @@
 package org.abapgit.adt.backend.internal;
 
 import java.net.URI;
+import java.nio.charset.Charset;
+import java.util.Base64;
 
+import org.abapgit.adt.backend.IExternalRepositoryInfoRequest;
 import org.abapgit.adt.backend.IObjects;
 import org.abapgit.adt.backend.IRepositories;
 import org.abapgit.adt.backend.IRepository;
 import org.abapgit.adt.backend.IRepositoryService;
+import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitStaging;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import com.sap.adt.communication.content.IContentHandler;
+import com.sap.adt.communication.message.HeadersFactory;
+import com.sap.adt.communication.message.IHeaders;
 import com.sap.adt.communication.resources.AdtRestResourceFactory;
 import com.sap.adt.communication.resources.IRestResource;
 import com.sap.adt.communication.resources.UriBuilder;
@@ -158,6 +164,62 @@ public class RepositoryService implements IRepositoryService {
 
 		restResource.post(monitor, null, repositories);
 
+	}
+
+	@Override
+	public IAbapGitStaging stage(IRepository repository, IExternalRepositoryInfoRequest externalRepo,
+			IProgressMonitor monitor) {
+		IHeaders headers = null;
+		IRestResource restResource = getStageRestResource(repository);
+		if (externalRepo != null) {
+			headers = getHttpHeadersForCredentials(externalRepo.getUser(), externalRepo.getPassword());
+		}
+		return restResource.get(monitor, headers, IAbapGitStaging.class);
+	}
+
+	private IRestResource getStageRestResource(IRepository repository) {
+		URI stagingUri = repository.getStageLink(IRepositoryService.RELATION_STAGE);
+		return getRestResource(stagingUri);
+	}
+
+	@Override
+	public void push(IProgressMonitor monitor, IAbapGitStaging staging, IRepository repository,
+			IExternalRepositoryInfoRequest externalRepo) {
+		URI pushUri = repository.getPushLink(IRepositoryService.RELATION_PUSH);
+		IRestResource restResource = getRestResource(pushUri);
+		restResource.post(monitor, getHttpHeadersForCredentials(externalRepo.getUser(), externalRepo.getPassword()), null, staging);
+	}
+
+	/**
+	 * Returns the request headers for sending github account user name and
+	 * password to back-end
+	 */
+	private IHeaders getHttpHeadersForCredentials(String username, String password) {
+		IHeaders headers = HeadersFactory.newHeaders();
+		IHeaders.IField userField = HeadersFactory.newField("Username", username); //$NON-NLS-1$
+		headers.addField(userField);
+		Base64.Encoder encoder = Base64.getMimeEncoder();
+		IHeaders.IField passwordField = HeadersFactory.newField("Password", //$NON-NLS-1$
+				encoder.encodeToString(password.getBytes(Charset.forName("UTF-8")))); //$NON-NLS-1$
+		headers.addField(passwordField);
+		return headers;
+	}
+
+	/**
+	 * Returns the rest resource for REST calls from AbapGit Staging view
+	 */
+	private IRestResource getRestResource(URI uri) {
+		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory().createResourceWithStatelessSession(uri,
+				this.destinationId);
+
+		IContentHandler<IAbapGitStaging> responseContentHandlerV1 = new AbapGitStagingContentHandler();
+		restResource.addContentHandler(responseContentHandlerV1);
+
+		IAdtCompatibleRestResourceFilter compatibilityFilter = AdtCompatibleRestResourceFilterFactory
+				.createFilter(responseContentHandlerV1);
+		restResource.addRequestFilter(compatibilityFilter);
+		restResource.addResponseFilter(compatibilityFilter);
+		return restResource;
 	}
 
 }

@@ -58,26 +58,30 @@ public class RepositorySerializer {
 					repository.setStatusText(xmlReader.getElementText());
 					break;
 				case "link": //$NON-NLS-1$
-					String relType = xmlReader.getAttributeValue(null, "rel"); //$NON-NLS-1$
-					String lv_type_attr = relType.substring(relType.lastIndexOf("/") + 1); //$NON-NLS-1$
+					String linkRel = xmlReader.getAttributeValue(null, "rel"); //$NON-NLS-1$
+					String linkHref = xmlReader.getAttributeValue(null, "href"); //$NON-NLS-1$
+					String linkRelType = linkRel.substring(linkRel.lastIndexOf("/") + 1); //$NON-NLS-1$
 
-					if (lv_type_attr.equals("pull")) { //$NON-NLS-1$
-						repository.addPullLink(xmlReader.getAttributeValue(null, "rel"), //$NON-NLS-1$
-								URI.create(xmlReader.getAttributeValue(null, "href"))); //$NON-NLS-1$
-
+					if (linkRelType.equals("pull")) { //$NON-NLS-1$
+						repository.addPullLink(linkRel, URI.create(linkHref));
 					}
 
-					if (lv_type_attr.equals("status")) { //$NON-NLS-1$
-						repository.addStatusLink(xmlReader.getAttributeValue(null, "rel"), //$NON-NLS-1$
-								URI.create(xmlReader.getAttributeValue(null, "href"))); //$NON-NLS-1$
-
+					if (linkRelType.equals("status")) { //$NON-NLS-1$
+						repository.addStatusLink(linkRel, URI.create(linkHref));
 					}
 
-					if (lv_type_attr.equals("log")) { //$NON-NLS-1$
-						repository.addLogLink(xmlReader.getAttributeValue(null, "rel"), //$NON-NLS-1$
-								URI.create(xmlReader.getAttributeValue(null, "href"))); //$NON-NLS-1$
-
+					if (linkRelType.equals("log")) { //$NON-NLS-1$
+						repository.addLogLink(linkRel, URI.create(linkHref));
 					}
+
+					if (linkRelType.equals("stage")) { //$NON-NLS-1$
+						repository.addStageLink(linkRel, URI.create(linkHref));
+					}
+
+					if (linkRelType.equals("push")) { //$NON-NLS-1$
+						repository.addPushLink(linkRel, URI.create(linkHref));
+					}
+
 					depth++;
 					break;
 				default:

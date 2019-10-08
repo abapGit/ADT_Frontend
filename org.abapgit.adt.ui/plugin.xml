@@ -10,7 +10,15 @@
             icon="icons/view/abapgit.png"
             id="org.abapgit.adt.ui.views.AbapGitView"
             inject="true"
-            name="%view.name">
+            name="%abapgit.repository.view.name">
+      </view>
+      <view
+            allowMultiple="false"
+            category="com.sap.adt.views"
+            class="org.abapgit.adt.ui.internal.views.AbapGitStagingView"
+            icon="icons/view/abapgit_staging.png"
+            id="org.abapgit.adt.ui.views.AbapGitStagingView"
+            name="%abapgit.staging.view.name">
       </view>
    </extension>
 

@@ -345,29 +345,34 @@ public class AbapGitView extends ViewPart {
 				if (AbapGitView.this.viewer.getStructuredSelection().size() == 1) {
 					Object firstElement = AbapGitView.this.viewer.getStructuredSelection().getFirstElement();
 					if (firstElement instanceof IRepository) {
+						IRepository repository = (IRepository) firstElement;
 
-						manager.add(AbapGitView.this.actionOpen);
-						manager.add(AbapGitView.this.actionCopy);
-
-						//-> Only if PULL ATOM link is present
-						if (((IRepository) firstElement).getPullLink(IRepositoryService.RELATION_PULL) != null) {
-
-							manager.removeAll();
+						//pull action
+						if (repository.getPullLink(IRepositoryService.RELATION_PULL) != null) {
 							manager.add(AbapGitView.this.actionPullWizard);
-
-							manager.add(new Separator());
-							manager.add(AbapGitView.this.actionOpen);
-
-							//-> Only if LOG ATOM link is present
-							if (((IRepository) firstElement).getLogLink(IRepositoryService.RELATION_LOG) != null) {
-								manager.add(new GetObjLogAction(AbapGitView.this.lastProject, (IRepository) firstElement));
+							//stage action
+							if (repository.getStageLink(IRepositoryService.RELATION_STAGE) != null) {
+								manager.add(new OpenStagingViewAction(AbapGitView.this.lastProject, repository));
 							}
-							manager.add(AbapGitView.this.actionCopy);
-
 							manager.add(new Separator());
-							manager.add(new UnlinkAction(AbapGitView.this.lastProject, (IRepository) firstElement));
 						}
 
+						//open package action
+						manager.add(AbapGitView.this.actionOpen);
+
+						//object log
+						if (repository.getLogLink(IRepositoryService.RELATION_LOG) != null) {
+							manager.add(new GetObjLogAction(AbapGitView.this.lastProject, repository));
+						}
+
+						//copy to clipboard
+						manager.add(AbapGitView.this.actionCopy);
+
+						//unlink action
+						if (repository.getPullLink(IRepositoryService.RELATION_PULL) != null) {
+							manager.add(new Separator());
+							manager.add(new UnlinkAction(AbapGitView.this.lastProject, repository));
+						}
 					}
 				}
 			}
@@ -752,6 +757,31 @@ public class AbapGitView extends ViewPart {
 			objLogDialog.open();
 
 
+		}
+
+	}
+
+	private static class OpenStagingViewAction extends Action {
+
+		private final IProject project;
+		private final IRepository repository;
+
+		public OpenStagingViewAction(IProject project, IRepository repository) {
+			this.project = project;
+			this.repository = repository;
+			setText(Messages.AbapGitView_context_staging);
+			setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID, "icons/view/abapgit_staging.png")); //$NON-NLS-1$
+		}
+
+		@Override
+		public void run() {
+			try {
+				IAbapGitStagingView stagingView = ((IAbapGitStagingView) PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+						.getActivePage().showView(AbapGitStagingView.VIEW_ID));
+				stagingView.openStagingView(this.repository, this.project);
+			} catch (PartInitException e) {
+				AbapGitUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getMessage(), e));
+			}
 		}
 
 	}

@@ -11,6 +11,7 @@ public class Messages extends NLS {
 	public static String AbapGitView_action_showMyRepos;
 	public static String AbapGitView_action_pull;
 	public static String AbapGitView_action_open;
+	public static String AbapGitView_action_open_xtol;
 	public static String AbapGitView_action_objectlog;
 	public static String AbapGitView_column_branch;
 	public static String AbapGitView_column_firstcommitat;
@@ -33,6 +34,7 @@ public class Messages extends NLS {
 	public static String AbapGitView_context_pull_error;
 	public static String AbapGitView_context_dialog_pull_message;
 	public static String AbapGitView_context_dialog_pull_title;
+	public static String AbapGitView_context_staging;
 	public static String AbapGitView_no_abap_project;
 	public static String AbapGitView_not_supported;
 	public static String AbapGitView_repos_in_project;
@@ -111,6 +113,44 @@ public class Messages extends NLS {
 	public static String AbapGitDialogPageObjLog_export_log_obj_type;
 	public static String AbapGitDialogPageObjLog_export_log_obj_msg;
 	public static String AbapGitDialogPageObjLog_export_log_obj_flag;
+
+	//ABAPGIT STAGING MESSAGES
+	public static String AbapGitStaging_no_repository_selected;
+	public static String AbapGitStaging_object_filter_text;
+	public static String AbapGitStaging_collapse_all_xbut;
+	public static String AbapGitStaging_unstaged_changes_section_header;
+	public static String AbapGitStaging_staged_changes_section_header;
+	public static String AbapGitStaging_commit_section_header;
+	public static String AbapGitStaging_author;
+	public static String AbapGitStaging_committer;
+	public static String AbapGitStaging_commit_button;
+	public static String AbapGitStaging_ignored_objects_xtol;
+	public static String AbapGitStaging_action_stage;
+	public static String AbapGitStaging_action_unstage;
+	public static String AbapGitStaging_action_stage_xtol;
+	public static String AbapGitStaging_action_unstage_xtol;
+	public static String AbapGitStaging_action_open;
+	public static String AbapGitView_task_fetch_repos_staging;
+	public static String AbapGitView_task_fetch_repos_staging_error;
+	public static String AbapGitStaging_commit_message_second_line_not_empty;
+	public static String AbapGitStaging_invalid_author;
+	public static String AbapGitStaging_invalid_committer;
+	public static String AbapGitStaging_commit_error_no_repo_loaded_desc;
+	public static String AbapGitStaging_commit_error_invalid_commit_msg_title;
+	public static String AbapGitStaging_commit_error_invalid_commit_msg_desc;
+	public static String AbapGitStaging_commit_error_invalid_author_title;
+	public static String AbapGitStaging_commit_error_invalid_committer_title;
+	public static String AbapGitStaging_push_job_title;
+	public static String AbapGitStaging_push_job_successful;
+	public static String AbapGitStaging_push_job_successful_desc;
+	public static String AbapGitStaging_push_job_error;
+	public static String AbapGitStaging_credentials_dialog_title;
+	public static String AbapGitStaging_credentials_dialog_desc;
+	public static String AbapGitStaging_credentials_dialog_username;
+	public static String AbapGitStaging_credentials_dialog_password;
+	public static String AbapGitStaging_credentials_dialog_error_invalid_username;
+	public static String AbapGitStaging_credentials_dialog_error_invalid_password;
+
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);

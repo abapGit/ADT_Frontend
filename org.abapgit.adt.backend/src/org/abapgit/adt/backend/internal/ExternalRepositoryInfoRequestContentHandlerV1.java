@@ -7,6 +7,8 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.abapgit.adt.backend.IExternalRepositoryInfoRequest;
+
 import com.sap.adt.communication.content.ContentHandlerException;
 import com.sap.adt.communication.content.IContentHandler;
 import com.sap.adt.communication.message.ByteArrayMessageBody;
