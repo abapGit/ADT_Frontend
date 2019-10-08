@@ -76,8 +76,9 @@ public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceCha
 		this.repodata = repository;
 
 		//Icons
-		this.warningImage = AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui", "icons/full/obj16/warn_tsk.png").createImage(); //$NON-NLS-1$ //$NON-NLS-2$
-		this.errorImage = AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui", "icons/full/obj16/error_tsk.png").createImage(); //$NON-NLS-1$ //$NON-NLS-2$
+		this.warningImage = AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.jdt.ui", "icons/full/obj16/warning_obj.png") //$NON-NLS-1$//$NON-NLS-2$
+				.createImage();
+		this.errorImage = AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.jdt.ui", "icons/full/obj16/error_obj.png").createImage(); //$NON-NLS-1$ //$NON-NLS-2$
 		this.successImage = AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui", "icons/full/obj16/activity.png").createImage(); //$NON-NLS-1$//$NON-NLS-2$
 		this.infoImage = AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui", "icons/full/obj16/info_tsk.png").createImage(); //$NON-NLS-1$ //$NON-NLS-2$
 
