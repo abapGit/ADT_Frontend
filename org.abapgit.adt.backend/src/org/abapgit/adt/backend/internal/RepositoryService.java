@@ -1,7 +1,7 @@
 package org.abapgit.adt.backend.internal;
 
 import java.net.URI;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 import org.abapgit.adt.backend.IExternalRepositoryInfoRequest;
@@ -200,7 +200,7 @@ public class RepositoryService implements IRepositoryService {
 		headers.addField(userField);
 		Base64.Encoder encoder = Base64.getMimeEncoder();
 		IHeaders.IField passwordField = HeadersFactory.newField("Password", //$NON-NLS-1$
-				encoder.encodeToString(password.getBytes(Charset.forName("UTF-8")))); //$NON-NLS-1$
+				encoder.encodeToString(password.getBytes(StandardCharsets.UTF_8)));
 		headers.addField(passwordField);
 		return headers;
 	}
