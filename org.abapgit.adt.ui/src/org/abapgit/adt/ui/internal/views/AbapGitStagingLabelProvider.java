@@ -110,6 +110,9 @@ public class AbapGitStagingLabelProvider extends StyledCellLabelProvider {
 
 	private Image getFileImage(IAbapGitFile file) {
 		Image fileImage = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FILE);
+		if (file.getLocalState() == null) {
+			return fileImage;
+		}
 		if (file.getLocalState().equals(IAbapGitFile.Status.ADDED.getStatus())) { //new file
 			fileImage = decorateImage(fileImage, "icons/ovr/added_ovr.png"); //$NON-NLS-1$
 		} else if (file.getLocalState().equals(IAbapGitFile.Status.MODIFIED.getStatus())) { //modified file

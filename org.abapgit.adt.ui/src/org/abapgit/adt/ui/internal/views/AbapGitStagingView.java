@@ -608,6 +608,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 			FileStagingModeUtil.stageObjects(this.unstagedTreeViewer, selection, this.model, expandedNodes);
 		}
 
+		//update the tree viewers
 		refreshUI();
 		expandedNodes.addAll(Arrays.asList(this.stagedTreeViewer.getExpandedElements()));
 		this.stagedTreeViewer.setExpandedElements(expandedNodes.toArray());
@@ -621,6 +622,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 			FileStagingModeUtil.unstageObjects(this.stagedTreeViewer, selection, this.model, expandedNodes);
 		}
 
+		//update the tree viewers
 		refreshUI();
 		expandedNodes.addAll(Arrays.asList(this.unstagedTreeViewer.getExpandedElements()));
 		this.unstagedTreeViewer.setExpandedElements(expandedNodes.toArray());
@@ -688,7 +690,6 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 						refreshUI();
 					}
 				} catch (CommunicationException | ResourceException | OperationCanceledException e) {
-					AbapGitStagingView.this.repositoryCredentials = null;
 					handleException(e);
 				} catch (OutDatedClientException e) {
 					AdtUtilUiPlugin.getDefault().getAdtStatusService().handle(e, null);
@@ -717,8 +718,14 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 			AbapGitStagingView.this.stagedTreeViewerInput.addAll(getStagedObjectsFromModel(AbapGitStagingView.this.model));
 
 			//update the tree viewers
+			this.unstagedTreeViewer.getControl().setRedraw(false);
+			this.stagedTreeViewer.getControl().setRedraw(false);
+
 			AbapGitStagingView.this.unstagedTreeViewer.refresh();
 			AbapGitStagingView.this.stagedTreeViewer.refresh();
+
+			this.unstagedTreeViewer.getControl().setRedraw(true);
+			this.stagedTreeViewer.getControl().setRedraw(true);
 
 			//update the commit message section
 			AbapGitStagingView.this.authorText.setText(AbapGitStagingView.this.model.getCommitMessage().getAuthor().getName() + " <" //$NON-NLS-1$
@@ -1039,9 +1046,14 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 
 	private void commitAndPush() {
 		//get credentials
-		AbapGitStagingView.this.repositoryCredentials = GitCredentialsService.getUserCredentialsFromUser(getSite().getShell());
-		if (this.repositoryCredentials == null) {
-			return;
+		IExternalRepositoryInfoRequest credentials;
+		if (this.repositoryCredentials != null) {
+			credentials = this.repositoryCredentials;
+		} else {
+			credentials = GitCredentialsService.getUserCredentialsFromUser(getSite().getShell());
+			if (credentials == null) {
+				return;
+			}
 		}
 
 		//push
@@ -1051,7 +1063,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 				try {
 					//push changes
 					AbapGitStagingView.this.repoService.push(new NullProgressMonitor(), AbapGitStagingView.this.model,
-							AbapGitStagingView.this.repository, AbapGitStagingView.this.repositoryCredentials);
+							AbapGitStagingView.this.repository, credentials);
 
 					//refresh
 					Display.getDefault().syncExec(() -> {
@@ -1068,7 +1080,6 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 					});
 					return Status.OK_STATUS;
 				} catch (CommunicationException | ResourceException | OperationCanceledException e) {
-					AbapGitStagingView.this.repositoryCredentials = null;
 					handleException(e);
 				} catch (OutDatedClientException e) {
 					AdtUtilUiPlugin.getDefault().getAdtStatusService().handle(e, null);
@@ -1095,6 +1106,9 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 			excMessage = getExceptionTextFromResponse((ResourceException) e);
 		}
 		if (excMessage == null || excMessage.isEmpty()) {
+			//We are not sure whether the exception is because of any authorization related issues or
+			//because of any other reason. So always reset the credentials in case of exceptions
+			AbapGitStagingView.this.repositoryCredentials = null;
 			excMessage = e.getMessage();
 		}
 		openErrorDialog(Messages.AbapGitView_task_fetch_repos_staging_error, excMessage, true);

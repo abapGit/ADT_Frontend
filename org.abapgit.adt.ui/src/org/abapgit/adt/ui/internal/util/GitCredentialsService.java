@@ -36,6 +36,7 @@ public class GitCredentialsService {
 	 */
 	public static IExternalRepositoryInfoRequest getUserCredentialsFromUser(Shell shell) {
 		//open the user credentials pop-up
+		repositoryCredentials = null;
 		Display.getDefault().syncExec(() -> {
 			Dialog userCredentialsDialog = new AbapGitStagingCredentialsDialog(shell);
 			if (userCredentialsDialog.open() == IDialogConstants.OK_ID) {
