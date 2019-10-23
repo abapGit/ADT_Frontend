@@ -73,4 +73,6 @@ public interface IRepository {
 
 	public URI getPushLink(String relation);
 
+	public URI getChecksLink(String relation);
+
 }

@@ -116,6 +116,7 @@ public class Messages extends NLS {
 
 	//ABAPGIT STAGING MESSAGES
 	public static String AbapGitStaging_no_repository_selected;
+	public static String AbapGitStaging_check_job_title;
 	public static String AbapGitStaging_object_filter_text;
 	public static String AbapGitStaging_collapse_all_xbut;
 	public static String AbapGitStaging_unstaged_changes_section_header;
@@ -130,8 +131,8 @@ public class Messages extends NLS {
 	public static String AbapGitStaging_action_stage_xtol;
 	public static String AbapGitStaging_action_unstage_xtol;
 	public static String AbapGitStaging_action_open;
-	public static String AbapGitView_task_fetch_repos_staging;
-	public static String AbapGitView_task_fetch_repos_staging_error;
+	public static String AbapGitStaging_task_fetch_repos_staging;
+	public static String AbapGitStaging_task_fetch_repos_staging_error;
 	public static String AbapGitStaging_commit_message_second_line_not_empty;
 	public static String AbapGitStaging_invalid_author;
 	public static String AbapGitStaging_invalid_committer;

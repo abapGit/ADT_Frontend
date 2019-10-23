@@ -82,6 +82,10 @@ public class RepositorySerializer {
 						repository.addPushLink(linkRel, URI.create(linkHref));
 					}
 
+					if (linkRelType.equals("check")) { //$NON-NLS-1$
+						repository.addChecksLink(linkRel, URI.create(linkHref));
+					}
+
 					depth++;
 					break;
 				default:

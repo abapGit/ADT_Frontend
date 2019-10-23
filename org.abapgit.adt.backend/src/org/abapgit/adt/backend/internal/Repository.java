@@ -28,6 +28,7 @@ public class Repository implements IRepository {
 	private final Map<String, URI> logLink = new HashMap<>();
 	private final Map<String, URI> stageLink = new HashMap<>();
 	private final Map<String, URI> pushLink = new HashMap<>();
+	private final Map<String, URI> checksLink = new HashMap<>();
 
 	@Override
 	public String getUrl() {
@@ -284,6 +285,15 @@ public class Repository implements IRepository {
 
 	public void addPushLink(String relation, URI uri) {
 		this.pushLink.put(relation, uri);
+	}
+
+	@Override
+	public URI getChecksLink(String relation) {
+		return this.checksLink.get(relation);
+	}
+
+	public void addChecksLink(String relation, URI uri) {
+		this.checksLink.put(relation, uri);
 	}
 
 }

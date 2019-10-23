@@ -21,6 +21,13 @@ public class AbapGitStagingCredentialsDialog extends TitleAreaDialog {
 	private String username;
 	private String password;
 
+	private String errorMessage;
+
+	public AbapGitStagingCredentialsDialog(Shell parentShell, String errorMessage) {
+		super(parentShell);
+		this.errorMessage = errorMessage;
+	}
+
 	public AbapGitStagingCredentialsDialog(Shell parentShell) {
 		super(parentShell);
 	}
@@ -29,7 +36,11 @@ public class AbapGitStagingCredentialsDialog extends TitleAreaDialog {
 	public void create() {
 		super.create();
 		setTitle(Messages.AbapGitStaging_credentials_dialog_title);
-		setMessage(Messages.AbapGitStaging_credentials_dialog_desc, IMessageProvider.INFORMATION);
+		if (this.errorMessage != null) {
+			setMessage(this.errorMessage, IMessageProvider.ERROR);
+		} else {
+			setMessage(Messages.AbapGitStaging_credentials_dialog_desc, IMessageProvider.INFORMATION);
+		}
 	}
 
 	@Override
