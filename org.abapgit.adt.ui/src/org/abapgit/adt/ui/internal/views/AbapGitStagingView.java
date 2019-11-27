@@ -18,6 +18,7 @@ import org.abapgit.adt.backend.IExternalRepositoryInfoService;
 import org.abapgit.adt.backend.IRepository;
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
+import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitCommitMessage;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitFile;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitStaging;
@@ -743,10 +744,17 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 			this.stagedTreeViewer.getControl().setRedraw(true);
 
 			//update the commit message section
-			AbapGitStagingView.this.authorText.setText(AbapGitStagingView.this.model.getCommitMessage().getAuthor().getName() + " <" //$NON-NLS-1$
-					+ AbapGitStagingView.this.model.getCommitMessage().getAuthor().getEmail() + ">"); //$NON-NLS-1$
-			AbapGitStagingView.this.committerText.setText(AbapGitStagingView.this.model.getCommitMessage().getCommitter().getName() + " <" //$NON-NLS-1$
-					+ AbapGitStagingView.this.model.getCommitMessage().getCommitter().getEmail() + ">"); //$NON-NLS-1$
+			if (this.model.getCommitMessage() != null) {
+				if (this.model.getCommitMessage().getAuthor() != null) {
+					AbapGitStagingView.this.authorText.setText(AbapGitStagingView.this.model.getCommitMessage().getAuthor().getName() + " <" //$NON-NLS-1$
+							+ AbapGitStagingView.this.model.getCommitMessage().getAuthor().getEmail() + ">"); //$NON-NLS-1$
+				}
+				if (this.model.getCommitMessage().getCommitter() != null) {
+					AbapGitStagingView.this.committerText
+							.setText(AbapGitStagingView.this.model.getCommitMessage().getCommitter().getName() + " <" //$NON-NLS-1$
+									+ AbapGitStagingView.this.model.getCommitMessage().getCommitter().getEmail() + ">"); //$NON-NLS-1$
+				}
+			}
 
 			updateSectionHeaders();
 			updateButtonsState();
@@ -1060,6 +1068,13 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		}
 
 		//update model
+		if (this.model.getCommitMessage() == null) {
+			//commit message object will be null when backend does not sent the author and committer details
+			//so create a new instance of commit message and fill the necessary details
+			IAbapGitCommitMessage commitMessageModel = IAbapgitstagingFactory.eINSTANCE.createAbapGitCommitMessage();
+			this.model.setCommitMessage(commitMessageModel);
+		}
+
 		this.model.getCommitMessage().setMessage(commitMessage);
 		this.model.getCommitMessage().setAuthor(author);
 		this.model.getCommitMessage().setCommitter(committer);
