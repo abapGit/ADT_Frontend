@@ -247,8 +247,8 @@ public class TestsPdeAbapGitStaging {
 				Assert.assertTrue(right instanceof AbapGitCompareItem);
 				Assert.assertEquals(left.getName(), "file1.abap" + " (Local)");
 				Assert.assertEquals(right.getName(), "file1.abap" + " (Remote)");
-				Assert.assertEquals(left.getType(), "aclass");
-				Assert.assertEquals(right.getType(), "aclass");
+//				Assert.assertEquals(left.getType(), "aclass");
+//				Assert.assertEquals(right.getType(), "aclass");
 				editor.getEditorSite().getPage().closeEditor(editor, false);
 			}
 		}
