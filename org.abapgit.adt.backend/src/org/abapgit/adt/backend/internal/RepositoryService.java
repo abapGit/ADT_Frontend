@@ -4,24 +4,19 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-import org.abapgit.adt.backend.IExternalRepositoryInfoRequest;
 import org.abapgit.adt.backend.IObjects;
 import org.abapgit.adt.backend.IRepositories;
 import org.abapgit.adt.backend.IRepository;
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitStaging;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.OperationCanceledException;
 
 import com.sap.adt.communication.content.IContentHandler;
-import com.sap.adt.communication.exceptions.CommunicationException;
 import com.sap.adt.communication.message.HeadersFactory;
 import com.sap.adt.communication.message.IHeaders;
 import com.sap.adt.communication.resources.AdtRestResourceFactory;
 import com.sap.adt.communication.resources.IRestResource;
-import com.sap.adt.communication.resources.ResourceException;
 import com.sap.adt.communication.resources.UriBuilder;
-import com.sap.adt.compatibility.exceptions.OutDatedClientException;
 import com.sap.adt.compatibility.filter.AdtCompatibleRestResourceFilterFactory;
 import com.sap.adt.compatibility.filter.IAdtCompatibleRestResourceFilter;
 
@@ -171,12 +166,12 @@ public class RepositoryService implements IRepositoryService {
 	}
 
 	@Override
-	public IAbapGitStaging stage(IRepository repository, IExternalRepositoryInfoRequest externalRepo,
-			IProgressMonitor monitor) {
+	public IAbapGitStaging stage(IRepository repository, IProgressMonitor monitor) {
 		IHeaders headers = null;
 		IRestResource restResource = getStageRestResource(repository);
-		if (externalRepo != null) {
-			headers = getHttpHeadersForCredentials(externalRepo.getUser(), externalRepo.getPassword());
+		if (AbapGitAuthenticationInfo.getRepoCredentials() != null) {
+			headers = getHttpHeadersForCredentials(AbapGitAuthenticationInfo.getRepoCredentials().getUser(),
+					AbapGitAuthenticationInfo.getRepoCredentials().getPassword());
 		}
 		return restResource.get(monitor, headers, IAbapGitStaging.class);
 	}
@@ -187,16 +182,15 @@ public class RepositoryService implements IRepositoryService {
 	}
 
 	@Override
-	public void push(IProgressMonitor monitor, IAbapGitStaging staging, IRepository repository,
-			IExternalRepositoryInfoRequest externalRepo) {
+	public void push(IProgressMonitor monitor, IAbapGitStaging staging, IRepository repository) {
 		URI pushUri = repository.getPushLink(IRepositoryService.RELATION_PUSH);
 		IRestResource restResource = getRestResource(pushUri);
-		restResource.post(monitor, getHttpHeadersForCredentials(externalRepo.getUser(), externalRepo.getPassword()), null, staging);
+		restResource.post(monitor, getHttpHeadersForCredentials(AbapGitAuthenticationInfo.getRepoCredentials().getUser(),
+				AbapGitAuthenticationInfo.getRepoCredentials().getPassword()), null, staging);
 	}
 
 	@Override
-	public void repositoryChecks(IProgressMonitor monitor, IRepository repository, IExternalRepositoryInfoRequest externalRepo)
-			throws CommunicationException, ResourceException, OperationCanceledException, OutDatedClientException {
+	public void repositoryChecks(IProgressMonitor monitor, IRepository repository) {
 		IHeaders headers = null;
 		URI checkUri = repository.getChecksLink(IRepositoryService.RELATION_CHECK);
 		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory().createResourceWithStatelessSession(checkUri,
@@ -204,8 +198,9 @@ public class RepositoryService implements IRepositoryService {
 		IAdtCompatibleRestResourceFilter compatibilityFilter = AdtCompatibleRestResourceFilterFactory.createFilter("text/plain"); //$NON-NLS-1$
 		restResource.addRequestFilter(compatibilityFilter);
 		restResource.addResponseFilter(compatibilityFilter);
-		if (externalRepo != null) {
-			headers = getHttpHeadersForCredentials(externalRepo.getUser(), externalRepo.getPassword());
+		if (AbapGitAuthenticationInfo.getRepoCredentials() != null) {
+			headers = getHttpHeadersForCredentials(AbapGitAuthenticationInfo.getRepoCredentials().getUser(),
+					AbapGitAuthenticationInfo.getRepoCredentials().getPassword());
 		}
 		restResource.post(monitor, headers, null);
 	}

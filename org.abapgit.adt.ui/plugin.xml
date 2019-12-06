@@ -6,7 +6,7 @@
          point="org.eclipse.ui.views">
       <view
             category="com.sap.adt.views"
-            class="org.abapgit.adt.ui.internal.views.AbapGitView"
+            class="org.abapgit.adt.ui.internal.repositories.AbapGitView"
             icon="icons/view/abapgit.png"
             id="org.abapgit.adt.ui.views.AbapGitView"
             inject="true"
@@ -15,7 +15,7 @@
       <view
             allowMultiple="false"
             category="com.sap.adt.views"
-            class="org.abapgit.adt.ui.internal.views.AbapGitStagingView"
+            class="org.abapgit.adt.ui.internal.staging.AbapGitStagingView"
             icon="icons/view/abapgit_staging.png"
             id="org.abapgit.adt.ui.views.AbapGitStagingView"
             name="%abapgit.staging.view.name">

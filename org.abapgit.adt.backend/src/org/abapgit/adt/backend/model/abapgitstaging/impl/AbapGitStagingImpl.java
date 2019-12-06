@@ -4,6 +4,7 @@ package org.abapgit.adt.backend.model.abapgitstaging.impl;
 
 import com.sap.adt.tools.core.model.atom.IAtomLink;
 
+import java.util.Collection;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitCommitMessage;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitStaging;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapgitstagingPackage;
@@ -14,11 +15,14 @@ import org.abapgit.adt.backend.model.abapgitstaging.IUnstagedObjects;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.InternalEObject;
 
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
+import org.eclipse.emf.ecore.util.EObjectContainmentEList;
+import org.eclipse.emf.ecore.util.InternalEList;
 
 /**
  * <!-- begin-user-doc -->
@@ -28,26 +32,16 @@ import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
  * The following features are implemented:
  * </p>
  * <ul>
- *   <li>{@link org.abapgit.adt.backend.model.abapgitstaging.impl.AbapGitStagingImpl#getLink <em>Link</em>}</li>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitstaging.impl.AbapGitStagingImpl#getUnstagedObjects <em>Unstaged Objects</em>}</li>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitstaging.impl.AbapGitStagingImpl#getStagedObjects <em>Staged Objects</em>}</li>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitstaging.impl.AbapGitStagingImpl#getIgnoredObjects <em>Ignored Objects</em>}</li>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitstaging.impl.AbapGitStagingImpl#getCommitMessage <em>Commit Message</em>}</li>
+ *   <li>{@link org.abapgit.adt.backend.model.abapgitstaging.impl.AbapGitStagingImpl#getLinks <em>Links</em>}</li>
  * </ul>
  *
  * @generated
  */
 public class AbapGitStagingImpl extends MinimalEObjectImpl.Container implements IAbapGitStaging {
-	/**
-	 * The cached value of the '{@link #getLink() <em>Link</em>}' containment reference.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getLink()
-	 * @generated
-	 * @ordered
-	 */
-	protected IAtomLink link;
-
 	/**
 	 * The cached value of the '{@link #getUnstagedObjects() <em>Unstaged Objects</em>}' containment reference.
 	 * <!-- begin-user-doc -->
@@ -89,6 +83,16 @@ public class AbapGitStagingImpl extends MinimalEObjectImpl.Container implements 
 	protected IAbapGitCommitMessage commitMessage;
 
 	/**
+	 * The cached value of the '{@link #getLinks() <em>Links</em>}' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getLinks()
+	 * @generated
+	 * @ordered
+	 */
+	protected EList<IAtomLink> links;
+
+	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
@@ -105,49 +109,6 @@ public class AbapGitStagingImpl extends MinimalEObjectImpl.Container implements 
 	@Override
 	protected EClass eStaticClass() {
 		return IAbapgitstagingPackage.Literals.ABAP_GIT_STAGING;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public IAtomLink getLink() {
-		return link;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public NotificationChain basicSetLink(IAtomLink newLink, NotificationChain msgs) {
-		IAtomLink oldLink = link;
-		link = newLink;
-		if (eNotificationRequired()) {
-			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, IAbapgitstagingPackage.ABAP_GIT_STAGING__LINK, oldLink, newLink);
-			if (msgs == null) msgs = notification; else msgs.add(notification);
-		}
-		return msgs;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setLink(IAtomLink newLink) {
-		if (newLink != link) {
-			NotificationChain msgs = null;
-			if (link != null)
-				msgs = ((InternalEObject)link).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - IAbapgitstagingPackage.ABAP_GIT_STAGING__LINK, null, msgs);
-			if (newLink != null)
-				msgs = ((InternalEObject)newLink).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - IAbapgitstagingPackage.ABAP_GIT_STAGING__LINK, null, msgs);
-			msgs = basicSetLink(newLink, msgs);
-			if (msgs != null) msgs.dispatch();
-		}
-		else if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitstagingPackage.ABAP_GIT_STAGING__LINK, newLink, newLink));
 	}
 
 	/**
@@ -327,11 +288,21 @@ public class AbapGitStagingImpl extends MinimalEObjectImpl.Container implements 
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EList<IAtomLink> getLinks() {
+		if (links == null) {
+			links = new EObjectContainmentEList<IAtomLink>(IAtomLink.class, this, IAbapgitstagingPackage.ABAP_GIT_STAGING__LINKS);
+		}
+		return links;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
-			case IAbapgitstagingPackage.ABAP_GIT_STAGING__LINK:
-				return basicSetLink(null, msgs);
 			case IAbapgitstagingPackage.ABAP_GIT_STAGING__UNSTAGED_OBJECTS:
 				return basicSetUnstagedObjects(null, msgs);
 			case IAbapgitstagingPackage.ABAP_GIT_STAGING__STAGED_OBJECTS:
@@ -340,6 +311,8 @@ public class AbapGitStagingImpl extends MinimalEObjectImpl.Container implements 
 				return basicSetIgnoredObjects(null, msgs);
 			case IAbapgitstagingPackage.ABAP_GIT_STAGING__COMMIT_MESSAGE:
 				return basicSetCommitMessage(null, msgs);
+			case IAbapgitstagingPackage.ABAP_GIT_STAGING__LINKS:
+				return ((InternalEList<?>)getLinks()).basicRemove(otherEnd, msgs);
 		}
 		return super.eInverseRemove(otherEnd, featureID, msgs);
 	}
@@ -352,8 +325,6 @@ public class AbapGitStagingImpl extends MinimalEObjectImpl.Container implements 
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-			case IAbapgitstagingPackage.ABAP_GIT_STAGING__LINK:
-				return getLink();
 			case IAbapgitstagingPackage.ABAP_GIT_STAGING__UNSTAGED_OBJECTS:
 				return getUnstagedObjects();
 			case IAbapgitstagingPackage.ABAP_GIT_STAGING__STAGED_OBJECTS:
@@ -362,6 +333,8 @@ public class AbapGitStagingImpl extends MinimalEObjectImpl.Container implements 
 				return getIgnoredObjects();
 			case IAbapgitstagingPackage.ABAP_GIT_STAGING__COMMIT_MESSAGE:
 				return getCommitMessage();
+			case IAbapgitstagingPackage.ABAP_GIT_STAGING__LINKS:
+				return getLinks();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -371,12 +344,10 @@ public class AbapGitStagingImpl extends MinimalEObjectImpl.Container implements 
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-			case IAbapgitstagingPackage.ABAP_GIT_STAGING__LINK:
-				setLink((IAtomLink)newValue);
-				return;
 			case IAbapgitstagingPackage.ABAP_GIT_STAGING__UNSTAGED_OBJECTS:
 				setUnstagedObjects((IUnstagedObjects)newValue);
 				return;
@@ -388,6 +359,10 @@ public class AbapGitStagingImpl extends MinimalEObjectImpl.Container implements 
 				return;
 			case IAbapgitstagingPackage.ABAP_GIT_STAGING__COMMIT_MESSAGE:
 				setCommitMessage((IAbapGitCommitMessage)newValue);
+				return;
+			case IAbapgitstagingPackage.ABAP_GIT_STAGING__LINKS:
+				getLinks().clear();
+				getLinks().addAll((Collection<? extends IAtomLink>)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -401,9 +376,6 @@ public class AbapGitStagingImpl extends MinimalEObjectImpl.Container implements 
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
-			case IAbapgitstagingPackage.ABAP_GIT_STAGING__LINK:
-				setLink((IAtomLink)null);
-				return;
 			case IAbapgitstagingPackage.ABAP_GIT_STAGING__UNSTAGED_OBJECTS:
 				setUnstagedObjects((IUnstagedObjects)null);
 				return;
@@ -415,6 +387,9 @@ public class AbapGitStagingImpl extends MinimalEObjectImpl.Container implements 
 				return;
 			case IAbapgitstagingPackage.ABAP_GIT_STAGING__COMMIT_MESSAGE:
 				setCommitMessage((IAbapGitCommitMessage)null);
+				return;
+			case IAbapgitstagingPackage.ABAP_GIT_STAGING__LINKS:
+				getLinks().clear();
 				return;
 		}
 		super.eUnset(featureID);
@@ -428,8 +403,6 @@ public class AbapGitStagingImpl extends MinimalEObjectImpl.Container implements 
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
-			case IAbapgitstagingPackage.ABAP_GIT_STAGING__LINK:
-				return link != null;
 			case IAbapgitstagingPackage.ABAP_GIT_STAGING__UNSTAGED_OBJECTS:
 				return unstagedObjects != null;
 			case IAbapgitstagingPackage.ABAP_GIT_STAGING__STAGED_OBJECTS:
@@ -438,6 +411,8 @@ public class AbapGitStagingImpl extends MinimalEObjectImpl.Container implements 
 				return ignoredObjects != null;
 			case IAbapgitstagingPackage.ABAP_GIT_STAGING__COMMIT_MESSAGE:
 				return commitMessage != null;
+			case IAbapgitstagingPackage.ABAP_GIT_STAGING__LINKS:
+				return links != null && !links.isEmpty();
 		}
 		return super.eIsSet(featureID);
 	}

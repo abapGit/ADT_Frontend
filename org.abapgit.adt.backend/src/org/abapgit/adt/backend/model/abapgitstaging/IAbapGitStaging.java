@@ -4,6 +4,7 @@ package org.abapgit.adt.backend.model.abapgitstaging;
 
 import com.sap.adt.tools.core.model.atom.IAtomLink;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 
 /**
@@ -15,11 +16,11 @@ import org.eclipse.emf.ecore.EObject;
  * The following features are supported:
  * </p>
  * <ul>
- *   <li>{@link org.abapgit.adt.backend.model.abapgitstaging.IAbapGitStaging#getLink <em>Link</em>}</li>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitstaging.IAbapGitStaging#getUnstagedObjects <em>Unstaged Objects</em>}</li>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitstaging.IAbapGitStaging#getStagedObjects <em>Staged Objects</em>}</li>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitstaging.IAbapGitStaging#getIgnoredObjects <em>Ignored Objects</em>}</li>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitstaging.IAbapGitStaging#getCommitMessage <em>Commit Message</em>}</li>
+ *   <li>{@link org.abapgit.adt.backend.model.abapgitstaging.IAbapGitStaging#getLinks <em>Links</em>}</li>
  * </ul>
  *
  * @see org.abapgit.adt.backend.model.abapgitstaging.IAbapgitstagingPackage#getAbapGitStaging()
@@ -27,29 +28,6 @@ import org.eclipse.emf.ecore.EObject;
  * @generated
  */
 public interface IAbapGitStaging extends EObject {
-	/**
-	 * Returns the value of the '<em><b>Link</b></em>' containment reference.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Link</em>' containment reference.
-	 * @see #setLink(IAtomLink)
-	 * @see org.abapgit.adt.backend.model.abapgitstaging.IAbapgitstagingPackage#getAbapGitStaging_Link()
-	 * @model containment="true" required="true"
-	 *        extendedMetaData="kind='element' namespace='##targetNamespace' name='link'"
-	 * @generated
-	 */
-	IAtomLink getLink();
-
-	/**
-	 * Sets the value of the '{@link org.abapgit.adt.backend.model.abapgitstaging.IAbapGitStaging#getLink <em>Link</em>}' containment reference.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Link</em>' containment reference.
-	 * @see #getLink()
-	 * @generated
-	 */
-	void setLink(IAtomLink value);
-
 	/**
 	 * Returns the value of the '<em><b>Unstaged Objects</b></em>' containment reference.
 	 * <!-- begin-user-doc -->
@@ -141,5 +119,18 @@ public interface IAbapGitStaging extends EObject {
 	 * @generated
 	 */
 	void setCommitMessage(IAbapGitCommitMessage value);
+
+	/**
+	 * Returns the value of the '<em><b>Links</b></em>' containment reference list.
+	 * The list contents are of type {@link com.sap.adt.tools.core.model.atom.IAtomLink}.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Links</em>' containment reference list.
+	 * @see org.abapgit.adt.backend.model.abapgitstaging.IAbapgitstagingPackage#getAbapGitStaging_Links()
+	 * @model containment="true"
+	 *        extendedMetaData="kind='element' name='link' namespace='http://www.w3.org/2005/Atom'"
+	 * @generated
+	 */
+	EList<IAtomLink> getLinks();
 
 } // IAbapGitStaging
