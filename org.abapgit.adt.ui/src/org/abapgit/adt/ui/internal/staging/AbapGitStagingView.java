@@ -166,7 +166,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	private IAction actionCollapseAllStaged;
 
 	//key binding for copy text
-	private static final KeyStroke KEY_STROKE_COPY = KeyStroke.getInstance(SWT.COMMAND, 'C' | 'c');
+	private static final KeyStroke KEY_STROKE_COPY = KeyStroke.getInstance(SWT.MOD1, 'C' | 'c');
 
 	/**
 	 * Set singleFileStageMode = true, to enable file staging/unstaging and drag
