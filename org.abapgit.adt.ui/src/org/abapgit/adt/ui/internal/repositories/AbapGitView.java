@@ -37,6 +37,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.ResourceLocator;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ISelection;
@@ -293,38 +294,26 @@ public class AbapGitView extends ViewPart {
 
 			@Override
 			public Image getImage(Object element) {
-				IRepository p = (IRepository) element;
-				String statusFlag = p.getStatusFlag();
-
-				Bundle bundle = Platform.getBundle("org.eclipse.platform.doc.user"); //$NON-NLS-1$
-				URL imgUrl = null;
-				Image statusWarning = AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.jdt.ui", "icons/full/obj16/warning_obj.png") //$NON-NLS-1$//$NON-NLS-2$
-						.createImage();
-				Image statusError = AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.jdt.ui", "icons/full/obj16/error_obj.png") //$NON-NLS-1$//$NON-NLS-2$
-						.createImage();
-
-				if (statusFlag != null && statusFlag.equals("W")) { //$NON-NLS-1$
-					return statusWarning;
+				String statusFlag = ((IRepository) element).getStatusFlag();
+				if (statusFlag != null) {
+					switch (statusFlag) {
+					case "W": //$NON-NLS-1$
+						return ResourceLocator.imageDescriptorFromBundle("org.eclipse.jdt.ui", "icons/full/obj16/warning_obj.png").get() //$NON-NLS-1$//$NON-NLS-2$
+								.createImage();
+					case "E": //$NON-NLS-1$
+						return ResourceLocator.imageDescriptorFromBundle("org.eclipse.jdt.ui", "icons/full/obj16/error_obj.png").get() //$NON-NLS-1$//$NON-NLS-2$
+								.createImage();
+					case "A": //$NON-NLS-1$
+						return ResourceLocator.imageDescriptorFromBundle("org.eclipse.ui", "icons/full/elcl16/stop.png").get() //$NON-NLS-1$//$NON-NLS-2$
+								.createImage();
+					case "S": //$NON-NLS-1$
+						return ResourceLocator.imageDescriptorFromBundle("org.eclipse.ui", "icons/full/eview16/tasks_tsk.png").get() //$NON-NLS-1$//$NON-NLS-2$
+								.createImage();
+					case "R": //$NON-NLS-1$
+						return ResourceLocator.imageDescriptorFromBundle("org.eclipse.ui", "icons/full/elcl16/up_nav.png").get() //$NON-NLS-1$//$NON-NLS-2$
+								.createImage();
+					}
 				}
-				if (statusFlag != null && statusFlag.equals("E")) { //$NON-NLS-1$
-					return statusError;
-				}
-				if (statusFlag != null && statusFlag.equals("A")) { //$NON-NLS-1$
-					imgUrl = FileLocator.find(bundle, new Path("images/stop_nav.png"), null); //$NON-NLS-1$
-					ImageDescriptor imageDesc = ImageDescriptor.createFromURL(imgUrl);
-					return imageDesc.createImage();
-				}
-				if (statusFlag != null && statusFlag.equals("S")) { //$NON-NLS-1$
-					Image statusReady = AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui", "icons/full/eview16/tasks_tsk.gif") //$NON-NLS-1$//$NON-NLS-2$
-							.createImage();
-					return statusReady;
-				}
-				if (statusFlag != null && statusFlag.equals("R")) { //$NON-NLS-1$
-					imgUrl = FileLocator.find(bundle, new Path("images/up_nav.png"), null); //$NON-NLS-1$
-					ImageDescriptor imageDesc = ImageDescriptor.createFromURL(imgUrl);
-					return imageDesc.createImage();
-				}
-
 				return null;
 			}
 		});
