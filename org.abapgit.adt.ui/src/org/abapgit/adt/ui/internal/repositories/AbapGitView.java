@@ -339,28 +339,28 @@ public class AbapGitView extends ViewPart {
 					Object firstElement = AbapGitView.this.viewer.getStructuredSelection().getFirstElement();
 					if (firstElement instanceof IRepository) {
 						IRepository repository = (IRepository) firstElement;
-
+						//link action
+						manager.add(AbapGitView.this.actionWizard);
+						//separator
+						manager.add(new Separator());
 						//pull action
 						if (repository.getPullLink(IRepositoryService.RELATION_PULL) != null) {
 							manager.add(AbapGitView.this.actionPullWizard);
-							//stage action
-							if (repository.getStageLink(IRepositoryService.RELATION_STAGE) != null) {
-								manager.add(new OpenStagingViewAction(AbapGitView.this.lastProject, repository));
-							}
-							manager.add(new Separator());
 						}
-
-						//open package action
-						manager.add(AbapGitView.this.actionOpen);
-
-						//object log
+						//stage action
+						if (repository.getStageLink(IRepositoryService.RELATION_STAGE) != null) {
+							manager.add(new OpenStagingViewAction(AbapGitView.this.lastProject, repository));
+						}
+						//object log action
 						if (repository.getLogLink(IRepositoryService.RELATION_LOG) != null) {
 							manager.add(new GetObjLogAction(AbapGitView.this.lastProject, repository));
 						}
-
-						//copy to clipboard
+						//separator
+						manager.add(new Separator());
+						//open package action
+						manager.add(AbapGitView.this.actionOpen);
+						//copy to clip-board action
 						manager.add(AbapGitView.this.actionCopy);
-
 						//unlink action
 						if (repository.getPullLink(IRepositoryService.RELATION_PULL) != null) {
 							manager.add(new Separator());
