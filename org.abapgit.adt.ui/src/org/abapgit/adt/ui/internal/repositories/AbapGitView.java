@@ -42,7 +42,6 @@ import org.eclipse.jface.resource.ResourceLocator;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
@@ -99,29 +98,26 @@ public class AbapGitView extends ViewPart {
 
 	private final ISelectionListener selectionListener = new ISelectionListener() {
 		private boolean isUpdatingSelection = false;
-
 		@Override
 		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
+			//check whether another refresh job is running
 			if (this.isUpdatingSelection) {
 				return;
 			}
-
 			try {
 				this.isUpdatingSelection = true;
+				//check whether the selection change is on the AbapGit Repositories view
 				if (AbapGitView.this == part) {
 					return;
 				}
-
-				if (selection instanceof IStructuredSelection) {
-					IStructuredSelection structSelection = (IStructuredSelection) selection;
-					AbapGitView.this.lastSelection = structSelection;
-
-					if (!checkIfPageIsVisible()) {
-						return;
-					}
-
-					showLastSelectedElement();
+				//update selection
+				AbapGitView.this.lastSelection = selection;
+				//check whether AbapGit Repositories view is visible in the workbench
+				if (!checkIfPageIsVisible()) {
+					return;
 				}
+				//refresh view
+				showLastSelectedElement();
 			} finally {
 				this.isUpdatingSelection = false;
 			}
@@ -146,9 +142,7 @@ public class AbapGitView extends ViewPart {
 			this.lastProject = currentProject;
 			updateView(false);
 		}
-
 		this.lastSelection = null;
-
 	}
 
 	static class ViewLabelProvider extends LabelProvider implements ITableLabelProvider {
