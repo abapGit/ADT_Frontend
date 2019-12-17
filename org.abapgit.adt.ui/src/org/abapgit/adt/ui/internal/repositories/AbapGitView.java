@@ -335,10 +335,6 @@ public class AbapGitView extends ViewPart {
 					Object firstElement = AbapGitView.this.viewer.getStructuredSelection().getFirstElement();
 					if (firstElement instanceof IRepository) {
 						IRepository repository = (IRepository) firstElement;
-						//link action
-						manager.add(AbapGitView.this.actionWizard);
-						//separator
-						manager.add(new Separator());
 						//pull action
 						if (repository.getPullLink(IRepositoryService.RELATION_PULL) != null) {
 							manager.add(AbapGitView.this.actionPullWizard);
