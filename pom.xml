@@ -142,13 +142,13 @@
   </build>
   <repositories>
     <repository>
-      <id>eclipse-2018-12</id>
-      <url>http://download.eclipse.org/releases/2018-12</url>
+      <id>eclipse-2019-06</id>
+      <url>http://download.eclipse.org/releases/2019-06</url>
       <layout>p2</layout>
     </repository>
     <repository>
-      <id>adt-2018-12</id>
-      <url>https://tools.hana.ondemand.com/2018-12</url>
+      <id>adt-2019-06</id>
+      <url>https://tools.hana.ondemand.com/2019-06</url>
       <layout>p2</layout>
     </repository>
   </repositories>

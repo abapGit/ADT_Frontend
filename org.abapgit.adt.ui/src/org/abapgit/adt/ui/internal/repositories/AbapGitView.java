@@ -38,7 +38,6 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.resource.ResourceLocator;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ISelection;
@@ -288,19 +287,19 @@ public class AbapGitView extends ViewPart {
 				if (statusFlag != null) {
 					switch (statusFlag) {
 					case "W": //$NON-NLS-1$
-						return ResourceLocator.imageDescriptorFromBundle("org.eclipse.jdt.ui", "icons/full/obj16/warning_obj.png").get() //$NON-NLS-1$//$NON-NLS-2$
+						return AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.jdt.ui", "icons/full/obj16/warning_obj.png") //$NON-NLS-1$//$NON-NLS-2$
 								.createImage();
 					case "E": //$NON-NLS-1$
-						return ResourceLocator.imageDescriptorFromBundle("org.eclipse.jdt.ui", "icons/full/obj16/error_obj.png").get() //$NON-NLS-1$//$NON-NLS-2$
+						return AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.jdt.ui", "icons/full/obj16/error_obj.png") //$NON-NLS-1$//$NON-NLS-2$
 								.createImage();
 					case "A": //$NON-NLS-1$
-						return ResourceLocator.imageDescriptorFromBundle("org.eclipse.ui", "icons/full/elcl16/stop.png").get() //$NON-NLS-1$//$NON-NLS-2$
+						return AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui", "icons/full/elcl16/stop.png") //$NON-NLS-1$//$NON-NLS-2$
 								.createImage();
 					case "S": //$NON-NLS-1$
-						return ResourceLocator.imageDescriptorFromBundle("org.eclipse.ui", "icons/full/eview16/tasks_tsk.png").get() //$NON-NLS-1$//$NON-NLS-2$
+						return AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui", "icons/full/eview16/tasks_tsk.png") //$NON-NLS-1$//$NON-NLS-2$
 								.createImage();
 					case "R": //$NON-NLS-1$
-						return ResourceLocator.imageDescriptorFromBundle("org.eclipse.ui", "icons/full/elcl16/up_nav.png").get() //$NON-NLS-1$//$NON-NLS-2$
+						return AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui", "icons/full/elcl16/up_nav.png") //$NON-NLS-1$//$NON-NLS-2$
 								.createImage();
 					}
 				}

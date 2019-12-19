@@ -21,7 +21,6 @@ import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.RowLayoutFactory;
-import org.eclipse.jface.resource.ResourceLocator;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -52,6 +51,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.dialogs.FilteredTree;
 import org.eclipse.ui.dialogs.PatternFilter;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceChangeListener {
 
@@ -77,13 +77,13 @@ public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceCha
 		this.repodata = repository;
 
 		//Icons
-		this.warningImage = ResourceLocator.imageDescriptorFromBundle("org.eclipse.jdt.ui", "icons/full/obj16/warning_obj.png").get() //$NON-NLS-1$//$NON-NLS-2$
+		this.warningImage = AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.jdt.ui", "icons/full/obj16/warning_obj.png") //$NON-NLS-1$//$NON-NLS-2$
 				.createImage();
-		this.errorImage = ResourceLocator.imageDescriptorFromBundle("org.eclipse.jdt.ui", "icons/full/obj16/error_obj.png").get() //$NON-NLS-1$//$NON-NLS-2$
+		this.errorImage = AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.jdt.ui", "icons/full/obj16/error_obj.png") //$NON-NLS-1$//$NON-NLS-2$
 				.createImage();
-		this.successImage = ResourceLocator.imageDescriptorFromBundle("org.eclipse.ui", "icons/full/obj16/activity.png").get() //$NON-NLS-1$//$NON-NLS-2$
+		this.successImage = AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui", "icons/full/obj16/activity.png") //$NON-NLS-1$//$NON-NLS-2$
 				.createImage();
-		this.infoImage = ResourceLocator.imageDescriptorFromBundle("org.eclipse.ui", "icons/full/obj16/info_tsk.png").get().createImage(); //$NON-NLS-1$ //$NON-NLS-2$
+		this.infoImage = AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui", "icons/full/obj16/info_tsk.png").createImage(); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	@Override
@@ -143,7 +143,7 @@ public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceCha
 		expandAllToolItem.setToolTipText(Messages.AbapGitDialogPageObjLog_filter_expand_all_tooltip);
 		expandAllToolItem
 				.setImage(
-						ResourceLocator.imageDescriptorFromBundle("org.eclipse.ui", "icons/full/elcl16/expandall.png").get().createImage()); //$NON-NLS-1$ //$NON-NLS-2$
+						AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui", "icons/full/elcl16/expandall.png").createImage()); //$NON-NLS-1$ //$NON-NLS-2$
 		expandAllToolItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -205,7 +205,7 @@ public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceCha
 		ToolItem exportToolItem = new ToolItem(bar, SWT.PUSH | SWT.FLAT);
 
 		exportToolItem.setToolTipText(Messages.AbapGitDialogPageObjLog_export_log_tooltip);
-		exportToolItem.setImage(ResourceLocator.imageDescriptorFromBundle("org.eclipse.ui.views.log", "icons/elcl16/export_log.png").get() //$NON-NLS-1$//$NON-NLS-2$
+		exportToolItem.setImage(AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui.views.log", "icons/elcl16/export_log.png") //$NON-NLS-1$//$NON-NLS-2$
 				.createImage());
 		exportToolItem.addSelectionListener(new SelectionAdapter() {
 			@Override
