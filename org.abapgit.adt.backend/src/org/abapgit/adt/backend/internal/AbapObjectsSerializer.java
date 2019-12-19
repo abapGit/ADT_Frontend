@@ -17,36 +17,23 @@ public class AbapObjectsSerializer {
 			case XMLStreamConstants.START_ELEMENT:
 				switch (xmlReader.getLocalName()) {
 				case "object": //$NON-NLS-1$
+					//deserialize abap object
 					IObject deserializedObj = new AbapObjectSerializer().deserializeAbapObject(xmlReader, contentType);
-					String objStatus = deserializedObj.getObjStatus();
 
-					////-> Object Type already exists = use existing type & add child
+					// object type already exists = use existing type & add child
 					if (objects.getObjects().stream().anyMatch(r -> r.getObjType().equals(deserializedObj.getObjType()))) {
 						IObject existingObj = objects.getObjects().stream().filter(b -> b.getObjType().equals(deserializedObj.getObjType()))
 								.findFirst().get();
-
 						existingObj.addChild(deserializedObj);
 					}
-					////-> New Object Type = create new type & add child
+					// new object type = create new type & add child
 					else {
 						newObj_type = new AbapObject();
-
 						newObj_type.setObjType(deserializedObj.getObjType());
+						newObj_type.setObjName(newObj_type.getObjType());
 						newObj_type.addChild(deserializedObj);
-
 						objects.add(newObj_type);
 					}
-
-					//-> only 1 message is present
-					if (deserializedObj.listChildObjects().size() <= 1) {
-						deserializedObj.setMsgType(objStatus);
-						deserializedObj.setMsgText(deserializedObj.listChildObjects().get(0).getMsgText());
-						deserializedObj.resetChildren();
-					}
-
-					//-> Set Parent name
-					newObj_type.setObjName(newObj_type.getObjType());
-
 					break;
 				default:
 					break;

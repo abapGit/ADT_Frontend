@@ -33,6 +33,7 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.bindings.keys.KeyStroke;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -40,7 +41,6 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
@@ -52,6 +52,8 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
@@ -63,6 +65,7 @@ import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.statushandlers.StatusManager;
@@ -89,31 +92,31 @@ public class AbapGitView extends ViewPart {
 	private IProject lastProject;
 	private ViewerFilter searchFilter;
 
+	//key binding for copy text
+	private static final KeyStroke KEY_STROKE_COPY = KeyStroke.getInstance(SWT.MOD1, 'C' | 'c');
+
 	private final ISelectionListener selectionListener = new ISelectionListener() {
 		private boolean isUpdatingSelection = false;
-
 		@Override
 		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
+			//check whether another refresh job is running
 			if (this.isUpdatingSelection) {
 				return;
 			}
-
 			try {
 				this.isUpdatingSelection = true;
+				//check whether the selection change is on the AbapGit Repositories view
 				if (AbapGitView.this == part) {
 					return;
 				}
-
-				if (selection instanceof IStructuredSelection) {
-					IStructuredSelection structSelection = (IStructuredSelection) selection;
-					AbapGitView.this.lastSelection = structSelection;
-
-					if (!checkIfPageIsVisible()) {
-						return;
-					}
-
-					showLastSelectedElement();
+				//update selection
+				AbapGitView.this.lastSelection = selection;
+				//check whether AbapGit Repositories view is visible in the workbench
+				if (!checkIfPageIsVisible()) {
+					return;
 				}
+				//refresh view
+				showLastSelectedElement();
 			} finally {
 				this.isUpdatingSelection = false;
 			}
@@ -138,9 +141,7 @@ public class AbapGitView extends ViewPart {
 			this.lastProject = currentProject;
 			updateView(false);
 		}
-
 		this.lastSelection = null;
-
 	}
 
 	static class ViewLabelProvider extends LabelProvider implements ITableLabelProvider {
@@ -207,10 +208,9 @@ public class AbapGitView extends ViewPart {
 		Table table = this.viewer.getTable();
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
-
 		createColumns();
-
 		this.viewer.setContentProvider(ArrayContentProvider.getInstance());
+		addKeyListeners();
 	}
 
 	private void createColumns() {
@@ -231,7 +231,7 @@ public class AbapGitView extends ViewPart {
 			}
 		});
 
-		createTableViewerColumn(Messages.AbapGitView_column_branch, 200).setLabelProvider(new ColumnLabelProvider() {
+		createTableViewerColumn(Messages.AbapGitView_column_branch, 180).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				IRepository p = (IRepository) element;
@@ -239,7 +239,7 @@ public class AbapGitView extends ViewPart {
 			}
 		});
 
-		createTableViewerColumn(Messages.AbapGitView_column_user, 100).setLabelProvider(new ColumnLabelProvider() {
+		createTableViewerColumn(Messages.AbapGitView_column_user, 200).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				IRepository repo = (IRepository) element;
@@ -260,22 +260,12 @@ public class AbapGitView extends ViewPart {
 		createTableViewerColumn(Messages.AbapGitView_column_firstcommitat, 150).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-
 				IRepository repo = (IRepository) element;
 				String lastChangedAt = repo.getDeserializedAt();
 				if (lastChangedAt == null || lastChangedAt.equals("0.0")) { //$NON-NLS-1$
 					lastChangedAt = repo.getFirstCommit();
 				}
-
-				Date date;
-				try {
-					date = new SimpleDateFormat("yyyyMMddHHmmss").parse(lastChangedAt); //$NON-NLS-1$
-				} catch (ParseException e) {
-					return lastChangedAt;
-				}
-
-				String formattedDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date); //$NON-NLS-1$
-				return formattedDate;
+				return getFormattedDate(lastChangedAt);
 			}
 		});
 
@@ -293,38 +283,26 @@ public class AbapGitView extends ViewPart {
 
 			@Override
 			public Image getImage(Object element) {
-				IRepository p = (IRepository) element;
-				String statusFlag = p.getStatusFlag();
-
-				Bundle bundle = Platform.getBundle("org.eclipse.platform.doc.user"); //$NON-NLS-1$
-				URL imgUrl = null;
-				Image statusWarning = AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.jdt.ui", "icons/full/obj16/warning_obj.png") //$NON-NLS-1$//$NON-NLS-2$
-						.createImage();
-				Image statusError = AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.jdt.ui", "icons/full/obj16/error_obj.png") //$NON-NLS-1$//$NON-NLS-2$
-						.createImage();
-
-				if (statusFlag != null && statusFlag.equals("W")) { //$NON-NLS-1$
-					return statusWarning;
+				String statusFlag = ((IRepository) element).getStatusFlag();
+				if (statusFlag != null) {
+					switch (statusFlag) {
+					case "W": //$NON-NLS-1$
+						return AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.jdt.ui", "icons/full/obj16/warning_obj.png") //$NON-NLS-1$//$NON-NLS-2$
+								.createImage();
+					case "E": //$NON-NLS-1$
+						return AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.jdt.ui", "icons/full/obj16/error_obj.png") //$NON-NLS-1$//$NON-NLS-2$
+								.createImage();
+					case "A": //$NON-NLS-1$
+						return AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui", "icons/full/elcl16/stop.png") //$NON-NLS-1$//$NON-NLS-2$
+								.createImage();
+					case "S": //$NON-NLS-1$
+						return AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui", "icons/full/eview16/tasks_tsk.png") //$NON-NLS-1$//$NON-NLS-2$
+								.createImage();
+					case "R": //$NON-NLS-1$
+						return AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui", "icons/full/elcl16/up_nav.png") //$NON-NLS-1$//$NON-NLS-2$
+								.createImage();
+					}
 				}
-				if (statusFlag != null && statusFlag.equals("E")) { //$NON-NLS-1$
-					return statusError;
-				}
-				if (statusFlag != null && statusFlag.equals("A")) { //$NON-NLS-1$
-					imgUrl = FileLocator.find(bundle, new Path("images/stop_nav.png"), null); //$NON-NLS-1$
-					ImageDescriptor imageDesc = ImageDescriptor.createFromURL(imgUrl);
-					return imageDesc.createImage();
-				}
-				if (statusFlag != null && statusFlag.equals("S")) { //$NON-NLS-1$
-					Image statusReady = AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui", "icons/full/eview16/tasks_tsk.gif") //$NON-NLS-1$//$NON-NLS-2$
-							.createImage();
-					return statusReady;
-				}
-				if (statusFlag != null && statusFlag.equals("R")) { //$NON-NLS-1$
-					imgUrl = FileLocator.find(bundle, new Path("images/up_nav.png"), null); //$NON-NLS-1$
-					ImageDescriptor imageDesc = ImageDescriptor.createFromURL(imgUrl);
-					return imageDesc.createImage();
-				}
-
 				return null;
 			}
 		});
@@ -350,28 +328,24 @@ public class AbapGitView extends ViewPart {
 					Object firstElement = AbapGitView.this.viewer.getStructuredSelection().getFirstElement();
 					if (firstElement instanceof IRepository) {
 						IRepository repository = (IRepository) firstElement;
-
 						//pull action
 						if (repository.getPullLink(IRepositoryService.RELATION_PULL) != null) {
 							manager.add(AbapGitView.this.actionPullWizard);
-							//stage action
-							if (repository.getStageLink(IRepositoryService.RELATION_STAGE) != null) {
-								manager.add(new OpenStagingViewAction(AbapGitView.this.lastProject, repository));
-							}
-							manager.add(new Separator());
 						}
-
-						//open package action
-						manager.add(AbapGitView.this.actionOpen);
-
-						//object log
+						//stage action
+						if (repository.getStageLink(IRepositoryService.RELATION_STAGE) != null) {
+							manager.add(new OpenStagingViewAction(AbapGitView.this.lastProject, repository));
+						}
+						//object log action
 						if (repository.getLogLink(IRepositoryService.RELATION_LOG) != null) {
 							manager.add(new GetObjLogAction(AbapGitView.this.lastProject, repository));
 						}
-
-						//copy to clipboard
+						//separator
+						manager.add(new Separator());
+						//open package action
+						manager.add(AbapGitView.this.actionOpen);
+						//copy to clip-board action
 						manager.add(AbapGitView.this.actionCopy);
-
 						//unlink action
 						if (repository.getPullLink(IRepositoryService.RELATION_PULL) != null) {
 							manager.add(new Separator());
@@ -390,6 +364,18 @@ public class AbapGitView extends ViewPart {
 		toolBarManager.add(this.actionRefresh);
 		toolBarManager.add(this.actionShowMyRepos);
 		toolBarManager.add(this.actionWizard);
+	}
+
+	private void addKeyListeners() {
+		this.viewer.getTable().addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				//add key listener for text copy
+				if (e.keyCode == KEY_STROKE_COPY.getNaturalKey() && e.stateMask == KEY_STROKE_COPY.getModifierKeys()) {
+					copy();
+				}
+			}
+		});
 	}
 
 	private void makeActions() {
@@ -429,8 +415,7 @@ public class AbapGitView extends ViewPart {
 		};
 		this.actionCopy.setText(Messages.AbapGitView_action_copy);
 		this.actionCopy.setToolTipText(Messages.AbapGitView_action_copy);
-
-		this.actionCopy.setAccelerator(SWT.ALT | 'C');
+		this.actionCopy.setActionDefinitionId(ActionFactory.COPY.getCommandId());
 		this.actionCopy.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_COPY));
 
 		this.actionOpen = new Action() {
@@ -621,7 +606,6 @@ public class AbapGitView extends ViewPart {
 		this.actionWizard.setEnabled(enabled);
 		this.actionCopy.setEnabled(enabled);
 		this.actionOpen.setEnabled(enabled);
-//		this.actionObjectLog.setEnabled(enabled);
 	}
 
 	/**
@@ -631,29 +615,40 @@ public class AbapGitView extends ViewPart {
 	 *            the data source
 	 */
 	protected void copy() {
+		Object selection = AbapGitView.this.viewer.getStructuredSelection().getFirstElement();
+		if (selection != null && selection instanceof IRepository) {
+			IRepository currRepository = ((IRepository) selection);
 
-		IRepository currRepository;
-		Object firstElement = AbapGitView.this.viewer.getStructuredSelection().getFirstElement();
-		currRepository = null;
-
-		if (firstElement instanceof IRepository) {
-			currRepository = ((IRepository) firstElement);
-		}
-
-		final StringBuilder data = new StringBuilder();
-
-		if (currRepository != null) {
-			//-> 1902 check for an empty status column
 			String repoStatusString = currRepository.getStatusText() == null ? "" : currRepository.getStatusText(); //$NON-NLS-1$
+			String repoUserString = currRepository.getCreatedEmail() == null ? currRepository.getCreatedBy()
+					: currRepository.getCreatedEmail();
 
+			String lastChangedAt = currRepository.getDeserializedAt();
+			if (lastChangedAt == null || lastChangedAt.equals("0.0")) { //$NON-NLS-1$
+				lastChangedAt = currRepository.getFirstCommit();
+			}
+			String repoLastChangedString = getFormattedDate(lastChangedAt);
+
+			final StringBuilder data = new StringBuilder();
 			data.append(currRepository.getPackage() + " " + currRepository.getUrl() + " " + currRepository.getBranch() + " " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-					+ currRepository.getCreatedBy() + " " + repoStatusString); //$NON-NLS-1$
+					+ repoUserString + " " + repoLastChangedString + " " + repoStatusString); //$NON-NLS-1$ //$NON-NLS-2$
+
+			final Clipboard clipboard = new Clipboard(AbapGitView.this.viewer.getControl().getDisplay());
+			clipboard.setContents(new String[] { data.toString() }, new TextTransfer[] { TextTransfer.getInstance() });
+			clipboard.dispose();
+		}
+	}
+
+	private String getFormattedDate(String lastChangedAt) {
+		Date date;
+		try {
+			date = new SimpleDateFormat("yyyyMMddHHmmss").parse(lastChangedAt); //$NON-NLS-1$
+		} catch (ParseException e) {
+			return lastChangedAt;
 		}
 
-		final Clipboard clipboard = new Clipboard(AbapGitView.this.viewer.getControl().getDisplay());
-		clipboard.setContents(new String[] { data.toString() }, new TextTransfer[] { TextTransfer.getInstance() });
-		clipboard.dispose();
-
+		String formattedDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date); //$NON-NLS-1$
+		return formattedDate;
 	}
 
 	/**

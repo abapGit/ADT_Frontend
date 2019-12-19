@@ -48,13 +48,14 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.dialogs.FilteredTree;
 import org.eclipse.ui.dialogs.PatternFilter;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceChangeListener {
 
-	TreeViewer abapObjTable;
+	private TreeViewer abapObjTable;
 	private PatternFilter objLogFilter;
 	public FilteredTree tree;
 	public final List<IObject> abapObjects;
@@ -78,10 +79,11 @@ public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceCha
 		//Icons
 		this.warningImage = AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.jdt.ui", "icons/full/obj16/warning_obj.png") //$NON-NLS-1$//$NON-NLS-2$
 				.createImage();
-		this.errorImage = AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.jdt.ui", "icons/full/obj16/error_obj.png").createImage(); //$NON-NLS-1$ //$NON-NLS-2$
-		this.successImage = AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui", "icons/full/obj16/activity.png").createImage(); //$NON-NLS-1$//$NON-NLS-2$
+		this.errorImage = AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.jdt.ui", "icons/full/obj16/error_obj.png") //$NON-NLS-1$//$NON-NLS-2$
+				.createImage();
+		this.successImage = AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui", "icons/full/obj16/activity.png") //$NON-NLS-1$//$NON-NLS-2$
+				.createImage();
 		this.infoImage = AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui", "icons/full/obj16/info_tsk.png").createImage(); //$NON-NLS-1$ //$NON-NLS-2$
-
 	}
 
 	@Override
@@ -137,44 +139,11 @@ public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceCha
 
 		};
 
-		ToolItem exportToolItem = new ToolItem(bar, SWT.PUSH | SWT.FLAT);
-
-		exportToolItem.setToolTipText(Messages.AbapGitDialogPageObjLog_export_log_tooltip);
-		exportToolItem.setImage(AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui.views.log", "icons/elcl16/export_log.png") //$NON-NLS-1$//$NON-NLS-2$
-				.createImage());
-		exportToolItem.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-
-				Display display = AbapGitDialogObjLog.this.tree.getViewer().getControl().getDisplay();
-				Shell shell = new Shell(display);
-				FileDialog dialog = new FileDialog(shell, SWT.SAVE);
-				dialog.setFilterNames(new String[] { "*.log" }); //$NON-NLS-1$
-				dialog.setFilterExtensions(new String[] { "*.log" }); //$NON-NLS-1$
-				dialog.setFilterPath("c:\\"); // Windows path //$NON-NLS-1$
-				dialog.setFileName(Messages.AbapGitDialogPageObjLog_default_filename);
-
-				String dialogResult = dialog.open();
-//				System.out.println(Messages.AbapGitDialogPageObjLog_default_path + dialogResult);
-
-				if (dialogResult != null) {
-					saveObjectLog(AbapGitDialogObjLog.this.tree.getViewer(), dialogResult);
-				}
-
-				while (!shell.isDisposed()) {
-					if (!display.readAndDispatch()) {
-						display.sleep();
-					}
-				}
-				display.dispose();
-
-			}
-		});
-
 		ToolItem expandAllToolItem = new ToolItem(bar, SWT.PUSH | SWT.FLAT);
 		expandAllToolItem.setToolTipText(Messages.AbapGitDialogPageObjLog_filter_expand_all_tooltip);
 		expandAllToolItem
-				.setImage(AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui", "icons/full/elcl16/expandall.png").createImage()); //$NON-NLS-1$ //$NON-NLS-2$
+				.setImage(
+						AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui", "icons/full/elcl16/expandall.png").createImage()); //$NON-NLS-1$ //$NON-NLS-2$
 		expandAllToolItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -195,6 +164,8 @@ public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceCha
 				AbapGitDialogObjLog.this.tree.setRedraw(true);
 			}
 		});
+
+		new ToolItem(bar, SWT.SEPARATOR);
 
 		ToolItem filterErrorToolItem = new ToolItem(bar, SWT.PUSH | SWT.FLAT);
 		filterErrorToolItem.setToolTipText(Messages.AbapGitDialogPageObjLog_filter_error_tooltip);
@@ -229,13 +200,48 @@ public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceCha
 			}
 		});
 
+		new ToolItem(bar, SWT.SEPARATOR);
+
+		ToolItem exportToolItem = new ToolItem(bar, SWT.PUSH | SWT.FLAT);
+
+		exportToolItem.setToolTipText(Messages.AbapGitDialogPageObjLog_export_log_tooltip);
+		exportToolItem.setImage(AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui.views.log", "icons/elcl16/export_log.png") //$NON-NLS-1$//$NON-NLS-2$
+				.createImage());
+		exportToolItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+
+				Display display = AbapGitDialogObjLog.this.tree.getViewer().getControl().getDisplay();
+				Shell shell = new Shell(display);
+				FileDialog dialog = new FileDialog(shell, SWT.SAVE);
+				dialog.setFilterNames(new String[] { "*.log" }); //$NON-NLS-1$
+				dialog.setFilterExtensions(new String[] { "*.log" }); //$NON-NLS-1$
+				dialog.setFilterPath("c:\\"); // Windows path //$NON-NLS-1$
+				dialog.setFileName(Messages.AbapGitDialogPageObjLog_default_filename);
+
+				String dialogResult = dialog.open();
+
+				if (dialogResult != null) {
+					saveObjectLog(AbapGitDialogObjLog.this.tree.getViewer(), dialogResult);
+				}
+
+				while (!shell.isDisposed()) {
+					if (!display.readAndDispatch()) {
+						display.sleep();
+					}
+				}
+				display.dispose();
+
+			}
+		});
+
 		this.tree = new FilteredTree(parent, SWT.MULTI | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, this.objLogFilter, true);
 
 		this.abapObjTable = this.tree.getViewer();
 		this.abapObjTable.setContentProvider(contProv);
 		Tree table = this.abapObjTable.getTree();
 
-		GridDataFactory.fillDefaults().grab(true, true).applyTo(this.tree);
+		GridDataFactory.fillDefaults().grab(true, true).hint(SWT.DEFAULT, 400).applyTo(this.tree);
 
 		table.setFocus();
 		table.setHeaderVisible(true);
@@ -290,11 +296,11 @@ public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceCha
 
 	private void createColumns(ObjectTreeContentProvider contProv) {
 
-		createTableViewerColumn(Messages.AbapGitDialogImport_column_obj_name, 400).setLabelProvider(new ColumnLabelProvider() {
+		// TYPE/OBJECT COLUMN
+		createTableViewerColumn(Messages.AbapGitDialogImport_column_obj_name, 300).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				IObject p = (IObject) element;
-
 				int objCounter = p.countChildren();
 				long filteredCounter = objCounter;
 				if (contProv.filter != null) {
@@ -305,17 +311,16 @@ public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceCha
 					result = result + " ("; //$NON-NLS-1$
 					if (filteredCounter != objCounter) {
 						result += filteredCounter + "/"; //$NON-NLS-1$
-
 					}
 					result += p.countChildren() + ")"; //$NON-NLS-1$
 				}
-
 				return result;
 			}
 		});
+
 		hookContextMenu(this.abapObjTable);
 
-		createTableViewerColumn(Messages.AbapGitDialogImport_column_msg_type, 200).setLabelProvider(new ColumnLabelProvider() {
+		createTableViewerColumn(Messages.AbapGitDialogImport_column_msg_type, 150).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				IObject p = (IObject) element;
@@ -393,7 +398,7 @@ public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceCha
 			}
 		});
 
-		createTableViewerColumn(Messages.AbapGitDialogImport_column_msg_text, 700).setLabelProvider(new ColumnLabelProvider() {
+		createTableViewerColumn(Messages.AbapGitDialogImport_column_msg_text, 600).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				IObject p = (IObject) element;
@@ -402,13 +407,11 @@ public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceCha
 		});
 
 		createTableViewerColumn(Messages.AbapGitDialogImport_column_obj_type, 1).setLabelProvider(new ColumnLabelProvider() {
-
 			@Override
 			public String getText(Object element) {
 				IObject p = (IObject) element;
 				return p.getObjType();
 			}
-
 		});
 
 	}
@@ -442,13 +445,11 @@ public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceCha
 			}
 
 			private void fillContextMenu(IMenuManager manager) {
-
 				IStructuredSelection selection = (IStructuredSelection) AbapGitDialogObjLog.this.tree.getViewer().getSelection();
 				if (selection.size() != 1) {
 					return;
 				}
 				menuManager.add(AbapGitDialogObjLog.this.actionCopy);
-
 			}
 		});
 
@@ -462,8 +463,7 @@ public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceCha
 		};
 		this.actionCopy.setText(Messages.AbapGitView_action_copy);
 		this.actionCopy.setToolTipText(Messages.AbapGitView_action_copy);
-
-		this.actionCopy.setAccelerator(SWT.ALT | 'C');
+		this.actionCopy.setActionDefinitionId(ActionFactory.COPY.getCommandId());
 		this.actionCopy.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_COPY));
 	}
 
@@ -484,7 +484,6 @@ public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceCha
 	 *            the data source
 	 */
 	protected void copy() {
-
 		Object firstElement = AbapGitDialogObjLog.this.tree.getViewer().getStructuredSelection().getFirstElement();
 		final StringBuilder data = new StringBuilder();
 
@@ -495,13 +494,10 @@ public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceCha
 		final Clipboard clipboard = new Clipboard(AbapGitDialogObjLog.this.tree.getViewer().getControl().getDisplay());
 		clipboard.setContents(new String[] { data.toString() }, new TextTransfer[] { TextTransfer.getInstance() });
 		clipboard.dispose();
-
 	}
 
 	@Override
 	public void resourceChanged(IResourceChangeEvent event) {
-		// TODO Auto-generated method stub
-
 	}
 
 }
@@ -513,7 +509,6 @@ class ObjectTreeContentProvider implements ITreeContentProvider {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Object[] getElements(Object inputElement) {
-
 		if (this.filter != null) {
 			return ((List<IObject>) inputElement).stream()
 					.filter(o -> o.listChildObjects().stream().anyMatch(c -> c.getObjStatus().equals(this.filter))).toArray();
@@ -528,11 +523,9 @@ class ObjectTreeContentProvider implements ITreeContentProvider {
 	@Override
 	public Object[] getChildren(Object parentElement) {
 		IObject abapObj = (IObject) parentElement;
-
 		if (this.filter != null) {
 			return abapObj.listChildObjects().stream().filter(o -> o.getObjStatus().equals(this.filter)).toArray();
 		}
-
 		return abapObj.listChildObjects().toArray();
 	}
 
