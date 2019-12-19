@@ -232,7 +232,7 @@ public class AbapGitView extends ViewPart {
 			}
 		});
 
-		createTableViewerColumn(Messages.AbapGitView_column_branch, 200).setLabelProvider(new ColumnLabelProvider() {
+		createTableViewerColumn(Messages.AbapGitView_column_branch, 180).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				IRepository p = (IRepository) element;
@@ -240,7 +240,7 @@ public class AbapGitView extends ViewPart {
 			}
 		});
 
-		createTableViewerColumn(Messages.AbapGitView_column_user, 100).setLabelProvider(new ColumnLabelProvider() {
+		createTableViewerColumn(Messages.AbapGitView_column_user, 200).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				IRepository repo = (IRepository) element;
