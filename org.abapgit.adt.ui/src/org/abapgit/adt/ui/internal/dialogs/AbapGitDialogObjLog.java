@@ -235,7 +235,7 @@ public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceCha
 			}
 		});
 
-		this.tree = new FilteredTree(parent, SWT.MULTI | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, this.objLogFilter, true, true);
+		this.tree = new FilteredTree(parent, SWT.MULTI | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, this.objLogFilter, true);
 
 		this.abapObjTable = this.tree.getViewer();
 		this.abapObjTable.setContentProvider(contProv);
