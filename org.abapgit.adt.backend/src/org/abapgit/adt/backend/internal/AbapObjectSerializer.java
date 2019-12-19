@@ -9,8 +9,6 @@ import org.abapgit.adt.backend.IObject;
 public class AbapObjectSerializer {
 	public IObject deserializeAbapObject(XMLStreamReader xmlReader, String contentType) throws XMLStreamException {
 		IObject object = new AbapObject();
-		IObject object_msg = new AbapObject();
-		boolean message_exists = false;
 
 		int depth = 0;
 		loop: while (xmlReader.hasNext()) {
@@ -20,8 +18,6 @@ public class AbapObjectSerializer {
 				switch (xmlReader.getLocalName()) {
 				case "obj_type": //$NON-NLS-1$
 					object.setObjType(xmlReader.getElementText());
-					object_msg.setObjType("Message"); //$NON-NLS-1$
-					message_exists = false;
 					break;
 				case "obj_name": //$NON-NLS-1$
 					object.setObjName(xmlReader.getElementText());
@@ -33,14 +29,10 @@ public class AbapObjectSerializer {
 					object.setPackage(xmlReader.getElementText());
 					break;
 				case "msg_type": //$NON-NLS-1$
-					object_msg.setMsgType(xmlReader.getElementText());
-					message_exists = true;
+					object.setMsgType(xmlReader.getElementText());
 					break;
 				case "msg_text": //$NON-NLS-1$
-					object_msg.setMsgText(xmlReader.getElementText());
-					if (message_exists) {
-						object.addChild(object_msg);
-					}
+					object.setMsgText(xmlReader.getElementText());
 					break;
 				default:
 					depth++;
