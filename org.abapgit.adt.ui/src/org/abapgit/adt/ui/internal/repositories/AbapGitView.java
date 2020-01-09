@@ -287,20 +287,15 @@ public class AbapGitView extends ViewPart {
 				if (statusFlag != null) {
 					switch (statusFlag) {
 					case "W": //$NON-NLS-1$
-						return AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.jdt.ui", "icons/full/obj16/warning_obj.png") //$NON-NLS-1$//$NON-NLS-2$
-								.createImage();
+						return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_WARN_TSK);
 					case "E": //$NON-NLS-1$
-						return AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.jdt.ui", "icons/full/obj16/error_obj.png") //$NON-NLS-1$//$NON-NLS-2$
-								.createImage();
+						return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_ERROR_TSK);
 					case "A": //$NON-NLS-1$
-						return AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui", "icons/full/elcl16/stop.png") //$NON-NLS-1$//$NON-NLS-2$
-								.createImage();
+						return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_ELCL_STOP);
 					case "S": //$NON-NLS-1$
-						return AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui", "icons/full/eview16/tasks_tsk.png") //$NON-NLS-1$//$NON-NLS-2$
-								.createImage();
+						return PlatformUI.getWorkbench().getSharedImages().getImage(org.eclipse.ui.ide.IDE.SharedImages.IMG_OBJS_TASK_TSK);
 					case "R": //$NON-NLS-1$
-						return AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.ui", "icons/full/elcl16/up_nav.png") //$NON-NLS-1$//$NON-NLS-2$
-								.createImage();
+						return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_TOOL_UP);
 					}
 				}
 				return null;

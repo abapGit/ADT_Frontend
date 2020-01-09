@@ -25,6 +25,15 @@ public interface IRepository {
 
 	public String getPackage();
 
+	/**
+	 * Returns a flag which indicates the repository status. </br>
+	 * </br>
+	 * <b> S : Success </br>
+	 * W : Warning </br>
+	 * E : Error </br>
+	 * A : Abort </br>
+	 * R : Running </b>
+	 */
 	public String getStatusFlag();
 
 	public String getStatusText();
