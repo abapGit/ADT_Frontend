@@ -84,7 +84,7 @@ public class SwitchRepositoryMenuCreator implements IMenuCreator {
 		}
 		//if no logged on and supported systems are available, add a dummy menu contribution
 		if (this.menu.getItemCount() == 0) {
-			this.menuItem = new Action(Messages.AbapGitStaging_switch_repository_no_system_xmg) {
+			this.menuItem = new Action(Messages.AbapGitStaging_switch_repository_no_supported_systems_xmg) {
 			};
 			//disable the menu
 			this.menuItem.setEnabled(false);
@@ -225,8 +225,10 @@ public class SwitchRepositoryMenuCreator implements IMenuCreator {
 	private ImageDescriptor getMyRepositoryImageDescriptor() {
 		if (this.myRepositoryImageDescriptor == null) {
 			Bundle actionShowMyReposBundle = Platform.getBundle("com.sap.adt.projectexplorer.ui"); //$NON-NLS-1$
-			URL actionShowMyReposImgUrl = FileLocator.find(actionShowMyReposBundle, new Path("icons/obj/package_obj_user.png"), null); //$NON-NLS-1$
-			this.myRepositoryImageDescriptor = ImageDescriptor.createFromURL(actionShowMyReposImgUrl);
+			if (actionShowMyReposBundle != null) {
+				URL actionShowMyReposImgUrl = FileLocator.find(actionShowMyReposBundle, new Path("icons/obj/package_obj_user.png"), null); //$NON-NLS-1$
+				this.myRepositoryImageDescriptor = ImageDescriptor.createFromURL(actionShowMyReposImgUrl);
+			}
 		}
 		return this.myRepositoryImageDescriptor;
 	}

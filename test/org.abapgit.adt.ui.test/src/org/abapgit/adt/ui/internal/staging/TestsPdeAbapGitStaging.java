@@ -108,6 +108,7 @@ public class TestsPdeAbapGitStaging {
 		Assert.assertEquals(view.commitAndPushButton.getEnabled(), false);
 	}
 	
+
 	@Test
 	public void repositorySwitchAction() throws CoreException {
 		//reset view
@@ -180,19 +181,12 @@ public class TestsPdeAbapGitStaging {
 		
 		//create menu
 		Menu menu = repoSwitchMenuCreator.getMenu(toolBar);
-		//menu item count will be 2, it contains one for project "ABAPGIT_TEST_PROJECT" and one for project "ABAPGIT_TEST_PROJECT_2"
+		//menu item count will be 1, it contains one for project "ABAPGIT_TEST_PROJECT"
 		//project "ABAPGIT_TEST_PROJECT_3" will not be part of menu as it does not support abapgit
-		Assert.assertEquals(2, menu.getItemCount());
+		//project "ABAPGIT_TEST_PROJECT_2" will not be part of menu as it is not logged on
+		Assert.assertEquals(1, menu.getItemCount());
 		
-		MenuItem menuItem = menu.getItem(1);
-		Assert.assertEquals(project_not_loggedon.getName(), menuItem.getText());
-		if(menuItem.getData() instanceof ActionContributionItem) {
-			IAction action = ((ActionContributionItem)menuItem.getData()).getAction();
-			Assert.assertEquals(IAction.AS_RADIO_BUTTON, action.getStyle());
-			Assert.assertEquals("Project not logged on yet", action.getToolTipText());
-		}
-		
-		menuItem = menu.getItem(0);
+		MenuItem menuItem = menu.getItem(0);
 		Assert.assertEquals(project.getName(), menuItem.getText());
 		if(menuItem.getData() instanceof ActionContributionItem) {
 			IAction action = ((ActionContributionItem)menuItem.getData()).getAction();
@@ -209,7 +203,6 @@ public class TestsPdeAbapGitStaging {
 			menuItem = repoMenu.getItem(0);
 			//test_repo_1 will come before abcd_repo as the owner of the repo is same as the logged on user ( my_repository )
 			Assert.assertEquals(RepositoryUtil.getRepoNameFromUrl("https://github.com/AbapGit-Push/test_repo_1"), menuItem.getText());
-			Assert.assertEquals("TEST_PACKAGE_1", menuItem.getToolTipText());
 			if(menuItem.getData() instanceof ActionContributionItem) {
 				action = ((ActionContributionItem)menuItem.getData()).getAction();
 				Assert.assertEquals(IAction.AS_RADIO_BUTTON, action.getStyle());
@@ -219,11 +212,9 @@ public class TestsPdeAbapGitStaging {
 			
 			menuItem = repoMenu.getItem(1);
 			Assert.assertEquals(RepositoryUtil.getRepoNameFromUrl("https://github.com/AbapGit-Push/abcd_repo"), menuItem.getText());
-			Assert.assertEquals("TEST_PACKAGE_3", menuItem.getToolTipText());
 			
 			menuItem = repoMenu.getItem(2);
 			Assert.assertEquals(RepositoryUtil.getRepoNameFromUrl("https://github.com/AbapGit-Push/test_repo_2"), menuItem.getText());
-			Assert.assertEquals("TEST_PACKAGE_2", menuItem.getToolTipText());
 			if(menuItem.getData() instanceof ActionContributionItem) {
 				action = ((ActionContributionItem)menuItem.getData()).getAction();
 				Assert.assertEquals(IAction.AS_RADIO_BUTTON, action.getStyle());
@@ -241,7 +232,6 @@ public class TestsPdeAbapGitStaging {
 		project_not_loggedon.delete(true, new NullProgressMonitor());
 		project_not_support_abapgit.delete(true, new NullProgressMonitor());
 	}
-	
 	
 	@Test
 	public void openPublicRepository() throws IOException {

@@ -40,7 +40,6 @@ import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
 import com.sap.adt.tools.core.urimapping.AdtUriMappingServiceFactory;
 import com.sap.adt.tools.core.urimapping.UriMappingContext;
 
-@SuppressWarnings("restriction")
 public class CompareAction extends BaseSelectionListenerAction {
 	private final TreeViewer treeViewer;
 	private final IAbapGitStagingView view;
