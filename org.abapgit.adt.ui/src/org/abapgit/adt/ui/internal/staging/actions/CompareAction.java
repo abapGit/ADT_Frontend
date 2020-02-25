@@ -8,20 +8,19 @@ import java.net.URI;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.abapgit.adt.backend.FileServiceFactory;
 import org.abapgit.adt.backend.IFileService;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitFile;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.internal.i18n.Messages;
-import org.abapgit.adt.ui.internal.staging.AbapGitStagingView;
+import org.abapgit.adt.ui.internal.staging.IAbapGitStagingView;
 import org.abapgit.adt.ui.internal.staging.compare.AbapGitCompareInput;
 import org.abapgit.adt.ui.internal.staging.compare.AbapGitCompareItem;
-import org.abapgit.adt.ui.internal.staging.util.AbapGitStagingService;
-import org.abapgit.adt.ui.internal.staging.util.IAbapGitStagingService;
+import org.abapgit.adt.ui.internal.util.AbapGitUIServiceFactory;
 import org.eclipse.compare.CompareUI;
 import org.eclipse.compare.ITypedElement;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -37,23 +36,22 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import com.sap.adt.tools.abapsource.AbapSource;
 import com.sap.adt.tools.abapsource.IAdtObjectLoader;
+import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
 import com.sap.adt.tools.core.urimapping.AdtUriMappingServiceFactory;
 import com.sap.adt.tools.core.urimapping.UriMappingContext;
 
 @SuppressWarnings("restriction")
 public class CompareAction extends BaseSelectionListenerAction {
 	private final TreeViewer treeViewer;
-	private final IAbapGitStagingService stagingService;
+	private final IAbapGitStagingView view;
 	private IFileService fileService;
-	private final AbapGitStagingView view;
 
-	public CompareAction(AbapGitStagingView view, TreeViewer treeViewer) {
+	public CompareAction(IAbapGitStagingView view, TreeViewer treeViewer) {
 		super(Messages.AbapGitStaging_action_compare);
 
 		this.treeViewer = treeViewer;
-		this.stagingService = AbapGitStagingService.getInstance();
-		this.fileService = getFileService();
 		this.view = view;
+		this.fileService = getFileService();
 
 		setToolTipText(Messages.AbapGitStaging_action_compare);
 		setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID, "icons/etool/compare_view.png")); //$NON-NLS-1$
@@ -100,9 +98,9 @@ public class CompareAction extends BaseSelectionListenerAction {
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
 					String leftFileContents = CompareAction.this.fileService.readLocalFileContents(file,
-							CompareAction.this.stagingService.getDestination(CompareAction.this.view.getProject()));
+							getDestination(CompareAction.this.view.getProject()));
 					String rightFileContents = CompareAction.this.fileService.readRemoteFileContents(file,
-							CompareAction.this.stagingService.getDestination(CompareAction.this.view.getProject()));
+							getDestination(CompareAction.this.view.getProject()));
 					AbapGitCompareItem left = new AbapGitCompareItem(getFileNameLocal(file), getFileExtension(file, abapObject),
 							leftFileContents);
 					AbapGitCompareItem right = new AbapGitCompareItem(getFileNameRemote(file), getFileExtension(file, abapObject),
@@ -239,12 +237,16 @@ public class CompareAction extends BaseSelectionListenerAction {
 		return true;
 	}
 
+	private String getDestination(IProject project) {
+		return AdtProjectServiceFactory.createProjectService().getDestinationId(project);
+	}
+
 	/**
 	 * @return the fileService
 	 */
 	private IFileService getFileService() {
 		if (this.fileService == null) {
-			return FileServiceFactory.createFileService();
+			return AbapGitUIServiceFactory.createFileService();
 		}
 		return this.fileService;
 	}

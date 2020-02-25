@@ -9,9 +9,11 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 
+import org.abapgit.adt.backend.AbapGitModelFactory;
 import org.abapgit.adt.backend.IExternalRepositoryInfo;
 import org.abapgit.adt.backend.IExternalRepositoryInfoService;
 import org.abapgit.adt.backend.IFileService;
+import org.abapgit.adt.backend.IRepositories;
 import org.abapgit.adt.backend.IRepository;
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.IExternalRepositoryInfo.AccessMode;
@@ -24,6 +26,9 @@ import org.abapgit.adt.ui.internal.staging.actions.CompareAction;
 import org.abapgit.adt.ui.internal.staging.compare.AbapGitCompareInput;
 import org.abapgit.adt.ui.internal.staging.compare.AbapGitCompareItem;
 import org.abapgit.adt.ui.internal.staging.util.IAbapGitStagingService;
+import org.abapgit.adt.ui.internal.staging.util.SwitchRepositoryMenuCreator;
+import org.abapgit.adt.ui.internal.util.AbapGitUIServiceFactory;
+import org.abapgit.adt.ui.internal.util.RepositoryUtil;
 import org.eclipse.compare.CompareEditorInput;
 import org.eclipse.compare.ITypedElement;
 import org.eclipse.compare.internal.CompareEditor;
@@ -31,15 +36,28 @@ import org.eclipse.compare.structuremergeviewer.DiffNode;
 import org.eclipse.compare.structuremergeviewer.IDiffElement;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.action.ActionContributionItem;
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IContributionItem;
+import org.eclipse.jface.action.IMenuCreator;
+import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.osgi.service.resolver.StateHelper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.TypedListener;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
@@ -61,14 +79,14 @@ public class TestsPdeAbapGitStaging {
 	public static void setUp() throws CoreException{
 		testUtil = new TestsPdeAbapGitStagingUtil();
 		view = testUtil.initializeView();
-		project = testUtil.createDummyAbapProject();
+		project = testUtil.createDummyAbapProject("ABAPGIT_TEST_PROJECT");
 		view.project = project;
 	}	
 	
 	@AfterClass
 	public static void disposeControls() throws CoreException {
-		project.delete(true, true, null);
 		view.dispose();
+		project.delete(true, true, null);
 	}
 	
 	@Test
@@ -89,6 +107,141 @@ public class TestsPdeAbapGitStaging {
 		Assert.assertEquals(view.actionUnstage.isEnabled(), false);
 		Assert.assertEquals(view.commitAndPushButton.getEnabled(), false);
 	}
+	
+	@Test
+	public void repositorySwitchAction() throws CoreException {
+		//reset view
+		view.resetStagingView();
+		
+		//create mocks
+		
+		//create mock projects for condition checks
+		IProject project_not_loggedon = testUtil.createDummyAbapProject("ABAPGIT_TEST_PROJECT_2");
+		IProject project_not_support_abapgit = testUtil.createDummyAbapProject("ABAPGIT_TEST_PROJECT_3");
+		
+		//repository
+		IRepository repository1 = testUtil.getRepositoryMock("https://github.com/AbapGit-Push/test_repo_1", "master", "TEST_PACKAGE_1", testUtil.getLoggedOnUser(project));
+		IRepository repository2 = testUtil.getRepositoryMock("https://github.com/AbapGit-Push/test_repo_2", "master", "TEST_PACKAGE_2", "TEST_USER_2");
+		IRepository repository3 = testUtil.getRepositoryMock("https://github.com/AbapGit-Push/abcd_repo", "master", "TEST_PACKAGE_3", "TEST_USER_2");
+		
+		//external repository
+		IExternalRepositoryInfo externalRepositoryInfo = createNiceMock(IExternalRepositoryInfo.class);
+		expect(externalRepositoryInfo.getAccessMode()).andReturn(AccessMode.PUBLIC);
+		replay(externalRepositoryInfo);
+		
+		//repository service
+		IRepositories repos = AbapGitModelFactory.createRepositories();
+		repos.add(repository1);
+		repos.add(repository2);
+		repos.add(repository3);
+		
+		IRepositoryService repositoryService = createNiceMock(IRepositoryService.class);
+		expect(repositoryService.stage(anyObject(), anyObject())).andReturn(testUtil.getStagingTestData()).anyTimes();
+		expect(repositoryService.getRepositories(anyObject())).andReturn(repos);
+		replay(repositoryService);
+		
+		//external repository service
+		IExternalRepositoryInfoService externalRepositoryService = createNiceMock(IExternalRepositoryInfoService.class);
+		expect(externalRepositoryService.getExternalRepositoryInfo(anyObject(), anyObject(), anyObject(), anyObject())).andReturn(externalRepositoryInfo).anyTimes();
+		replay(externalRepositoryService);
+		
+		//staging service
+		IAbapGitStagingService stagingService = createNiceMock(IAbapGitStagingService.class);
+		expect(stagingService.ensureLoggedOn(anyObject())).andReturn(true).anyTimes();
+		
+		//project which is logged on and which support abapgit
+		expect(stagingService.isLoggedOn(project)).andReturn(true).anyTimes();
+		expect(stagingService.isAbapGitSupported(project)).andReturn(true);
+		//project which is not logged on and which support abapgit
+		expect(stagingService.isLoggedOn(project_not_loggedon)).andReturn(false);
+		expect(stagingService.isAbapGitSupported(project_not_loggedon)).andReturn(true);
+		//project which is logged on and which does not support abapgit
+		expect(stagingService.isLoggedOn(project_not_support_abapgit)).andReturn(true);
+		expect(stagingService.isAbapGitSupported(project_not_support_abapgit)).andReturn(false);
+		
+		replay(stagingService);
+		
+		//inject mocks
+		view.repoExternaService = externalRepositoryService;
+		view.repoService = repositoryService;
+		view.stagingUtil = stagingService;
+		
+		//open repository in staging view
+		view.openStagingView(repository1, project);
+		testUtil.waitInUI(3000);
+		
+		//create repository switch menu creator instance
+		SwitchRepositoryMenuCreator repoSwitchMenuCreator = new SwitchRepositoryMenuCreator(view, stagingService);
+		//inject repository service
+		repoSwitchMenuCreator.injectRepositoryService(repositoryService);
+		//get view toolbar
+		ToolBarManager toolBarManager = (ToolBarManager) view.getViewSite().getActionBars().getToolBarManager();
+		ToolBar toolBar = toolBarManager.getControl();
+		
+		//create menu
+		Menu menu = repoSwitchMenuCreator.getMenu(toolBar);
+		//menu item count will be 2, it contains one for project "ABAPGIT_TEST_PROJECT" and one for project "ABAPGIT_TEST_PROJECT_2"
+		//project "ABAPGIT_TEST_PROJECT_3" will not be part of menu as it does not support abapgit
+		Assert.assertEquals(2, menu.getItemCount());
+		
+		MenuItem menuItem = menu.getItem(1);
+		Assert.assertEquals(project_not_loggedon.getName(), menuItem.getText());
+		if(menuItem.getData() instanceof ActionContributionItem) {
+			IAction action = ((ActionContributionItem)menuItem.getData()).getAction();
+			Assert.assertEquals(IAction.AS_RADIO_BUTTON, action.getStyle());
+			Assert.assertEquals("Project not logged on yet", action.getToolTipText());
+		}
+		
+		menuItem = menu.getItem(0);
+		Assert.assertEquals(project.getName(), menuItem.getText());
+		if(menuItem.getData() instanceof ActionContributionItem) {
+			IAction action = ((ActionContributionItem)menuItem.getData()).getAction();
+			Assert.assertEquals(IAction.AS_DROP_DOWN_MENU, action.getStyle());
+			
+			//test sub menu
+			IMenuCreator repoMenuCreator = action.getMenuCreator();
+			Menu repoMenu = repoMenuCreator.getMenu(menuItem.getMenu());
+			//there will be 3 menu items as the mock project contains three repositories
+			Assert.assertEquals(3, repoMenu.getItemCount());
+			
+			//test sort order.
+			
+			menuItem = repoMenu.getItem(0);
+			//test_repo_1 will come before abcd_repo as the owner of the repo is same as the logged on user ( my_repository )
+			Assert.assertEquals(RepositoryUtil.getRepoNameFromUrl("https://github.com/AbapGit-Push/test_repo_1"), menuItem.getText());
+			Assert.assertEquals("TEST_PACKAGE_1", menuItem.getToolTipText());
+			if(menuItem.getData() instanceof ActionContributionItem) {
+				action = ((ActionContributionItem)menuItem.getData()).getAction();
+				Assert.assertEquals(IAction.AS_RADIO_BUTTON, action.getStyle());
+				//since the view is already loaded with repository1, the menu item should be checked
+				Assert.assertEquals(true, action.isChecked());
+			}
+			
+			menuItem = repoMenu.getItem(1);
+			Assert.assertEquals(RepositoryUtil.getRepoNameFromUrl("https://github.com/AbapGit-Push/abcd_repo"), menuItem.getText());
+			Assert.assertEquals("TEST_PACKAGE_3", menuItem.getToolTipText());
+			
+			menuItem = repoMenu.getItem(2);
+			Assert.assertEquals(RepositoryUtil.getRepoNameFromUrl("https://github.com/AbapGit-Push/test_repo_2"), menuItem.getText());
+			Assert.assertEquals("TEST_PACKAGE_2", menuItem.getToolTipText());
+			if(menuItem.getData() instanceof ActionContributionItem) {
+				action = ((ActionContributionItem)menuItem.getData()).getAction();
+				Assert.assertEquals(IAction.AS_RADIO_BUTTON, action.getStyle());
+				//action should not be checked
+				Assert.assertEquals(false, action.isChecked());
+				//run action
+				action.run();
+				//wait till all jobs are done
+				testUtil.waitInUI(3000);
+				//now the view will be loaded with repository2 which is "test_repo_2"
+				Assert.assertEquals(view.mainForm.getText(), "test_repo_2 [master] [ABAPGIT_TEST_PROJECT]");
+			}
+		}
+		//delete projects
+		project_not_loggedon.delete(true, new NullProgressMonitor());
+		project_not_support_abapgit.delete(true, new NullProgressMonitor());
+	}
+	
 	
 	@Test
 	public void openPublicRepository() throws IOException {
@@ -118,7 +271,7 @@ public class TestsPdeAbapGitStaging {
 		replay(externalRepositoryService);
 		
 		IAbapGitStagingService stagingService = createNiceMock(IAbapGitStagingService.class);
-		expect(stagingService.isLoggedOn(anyObject())).andReturn(true);
+		expect(stagingService.ensureLoggedOn(anyObject())).andReturn(true);
 		replay(stagingService);
 		
 		//inject mocks
@@ -173,7 +326,7 @@ public class TestsPdeAbapGitStaging {
 	 * test file compare action
 	 */
 	@SuppressWarnings("restriction")
-	public void compare() throws IOException {
+	private void compare() throws IOException {
 		//set a selection in unstaged tree viewer on an xml file	
 		view.unstagedTreeViewer.expandAll();
 		view.unstagedTreeViewer.setSelection(new StructuredSelection(testUtil.getFile1ForClassMock()), true);
@@ -253,7 +406,6 @@ public class TestsPdeAbapGitStaging {
 			}
 		}
 	}
-	
 	
 	private void stageAndUnstage() {
 		
@@ -471,7 +623,7 @@ public class TestsPdeAbapGitStaging {
 		replay(externalRepositoryService);
 		
 		IAbapGitStagingService stagingService = createNiceMock(IAbapGitStagingService.class);
-		expect(stagingService.isLoggedOn(anyObject())).andReturn(true);
+		expect(stagingService.ensureLoggedOn(anyObject())).andReturn(true);
 		replay(stagingService);
 		
 		//inject mocks
@@ -523,7 +675,7 @@ public class TestsPdeAbapGitStaging {
 		replay(externalRepositoryService);
 		
 		IAbapGitStagingService stagingService = createNiceMock(IAbapGitStagingService.class);
-		expect(stagingService.isLoggedOn(anyObject())).andReturn(true);
+		expect(stagingService.ensureLoggedOn(anyObject())).andReturn(true);
 		replay(stagingService);
 		
 		//inject mocks

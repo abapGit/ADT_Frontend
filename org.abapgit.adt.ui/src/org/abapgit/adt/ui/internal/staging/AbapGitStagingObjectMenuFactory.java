@@ -5,7 +5,6 @@ import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.staging.actions.CompareAction;
 import org.abapgit.adt.ui.internal.staging.actions.CopyNameAction;
 import org.abapgit.adt.ui.internal.staging.actions.OpenObjectAction;
-import org.abapgit.adt.ui.internal.staging.util.AbapGitStagingService;
 import org.abapgit.adt.ui.internal.staging.util.IAbapGitStagingService;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -35,11 +34,12 @@ public class AbapGitStagingObjectMenuFactory {
 	private CopyNameAction copyAction;
 	private CompareAction compareAction;
 
-	public AbapGitStagingObjectMenuFactory(TreeViewer treeViewer, boolean unstaged, AbapGitStagingView view) {
+	public AbapGitStagingObjectMenuFactory(TreeViewer treeViewer, boolean unstaged, AbapGitStagingView view,
+			IAbapGitStagingService stagingUtil) {
 		this.treeViewer = treeViewer;
 		this.view = view;
 		this.unstaged = unstaged;
-		this.stagingService = AbapGitStagingService.getInstance();
+		this.stagingService = stagingUtil;
 
 		createActions();
 

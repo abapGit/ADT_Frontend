@@ -10,6 +10,7 @@ import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitFile;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.internal.i18n.Messages;
+import org.abapgit.adt.ui.internal.util.AbapGitService;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -27,53 +28,12 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 
-import com.sap.adt.destinations.ui.logon.AdtLogonServiceUIFactory;
 import com.sap.adt.tools.core.AdtObjectReference;
 import com.sap.adt.tools.core.IAdtObjectReference;
-import com.sap.adt.tools.core.model.atom.IAtomLink;
 import com.sap.adt.tools.core.model.util.AdtObjectReferenceAdapterFactory;
-import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
 import com.sap.adt.tools.core.ui.navigation.AdtNavigationServiceFactory;
 
-public class AbapGitStagingService implements IAbapGitStagingService {
-	private static IAbapGitStagingService instance;
-
-	//singleton
-	private AbapGitStagingService() {
-	}
-
-	public static IAbapGitStagingService getInstance() {
-		if (instance == null) {
-			instance = new AbapGitStagingService();
-		}
-		return instance;
-	}
-
-	public boolean isLoggedOn(IProject project) {
-		if (AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(project).isOK()) {
-			return true;
-		}
-		return false;
-	}
-
-	public String getHrfFromAtomLink(Object object, String relation) {
-		if (object instanceof IAbapGitFile) {
-			IAbapGitFile file = (IAbapGitFile) object;
-			for (IAtomLink link : file.getLinks()) {
-				if (link.getRel().equalsIgnoreCase(relation)) {
-					return link.getHref();
-				}
-			}
-		} else if (object instanceof IAbapGitObject) {
-			IAbapGitObject abapObject = (IAbapGitObject) object;
-			for (IAtomLink link : abapObject.getLinks()) {
-				if (link.getRel().equalsIgnoreCase(relation)) {
-					return link.getHref();
-				}
-			}
-		}
-		return null;
-	}
+public class AbapGitStagingService extends AbapGitService implements IAbapGitStagingService {
 
 	public void openEditor(Object object, IProject project) {
 		if (object instanceof IAbapGitObject) {
@@ -189,10 +149,6 @@ public class AbapGitStagingService implements IAbapGitStagingService {
 		return IDEWorkbenchPlugin.DEFAULT_TEXT_EDITOR_ID;
 	}
 
-	public String getDestination(IProject project) {
-		return AdtProjectServiceFactory.createProjectService().getDestinationId(project);
-	}
-
 	@Override
 	public boolean isFileCompareSupported(Object object) {
 		return isFetchFileContentSupported(object);
@@ -212,7 +168,7 @@ public class AbapGitStagingService implements IAbapGitStagingService {
 		//Compare with remote feature is available from 2002 Abap in CP release
 		//Check if the necessary atom link is present in the model
 		//TODO remove this check once the customer upgrades to 2002 release
-		if (AbapGitStagingService.getInstance().getHrfFromAtomLink(file, IFileService.RELATION_FILE_FETCH_LOCAL) != null) {
+		if (getHrfFromAtomLink(file, IFileService.RELATION_FILE_FETCH_LOCAL) != null) {
 			return true;
 		}
 		return false;

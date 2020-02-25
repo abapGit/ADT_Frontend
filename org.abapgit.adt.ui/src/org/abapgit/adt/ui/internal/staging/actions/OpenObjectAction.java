@@ -2,8 +2,8 @@ package org.abapgit.adt.ui.internal.staging.actions;
 
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject;
 import org.abapgit.adt.ui.internal.i18n.Messages;
-import org.abapgit.adt.ui.internal.staging.AbapGitStagingView;
-import org.abapgit.adt.ui.internal.staging.util.AbapGitStagingService;
+import org.abapgit.adt.ui.internal.staging.IAbapGitStagingView;
+import org.abapgit.adt.ui.internal.util.AbapGitUIServiceFactory;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.ui.actions.BaseSelectionListenerAction;
@@ -11,9 +11,9 @@ import org.eclipse.ui.actions.BaseSelectionListenerAction;
 public class OpenObjectAction extends BaseSelectionListenerAction {
 
 	private final TreeViewer treeViewer;
-	private final AbapGitStagingView view;
+	private final IAbapGitStagingView view;
 
-	public OpenObjectAction(AbapGitStagingView view, TreeViewer treeViewer) {
+	public OpenObjectAction(IAbapGitStagingView view, TreeViewer treeViewer) {
 		super(Messages.AbapGitStaging_action_open);
 		setEnabled(updateSelection((IStructuredSelection) treeViewer.getSelection()));
 
@@ -39,7 +39,7 @@ public class OpenObjectAction extends BaseSelectionListenerAction {
 	public void run() {
 		IStructuredSelection selection = (IStructuredSelection) this.treeViewer.getSelection();
 		for (Object object : selection.toList()) {
-			AbapGitStagingService.getInstance().openEditor(object, this.view.getProject());
+			AbapGitUIServiceFactory.createAbapGitStagingService().openEditor(object, this.view.getProject());
 		}
 	}
 }
