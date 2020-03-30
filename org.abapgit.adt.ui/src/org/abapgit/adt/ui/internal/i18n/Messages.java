@@ -158,6 +158,9 @@ public class Messages extends NLS {
 	public static String AbapGitStaging_compare_objects_dialog_title;
 	public static String AbapGitStaging_compare_objects_identical_xmsg;
 	public static String AbapGitStaging_compare_not_supported_xmg;
+	public static String AbapGitStaging_switch_repository;
+	public static String AbapGitStaging_switch_repository_no_supported_systems_xmg;
+	public static String AbapGitStaging_switch_repository_no_repositories_xmsg;
 
 	static {
 		// initialize resource bundle

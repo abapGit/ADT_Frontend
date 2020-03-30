@@ -1,5 +1,10 @@
 package org.abapgit.adt.ui.internal.staging;
 
+import static org.easymock.EasyMock.createNiceMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+
+import org.abapgit.adt.backend.IRepository;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitCommitMessage;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitFile;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject;
@@ -53,9 +58,8 @@ public class TestsPdeAbapGitStagingUtil {
 		return view;
 	}
 	
-	protected IProject createDummyAbapProject() throws CoreException{
-		String projectName = "ABAPGIT_TEST_PROJECT";
-		String destinationId = "ABAPGIT_TEST_PROJECT";
+	protected IProject createDummyAbapProject(String projectName) throws CoreException{
+		String destinationId = projectName;
 		
 		IDestinationDataWritable data = AdtDestinationDataFactory.newDestinationData(destinationId);
 		data.setUser("TEST_DUMMY_USER"); 
@@ -240,5 +244,20 @@ public class TestsPdeAbapGitStagingUtil {
 		staging.getUnstagedObjects().getAbapgitobject().add(getClassMock());
 
 		return staging;
+	}
+	
+	protected IRepository getRepositoryMock(String url, String branch, String linkedPackage, String createdBy) {
+		IRepository repository = createNiceMock(IRepository.class);
+		expect(repository.getUrl()).andReturn(url).anyTimes();
+		expect(repository.getBranch()).andReturn(branch).anyTimes();
+		expect(repository.getPackage()).andReturn(linkedPackage).anyTimes();
+		expect(repository.getCreatedBy()).andReturn(createdBy).anyTimes();
+		replay(repository);
+		return repository;
+	}
+	
+	protected String getLoggedOnUser(IProject project) {
+		IAbapProject abapProject = project.getAdapter(IAbapProject.class);
+		return abapProject.getDestinationData().getUser();
 	}
 }

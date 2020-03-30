@@ -14,4 +14,16 @@ public interface IAbapGitStagingView {
 	 *            repository
 	 */
 	public void openStagingView(IRepository repository, IProject project);
+
+	/**
+	 * Returns the current repository which is loaded. Null if staging view is
+	 * not loaded with any repository
+	 */
+	public IRepository getRepository();
+
+	/**
+	 * Returns the project of the repository currently loaded. Null if no
+	 * repository has been loaded.
+	 */
+	public IProject getProject();
 }

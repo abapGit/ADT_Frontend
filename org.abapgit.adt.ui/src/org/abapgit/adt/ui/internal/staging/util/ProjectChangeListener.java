@@ -30,14 +30,17 @@ public class ProjectChangeListener implements IResourceChangeListener {
 
 	@Override
 	public void resourceChanged(IResourceChangeEvent event) {
-		IResource resource = event.getResource();
-		if (resource instanceof IProject) {
-			if (event.getType() == IResourceChangeEvent.PRE_DELETE || event.getType() == IResourceChangeEvent.PRE_CLOSE) {
-				if (this.project.equals(resource)) {
-					//reset the staging view to initial
-					Display.getDefault().syncExec(() -> ProjectChangeListener.this.view.resetStagingView());
+		if (this.view != null && this.project != null) {
+			IResource resource = event.getResource();
+			if (resource instanceof IProject) {
+				if (event.getType() == IResourceChangeEvent.PRE_DELETE || event.getType() == IResourceChangeEvent.PRE_CLOSE) {
+					if (this.project.equals(resource)) {
+						//reset the staging view to initial
+						Display.getDefault().syncExec(() -> ProjectChangeListener.this.view.resetStagingView());
+					}
 				}
 			}
 		}
 	}
+
 }
