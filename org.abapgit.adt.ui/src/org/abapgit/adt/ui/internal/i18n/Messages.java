@@ -10,6 +10,7 @@ public class Messages extends NLS {
 	public static String AbapGitView_action_copy;
 	public static String AbapGitView_action_showMyRepos;
 	public static String AbapGitView_action_open;
+	public static String AbapGitView_action_open_repo;
 	public static String AbapGitView_action_open_xtol;
 	public static String AbapGitView_column_branch;
 	public static String AbapGitView_column_firstcommitat;
