@@ -140,6 +140,7 @@ public class AbapGitView extends ViewPart {
 	public void init(IViewSite site) throws PartInitException {
 		super.init(site);
 
+// Create a new abapGit service when AbapGit Repositories View is opened.
 		if (this.abapGitService == null) {
 			this.abapGitService = new AbapGitService();
 		}
@@ -156,7 +157,7 @@ public class AbapGitView extends ViewPart {
 		IProject currentProject = ProjectUtil.getActiveAdtCoreProject(this.lastSelection, null, null, null);
 		if (currentProject != this.lastProject) {
 			this.lastProject = currentProject;
-			this.repoService = null;
+			this.repoService = null;  //reset the repository Service if project is changed
 			updateView(false);
 		}
 		this.lastSelection = null;
