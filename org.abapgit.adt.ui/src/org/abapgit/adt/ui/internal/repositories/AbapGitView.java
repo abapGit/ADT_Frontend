@@ -528,10 +528,9 @@ public class AbapGitView extends ViewPart {
 					//  Open default external browser
 					try {
 						PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(new URL(this.repo.getUrl()));
-					} catch (PartInitException e) {
+					} catch (PartInitException | MalformedURLException e) {
+						getViewSite().getActionBars().getStatusLineManager().setErrorMessage(e.getMessage());
 						AbapGitUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getMessage(), e));
-					} catch (MalformedURLException e) {
-						e.printStackTrace();
 					}
 				}
 
