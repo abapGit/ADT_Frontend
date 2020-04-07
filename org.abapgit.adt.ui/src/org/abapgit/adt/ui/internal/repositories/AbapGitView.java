@@ -1,6 +1,7 @@
 package org.abapgit.adt.ui.internal.repositories;
 
 import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -87,7 +88,7 @@ public class AbapGitView extends ViewPart {
 	public static final String ID = "org.abapgit.adt.ui.views.AbapGitView"; //$NON-NLS-1$
 
 	private TableViewer viewer;
-	private Action actionRefresh, actionWizard, actionCopy, actionOpen, actionShowMyRepos, actionPullWizard;
+	private Action actionRefresh, actionWizard, actionCopy, actionOpen, actionShowMyRepos, actionPullWizard, actionOpenRepo;
 	private ISelection lastSelection;
 	private IProject lastProject;
 	private ViewerFilter searchFilter;
@@ -346,6 +347,11 @@ public class AbapGitView extends ViewPart {
 							manager.add(new Separator());
 							manager.add(new UnlinkAction(AbapGitView.this.lastProject, repository));
 						}
+						//open repository in external browser
+						if (repository.getUrl() != null) {
+							manager.add(AbapGitView.this.actionOpenRepo);
+						}
+
 					}
 				}
 			}
@@ -506,6 +512,35 @@ public class AbapGitView extends ViewPart {
 		this.actionPullWizard.setText(Messages.AbapGitView_context_pull);
 		this.actionPullWizard
 				.setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID, "icons/view/abapgit.png")); //$NON-NLS-1$
+
+		//Open repository in external browser
+		this.actionOpenRepo = new Action() {
+			private IRepository repo;
+
+			public void run() {
+				Object firstElement = AbapGitView.this.viewer.getStructuredSelection().getFirstElement();
+
+				if (firstElement instanceof IRepository) {
+					this.repo = ((IRepository) firstElement);
+				}
+
+				if (this.repo != null) {
+					//  Open default external browser
+					try {
+						PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(new URL(this.repo.getUrl()));
+					} catch (PartInitException | MalformedURLException e) {
+						getViewSite().getActionBars().getStatusLineManager().setErrorMessage(e.getMessage());
+						AbapGitUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getMessage(), e));
+					}
+				}
+
+			}
+		};
+		this.actionOpenRepo.setText(Messages.AbapGitView_action_open_repo);
+		this.actionOpenRepo
+				.setImageDescriptor(
+						AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID, "icons/etool/external_browser.png")); //$NON-NLS-1$
+
 	}
 
 	private List<IRepository> getRepositories(String destinationId, Boolean byCurrUser) {
