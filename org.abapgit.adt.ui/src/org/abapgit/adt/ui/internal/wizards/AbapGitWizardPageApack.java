@@ -352,4 +352,28 @@ public class AbapGitWizardPageApack extends WizardPage {
 		return true;
 	}
 
+	@Override
+	public boolean canFlipToNextPage() {
+		if (!this.pullScenario) {
+			if (getWizard() instanceof AbapGitWizard && ((AbapGitWizard) getWizard()).linkAndPull()) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+		return super.canFlipToNextPage();
+
+	}
+
+	public boolean canFinishEarly() {
+		if (!this.pullScenario) {
+			if (getWizard() instanceof AbapGitWizard && ((AbapGitWizard) getWizard()).linkAndPull()) {
+				return false;
+			} else {
+				return true;
+			}
+		}
+		return false;
+	}
+
 }

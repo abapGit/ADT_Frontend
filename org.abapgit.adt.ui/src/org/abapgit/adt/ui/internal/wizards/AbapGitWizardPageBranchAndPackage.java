@@ -102,7 +102,10 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 		});
 		this.comboBranches.getCombo().addModifyListener(event -> {
 			this.cloneData.branch = this.comboBranches.getCombo().getText();
-			validateClientOnly();
+			setPageComplete(true);
+			if (!validateClientOnly()) {
+				setPageComplete(false);
+			}
 			fetchApackManifest();
 		});
 
@@ -118,7 +121,10 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 
 		this.txtPackage.getTextWidget().addModifyListener(event -> {
 			this.cloneData.packageRef = null;
-			validateClientOnly();
+			setPageComplete(true);
+			if (!validateClientOnly()) {
+				setPageComplete(false);
+			}
 		});
 
 		IAdtPackageProposalProvider packageProposalProvider = AdtPackageProposalProviderFactory
@@ -159,6 +165,7 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 				public void widgetSelected(SelectionEvent event) {
 					Button chbox = (Button) event.getSource();
 					setLnpSequence(chbox.getSelection());
+					getContainer().updateButtons();
 				}
 			});
 		}
@@ -179,7 +186,10 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 			}
 		}
 
-		validateClientOnly();
+		setPageComplete(true);
+		if (!validateClientOnly()) {
+			setPageComplete(false);
+		}
 	}
 
 	private void setLnpSequence(boolean chboxValue) {
@@ -204,25 +214,24 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 	}
 
 	private boolean validateClientOnly() {
-		setPageComplete(true);
 		setMessage(null);
 
 		if (this.comboBranches.getCombo().getText().isEmpty()) {
 			setMessage(Messages.AbapGitWizardPageBranchAndPackage_combobox_branch_message, DialogPage.INFORMATION);
-			setPageComplete(false);
 			return false;
 		}
 
 		if (this.txtPackage.getTextWidget().getText().isEmpty()) {
 			setMessage(Messages.AbapGitWizardPageBranchAndPackage_text_package_message, DialogPage.INFORMATION);
-			setPageComplete(false);
 			return false;
 		}
 		return true;
 	}
 
 	public boolean validateAll() {
+		setPageComplete(true);
 		if (!validateClientOnly()) {
+			setPageComplete(false);
 			return false;
 		}
 		if (this.cloneData.packageRef == null) {
@@ -370,6 +379,35 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 			// Call was aborted - no dependencies will be retrieved and used in the import
 			setPageComplete(true);
 		}
+	}
+
+	@Override
+	public boolean canFlipToNextPage() {
+
+		if (!this.pullAction) {
+			if ((getLnpSequence() || this.cloneData.hasDependencies())
+					&& validateClientOnly()) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+		return super.canFlipToNextPage();
+	}
+
+	public boolean canFinishEarly() {
+
+		if (!this.pullAction) {
+			if (!getLnpSequence() && !this.cloneData.hasDependencies()
+					&& validateClientOnly()) {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return false;
+		}
+
 	}
 
 	private static class ApackParameters {
