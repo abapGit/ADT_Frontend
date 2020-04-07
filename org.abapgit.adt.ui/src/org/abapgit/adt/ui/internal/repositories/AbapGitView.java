@@ -20,7 +20,7 @@ import org.abapgit.adt.ui.internal.dialogs.AbapGitDialogObjLog;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.staging.AbapGitStagingView;
 import org.abapgit.adt.ui.internal.staging.IAbapGitStagingView;
-import org.abapgit.adt.ui.internal.util.AbapGitService;
+import org.abapgit.adt.ui.internal.util.AbapGitUIServiceFactory;
 import org.abapgit.adt.ui.internal.util.IAbapGitService;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizardPull;
@@ -142,7 +142,7 @@ public class AbapGitView extends ViewPart {
 
 // Create a new abapGit service when AbapGit Repositories View is opened.
 		if (this.abapGitService == null) {
-			this.abapGitService = new AbapGitService();
+			this.abapGitService = AbapGitUIServiceFactory.createAbapGitService();
 		}
 
 		ISelection selection = getSite().getPage().getSelection();
@@ -192,22 +192,8 @@ public class AbapGitView extends ViewPart {
 		GridLayout layout = new GridLayout(1, false);
 		composite.setLayout(layout);
 
-		//Create Filter Text Box
-		this.searchText = new Text(composite, SWT.SEARCH | SWT.CANCEL);
-		this.searchText.setMessage(Messages.AbapGitView_Type_Filter_Text);
-		this.searchText.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
-
+		setupFilterBox(composite);
 		setupViewer(composite);
-
-		//Add Listener to the Filter Text Box
-		this.searchText.addModifyListener(new ModifyListener() {
-
-			@Override
-			public void modifyText(ModifyEvent e) {
-				AbapGitView.this.tableFilter.setSearchText(AbapGitView.this.searchText.getText());
-				AbapGitView.this.viewer.refresh();
-			}
-		});
 
 		//Add filter to the viewer
 		this.tableFilter = new TablePatternFilter();
@@ -218,6 +204,7 @@ public class AbapGitView extends ViewPart {
 		contributeToActionBars();
 		updateView(false);
 
+		
 		AbapGitView.this.searchFilter = new ViewerFilter() {
 
 			@Override
@@ -245,6 +232,24 @@ public class AbapGitView extends ViewPart {
 
 		// add listener for selections
 		getSite().getPage().addPostSelectionListener(this.selectionListener);
+	}
+
+	private void setupFilterBox(Composite parent) {
+		//Create Filter Text Box
+		this.searchText = new Text(parent, SWT.SEARCH | SWT.CANCEL);
+		this.searchText.setMessage(Messages.AbapGitView_Type_Filter_Text);
+		this.searchText.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
+
+		//Add Listener to the Filter Text Box
+		this.searchText.addModifyListener(new ModifyListener() {
+
+			@Override
+			public void modifyText(ModifyEvent e) {
+				AbapGitView.this.tableFilter.setSearchText(AbapGitView.this.searchText.getText());
+				AbapGitView.this.viewer.refresh();
+			}
+		});
+
 	}
 
 	private void setupViewer(Composite parent) {
