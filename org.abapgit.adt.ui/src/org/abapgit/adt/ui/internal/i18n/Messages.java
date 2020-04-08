@@ -44,6 +44,7 @@ public class Messages extends NLS {
 	public static String AbapGitView_ConfDialog_MsgText;
 	public static String AbapGitView_ConfDialog_Btn_confirm;
 	public static String AbapGitView_ConfDialog_Btn_cancel;
+	public static String AbapGitView_Type_Filter_Text;
 	public static String AbapGitWizard_task_cloning_repository;
 	public static String AbapGitWizard_task_pulling_repository;
 	public static String AbapGitWizard_title;
