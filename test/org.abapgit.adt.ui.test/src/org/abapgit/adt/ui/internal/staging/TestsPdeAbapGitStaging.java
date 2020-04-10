@@ -137,7 +137,7 @@ public class TestsPdeAbapGitStaging {
 		repos.add(repository3);
 		
 		IRepositoryService repositoryService = createNiceMock(IRepositoryService.class);
-		expect(repositoryService.stage(anyObject(), anyObject())).andReturn(testUtil.getStagingTestData()).anyTimes();
+		expect(repositoryService.stage(anyObject(), anyObject(), anyObject())).andReturn(testUtil.getStagingTestData()).anyTimes();
 		expect(repositoryService.getRepositories(anyObject())).andReturn(repos);
 		replay(repositoryService);
 		
@@ -252,7 +252,7 @@ public class TestsPdeAbapGitStaging {
 		
 		//repository service
 		IRepositoryService repositoryService = createNiceMock(IRepositoryService.class);
-		expect(repositoryService.stage(anyObject(), anyObject())).andReturn(testUtil.getStagingTestData());
+		expect(repositoryService.stage(anyObject(), anyObject(), anyObject())).andReturn(testUtil.getStagingTestData());
 		replay(repositoryService);
 		
 		//external repository service
@@ -323,8 +323,8 @@ public class TestsPdeAbapGitStaging {
 		
 		//create file service mock
 		IFileService fileService = createNiceMock(IFileService.class);
-		expect(fileService.readLocalFileContents(anyObject(), anyObject())).andReturn("hello");
-		expect(fileService.readRemoteFileContents(anyObject(), anyObject())).andReturn("world");
+		expect(fileService.readLocalFileContents(anyObject(), anyObject(), anyObject())).andReturn("hello");
+		expect(fileService.readRemoteFileContents(anyObject(), anyObject(), anyObject())).andReturn("world");
 		replay(fileService);
 		
 		//run file compare action
@@ -362,8 +362,8 @@ public class TestsPdeAbapGitStaging {
 		view.unstagedTreeViewer.setSelection(new StructuredSelection(testUtil.getFile2ForClassMock()), true);
 		
 		fileService = createNiceMock(IFileService.class);
-		expect(fileService.readLocalFileContents(anyObject(), anyObject())).andReturn("hello");
-		expect(fileService.readRemoteFileContents(anyObject(), anyObject())).andReturn("world");
+		expect(fileService.readLocalFileContents(anyObject(), anyObject(), anyObject())).andReturn("hello");
+		expect(fileService.readRemoteFileContents(anyObject(), anyObject(), anyObject())).andReturn("world");
 		replay(fileService);
 		
 		//run compare action
@@ -538,7 +538,7 @@ public class TestsPdeAbapGitStaging {
 	private void refresh(IRepositoryService repositoryService) {
 		//check if refresh action updates the changes in the UI, if there are any
 		repositoryService = createNiceMock(IRepositoryService.class);
-		expect(repositoryService.stage(anyObject(), anyObject())).andReturn(testUtil.getStagingDataForRefresh());
+		expect(repositoryService.stage(anyObject(), anyObject(), anyObject())).andReturn(testUtil.getStagingDataForRefresh());
 		replay(repositoryService);
 		view.repoService = repositoryService;
 		view.actionRefresh.run();
@@ -605,7 +605,7 @@ public class TestsPdeAbapGitStaging {
 		replay(externalRepositoryInfo);
 		
 		IRepositoryService repositoryService = createNiceMock(IRepositoryService.class);
-		expect(repositoryService.stage(anyObject(), anyObject())).andReturn(testUtil.getEmptyStagingData());
+		expect(repositoryService.stage(anyObject(), anyObject(), anyObject())).andReturn(testUtil.getEmptyStagingData());
 		replay(repositoryService);
 		
 		IExternalRepositoryInfoService externalRepositoryService = createNiceMock(IExternalRepositoryInfoService.class);
@@ -657,7 +657,7 @@ public class TestsPdeAbapGitStaging {
 		replay(externalRepositoryInfo);
 		
 		IRepositoryService repositoryService = createNiceMock(IRepositoryService.class);
-		expect(repositoryService.stage(anyObject(), anyObject())).andReturn(testUtil.getEmptyStagingData());
+		expect(repositoryService.stage(anyObject(), anyObject(), anyObject())).andReturn(testUtil.getEmptyStagingData());
 		replay(repositoryService);
 		
 		IExternalRepositoryInfoService externalRepositoryService = createNiceMock(IExternalRepositoryInfoService.class);

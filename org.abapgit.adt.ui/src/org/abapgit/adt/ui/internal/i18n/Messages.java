@@ -92,6 +92,7 @@ public class Messages extends NLS {
 	public static String AbapGitDialogPageObjLog_filter_error_tooltip;
 	public static String AbapGitDialogPageObjLog_filter_all_tooltip;
 	public static String AbapGitWizardPageBranchAndPackage_title;
+	public static String AbapGitWizardPageRepositoryAndCredentials_credentials_manager_popup_title;
 	public static String AbapGitWizardPageRepositoryAndCredentials_description;
 	public static String AbapGitWizardPageRepositoryAndCredentials_label_password;
 	public static String AbapGitWizardPageRepositoryAndCredentials_label_url;
@@ -99,6 +100,7 @@ public class Messages extends NLS {
 	public static String AbapGitWizardPageRepositoryAndCredentials_repo_in_use_error;
 	public static String AbapGitWizardPageRepositoryAndCredentials_repo_user_pass;
 	public static String AbapGitWizardPageRepositoryAndCredentials_repo_is_private;
+	public static String AbapGitWizardPageRepositoryAndCredentials_store_creds_in_secure_storage;
 	public static String AbapGitWizardPageRepositoryAndCredentials_task_check_compatibility;
 	public static String AbapGitWizardPageRepositoryAndCredentials_task_fetch_repo_info;
 	public static String AbapGitWizardPageRepositoryAndCredentials_task_repo_fetch;
@@ -163,6 +165,8 @@ public class Messages extends NLS {
 	public static String AbapGitStaging_switch_repository;
 	public static String AbapGitStaging_switch_repository_no_supported_systems_xmg;
 	public static String AbapGitStaging_switch_repository_no_repositories_xmsg;
+	public static String AbapGitStagingCredentialsDialog_label_store_in_secure_store;
+	public static String AbapGitStagingView_authentication_error;
 
 	static {
 		// initialize resource bundle

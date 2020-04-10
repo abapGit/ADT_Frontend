@@ -4,9 +4,13 @@ import org.abapgit.adt.backend.IExternalRepositoryInfoRequest;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
+import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
@@ -23,9 +27,16 @@ public class AbapGitStagingCredentialsDialog extends TitleAreaDialog {
 
 	private String errorMessage;
 
-	public AbapGitStagingCredentialsDialog(Shell parentShell, String errorMessage) {
+	private Button checkBox_storeCreds;
+	private Label lbl_checkBox_storeCreds;
+
+	private boolean storeCredsInSecStore = false;
+	private IExternalRepositoryInfoRequest repoCredentials;
+
+	public AbapGitStagingCredentialsDialog(Shell parentShell, String errorMessage, IExternalRepositoryInfoRequest repositoryCredentials) {
 		super(parentShell);
 		this.errorMessage = errorMessage;
+		this.repoCredentials = repositoryCredentials;
 	}
 
 	public AbapGitStagingCredentialsDialog(Shell parentShell) {
@@ -65,6 +76,37 @@ public class AbapGitStagingCredentialsDialog extends TitleAreaDialog {
 		data = new GridData(GridData.FILL_HORIZONTAL);
 		this.passwordField.setLayoutData(data);
 
+		//Set credentials in the dialog if retrieved from Secure Storage
+		if (this.repoCredentials != null) {
+			this.usernameField.setText(this.repoCredentials.getUser());
+			this.passwordField.setText(this.repoCredentials.getPassword());
+		}
+		this.usernameField.addModifyListener(event -> {
+			validateAndSetMessage();
+		});
+
+		this.passwordField.addModifyListener(event -> {
+			validateAndSetMessage();
+		});
+
+		// Check Box to store credentials in secure storage
+
+		this.lbl_checkBox_storeCreds = new Label(credentialsComposite, SWT.NONE);
+		this.lbl_checkBox_storeCreds.setText(Messages.AbapGitStagingCredentialsDialog_label_store_in_secure_store);
+		GridDataFactory.swtDefaults().applyTo(this.lbl_checkBox_storeCreds);
+
+		this.checkBox_storeCreds = new Button(credentialsComposite, SWT.CHECK);
+		GridDataFactory.swtDefaults().applyTo(this.checkBox_storeCreds);
+
+		this.checkBox_storeCreds.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				Button chbox = (Button) event.getSource();
+				AbapGitStagingCredentialsDialog.this.storeCredsInSecStore = chbox.getSelection();
+			}
+
+		});
+
 		return credentialsComposite;
 	}
 
@@ -83,13 +125,13 @@ public class AbapGitStagingCredentialsDialog extends TitleAreaDialog {
 	private boolean validateAndSetMessage() {
 		this.username = this.usernameField.getText().trim();
 		if (this.username.isEmpty()) {
-			setMessage(Messages.AbapGitStaging_credentials_dialog_error_invalid_username, IMessageProvider.ERROR);
+			setMessage(Messages.AbapGitStaging_credentials_dialog_error_invalid_username, IMessageProvider.INFORMATION);
 			return false;
 		}
 
 		this.password = this.passwordField.getText();
 		if (this.password.isEmpty()) {
-			setMessage(Messages.AbapGitStaging_credentials_dialog_error_invalid_password, IMessageProvider.ERROR);
+			setMessage(Messages.AbapGitStaging_credentials_dialog_error_invalid_password, IMessageProvider.INFORMATION);
 			return false;
 		}
 
@@ -115,6 +157,10 @@ public class AbapGitStagingCredentialsDialog extends TitleAreaDialog {
 			}
 		};
 		return info;
+	}
+
+	public boolean storeInSecureStorage() {
+		return this.storeCredsInSecStore;
 	}
 
 }

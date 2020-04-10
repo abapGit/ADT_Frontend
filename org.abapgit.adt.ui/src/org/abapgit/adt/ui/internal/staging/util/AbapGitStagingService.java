@@ -99,7 +99,9 @@ public class AbapGitStagingService extends AbapGitService implements IAbapGitSta
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
-					String fileContents = FileServiceFactory.createFileService().readLocalFileContents(file, getDestination(project));
+					//set credentials to null as reading local file does not require any credentials.
+					String fileContents = FileServiceFactory.createFileService().readLocalFileContents(file, null,
+							getDestination(project));
 					openFileEditor(file, fileContents);
 					return Status.OK_STATUS;
 				} catch (IOException e) {

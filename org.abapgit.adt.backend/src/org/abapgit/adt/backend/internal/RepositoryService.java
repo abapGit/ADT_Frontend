@@ -4,6 +4,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
+import org.abapgit.adt.backend.IExternalRepositoryInfoRequest;
 import org.abapgit.adt.backend.IObjects;
 import org.abapgit.adt.backend.IRepositories;
 import org.abapgit.adt.backend.IRepository;
@@ -166,12 +167,11 @@ public class RepositoryService implements IRepositoryService {
 	}
 
 	@Override
-	public IAbapGitStaging stage(IRepository repository, IProgressMonitor monitor) {
+	public IAbapGitStaging stage(IRepository repository, IExternalRepositoryInfoRequest credentials, IProgressMonitor monitor) {
 		IHeaders headers = null;
 		IRestResource restResource = getStageRestResource(repository);
-		if (AbapGitAuthenticationInfo.getRepoCredentials() != null) {
-			headers = getHttpHeadersForCredentials(AbapGitAuthenticationInfo.getRepoCredentials().getUser(),
-					AbapGitAuthenticationInfo.getRepoCredentials().getPassword());
+		if (credentials != null) {
+			headers = getHttpHeadersForCredentials(credentials.getUser(), credentials.getPassword());
 		}
 		return restResource.get(monitor, headers, IAbapGitStaging.class);
 	}
@@ -182,15 +182,15 @@ public class RepositoryService implements IRepositoryService {
 	}
 
 	@Override
-	public void push(IProgressMonitor monitor, IAbapGitStaging staging, IRepository repository) {
+	public void push(IProgressMonitor monitor, IAbapGitStaging staging, IExternalRepositoryInfoRequest credentials,
+			IRepository repository) {
 		URI pushUri = repository.getPushLink(IRepositoryService.RELATION_PUSH);
 		IRestResource restResource = getRestResource(pushUri);
-		restResource.post(monitor, getHttpHeadersForCredentials(AbapGitAuthenticationInfo.getRepoCredentials().getUser(),
-				AbapGitAuthenticationInfo.getRepoCredentials().getPassword()), null, staging);
+		restResource.post(monitor, getHttpHeadersForCredentials(credentials.getUser(), credentials.getPassword()), null, staging);
 	}
 
 	@Override
-	public void repositoryChecks(IProgressMonitor monitor, IRepository repository) {
+	public void repositoryChecks(IProgressMonitor monitor, IExternalRepositoryInfoRequest credentials, IRepository repository) {
 		IHeaders headers = null;
 		URI checkUri = repository.getChecksLink(IRepositoryService.RELATION_CHECK);
 		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory().createResourceWithStatelessSession(checkUri,
@@ -198,9 +198,9 @@ public class RepositoryService implements IRepositoryService {
 		IAdtCompatibleRestResourceFilter compatibilityFilter = AdtCompatibleRestResourceFilterFactory.createFilter("text/plain"); //$NON-NLS-1$
 		restResource.addRequestFilter(compatibilityFilter);
 		restResource.addResponseFilter(compatibilityFilter);
-		if (AbapGitAuthenticationInfo.getRepoCredentials() != null) {
-			headers = getHttpHeadersForCredentials(AbapGitAuthenticationInfo.getRepoCredentials().getUser(),
-					AbapGitAuthenticationInfo.getRepoCredentials().getPassword());
+		if (credentials != null) {
+			headers = getHttpHeadersForCredentials(credentials.getUser(),
+					credentials.getPassword());
 		}
 		restResource.post(monitor, headers, null);
 	}

@@ -27,7 +27,7 @@ public interface IFileService {
 	 * @return
 	 * @throws IOException
 	 */
-	String readRemoteFileContents(IAbapGitFile file, String destinationId) throws IOException;
+	String readRemoteFileContents(IAbapGitFile file, IExternalRepositoryInfoRequest credentials, String destinationId) throws IOException;
 
 	/**
 	 * Fetches the local file contents of the given abapgit file from the
@@ -43,7 +43,7 @@ public interface IFileService {
 	 * @return
 	 * @throws IOException
 	 */
-	String readLocalFileContents(IAbapGitFile file, String destinationId)
+	String readLocalFileContents(IAbapGitFile file, IExternalRepositoryInfoRequest credentials, String destinationId)
 			throws IOException;
 
 	/**
@@ -59,7 +59,7 @@ public interface IFileService {
 	 * @return
 	 * @throws IOException
 	 */
-	List<String> readFileContentsBatch(IAbapGitFile file, String destinationId)
+	List<String> readFileContentsBatch(IAbapGitFile file, IExternalRepositoryInfoRequest credentials, String destinationId)
 			throws IOException;
 
 }

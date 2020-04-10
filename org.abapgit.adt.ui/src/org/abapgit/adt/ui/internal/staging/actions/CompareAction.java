@@ -8,15 +8,18 @@ import java.net.URI;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.abapgit.adt.backend.IExternalRepositoryInfoRequest;
 import org.abapgit.adt.backend.IFileService;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitFile;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.internal.i18n.Messages;
+import org.abapgit.adt.ui.internal.staging.AbapGitStagingView;
 import org.abapgit.adt.ui.internal.staging.IAbapGitStagingView;
 import org.abapgit.adt.ui.internal.staging.compare.AbapGitCompareInput;
 import org.abapgit.adt.ui.internal.staging.compare.AbapGitCompareItem;
 import org.abapgit.adt.ui.internal.util.AbapGitUIServiceFactory;
+import org.abapgit.adt.ui.internal.util.GitCredentialsService;
 import org.eclipse.compare.CompareUI;
 import org.eclipse.compare.ITypedElement;
 import org.eclipse.core.resources.IFile;
@@ -34,6 +37,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.actions.BaseSelectionListenerAction;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
+import com.sap.adt.communication.resources.ResourceException;
 import com.sap.adt.tools.abapsource.AbapSource;
 import com.sap.adt.tools.abapsource.IAdtObjectLoader;
 import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
@@ -44,6 +48,8 @@ public class CompareAction extends BaseSelectionListenerAction {
 	private final TreeViewer treeViewer;
 	private final IAbapGitStagingView view;
 	private IFileService fileService;
+	private IExternalRepositoryInfoRequest credentials;
+	private IStructuredSelection selection;
 
 	public CompareAction(IAbapGitStagingView view, TreeViewer treeViewer) {
 		super(Messages.AbapGitStaging_action_compare);
@@ -59,14 +65,23 @@ public class CompareAction extends BaseSelectionListenerAction {
 
 	@Override
 	public void run() {
+			this.selection = (IStructuredSelection) this.treeViewer.getSelection();
+
+		//Check if credentials required
+		if (GitCredentialsService.checkIfCredentialsRequired(this.view.getExternalRepositoryInfo())) {
+			//Get credentials from user
+			if (getGitCredentials(null).equals(Status.CANCEL_STATUS))
+			 {
+				return ;
+			}
+		}
 		//compare files
 		compareAbapGitFiles();
 	}
 
 	private void compareAbapGitFiles() {
 		Set<String> compareInputFiles = new HashSet<>(); //maintain a list for handling duplicate file compare inputs
-		IStructuredSelection selection = (IStructuredSelection) this.treeViewer.getSelection();
-		for (Object object : selection.toList()) {
+		for (Object object : this.selection.toList()) {
 			if (object instanceof IAbapGitObject) { // if selection is on an abap object, create compare inputs for all the files inside the selected object
 				IAbapGitObject abapObject = (IAbapGitObject) object;
 				for (IAbapGitFile file : abapObject.getFiles()) {
@@ -96,9 +111,9 @@ public class CompareAction extends BaseSelectionListenerAction {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
-					String leftFileContents = CompareAction.this.fileService.readLocalFileContents(file,
+					String leftFileContents = CompareAction.this.fileService.readLocalFileContents(file, CompareAction.this.credentials,
 							getDestination(CompareAction.this.view.getProject()));
-					String rightFileContents = CompareAction.this.fileService.readRemoteFileContents(file,
+					String rightFileContents = CompareAction.this.fileService.readRemoteFileContents(file, CompareAction.this.credentials,
 							getDestination(CompareAction.this.view.getProject()));
 					AbapGitCompareItem left = new AbapGitCompareItem(getFileNameLocal(file), getFileExtension(file, abapObject),
 							leftFileContents);
@@ -116,7 +131,8 @@ public class CompareAction extends BaseSelectionListenerAction {
 							CompareAction.this.view.getProject());
 					Display.getDefault().asyncExec(() -> CompareUI.openCompareEditor(compareInput));
 					return Status.OK_STATUS;
-				} catch (IOException | CoreException e) {
+				} catch (IOException | CoreException | ResourceException e) {
+					handleException(e);
 					return Status.CANCEL_STATUS;
 				}
 			}
@@ -254,4 +270,33 @@ public class CompareAction extends BaseSelectionListenerAction {
 	public void setFileService(IFileService fileService) {
 		this.fileService = fileService;
 	}
+
+	private IStatus getGitCredentials(String previousErrorMessage) {
+		//get credentials
+			this.credentials = GitCredentialsService.getCredentialsFromUser(
+				((AbapGitStagingView) CompareAction.this.view).getSite().getShell(), this.view.getRepository().getUrl(),
+				previousErrorMessage);
+			if (this.credentials == null) {
+				return Status.CANCEL_STATUS;
+			}
+		return Status.OK_STATUS;
+	}
+
+	private void handleException(Exception e) {
+		//invalid credentials : this condition check is only valid from 2002
+		if (e instanceof ResourceException && GitCredentialsService.isAuthenticationIssue((ResourceException) e)) {
+			this.credentials = null;
+			GitCredentialsService.handleExceptionAndDisplayInErrorDialog(e,
+					((AbapGitStagingView) CompareAction.this.view).getSite().getShell());
+		} else {
+			GitCredentialsService.openErrorDialog("Error", e.getLocalizedMessage(), //$NON-NLS-1$
+					((AbapGitStagingView) CompareAction.this.view).getSite().getShell(), true);
+		}
+		//re-trigger action
+		if (getGitCredentials(e.getLocalizedMessage()).equals(Status.OK_STATUS)) {
+			compareAbapGitFiles();
+		}
+
+	}
+
 }
