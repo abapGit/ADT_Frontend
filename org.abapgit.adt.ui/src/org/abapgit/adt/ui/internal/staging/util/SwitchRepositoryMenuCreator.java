@@ -147,7 +147,8 @@ public class SwitchRepositoryMenuCreator implements IMenuCreator {
 					@Override
 					public void run() {
 						//open the selected repository in the staging view
-						if (!repository.equals(SwitchRepositoryMenuCreator.this.view.getRepository())) {
+						if (!RespositoryListMenuCreator.this.project.equals(SwitchRepositoryMenuCreator.this.view.getProject())
+								|| !repository.equals(SwitchRepositoryMenuCreator.this.view.getRepository())) {
 							SwitchRepositoryMenuCreator.this.view.openStagingView(repository, RespositoryListMenuCreator.this.project);
 						}
 					}
