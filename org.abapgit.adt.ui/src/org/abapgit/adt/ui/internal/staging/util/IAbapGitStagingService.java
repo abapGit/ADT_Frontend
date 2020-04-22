@@ -1,5 +1,6 @@
 package org.abapgit.adt.ui.internal.staging.util;
 
+import org.abapgit.adt.backend.IExternalRepositoryInfoRequest;
 import org.abapgit.adt.backend.IFileService;
 import org.abapgit.adt.ui.internal.util.IAbapGitService;
 import org.eclipse.core.resources.IProject;
@@ -14,7 +15,7 @@ public interface IAbapGitStagingService extends IAbapGitService {
 	 *            Instance of <b>AbapGitObject</b> or <b>AbapGitFile</b> to be
 	 *            opened.
 	 */
-	void openEditor(Object object, IProject project);
+	void openEditor(Object object, IProject project, IExternalRepositoryInfoRequest credentials);
 
 	/**
 	 * Checks whether abapgit file comparison is supported by the backend. If

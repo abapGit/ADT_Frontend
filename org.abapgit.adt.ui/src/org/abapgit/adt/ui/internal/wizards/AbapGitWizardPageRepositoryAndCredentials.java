@@ -11,6 +11,7 @@ import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.internal.i18n.Messages;
+import org.abapgit.adt.ui.internal.util.ErrorHandlingService;
 import org.abapgit.adt.ui.internal.util.GitCredentialsService;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard.CloneData;
 import org.eclipse.core.resources.IProject;
@@ -30,7 +31,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Text;
 
 import com.sap.adt.util.ui.swt.AdtSWTUtilFactory;
@@ -267,9 +267,6 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 				if (!fetchExternalRepoInfo()) {
 					return false;
 				}
-				else {
-					askUserToStoreCredentials();
-				}
 			}
 		}
 		//Close the tray of the dialog if it was open
@@ -280,41 +277,6 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 		}
 
 		return true;
-	}
-
-	//Open a popup asking if user wants to store the credentials in secure store
-	private void askUserToStoreCredentials() {
-		//since the credentials are proper ask if they should be stored in secure store
-		MessageBox messageBox = new MessageBox(getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
-		messageBox.setText(Messages.AbapGitWizardPageRepositoryAndCredentials_credentials_manager_popup_title);
-		messageBox.setMessage(Messages.AbapGitWizardPageRepositoryAndCredentials_store_creds_in_secure_storage);
-		int rc = messageBox.open();
-
-		if (rc == SWT.YES) {
-			//Store credentials in Secure Store if user chose to in credentials page
-			IExternalRepositoryInfoRequest credentials = new IExternalRepositoryInfoRequest() {
-
-				@Override
-				public String getUser() {
-					return AbapGitWizardPageRepositoryAndCredentials.this.cloneData.user;
-				}
-
-				@Override
-				public String getUrl() {
-					return AbapGitWizardPageRepositoryAndCredentials.this.cloneData.url;
-				}
-
-				@Override
-				public String getPassword() {
-					return AbapGitWizardPageRepositoryAndCredentials.this.cloneData.pass;
-				}
-			};
-			GitCredentialsService.storeCredentialsInSecureStorage(credentials, this.cloneData.url);
-		} else {
-
-			//delete credentials from secure store
-			GitCredentialsService.deleteCredentialsFromSecureStorage(this.cloneData.url);
-		}
 	}
 
 	private void fetchRepositories() {
@@ -353,11 +315,18 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 			});
 			setPageComplete(true);
 			setMessage(null);
+
+			//if credentials are provided, ask user if the credentials should be stored in the secure storage
+			if (this.cloneData.user != null && this.cloneData.pass != null) {
+				GitCredentialsService.showPopUpAskingToStoreCredentials(getShell(), this.cloneData.url, this.cloneData.user,
+						this.cloneData.pass);
+			}
+
 			return true;
 		} catch (InvocationTargetException e) {
 			setPageComplete(false);
 			setMessage(e.getTargetException().getMessage(), DialogPage.ERROR);
-			GitCredentialsService.handleExceptionAndDisplayInDialogTray((Exception) e.getTargetException(), (TrayDialog) getContainer());
+			ErrorHandlingService.handleExceptionAndDisplayInDialogTray((Exception) e.getTargetException(), (TrayDialog) getContainer());
 			return false;
 		} catch (InterruptedException e) {
 			// process was aborted
@@ -375,7 +344,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 	//Retrieve credentials for the given repositoryURL from Secure Store (if they exist)
 	private static IExternalRepositoryInfoRequest getRepoCredentialsFromSecureStorage(String url) {
 		ISecurePreferences preferences = SecurePreferencesFactory.getDefault();
-		String hashedURL = GitCredentialsService.getMD5HashForUrl(url);
+		String hashedURL = GitCredentialsService.getUrlForNodePath(url);
 		if (hashedURL != null && preferences.nodeExists(hashedURL)) {
 			ISecurePreferences node = preferences.node(hashedURL);
 			return new IExternalRepositoryInfoRequest() {

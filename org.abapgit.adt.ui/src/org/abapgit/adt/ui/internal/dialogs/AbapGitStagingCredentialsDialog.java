@@ -27,8 +27,8 @@ public class AbapGitStagingCredentialsDialog extends TitleAreaDialog {
 
 	private String errorMessage;
 
-	private Button checkBox_storeCreds;
-	private Label lbl_checkBox_storeCreds;
+	private Button storeCredentialCheckBox;
+	private Label storeCredentialCheckBoxLabel;
 
 	private boolean storeCredsInSecStore = false;
 	private IExternalRepositoryInfoRequest repoCredentials;
@@ -91,14 +91,14 @@ public class AbapGitStagingCredentialsDialog extends TitleAreaDialog {
 
 		// Check Box to store credentials in secure storage
 
-		this.lbl_checkBox_storeCreds = new Label(credentialsComposite, SWT.NONE);
-		this.lbl_checkBox_storeCreds.setText(Messages.AbapGitStagingCredentialsDialog_label_store_in_secure_store);
-		GridDataFactory.swtDefaults().applyTo(this.lbl_checkBox_storeCreds);
+		this.storeCredentialCheckBoxLabel = new Label(credentialsComposite, SWT.NONE);
+		this.storeCredentialCheckBoxLabel.setText(Messages.AbapGitStagingCredentialsDialog_label_store_in_secure_store);
+		GridDataFactory.swtDefaults().applyTo(this.storeCredentialCheckBoxLabel);
 
-		this.checkBox_storeCreds = new Button(credentialsComposite, SWT.CHECK);
-		GridDataFactory.swtDefaults().applyTo(this.checkBox_storeCreds);
+		this.storeCredentialCheckBox = new Button(credentialsComposite, SWT.CHECK);
+		GridDataFactory.swtDefaults().applyTo(this.storeCredentialCheckBox);
 
-		this.checkBox_storeCreds.addSelectionListener(new SelectionAdapter() {
+		this.storeCredentialCheckBox.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
 				Button chbox = (Button) event.getSource();

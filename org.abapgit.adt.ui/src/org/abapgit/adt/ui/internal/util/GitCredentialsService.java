@@ -1,12 +1,8 @@
 package org.abapgit.adt.ui.internal.util;
 
 import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.xml.bind.DatatypeConverter;
 
 import org.abapgit.adt.backend.IExternalRepositoryInfo;
 import org.abapgit.adt.backend.IExternalRepositoryInfo.AccessMode;
@@ -16,32 +12,19 @@ import org.abapgit.adt.ui.internal.dialogs.AbapGitStagingCredentialsDialog;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.security.storage.EncodingUtils;
 import org.eclipse.equinox.security.storage.ISecurePreferences;
 import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
 import org.eclipse.equinox.security.storage.StorageException;
 import org.eclipse.equinox.security.storage.provider.IProviderHints;
 import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.dialogs.DialogTray;
 import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.dialogs.TrayDialog;
-import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.browser.Browser;
-import org.eclipse.swt.graphics.FontMetrics;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import com.sap.adt.communication.resources.ResourceException;
-import com.sap.adt.tools.core.ui.AbapCoreUi;
-import com.sap.adt.tools.core.ui.BrowserUtil;
-import com.sap.adt.tools.core.ui.browsers.IHtmlUtil;
-import com.sap.adt.tools.core.ui.dialogs.ErrorDialogWithDetails;
 
 /**
  * Utility class for handling git credentials
@@ -49,6 +32,7 @@ import com.sap.adt.tools.core.ui.dialogs.ErrorDialogWithDetails;
 public class GitCredentialsService {
 	private static IExternalRepositoryInfoRequest repositoryCredentials;
 	private static final String keyhttpStatus = "http_status"; //$NON-NLS-1$
+	private static final String abapGitPathPrefix = "/abapGit/"; //$NON-NLS-1$
 
 	/**
 	 * Checks if the credentials are required for a repository while loading.
@@ -81,9 +65,14 @@ public class GitCredentialsService {
 			if (userCredentialsDialog.open() == IDialogConstants.OK_ID) {
 
 				repositoryCredentials = ((AbapGitStagingCredentialsDialog) userCredentialsDialog).getExternalRepoInfo();
-				if (repositoryCredentials != null && ((AbapGitStagingCredentialsDialog) userCredentialsDialog).storeInSecureStorage()) {
-					//store the credentials in secure storage
-					storeCredentialsInSecureStorage(repositoryCredentials, repositoryURL);
+				if (repositoryCredentials != null) {
+
+					if (((AbapGitStagingCredentialsDialog) userCredentialsDialog).storeInSecureStorage()) {
+						//store the credentials in secure storage
+						storeCredentialsInSecureStorage(repositoryCredentials, repositoryURL);
+					} else {
+						deleteCredentialsFromSecureStorage(repositoryURL);
+					}
 				}
 			}
 			else {
@@ -135,28 +124,21 @@ public class GitCredentialsService {
 	 */
 	public static void storeCredentialsInSecureStorage(IExternalRepositoryInfoRequest repositoryCredentials, String repositoryURL) {
 		if (repositoryCredentials != null && repositoryURL != null) {
-			String hashedURL = getMD5HashForUrl(repositoryURL);
+			String hashedURL = getUrlForNodePath(repositoryURL);
 
 			//Disable security questions
 			Map<String, Boolean> options = new HashMap<String, Boolean>();
 			options.put(IProviderHints.PROMPT_USER, false);
 
-			ISecurePreferences preferences = null;
 			try {
-				preferences = SecurePreferencesFactory.open(null, options);
-			} catch (IOException e) {
-				AbapGitUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getMessage(), e));
-			}
-
-			if (preferences != null && hashedURL != null) {
-				ISecurePreferences node = preferences.node(hashedURL);
-				try {
+				ISecurePreferences preferences = SecurePreferencesFactory.open(null, options);
+				if (preferences != null && hashedURL != null) {
+					ISecurePreferences node = preferences.node(hashedURL);
 					node.put("user", repositoryCredentials.getUser(), false); //$NON-NLS-1$
 					node.put("password", repositoryCredentials.getPassword(), true); //$NON-NLS-1$
-				} catch (StorageException e) {
-					AbapGitUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getMessage(), e));
-			}
-
+				}
+			} catch (IOException | StorageException e) {
+				AbapGitUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getMessage(), e));
 			}
 		}
 
@@ -170,7 +152,7 @@ public class GitCredentialsService {
 	 */
 	public static void deleteCredentialsFromSecureStorage(String repositoryURL) {
 		ISecurePreferences preferences = SecurePreferencesFactory.getDefault();
-		String hashedURL = getMD5HashForUrl(repositoryURL);
+		String hashedURL = getUrlForNodePath(repositoryURL);
 		if (hashedURL != null && preferences.nodeExists(hashedURL)) {
 			ISecurePreferences node = preferences.node(hashedURL);
 			node.removeNode();
@@ -185,7 +167,7 @@ public class GitCredentialsService {
 
 	private static IExternalRepositoryInfoRequest getRepoCredentialsFromSecureStorage(String repositoryURL) {
 		ISecurePreferences preferences = SecurePreferencesFactory.getDefault();
-		String hashedURL = getMD5HashForUrl(repositoryURL);
+		String hashedURL = getUrlForNodePath(repositoryURL);
 		if (hashedURL != null && preferences.nodeExists(hashedURL)) {
 			ISecurePreferences node = preferences.node(hashedURL);
 			return new IExternalRepositoryInfoRequest() {
@@ -221,135 +203,54 @@ public class GitCredentialsService {
 	}
 
 	/**
-	 * Returns MD5 hash value of the given repository URL. Used as a node value
-	 * in the secure storage, due limitations of using actual repository url as
-	 * node value in secure storage. Secure storage limits the length of node
-	 * value and also limits the use of special characters.
+	 * Returns slash encoded value of the given repository URL. Used as a node
+	 * path value in the secure storage, due limitations of using actual
+	 * repository url as node value in secure storage. Secure storage limits the
+	 * length of node value and also limits the use of special characters.
 	 *
 	 * @param url
-	 * @return MD5 hash value of the URL
+	 * @return node path for url
 	 */
-	public static String getMD5HashForUrl(String url) {
-		String hashedURL = null;
-
-		if (url != null) {
-			try {
-				MessageDigest messageDigest = MessageDigest.getInstance("MD5"); //$NON-NLS-1$
-				messageDigest.update(url.getBytes());
-				byte[] digest = messageDigest.digest();
-				hashedURL = DatatypeConverter.printHexBinary(digest).toUpperCase();
-			} catch (NoSuchAlgorithmException e) {
-				AbapGitUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getMessage(), e));
-			}
-		}
-		return hashedURL;
-
+	public static String getUrlForNodePath(String uri) {
+		String nodePath = abapGitPathPrefix + EncodingUtils.encodeSlashes(uri.toString());
+		return nodePath;
 	}
 
-	/**
-	 * @param dialog
-	 *            Display longText in the DialogTray of the given dialog
-	 */
-	public static void handleExceptionAndDisplayInDialogTray(Exception e, TrayDialog dialog) {
-		if (e instanceof ResourceException && GitCredentialsService.isAuthenticationIssue((ResourceException) e)) {
+	//Open a popup asking if user wants to store the credentials in secure store
+	public static boolean showPopUpAskingToStoreCredentials(Shell shell, String url, String user, String pass) {
+		//since the credentials are proper ask if they should be stored in secure store
+		MessageBox messageBox = new MessageBox(shell, SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+		messageBox.setText(Messages.AbapGitWizardPageRepositoryAndCredentials_credentials_manager_popup_title);
+		messageBox.setMessage(Messages.AbapGitWizardPageRepositoryAndCredentials_store_creds_in_secure_storage);
+		int rc = messageBox.open();
 
-			final String longText = ((ResourceException) e).getExceptionLongtext();
-			if (longText != null) {
-				Display.getDefault().asyncExec(new Runnable() {
-
-					@Override
-					public void run() {
-						showErrorInDialogTray(longText, dialog);
-					}
-
-					public void showErrorInDialogTray(String longtext, TrayDialog dialog) {
-						GC gc = new GC(dialog.getShell());
-						gc.setFont(JFaceResources.getDialogFont());
-						FontMetrics fontMetrics = gc.getFontMetrics();
-						gc.dispose();
-
-						if (dialog.getTray() != null) {
-							dialog.closeTray();
-						}
-
-						DialogTray tray = new DialogTray() {
-							@Override
-							protected Control createContents(Composite parent) {
-								Composite root = new Composite(parent, SWT.NO_FOCUS);
-								GridLayoutFactory.fillDefaults().spacing(0, 0).applyTo(root);
-								Browser browser = BrowserUtil.createBrowserBasedOnPreferenceSettings(root);
-								browser.setText(addStyleSheetTo(longtext));
-								int xHint = Dialog.convertHorizontalDLUsToPixels(fontMetrics, 200);
-								GridDataFactory.fillDefaults().grab(true, true).hint(xHint, SWT.DEFAULT).applyTo(browser);
-								return root;
-							}
-
-							private String addStyleSheetTo(String htmlPage) {
-								IHtmlUtil htmlUtil = AbapCoreUi.getInstance().getHtmlUtil();
-								return htmlUtil.getHtmlPage(htmlPage, htmlUtil.getDefaultStyleSheetForDialogs());
-							}
-						};
-
-						dialog.openTray(tray);
-					}
-
-				});
-			}
-
-		}
-
-	}
-
-
-	public static void handleExceptionAndDisplayInErrorDialog(Exception e, Shell shell) {
-		//invalid credentials : this condition check is only valid from 2002
-		if (e instanceof ResourceException && GitCredentialsService.isAuthenticationIssue((ResourceException) e)) {
-			String errorMessage = e.getMessage();
-			final String longText = ((ResourceException) e).getExceptionLongtext();
-			if (longText != null) {
-				openErrorDialog(Messages.AbapGitStagingView_authentication_error, errorMessage, true, longText, shell);
-			}
-		}
-	}
-
-// Open Error Message in ErrorDialog and display longText in details area
-	private static void openErrorDialog(String title, String errorMessage, boolean runInUIThread, String longText, Shell shell) {
-		if (runInUIThread) {
-
-			Display.getDefault().syncExec(new Runnable() {
+		if (rc == SWT.YES) {
+			//Store credentials in Secure Store if user chose to in credentials page
+			IExternalRepositoryInfoRequest credentials = new IExternalRepositoryInfoRequest() {
 
 				@Override
-				public void run() {
-					Dialog errorDialog = new ErrorDialogWithDetails(shell, AbapGitUIPlugin.PLUGIN_ID, IStatus.ERROR, title,
-							errorMessage, longText);
-					errorDialog.open();
+				public String getUser() {
+					return user;
 				}
-			});
+
+				@Override
+				public String getUrl() {
+					return url;
+				}
+
+				@Override
+				public String getPassword() {
+					return pass;
+				}
+			};
+			GitCredentialsService.storeCredentialsInSecureStorage(credentials, url);
 		} else {
-			Dialog errorDialog = new ErrorDialogWithDetails(shell, AbapGitUIPlugin.PLUGIN_ID, IStatus.ERROR, title,
-					errorMessage, longText);
-			errorDialog.open();
+
+			//delete credentials from secure store
+			GitCredentialsService.deleteCredentialsFromSecureStorage(url);
 		}
 
-	}
-
-	/**
-	 * Opens an error dialog box
-	 *
-	 * @param title
-	 *            Title for the error dialog box
-	 * @param message
-	 *            Message to be displayed in the dialog box
-	 * @param runInUIThread
-	 *            Set it to true, if this method is called from a non UI thread
-	 */
-
-	public static void openErrorDialog(String title, String message, Shell shell, boolean runInUIThread) {
-		if (runInUIThread) {
-			Display.getDefault().syncExec(() -> MessageDialog.openError(shell, title, message));
-		} else {
-			MessageDialog.openError(shell, title, message);
-		}
+		return true;
 	}
 
 }

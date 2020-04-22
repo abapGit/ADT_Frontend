@@ -10,6 +10,8 @@ import java.util.Set;
 
 import org.abapgit.adt.backend.IExternalRepositoryInfoRequest;
 import org.abapgit.adt.backend.IFileService;
+import org.abapgit.adt.backend.IRepository;
+import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitFile;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
@@ -19,6 +21,7 @@ import org.abapgit.adt.ui.internal.staging.IAbapGitStagingView;
 import org.abapgit.adt.ui.internal.staging.compare.AbapGitCompareInput;
 import org.abapgit.adt.ui.internal.staging.compare.AbapGitCompareItem;
 import org.abapgit.adt.ui.internal.util.AbapGitUIServiceFactory;
+import org.abapgit.adt.ui.internal.util.ErrorHandlingService;
 import org.abapgit.adt.ui.internal.util.GitCredentialsService;
 import org.eclipse.compare.CompareUI;
 import org.eclipse.compare.ITypedElement;
@@ -27,6 +30,8 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -34,22 +39,25 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.actions.BaseSelectionListenerAction;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
+import com.sap.adt.communication.exceptions.CommunicationException;
 import com.sap.adt.communication.resources.ResourceException;
+import com.sap.adt.compatibility.exceptions.OutDatedClientException;
 import com.sap.adt.tools.abapsource.AbapSource;
 import com.sap.adt.tools.abapsource.IAdtObjectLoader;
 import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
 import com.sap.adt.tools.core.urimapping.AdtUriMappingServiceFactory;
 import com.sap.adt.tools.core.urimapping.UriMappingContext;
+import com.sap.adt.util.ui.AdtUtilUiPlugin;
 
 public class CompareAction extends BaseSelectionListenerAction {
 	private final TreeViewer treeViewer;
 	private final IAbapGitStagingView view;
 	private IFileService fileService;
 	private IExternalRepositoryInfoRequest credentials;
-	private IStructuredSelection selection;
 
 	public CompareAction(IAbapGitStagingView view, TreeViewer treeViewer) {
 		super(Messages.AbapGitStaging_action_compare);
@@ -65,23 +73,26 @@ public class CompareAction extends BaseSelectionListenerAction {
 
 	@Override
 	public void run() {
-			this.selection = (IStructuredSelection) this.treeViewer.getSelection();
+		IRepository repo = this.view.getRepository();
+		Shell shell = ((AbapGitStagingView) this.view).getSite().getShell();
 
-		//Check if credentials required
 		if (GitCredentialsService.checkIfCredentialsRequired(this.view.getExternalRepositoryInfo())) {
-			//Get credentials from user
-			if (getGitCredentials(null).equals(Status.CANCEL_STATUS))
-			 {
-				return ;
+			if (getGitCredentialsAndValidate(shell, repo.getUrl()).equals(Status.CANCEL_STATUS)) {
+				//reset if user cancels refresh
+				this.credentials = null;
+				return;
 			}
+		} else {
+			//compare files
+			compareAbapGitFiles();
 		}
-		//compare files
-		compareAbapGitFiles();
+
 	}
 
 	private void compareAbapGitFiles() {
 		Set<String> compareInputFiles = new HashSet<>(); //maintain a list for handling duplicate file compare inputs
-		for (Object object : this.selection.toList()) {
+		IStructuredSelection selection = (IStructuredSelection) this.treeViewer.getSelection();
+		for (Object object : selection.toList()) {
 			if (object instanceof IAbapGitObject) { // if selection is on an abap object, create compare inputs for all the files inside the selected object
 				IAbapGitObject abapObject = (IAbapGitObject) object;
 				for (IAbapGitFile file : abapObject.getFiles()) {
@@ -131,8 +142,7 @@ public class CompareAction extends BaseSelectionListenerAction {
 							CompareAction.this.view.getProject());
 					Display.getDefault().asyncExec(() -> CompareUI.openCompareEditor(compareInput));
 					return Status.OK_STATUS;
-				} catch (IOException | CoreException | ResourceException e) {
-					handleException(e);
+				} catch (IOException | CoreException e) {
 					return Status.CANCEL_STATUS;
 				}
 			}
@@ -266,37 +276,60 @@ public class CompareAction extends BaseSelectionListenerAction {
 		return this.fileService;
 	}
 
+	private void repositoryChecks(IProgressMonitor monitor, IExternalRepositoryInfoRequest credentials) {
+		//perform repository checks
+		if (this.view.getRepository().getChecksLink(IRepositoryService.RELATION_CHECK) != null) {
+			monitor.beginTask(Messages.AbapGitStaging_check_job_title, IProgressMonitor.UNKNOWN);
+			IRepositoryService repoService = AbapGitUIServiceFactory.createRepositoryService(this.view.getProject());
+			repoService.repositoryChecks(monitor, credentials, this.view.getRepository());
+		}
+	}
+
+	private IStatus getGitCredentials(Shell shell, String repositoryURL, String errorMessage) {
+		//get credentials
+		this.credentials = GitCredentialsService.getCredentialsFromUser(shell, repositoryURL, errorMessage);
+		if (this.credentials == null) {
+			return Status.CANCEL_STATUS;
+		}
+		return Status.OK_STATUS;
+	}
+
+	private void handleException(Exception e, String repoURL, Shell shell) {
+		//invalid credentials : this condition check is only valid from 2002
+		if (e instanceof ResourceException && GitCredentialsService.isAuthenticationIssue((ResourceException) e)) {
+			ErrorHandlingService.handleExceptionAndDisplayInErrorDialog(e, shell);
+			if (getGitCredentials(shell, repoURL, e.getLocalizedMessage()).equals(Status.OK_STATUS)) {
+				validateCredsAndCompareFiles(shell, repoURL);
+			}
+		} else {
+			ErrorHandlingService.openErrorDialog("Error", e.getLocalizedMessage(), shell, true); //$NON-NLS-1$
+		}
+	}
+
+	private void validateCredsAndCompareFiles(Shell shell, String repositoryURL) {
+		try {
+			//perform repository checks
+			repositoryChecks(new NullProgressMonitor(), CompareAction.this.credentials);
+			compareAbapGitFiles();
+		} catch (CommunicationException | ResourceException | OperationCanceledException e) {
+			handleException(e, repositoryURL, shell);
+
+		} catch (OutDatedClientException e) {
+			AdtUtilUiPlugin.getDefault().getAdtStatusService().handle(e, null);
+		}
+	}
+
+	private IStatus getGitCredentialsAndValidate(Shell shell, String repositoryURL) {
+		if (getGitCredentials(shell, repositoryURL, null).equals(Status.CANCEL_STATUS)) {
+			return Status.CANCEL_STATUS;
+		}
+
+		validateCredsAndCompareFiles(shell, repositoryURL);
+		return Status.OK_STATUS;
+	}
+
 	//For Testing
 	public void setFileService(IFileService fileService) {
 		this.fileService = fileService;
 	}
-
-	private IStatus getGitCredentials(String previousErrorMessage) {
-		//get credentials
-			this.credentials = GitCredentialsService.getCredentialsFromUser(
-				((AbapGitStagingView) CompareAction.this.view).getSite().getShell(), this.view.getRepository().getUrl(),
-				previousErrorMessage);
-			if (this.credentials == null) {
-				return Status.CANCEL_STATUS;
-			}
-		return Status.OK_STATUS;
-	}
-
-	private void handleException(Exception e) {
-		//invalid credentials : this condition check is only valid from 2002
-		if (e instanceof ResourceException && GitCredentialsService.isAuthenticationIssue((ResourceException) e)) {
-			this.credentials = null;
-			GitCredentialsService.handleExceptionAndDisplayInErrorDialog(e,
-					((AbapGitStagingView) CompareAction.this.view).getSite().getShell());
-		} else {
-			GitCredentialsService.openErrorDialog("Error", e.getLocalizedMessage(), //$NON-NLS-1$
-					((AbapGitStagingView) CompareAction.this.view).getSite().getShell(), true);
-		}
-		//re-trigger action
-		if (getGitCredentials(e.getLocalizedMessage()).equals(Status.OK_STATUS)) {
-			compareAbapGitFiles();
-		}
-
-	}
-
 }

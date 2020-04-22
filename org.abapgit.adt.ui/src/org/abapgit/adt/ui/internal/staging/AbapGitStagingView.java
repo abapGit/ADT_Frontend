@@ -36,6 +36,7 @@ import org.abapgit.adt.ui.internal.staging.util.StagingDragListener;
 import org.abapgit.adt.ui.internal.staging.util.StagingDragSelection;
 import org.abapgit.adt.ui.internal.staging.util.SwitchRepositoryMenuCreator;
 import org.abapgit.adt.ui.internal.util.AbapGitUIServiceFactory;
+import org.abapgit.adt.ui.internal.util.ErrorHandlingService;
 import org.abapgit.adt.ui.internal.util.GitCredentialsService;
 import org.abapgit.adt.ui.internal.util.RepositoryUtil;
 import org.eclipse.core.resources.IProject;
@@ -1096,15 +1097,10 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		if (this.repository.getChecksLink(IRepositoryService.RELATION_CHECK) == null) {
 			//compatibility handling for credentials checks for 1911
 			//TODO: remove this check once customers upgrade to 2002
-			IExternalRepositoryInfoRequest credentials;
-			if (this.repositoryCredentials != null) {
-				credentials = this.repositoryCredentials;
-			} else {
-				credentials = GitCredentialsService.getCredentialsFromUser(getSite().getShell(),
-						this.repository.getUrl(), null);
-				if (credentials == null) {
-					return;
-				}
+			IExternalRepositoryInfoRequest credentials = GitCredentialsService.getCredentialsFromUser(getSite().getShell(),
+					this.repository.getUrl(), null);
+			if (credentials == null) {
+				return;
 			}
 			commitAndPush(credentials);
 		}
@@ -1112,8 +1108,12 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		//if the user has entered credentials while doing the previous commit, the credentials will be validated before we do a push
 		//hence we can always rely on the value of the variable repositoryCredentials
 		else {
-			if (getGitCredentials().equals(Status.OK_STATUS)) {
-				commitAndPush(this.repositoryCredentials);
+			//open get credentials Dialog
+			IExternalRepositoryInfoRequest credentials = GitCredentialsService.getCredentialsFromUser(getSite().getShell(),
+					this.repository.getUrl(),
+					null);
+			if (credentials != null) {
+				commitAndPush(credentials);
 			}
 		}
 	}
@@ -1124,6 +1124,9 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
+					if (credentials != null) {
+						AbapGitStagingView.this.repositoryCredentials =  credentials;
+					}
 					//perform repository checks
 					repositoryChecks(monitor);
 
@@ -1178,7 +1181,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		//invalid credentials : this condition check is only valid from 2002
 		if (e instanceof ResourceException && GitCredentialsService.isAuthenticationIssue((ResourceException) e)) {
 			AbapGitStagingView.this.repositoryCredentials = null;
-			GitCredentialsService.handleExceptionAndDisplayInErrorDialog(e, getSite().getShell());
+			ErrorHandlingService.handleExceptionAndDisplayInErrorDialog(e, getSite().getShell());
 			if (getGitCredentials(e.getLocalizedMessage()).equals(Status.OK_STATUS)) {
 				//re-trigger action
 				if (action.equals(stage)) {
@@ -1204,9 +1207,9 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 			}
 
 			if (action.equals(push)) {
-				GitCredentialsService.openErrorDialog(Messages.AbapGitStaging_push_job_error, excMessage, getSite().getShell(), true);
+				ErrorHandlingService.openErrorDialog(Messages.AbapGitStaging_push_job_error, excMessage, getSite().getShell(), true);
 			} else if (action.equals(stage)) {
-				GitCredentialsService.openErrorDialog(Messages.AbapGitStaging_task_fetch_repos_staging_error, excMessage,
+				ErrorHandlingService.openErrorDialog(Messages.AbapGitStaging_task_fetch_repos_staging_error, excMessage,
 						getSite().getShell(), true);
 			}
 		}
@@ -1259,7 +1262,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 			if (event.getSelection() instanceof IStructuredSelection) {
 				IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 				Object object = selection.getFirstElement();
-				this.stagingUtil.openEditor(object, this.project);
+				this.stagingUtil.openEditor(object, this.project, this.repositoryCredentials);
 			}
 		});
 	}
