@@ -39,15 +39,15 @@ import com.sap.adt.tools.core.model.atom.IAtomLink;
 public class FileService implements IFileService {
 
 	@Override
-	public String readLocalFileContents(IAbapGitFile file, String destinationId)
+	public String readLocalFileContents(IAbapGitFile file, IExternalRepositoryInfoRequest credentials, String destinationId)
 			throws IOException {
-		return readFileContents(file, LOCAL_VERSION, AbapGitAuthenticationInfo.getRepoCredentials(), destinationId);
+		return readFileContents(file, LOCAL_VERSION, credentials, destinationId);
 	}
 
 	@Override
-	public String readRemoteFileContents(IAbapGitFile file, String destinationId)
+	public String readRemoteFileContents(IAbapGitFile file, IExternalRepositoryInfoRequest credentials, String destinationId)
 			throws IOException {
-		return readFileContents(file, REMOTE_VERSION, AbapGitAuthenticationInfo.getRepoCredentials(), destinationId);
+		return readFileContents(file, REMOTE_VERSION, credentials, destinationId);
 	}
 
 	private String readFileContents(IAbapGitFile file, String version, IExternalRepositoryInfoRequest credentials, String destinationId)
@@ -78,7 +78,7 @@ public class FileService implements IFileService {
 	}
 
 	@Override
-	public List<String> readFileContentsBatch(IAbapGitFile file, String destinationId)
+	public List<String> readFileContentsBatch(IAbapGitFile file, IExternalRepositoryInfoRequest credentials, String destinationId)
 			throws IOException {
 		URI defaultBatchUri = AdtBatchUriDiscoveryFactory.createBatchUriDiscovery(destinationId)
 				.getDefaultBatchURI(new NullProgressMonitor());
@@ -86,10 +86,10 @@ public class FileService implements IFileService {
 		IAdtBatchResource resource = AdtBatchResourceFactory.createBatchResource(session, defaultBatchUri);
 		//add local file fetch request to batch
 		IAdtBatchPartDelayedResponse<IResponse> localFileResponse = readLocalFileContent(resource, file,
-				AbapGitAuthenticationInfo.getRepoCredentials());
+				credentials);
 		//add remote file fetch request to batch
 		IAdtBatchPartDelayedResponse<IResponse> remoteFileResponse = readRemoteFileContent(resource, file,
-				AbapGitAuthenticationInfo.getRepoCredentials());
+				credentials);
 		//submit batch request
 		resource.submit(new NullProgressMonitor());
 

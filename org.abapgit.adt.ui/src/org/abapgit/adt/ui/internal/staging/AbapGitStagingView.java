@@ -29,7 +29,6 @@ import org.abapgit.adt.ui.internal.staging.actions.OpenPackageAction;
 import org.abapgit.adt.ui.internal.staging.util.AbapGitStagingTreeComparator;
 import org.abapgit.adt.ui.internal.staging.util.AbapGitStagingTreeFilter;
 import org.abapgit.adt.ui.internal.staging.util.FileStagingModeUtil;
-import org.abapgit.adt.ui.internal.staging.util.GitCredentialsService;
 import org.abapgit.adt.ui.internal.staging.util.IAbapGitStagingService;
 import org.abapgit.adt.ui.internal.staging.util.ObjectStagingModeUtil;
 import org.abapgit.adt.ui.internal.staging.util.ProjectChangeListener;
@@ -37,6 +36,8 @@ import org.abapgit.adt.ui.internal.staging.util.StagingDragListener;
 import org.abapgit.adt.ui.internal.staging.util.StagingDragSelection;
 import org.abapgit.adt.ui.internal.staging.util.SwitchRepositoryMenuCreator;
 import org.abapgit.adt.ui.internal.util.AbapGitUIServiceFactory;
+import org.abapgit.adt.ui.internal.util.ErrorHandlingService;
+import org.abapgit.adt.ui.internal.util.GitCredentialsService;
 import org.abapgit.adt.ui.internal.util.RepositoryUtil;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -714,7 +715,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 					//fetch the staging data
 					monitor.beginTask(Messages.AbapGitStaging_task_fetch_repos_staging, IProgressMonitor.UNKNOWN);
 					AbapGitStagingView.this.model = AbapGitStagingView.this.repoService
-							.stage(AbapGitStagingView.this.repository, monitor);
+							.stage(AbapGitStagingView.this.repository, AbapGitStagingView.this.repositoryCredentials, monitor);
 					if (AbapGitStagingView.this.model != null) {
 						//refresh UI
 						refreshUI();
@@ -1080,7 +1081,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	private IStatus getGitCredentials(String previousErrorMessage) {
 		//get credentials
 		if (this.repositoryCredentials == null) {
-			this.repositoryCredentials = GitCredentialsService.getCredentialsFromUser(getSite().getShell(), previousErrorMessage);
+			this.repositoryCredentials = GitCredentialsService.getCredentialsFromUser(getSite().getShell(), this.repository.getUrl(), previousErrorMessage);
 			if (this.repositoryCredentials == null) {
 				return Status.CANCEL_STATUS;
 			}
@@ -1096,14 +1097,10 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		if (this.repository.getChecksLink(IRepositoryService.RELATION_CHECK) == null) {
 			//compatibility handling for credentials checks for 1911
 			//TODO: remove this check once customers upgrade to 2002
-			IExternalRepositoryInfoRequest credentials;
-			if (this.repositoryCredentials != null) {
-				credentials = this.repositoryCredentials;
-			} else {
-				credentials = GitCredentialsService.getCredentialsFromUser(getSite().getShell(), null);
-				if (credentials == null) {
-					return;
-				}
+			IExternalRepositoryInfoRequest credentials = GitCredentialsService.getCredentialsFromUser(getSite().getShell(),
+					this.repository.getUrl(), null);
+			if (credentials == null) {
+				return;
 			}
 			commitAndPush(credentials);
 		}
@@ -1111,8 +1108,12 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		//if the user has entered credentials while doing the previous commit, the credentials will be validated before we do a push
 		//hence we can always rely on the value of the variable repositoryCredentials
 		else {
-			if (getGitCredentials().equals(Status.OK_STATUS)) {
-				commitAndPush(this.repositoryCredentials);
+			//open get credentials Dialog
+			IExternalRepositoryInfoRequest credentials = GitCredentialsService.getCredentialsFromUser(getSite().getShell(),
+					this.repository.getUrl(),
+					null);
+			if (credentials != null) {
+				commitAndPush(credentials);
 			}
 		}
 	}
@@ -1123,12 +1124,16 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
+					if (credentials != null) {
+						AbapGitStagingView.this.repositoryCredentials =  credentials;
+					}
 					//perform repository checks
 					repositoryChecks(monitor);
 
 					//push changes
 					monitor.beginTask(Messages.AbapGitStaging_push_job_title, IProgressMonitor.UNKNOWN);
 					AbapGitStagingView.this.repoService.push(new NullProgressMonitor(), AbapGitStagingView.this.model,
+							AbapGitStagingView.this.repositoryCredentials,
 							AbapGitStagingView.this.repository);
 
 					//refresh
@@ -1163,7 +1168,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		//perform repository checks
 		if (AbapGitStagingView.this.repository.getChecksLink(IRepositoryService.RELATION_CHECK) != null) {
 			monitor.beginTask(Messages.AbapGitStaging_check_job_title, IProgressMonitor.UNKNOWN);
-			AbapGitStagingView.this.repoService.repositoryChecks(monitor, AbapGitStagingView.this.repository);
+			AbapGitStagingView.this.repoService.repositoryChecks(monitor, this.repositoryCredentials, AbapGitStagingView.this.repository);
 		}
 	}
 
@@ -1176,6 +1181,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		//invalid credentials : this condition check is only valid from 2002
 		if (e instanceof ResourceException && GitCredentialsService.isAuthenticationIssue((ResourceException) e)) {
 			AbapGitStagingView.this.repositoryCredentials = null;
+			ErrorHandlingService.handleExceptionAndDisplayInErrorDialog(e, getSite().getShell());
 			if (getGitCredentials(e.getLocalizedMessage()).equals(Status.OK_STATUS)) {
 				//re-trigger action
 				if (action.equals(stage)) {
@@ -1201,9 +1207,10 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 			}
 
 			if (action.equals(push)) {
-				openErrorDialog(Messages.AbapGitStaging_push_job_error, excMessage, true);
+				ErrorHandlingService.openErrorDialog(Messages.AbapGitStaging_push_job_error, excMessage, getSite().getShell(), true);
 			} else if (action.equals(stage)) {
-				openErrorDialog(Messages.AbapGitStaging_task_fetch_repos_staging_error, excMessage, true);
+				ErrorHandlingService.openErrorDialog(Messages.AbapGitStaging_task_fetch_repos_staging_error, excMessage,
+						getSite().getShell(), true);
 			}
 		}
 	}
@@ -1255,7 +1262,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 			if (event.getSelection() instanceof IStructuredSelection) {
 				IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 				Object object = selection.getFirstElement();
-				this.stagingUtil.openEditor(object, this.project);
+				this.stagingUtil.openEditor(object, this.project, this.repositoryCredentials);
 			}
 		});
 	}
@@ -1285,24 +1292,6 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 			this.stagingUtil = AbapGitUIServiceFactory.createAbapGitStagingService();
 		}
 		return this.stagingUtil;
-	}
-
-	/**
-	 * Opens an error dialog box
-	 *
-	 * @param title
-	 *            Title for the error dialog box
-	 * @param message
-	 *            Message to be displayed in the dialog box
-	 * @param runInUIThread
-	 *            Set it to true, if this method is called from a non UI thread
-	 */
-	private void openErrorDialog(String title, String message, boolean runInUIThread) {
-		if (runInUIThread) {
-			Display.getDefault().syncExec(() -> MessageDialog.openError(getSite().getShell(), title, message));
-		} else {
-			MessageDialog.openError(getSite().getShell(), title, message);
-		}
 	}
 
 	/**
@@ -1355,6 +1344,11 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 				AbapGitStagingView.this.stagedTreeViewer.collapseAll();
 			}
 		}
+	}
+
+	@Override
+	public IExternalRepositoryInfo getExternalRepositoryInfo() {
+		return this.repositoryExternalInfo;
 	}
 
 }

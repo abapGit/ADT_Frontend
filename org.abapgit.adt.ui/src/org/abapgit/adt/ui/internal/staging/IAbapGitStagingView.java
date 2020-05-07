@@ -1,5 +1,6 @@
 package org.abapgit.adt.ui.internal.staging;
 
+import org.abapgit.adt.backend.IExternalRepositoryInfo;
 import org.abapgit.adt.backend.IRepository;
 import org.eclipse.core.resources.IProject;
 
@@ -26,4 +27,11 @@ public interface IAbapGitStagingView {
 	 * repository has been loaded.
 	 */
 	public IProject getProject();
+
+	/**
+	 * Returns ExternalRepositoryInfo of the current repository
+	 *
+	 */
+
+	public IExternalRepositoryInfo getExternalRepositoryInfo();
 }

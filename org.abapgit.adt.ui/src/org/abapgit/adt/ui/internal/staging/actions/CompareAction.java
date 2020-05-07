@@ -8,15 +8,21 @@ import java.net.URI;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.abapgit.adt.backend.IExternalRepositoryInfoRequest;
 import org.abapgit.adt.backend.IFileService;
+import org.abapgit.adt.backend.IRepository;
+import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitFile;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.internal.i18n.Messages;
+import org.abapgit.adt.ui.internal.staging.AbapGitStagingView;
 import org.abapgit.adt.ui.internal.staging.IAbapGitStagingView;
 import org.abapgit.adt.ui.internal.staging.compare.AbapGitCompareInput;
 import org.abapgit.adt.ui.internal.staging.compare.AbapGitCompareItem;
 import org.abapgit.adt.ui.internal.util.AbapGitUIServiceFactory;
+import org.abapgit.adt.ui.internal.util.ErrorHandlingService;
+import org.abapgit.adt.ui.internal.util.GitCredentialsService;
 import org.eclipse.compare.CompareUI;
 import org.eclipse.compare.ITypedElement;
 import org.eclipse.core.resources.IFile;
@@ -24,6 +30,8 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -31,19 +39,25 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.actions.BaseSelectionListenerAction;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
+import com.sap.adt.communication.exceptions.CommunicationException;
+import com.sap.adt.communication.resources.ResourceException;
+import com.sap.adt.compatibility.exceptions.OutDatedClientException;
 import com.sap.adt.tools.abapsource.AbapSource;
 import com.sap.adt.tools.abapsource.IAdtObjectLoader;
 import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
 import com.sap.adt.tools.core.urimapping.AdtUriMappingServiceFactory;
 import com.sap.adt.tools.core.urimapping.UriMappingContext;
+import com.sap.adt.util.ui.AdtUtilUiPlugin;
 
 public class CompareAction extends BaseSelectionListenerAction {
 	private final TreeViewer treeViewer;
 	private final IAbapGitStagingView view;
 	private IFileService fileService;
+	private IExternalRepositoryInfoRequest credentials;
 
 	public CompareAction(IAbapGitStagingView view, TreeViewer treeViewer) {
 		super(Messages.AbapGitStaging_action_compare);
@@ -59,8 +73,20 @@ public class CompareAction extends BaseSelectionListenerAction {
 
 	@Override
 	public void run() {
-		//compare files
-		compareAbapGitFiles();
+		IRepository repo = this.view.getRepository();
+		Shell shell = ((AbapGitStagingView) this.view).getSite().getShell();
+
+		if (GitCredentialsService.checkIfCredentialsRequired(this.view.getExternalRepositoryInfo())) {
+			if (getGitCredentialsAndValidate(shell, repo.getUrl()).equals(Status.CANCEL_STATUS)) {
+				//reset if user cancels refresh
+				this.credentials = null;
+				return;
+			}
+		} else {
+			//compare files
+			compareAbapGitFiles();
+		}
+
 	}
 
 	private void compareAbapGitFiles() {
@@ -96,9 +122,9 @@ public class CompareAction extends BaseSelectionListenerAction {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
-					String leftFileContents = CompareAction.this.fileService.readLocalFileContents(file,
+					String leftFileContents = CompareAction.this.fileService.readLocalFileContents(file, CompareAction.this.credentials,
 							getDestination(CompareAction.this.view.getProject()));
-					String rightFileContents = CompareAction.this.fileService.readRemoteFileContents(file,
+					String rightFileContents = CompareAction.this.fileService.readRemoteFileContents(file, CompareAction.this.credentials,
 							getDestination(CompareAction.this.view.getProject()));
 					AbapGitCompareItem left = new AbapGitCompareItem(getFileNameLocal(file), getFileExtension(file, abapObject),
 							leftFileContents);
@@ -248,6 +274,58 @@ public class CompareAction extends BaseSelectionListenerAction {
 			return AbapGitUIServiceFactory.createFileService();
 		}
 		return this.fileService;
+	}
+
+	private void repositoryChecks(IProgressMonitor monitor, IExternalRepositoryInfoRequest credentials) {
+		//perform repository checks
+		if (this.view.getRepository().getChecksLink(IRepositoryService.RELATION_CHECK) != null) {
+			monitor.beginTask(Messages.AbapGitStaging_check_job_title, IProgressMonitor.UNKNOWN);
+			IRepositoryService repoService = AbapGitUIServiceFactory.createRepositoryService(this.view.getProject());
+			repoService.repositoryChecks(monitor, credentials, this.view.getRepository());
+		}
+	}
+
+	private IStatus getGitCredentials(Shell shell, String repositoryURL, String errorMessage) {
+		//get credentials
+		this.credentials = GitCredentialsService.getCredentialsFromUser(shell, repositoryURL, errorMessage);
+		if (this.credentials == null) {
+			return Status.CANCEL_STATUS;
+		}
+		return Status.OK_STATUS;
+	}
+
+	private void handleException(Exception e, String repoURL, Shell shell) {
+		//invalid credentials : this condition check is only valid from 2002
+		if (e instanceof ResourceException && GitCredentialsService.isAuthenticationIssue((ResourceException) e)) {
+			ErrorHandlingService.handleExceptionAndDisplayInErrorDialog(e, shell);
+			if (getGitCredentials(shell, repoURL, e.getLocalizedMessage()).equals(Status.OK_STATUS)) {
+				validateCredsAndCompareFiles(shell, repoURL);
+			}
+		} else {
+			ErrorHandlingService.openErrorDialog("Error", e.getLocalizedMessage(), shell, true); //$NON-NLS-1$
+		}
+	}
+
+	private void validateCredsAndCompareFiles(Shell shell, String repositoryURL) {
+		try {
+			//perform repository checks
+			repositoryChecks(new NullProgressMonitor(), CompareAction.this.credentials);
+			compareAbapGitFiles();
+		} catch (CommunicationException | ResourceException | OperationCanceledException e) {
+			handleException(e, repositoryURL, shell);
+
+		} catch (OutDatedClientException e) {
+			AdtUtilUiPlugin.getDefault().getAdtStatusService().handle(e, null);
+		}
+	}
+
+	private IStatus getGitCredentialsAndValidate(Shell shell, String repositoryURL) {
+		if (getGitCredentials(shell, repositoryURL, null).equals(Status.CANCEL_STATUS)) {
+			return Status.CANCEL_STATUS;
+		}
+
+		validateCredsAndCompareFiles(shell, repositoryURL);
+		return Status.OK_STATUS;
 	}
 
 	//For Testing

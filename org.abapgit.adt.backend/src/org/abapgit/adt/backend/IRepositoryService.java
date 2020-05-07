@@ -36,11 +36,13 @@ public interface IRepositoryService {
 	 *
 	 * @param repository
 	 *            Repository for which the staging data has to be loaded
+	 * @param credentials
+	 * 			  Repository credentials           
 	 * @param monitor
 	 *            Progress monitor
 	 * @return Staging model for the given repository
 	 */
-	IAbapGitStaging stage(IRepository repository, IProgressMonitor monitor)
+	IAbapGitStaging stage(IRepository repository, IExternalRepositoryInfoRequest credentials, IProgressMonitor monitor)
 			throws CommunicationException, ResourceException, OperationCanceledException, OutDatedClientException;
 
 	/**
@@ -51,10 +53,12 @@ public interface IRepositoryService {
 	 * @param staging
 	 *            Model which contains the staged objects which are to be
 	 *            committed
+	 * @param credentials
+	 * 			  Repository credentials           
 	 * @param repository
 	 *            Repository to which the commit has to happen
 	 */
-	void push(IProgressMonitor monitor, IAbapGitStaging staging, IRepository repository)
+	void push(IProgressMonitor monitor, IAbapGitStaging staging, IExternalRepositoryInfoRequest credentials, IRepository repository)
 			throws CommunicationException, ResourceException, OperationCanceledException, OutDatedClientException;
 
 	/**
@@ -63,10 +67,12 @@ public interface IRepositoryService {
 	 *
 	 * @param monitor
 	 *            Progress monitor
+	 * @param credentials
+	 *			  Repository credentials
 	 * @param repository
 	 *            Repository to which the commit has to happen
 	 */
-	void repositoryChecks(IProgressMonitor monitor, IRepository repository)
+	void repositoryChecks(IProgressMonitor monitor, IExternalRepositoryInfoRequest credentials, IRepository repository)
 			throws CommunicationException, ResourceException, OperationCanceledException, OutDatedClientException;
 
 }

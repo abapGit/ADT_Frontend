@@ -5,6 +5,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.abapgit.adt.backend.FileServiceFactory;
+import org.abapgit.adt.backend.IExternalRepositoryInfoRequest;
 import org.abapgit.adt.backend.IFileService;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitFile;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject;
@@ -35,13 +36,13 @@ import com.sap.adt.tools.core.ui.navigation.AdtNavigationServiceFactory;
 
 public class AbapGitStagingService extends AbapGitService implements IAbapGitStagingService {
 
-	public void openEditor(Object object, IProject project) {
+	public void openEditor(Object object, IProject project, IExternalRepositoryInfoRequest credentials) {
 		if (object instanceof IAbapGitObject) {
 			//open the abap object in the native ADT editor
 			openAbapObject((IAbapGitObject) object, project);
 		} else if (object instanceof IAbapGitFile) {
 			//open the abapgit file
-			openAbapGitFile((IAbapGitFile) object, project);
+			openAbapGitFile((IAbapGitFile) object, project, credentials);
 		}
 	}
 
@@ -77,7 +78,7 @@ public class AbapGitStagingService extends AbapGitService implements IAbapGitSta
 	 * @param project
 	 *            Abap project
 	 */
-	private void openAbapGitFile(IAbapGitFile file, IProject project) {
+	private void openAbapGitFile(IAbapGitFile file, IProject project, IExternalRepositoryInfoRequest credentials) {
 		if (!isFetchFileContentSupported(file)) {
 			IAbapGitObject abapObject = (IAbapGitObject) file.eContainer();
 			if (abapObject.getType() == null) {
@@ -99,7 +100,9 @@ public class AbapGitStagingService extends AbapGitService implements IAbapGitSta
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
-					String fileContents = FileServiceFactory.createFileService().readLocalFileContents(file, getDestination(project));
+					//set credentials to null as reading local file does not require any credentials.
+					String fileContents = FileServiceFactory.createFileService().readLocalFileContents(file, credentials,
+							getDestination(project));
 					openFileEditor(file, fileContents);
 					return Status.OK_STATUS;
 				} catch (IOException e) {

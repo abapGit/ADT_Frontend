@@ -5,14 +5,24 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.abapgit.adt.backend.IExternalRepositoryInfo.AccessMode;
+import org.abapgit.adt.backend.IExternalRepositoryInfoRequest;
 import org.abapgit.adt.backend.IExternalRepositoryInfoService;
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
+import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.internal.i18n.Messages;
+import org.abapgit.adt.ui.internal.util.ErrorHandlingService;
+import org.abapgit.adt.ui.internal.util.GitCredentialsService;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard.CloneData;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.security.storage.ISecurePreferences;
+import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
+import org.eclipse.equinox.security.storage.StorageException;
 import org.eclipse.jface.dialogs.DialogPage;
+import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.osgi.util.NLS;
@@ -44,6 +54,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 
 	private final Boolean pullAction;
 	private boolean wasVisibleBefore;
+	private IExternalRepositoryInfoRequest repositoryCredentials;
 
 	public AbapGitWizardPageRepositoryAndCredentials(IProject project, String destination, CloneData cloneData, Boolean pullAction) {
 		super(PAGE_NAME);
@@ -91,6 +102,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 		this.lblUser.setText(Messages.AbapGitWizardPageRepositoryAndCredentials_label_user);
 		AdtSWTUtilFactory.getOrCreateSWTUtil().setMandatory(this.lblUser, true);
 		this.txtUser = new Text(container, SWT.BORDER | SWT.SINGLE);
+		this.txtUser.setText(""); //$NON-NLS-1$
 
 		this.lblPwd = new Label(container, SWT.NONE);
 		this.lblPwd.setText(Messages.AbapGitWizardPageRepositoryAndCredentials_label_password);
@@ -98,6 +110,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 
 		this.txtPwd = new Text(container, SWT.BORDER | SWT.SINGLE);
 		this.txtPwd.setEchoChar('*');
+		this.txtPwd.setText(""); //$NON-NLS-1$
 
 		this.txtUser.addModifyListener(event -> {
 			this.cloneData.user = this.txtUser.getText();
@@ -122,6 +135,12 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 			this.txtURL.setEnabled(false);
 			this.cloneData.externalRepoInfo = null;
 			validateAll();
+		}
+
+		if ((this.repositoryCredentials = getRepoCredentialsFromSecureStorage(this.cloneData.url)) != null) {
+			this.txtUser.setText(this.repositoryCredentials.getUser());
+			this.txtPwd.setText(this.repositoryCredentials.getPassword());
+			validateClientOnly();
 		}
 
 	}
@@ -250,6 +269,12 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 				}
 			}
 		}
+		//Close the tray of the dialog if it was open
+		TrayDialog dialog = (TrayDialog) getContainer();
+
+		if (dialog.getTray() != null) {
+			dialog.closeTray();
+		}
 
 		return true;
 	}
@@ -290,10 +315,18 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 			});
 			setPageComplete(true);
 			setMessage(null);
+
+			//if credentials are provided, ask user if the credentials should be stored in the secure storage
+			if (this.cloneData.user != null && this.cloneData.pass != null) {
+				GitCredentialsService.showPopUpAskingToStoreCredentials(getShell(), this.cloneData.url, this.cloneData.user,
+						this.cloneData.pass);
+			}
+
 			return true;
 		} catch (InvocationTargetException e) {
 			setPageComplete(false);
 			setMessage(e.getTargetException().getMessage(), DialogPage.ERROR);
+			ErrorHandlingService.handleExceptionAndDisplayInDialogTray((Exception) e.getTargetException(), (TrayDialog) getContainer());
 			return false;
 		} catch (InterruptedException e) {
 			// process was aborted
@@ -306,10 +339,43 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 		this.txtPwd.setVisible(visible);
 		this.lblUser.setVisible(visible);
 		this.lblPwd.setVisible(visible);
-		if (!visible) {
-			this.txtUser.setText(""); //$NON-NLS-1$
-			this.txtPwd.setText(""); //$NON-NLS-1$
+	}
+
+	//Retrieve credentials for the given repositoryURL from Secure Store (if they exist)
+	private static IExternalRepositoryInfoRequest getRepoCredentialsFromSecureStorage(String url) {
+		ISecurePreferences preferences = SecurePreferencesFactory.getDefault();
+		String hashedURL = GitCredentialsService.getUrlForNodePath(url);
+		if (hashedURL != null && preferences.nodeExists(hashedURL)) {
+			ISecurePreferences node = preferences.node(hashedURL);
+			return new IExternalRepositoryInfoRequest() {
+				@Override
+				public String getUser() {
+					try {
+						return node.get("user", null); //$NON-NLS-1$
+					} catch (StorageException e) {
+						AbapGitUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getMessage(), e));
+					}
+					return null;
+				}
+
+				@Override
+				public String getUrl() {
+					return url;
+				}
+
+				@Override
+				public String getPassword() {
+					try {
+						return node.get("password", null); //$NON-NLS-1$
+					} catch (StorageException e) {
+						AbapGitUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getMessage(), e));
+					}
+
+					return null;
+				}
+			};
 		}
+		return null;
 	}
 
 }
