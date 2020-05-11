@@ -343,6 +343,9 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 
 	//Retrieve credentials for the given repositoryURL from Secure Store (if they exist)
 	private static IExternalRepositoryInfoRequest getRepoCredentialsFromSecureStorage(String url) {
+		if (url == null) {
+			return null;
+		}
 		ISecurePreferences preferences = SecurePreferencesFactory.getDefault();
 		String hashedURL = GitCredentialsService.getUrlForNodePath(url);
 		if (hashedURL != null && preferences.nodeExists(hashedURL)) {

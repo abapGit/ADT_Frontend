@@ -557,7 +557,14 @@ public class TestsPdeAbapGitStaging {
 		e.keyCode = 99;
 		e.doit = true;
 		e.character = 'C' | 'c';
-		e.stateMask = SWT.COMMAND;
+		
+		String OS = System.getProperty("os.name").toLowerCase();
+		if(OS.contains("win"))
+		e.stateMask = SWT.CTRL;
+		
+		if(OS.contains("mac"))
+			e.stateMask = SWT.COMMAND;
+		
 		e.widget = view.unstagedTreeViewer.getTree();
 		KeyEvent keyEvent = new KeyEvent(e);
 		Listener[] listeners = view.unstagedTreeViewer.getTree().getListeners(SWT.KeyDown);

@@ -62,8 +62,10 @@ public class GitCredentialsService {
 		//open the user credentials pop-up
 		Display.getDefault().syncExec(() -> {
 			Dialog userCredentialsDialog = new AbapGitStagingCredentialsDialog(shell, errorMessage, repositoryCredentials);
+			if (repositoryCredentials != null) {
+				((AbapGitStagingCredentialsDialog) userCredentialsDialog).setStoreInSecureStorage(true);
+			}
 			if (userCredentialsDialog.open() == IDialogConstants.OK_ID) {
-
 				repositoryCredentials = ((AbapGitStagingCredentialsDialog) userCredentialsDialog).getExternalRepoInfo();
 				if (repositoryCredentials != null) {
 
@@ -151,6 +153,9 @@ public class GitCredentialsService {
 	 *            Store, if they already exist in the Secure Store.
 	 */
 	public static void deleteCredentialsFromSecureStorage(String repositoryURL) {
+		if (repositoryURL == null) {
+			return;
+		}
 		ISecurePreferences preferences = SecurePreferencesFactory.getDefault();
 		String hashedURL = getUrlForNodePath(repositoryURL);
 		if (hashedURL != null && preferences.nodeExists(hashedURL)) {
@@ -166,6 +171,9 @@ public class GitCredentialsService {
 	 */
 
 	private static IExternalRepositoryInfoRequest getRepoCredentialsFromSecureStorage(String repositoryURL) {
+		if (repositoryURL == null) {
+			return null;
+		}
 		ISecurePreferences preferences = SecurePreferencesFactory.getDefault();
 		String hashedURL = getUrlForNodePath(repositoryURL);
 		if (hashedURL != null && preferences.nodeExists(hashedURL)) {
@@ -212,6 +220,9 @@ public class GitCredentialsService {
 	 * @return node path for url
 	 */
 	public static String getUrlForNodePath(String uri) {
+		if (uri == null) {
+			return null;
+		}
 		String nodePath = abapGitPathPrefix + EncodingUtils.encodeSlashes(uri.toString());
 		return nodePath;
 	}

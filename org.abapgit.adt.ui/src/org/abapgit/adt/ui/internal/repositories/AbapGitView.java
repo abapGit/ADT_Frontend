@@ -21,6 +21,7 @@ import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.staging.AbapGitStagingView;
 import org.abapgit.adt.ui.internal.staging.IAbapGitStagingView;
 import org.abapgit.adt.ui.internal.util.AbapGitUIServiceFactory;
+import org.abapgit.adt.ui.internal.util.GitCredentialsService;
 import org.abapgit.adt.ui.internal.util.IAbapGitService;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizardPull;
@@ -204,7 +205,7 @@ public class AbapGitView extends ViewPart {
 		contributeToActionBars();
 		updateView(false);
 
-		
+
 		AbapGitView.this.searchFilter = new ViewerFilter() {
 
 			@Override
@@ -817,6 +818,9 @@ public class AbapGitView extends ViewPart {
 								.unlinkRepository(UnlinkAction.this.repository.getKey(), monitor);
 					}
 				});
+
+				//Delete credentials from Secure storage
+				GitCredentialsService.deleteCredentialsFromSecureStorage(this.repository.getUrl());
 				updateView(true);
 			} catch (InvocationTargetException e) {
 				StatusManager.getManager().handle(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID,
