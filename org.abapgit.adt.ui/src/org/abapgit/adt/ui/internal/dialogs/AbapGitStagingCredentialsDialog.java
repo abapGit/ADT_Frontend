@@ -98,6 +98,8 @@ public class AbapGitStagingCredentialsDialog extends TitleAreaDialog {
 		this.storeCredentialCheckBox = new Button(credentialsComposite, SWT.CHECK);
 		GridDataFactory.swtDefaults().applyTo(this.storeCredentialCheckBox);
 
+		this.storeCredentialCheckBox.setSelection(this.storeCredsInSecStore);
+
 		this.storeCredentialCheckBox.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
@@ -163,4 +165,7 @@ public class AbapGitStagingCredentialsDialog extends TitleAreaDialog {
 		return this.storeCredsInSecStore;
 	}
 
+	public void setStoreInSecureStorage(boolean selected) {
+		this.storeCredsInSecStore = selected;
+	}
 }
