@@ -1,8 +1,8 @@
 package org.abapgit.adt.ui.internal.staging.actions;
 
-import org.abapgit.adt.backend.IExternalRepositoryInfoRequest;
-import org.abapgit.adt.backend.IRepository;
 import org.abapgit.adt.backend.IRepositoryService;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfoRequest;
+import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.staging.AbapGitStagingView;
@@ -79,7 +79,8 @@ public class OpenObjectAction extends BaseSelectionListenerAction {
 
 	private void repositoryChecks(IProgressMonitor monitor, IExternalRepositoryInfoRequest credentials) {
 		//perform repository checks
-		if (this.view.getRepository().getChecksLink(IRepositoryService.RELATION_CHECK) != null) {
+		if (AbapGitUIServiceFactory.createRepositoryService(this.view.getProject()).getURIFromAtomLink(this.view.getRepository(),
+				IRepositoryService.RELATION_CHECK) != null) {
 			monitor.beginTask(Messages.AbapGitStaging_check_job_title, IProgressMonitor.UNKNOWN);
 			IRepositoryService repoService = AbapGitUIServiceFactory.createRepositoryService(this.view.getProject());
 			repoService.repositoryChecks(monitor, credentials, this.view.getRepository());

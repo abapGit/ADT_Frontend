@@ -10,12 +10,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.abapgit.adt.backend.IExternalRepositoryInfo;
-import org.abapgit.adt.backend.IExternalRepositoryInfoRequest;
 import org.abapgit.adt.backend.IExternalRepositoryInfoService;
-import org.abapgit.adt.backend.IRepository;
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfo;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfoRequest;
+import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitCommitMessage;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitStaging;
@@ -741,7 +741,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		Display.getDefault().syncExec(() -> {
 			//set form header
 			AbapGitStagingView.this.mainForm.setText(RepositoryUtil.getRepoNameFromUrl(AbapGitStagingView.this.repository.getUrl()) + " [" //$NON-NLS-1$
-					+ RepositoryUtil.getBranchNameFromRef(AbapGitStagingView.this.repository.getBranch()) + "]" + " [" //$NON-NLS-1$//$NON-NLS-2$
+					+ RepositoryUtil.getBranchNameFromRef(AbapGitStagingView.this.repository.getBranchName()) + "]" + " [" //$NON-NLS-1$//$NON-NLS-2$
 					+ this.project.getName() + "]"); //$NON-NLS-1$
 
 			AbapGitStagingView.this.unstagedTreeViewerInput.clear();
@@ -1094,7 +1094,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	}
 
 	private void fetchCredentialsAndCommit() {
-		if (this.repository.getChecksLink(IRepositoryService.RELATION_CHECK) == null) {
+		if (this.repoService.getURIFromAtomLink(this.repository, IRepositoryService.RELATION_CHECK) == null) {
 			//compatibility handling for credentials checks for 1911
 			//TODO: remove this check once customers upgrade to 2002
 			IExternalRepositoryInfoRequest credentials = GitCredentialsService.getCredentialsFromUser(getSite().getShell(),
@@ -1166,7 +1166,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 
 	private void repositoryChecks(IProgressMonitor monitor) {
 		//perform repository checks
-		if (AbapGitStagingView.this.repository.getChecksLink(IRepositoryService.RELATION_CHECK) != null) {
+		if (this.repoService.getURIFromAtomLink(this.repository, IRepositoryService.RELATION_CHECK) != null) {
 			monitor.beginTask(Messages.AbapGitStaging_check_job_title, IProgressMonitor.UNKNOWN);
 			AbapGitStagingView.this.repoService.repositoryChecks(monitor, this.repositoryCredentials, AbapGitStagingView.this.repository);
 		}
@@ -1201,7 +1201,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 				excMessage = e.getMessage();
 				//compatibility handling for credentials checks for 1911
 				//TODO: remove this check once customers upgrade to 2002
-				if (this.repository.getChecksLink(IRepositoryService.RELATION_CHECK) == null) {
+				if (this.repoService.getURIFromAtomLink(this.repository, IRepositoryService.RELATION_CHECK) == null) {
 					AbapGitStagingView.this.repositoryCredentials = null;
 				}
 			}

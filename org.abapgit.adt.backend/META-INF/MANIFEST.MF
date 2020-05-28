@@ -25,4 +25,13 @@ Export-Package: org.abapgit.adt.backend;
   x-friends:="org.abapgit.adt.ui",
  org.abapgit.adt.backend.model.abapgitstaging,
  org.abapgit.adt.backend.model.abapgitstaging.impl,
- org.abapgit.adt.backend.model.abapgitstaging.util
+ org.abapgit.adt.backend.model.abapgitstaging.util,
+ org.abapgit.adt.backend.model.abapgitrepositories,
+ org.abapgit.adt.backend.model.abapgitrepositories.impl,
+ org.abapgit.adt.backend.model.abapgitrepositories.util,
+ org.abapgit.adt.backend.model.abapgitexternalrepo,
+ org.abapgit.adt.backend.model.abapgitexternalrepo.impl,
+ org.abapgit.adt.backend.model.abapgitexternalrepo.util,
+ org.abapgit.adt.backend.model.abapObjects,
+ org.abapgit.adt.backend.model.abapObjects.impl,
+ org.abapgit.adt.backend.model.abapObjects.util

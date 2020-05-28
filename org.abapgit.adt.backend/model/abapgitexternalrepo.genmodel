@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/org.abapgit.adt.backend/src" modelPluginID="org.abapgit.adt.backend"
+    modelName="Abapgitexternalrepo" rootExtendsClass="org.eclipse.emf.ecore.impl.MinimalEObjectImpl$Container"
+    importerID="org.eclipse.emf.importer.ecore" complianceLevel="8.0" copyrightFields="false"
+    interfaceNamePattern="I{0}" operationReflection="true" importOrganizing="true">
+  <foreignModel>abapgitexternalrepo.ecore</foreignModel>
+  <genPackages prefix="Abapgitexternalrepo" basePackage="org.abapgit.adt.backend.model"
+      resource="XML" disposableProviderFactory="true" ecorePackage="abapgitexternalrepo.ecore#/">
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="abapgitexternalrepo.ecore#//AccessMode">
+      <genEnumLiterals ecoreEnumLiteral="abapgitexternalrepo.ecore#//AccessMode/PUBLIC"/>
+      <genEnumLiterals ecoreEnumLiteral="abapgitexternalrepo.ecore#//AccessMode/PRIVATE"/>
+    </genEnums>
+    <genClasses ecoreClass="abapgitexternalrepo.ecore#//Branch">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitexternalrepo.ecore#//Branch/sha1"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitexternalrepo.ecore#//Branch/name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitexternalrepo.ecore#//Branch/isHead"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitexternalrepo.ecore#//Branch/type"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitexternalrepo.ecore#//Branch/displayName"/>
+    </genClasses>
+    <genClasses ecoreClass="abapgitexternalrepo.ecore#//ExternalRepositoryInfo">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitexternalrepo.ecore#//ExternalRepositoryInfo/branches"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitexternalrepo.ecore#//ExternalRepositoryInfo/accessMode"/>
+    </genClasses>
+    <genClasses ecoreClass="abapgitexternalrepo.ecore#//DocumentRoot">
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EAttribute abapgitexternalrepo.ecore#//DocumentRoot/mixed"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference abapgitexternalrepo.ecore#//DocumentRoot/xMLNSPrefixMap"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference abapgitexternalrepo.ecore#//DocumentRoot/xSISchemaLocation"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitexternalrepo.ecore#//DocumentRoot/externalRepoInfo"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitexternalrepo.ecore#//DocumentRoot/externalRepoInfoRequest"/>
+    </genClasses>
+    <genClasses ecoreClass="abapgitexternalrepo.ecore#//ExternalRepositoryInfoRequest">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitexternalrepo.ecore#//ExternalRepositoryInfoRequest/url"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitexternalrepo.ecore#//ExternalRepositoryInfoRequest/user"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitexternalrepo.ecore#//ExternalRepositoryInfoRequest/password"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>

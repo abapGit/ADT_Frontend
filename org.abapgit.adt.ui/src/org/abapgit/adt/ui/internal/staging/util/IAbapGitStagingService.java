@@ -1,7 +1,7 @@
 package org.abapgit.adt.ui.internal.staging.util;
 
-import org.abapgit.adt.backend.IExternalRepositoryInfoRequest;
 import org.abapgit.adt.backend.IFileService;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfoRequest;
 import org.abapgit.adt.ui.internal.util.IAbapGitService;
 import org.eclipse.core.resources.IProject;
 

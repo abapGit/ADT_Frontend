@@ -2,8 +2,10 @@ package org.abapgit.adt.backend.internal;
 
 import java.net.URI;
 
-import org.abapgit.adt.backend.IExternalRepositoryInfo;
 import org.abapgit.adt.backend.IExternalRepositoryInfoService;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfo;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfoRequest;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.impl.AbapgitexternalrepoFactoryImpl;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import com.sap.adt.communication.content.IContentHandler;
@@ -14,8 +16,8 @@ import com.sap.adt.compatibility.filter.IAdtCompatibleRestResourceFilter;
 
 public class ExternalRepositoryInfoService implements IExternalRepositoryInfoService {
 
-	private String destinationId;
-	private URI uri;
+	private final String destinationId;
+	private final URI uri;
 
 	public ExternalRepositoryInfoService(String destinationId, URI uri) {
 		this.destinationId = destinationId;
@@ -26,7 +28,7 @@ public class ExternalRepositoryInfoService implements IExternalRepositoryInfoSer
 	public IExternalRepositoryInfo getExternalRepositoryInfo(String url, String user, String password,
 			IProgressMonitor monitor) {
 
-		ExternalRepositoryInfoRequest externalInfoRequest = new ExternalRepositoryInfoRequest();
+		IExternalRepositoryInfoRequest externalInfoRequest = AbapgitexternalrepoFactoryImpl.eINSTANCE.createExternalRepositoryInfoRequest();
 		externalInfoRequest.setUrl(url);
 		externalInfoRequest.setUser(user);
 		externalInfoRequest.setPassword(password);

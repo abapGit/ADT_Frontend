@@ -21,4 +21,46 @@
             class="org.abapgit.adt.backend.model.abapgitstaging.util.AbapgitstagingResourceFactoryImpl"/>
    </extension>
 
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated abapgitrepositories -->
+      <package
+            uri="http://www.sap.com/adt/abapgit/repositories"
+            class="org.abapgit.adt.backend.model.abapgitrepositories.IAbapgitrepositoriesPackage"
+            genModel="model/abapgitrepositories.genmodel"/>
+   </extension>
+
+   <extension point="org.eclipse.emf.ecore.extension_parser">
+      <!-- @generated abapgitrepositories -->
+      <parser
+            type="abapgitrepositories"
+            class="org.abapgit.adt.backend.model.abapgitrepositories.util.AbapgitrepositoriesResourceFactoryImpl"/>
+   </extension>
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated abapgitexternalrepo -->
+      <package
+            uri="http://www.sap.com/adt/abapgit/externalRepo"
+            class="org.abapgit.adt.backend.model.abapgitexternalrepo.IAbapgitexternalrepoPackage"
+            genModel="model/abapgitexternalrepo.genmodel"/>
+   </extension>
+
+   <extension point="org.eclipse.emf.ecore.extension_parser">
+      <!-- @generated abapgitexternalrepo -->
+      <parser
+            type="abapgitexternalrepo"
+            class="org.abapgit.adt.backend.model.abapgitexternalrepo.util.AbapgitexternalrepoResourceFactoryImpl"/>
+   </extension>
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated abapgitabapobject -->
+      <package
+            uri="http://www.sap.com/adt/abapgit/abapObjects"
+            class="org.abapgit.adt.backend.model.abapObjects.IAbapObjectsPackage"
+            genModel="model/abapgitabapobject.genmodel"/>
+   </extension>
+
+   <extension point="org.eclipse.emf.ecore.extension_parser">
+      <!-- @generated abapgitabapobject -->
+      <parser
+            type="abapobjects"
+            class="org.abapgit.adt.backend.model.abapObjects.util.AbapObjectsResourceFactoryImpl"/>
+   </extension>
 </plugin>

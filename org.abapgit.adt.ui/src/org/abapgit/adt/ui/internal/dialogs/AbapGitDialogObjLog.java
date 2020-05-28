@@ -8,9 +8,11 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
-import org.abapgit.adt.backend.IObject;
-import org.abapgit.adt.backend.IRepository;
+import org.abapgit.adt.backend.model.abapObjects.IAbapObject;
+import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.abapgit.adt.ui.internal.i18n.Messages;
+import org.abapgit.adt.ui.internal.util.AbapGitUIServiceFactory;
+import org.abapgit.adt.ui.internal.util.IAbapGitObjLogService;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.jface.action.Action;
@@ -58,8 +60,9 @@ public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceCha
 	private TreeViewer abapObjTable;
 	private PatternFilter objLogFilter;
 	public FilteredTree tree;
-	public final List<IObject> abapObjects;
+	public final List<IAbapObject> abapObjects;
 	private final IRepository repodata;
+	private final IAbapGitObjLogService abapGitObjLogService;
 
 	private final Image warningImage;
 	private final Image errorImage;
@@ -71,10 +74,11 @@ public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceCha
 	private final static String INFO_FLAG = "I"; //$NON-NLS-1$
 	private final static String SUCCESS_FLAG = "S"; //$NON-NLS-1$
 
-	public AbapGitDialogObjLog(Shell parentShell, List<IObject> pullObjects, IRepository repository) {
+	public AbapGitDialogObjLog(Shell parentShell, List<IAbapObject> pullObjects, IRepository repository) {
 		super(parentShell);
 		this.abapObjects = pullObjects;
 		this.repodata = repository;
+		this.abapGitObjLogService = AbapGitUIServiceFactory.createAbapGitObjLogService();
 
 		//Icons
 		this.warningImage = AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.jdt.ui", "icons/full/obj16/warning_obj.png") //$NON-NLS-1$//$NON-NLS-2$
@@ -92,7 +96,7 @@ public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceCha
 		setTitle(Messages.AbapGitDialogPageObjLog_title);
 
 		int dialogMessageIcon = IMessageProvider.INFORMATION;
-		String dialogStatusFlag = this.repodata.getStatusFlag();
+		String dialogStatusFlag = this.repodata.getStatus();
 		if (dialogStatusFlag != null && dialogStatusFlag.equals(WARNING_FLAG)) {
 			dialogMessageIcon = IMessageProvider.WARNING;
 		}
@@ -267,18 +271,19 @@ public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceCha
 						Messages.AbapGitDialogPageObjLog_export_log_obj_msg));
 			}
 
-			for (IObject typeNode : this.abapObjects) {
+			for (IAbapObject typeNode : this.abapObjects) {
 
-				String logObjType = typeNode.getObjName();
+				String logObjType = typeNode.getName();
 				writer.println(
 						"______________________________________________________________________________________________________________"); //$NON-NLS-1$
 
-				writer.write(String.format("%-50s %-20s %-10s %-20s%n", logObjType + "(" + typeNode.countChildren() + ")", "", "", "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+				writer.write(String.format("%-50s %-20s %-10s %-20s%n", //$NON-NLS-1$
+						logObjType + "(" + this.abapGitObjLogService.countChildren(typeNode) + ")", "", "", "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 
-				List<IObject> logObjects = typeNode.listChildObjects();
+				List<IAbapObject> logObjects = this.abapGitObjLogService.listChildObjects(typeNode);
 
-				for (IObject logObject : logObjects) {
-					String logObjName = logObject.getObjName();
+				for (IAbapObject logObject : logObjects) {
+					String logObjName = logObject.getName();
 					if (logObjName != null) {
 						writer.write(String.format("%-50s %-20s %-10s %-20s%n", "   " + logObjName, logObjType, //$NON-NLS-1$ //$NON-NLS-2$
 								logObject.getMsgType(), logObject.getMsgText()));
@@ -300,19 +305,20 @@ public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceCha
 		createTableViewerColumn(Messages.AbapGitDialogImport_column_obj_name, 300).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				IObject p = (IObject) element;
-				int objCounter = p.countChildren();
+				IAbapObject p = (IAbapObject) element;
+				int objCounter = AbapGitDialogObjLog.this.abapGitObjLogService.countChildren(p);
 				long filteredCounter = objCounter;
 				if (contProv.filter != null) {
-					filteredCounter = p.listChildObjects().stream().filter(o -> o.getObjStatus().equals(contProv.filter)).count();
+					filteredCounter = AbapGitDialogObjLog.this.abapGitObjLogService.listChildObjects(p).stream()
+							.filter(o -> o.getStatus().equals(contProv.filter)).count();
 				}
-				String result = p.getObjName();
+				String result = p.getName();
 				if (objCounter > 0) {
 					result = result + " ("; //$NON-NLS-1$
 					if (filteredCounter != objCounter) {
 						result += filteredCounter + "/"; //$NON-NLS-1$
 					}
-					result += p.countChildren() + ")"; //$NON-NLS-1$
+					result += AbapGitDialogObjLog.this.abapGitObjLogService.countChildren(p) + ")"; //$NON-NLS-1$
 				}
 				return result;
 			}
@@ -323,10 +329,10 @@ public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceCha
 		createTableViewerColumn(Messages.AbapGitDialogImport_column_msg_type, 150).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				IObject p = (IObject) element;
+				IAbapObject p = (IAbapObject) element;
 				String textMsgType = p.getMsgType();
 
-				if (p.listChildObjects().toArray().length > 0 && textMsgType != null) {
+				if (AbapGitDialogObjLog.this.abapGitObjLogService.listChildObjects(p).toArray().length > 0 && textMsgType != null) {
 					return ""; //$NON-NLS-1$
 				}
 
@@ -351,27 +357,30 @@ public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceCha
 
 			@Override
 			public Image getImage(Object element) {
-				IObject p = (IObject) element;
+				IAbapObject p = (IAbapObject) element;
 
 				//-> Only for TYPE level objects
-				if (!p.listChildObjects().isEmpty()) {
+				if (!AbapGitDialogObjLog.this.abapGitObjLogService.listChildObjects(p).isEmpty()) {
 
 					//-> Set any TYPE object status
-					String childObjStatus = p.listChildObjects().get(0).getObjStatus();
-					p.setObjStatus(childObjStatus);
+					String childObjStatus = AbapGitDialogObjLog.this.abapGitObjLogService.listChildObjects(p).get(0).getStatus();
+					p.setStatus(childObjStatus);
 					p.setMsgType(childObjStatus);
 
 					//-> Set TYPE object status to error/warning/info if any child has this status
-					if (p.listChildObjects().stream().anyMatch(o -> o.getObjStatus().equals(AbapGitDialogObjLog.WARNING_FLAG))) {
-						p.setObjStatus(AbapGitDialogObjLog.WARNING_FLAG);
+					if (AbapGitDialogObjLog.this.abapGitObjLogService.listChildObjects(p).stream()
+							.anyMatch(o -> o.getStatus().equals(AbapGitDialogObjLog.WARNING_FLAG))) {
+						p.setStatus(AbapGitDialogObjLog.WARNING_FLAG);
 						p.setMsgType(AbapGitDialogObjLog.WARNING_FLAG);
 					}
-					if (p.listChildObjects().stream().anyMatch(o -> o.getObjStatus().equals(AbapGitDialogObjLog.ERROR_FLAG))) {
-						p.setObjStatus(AbapGitDialogObjLog.ERROR_FLAG);
+					if (AbapGitDialogObjLog.this.abapGitObjLogService.listChildObjects(p).stream()
+							.anyMatch(o -> o.getStatus().equals(AbapGitDialogObjLog.ERROR_FLAG))) {
+						p.setStatus(AbapGitDialogObjLog.ERROR_FLAG);
 						p.setMsgType(AbapGitDialogObjLog.ERROR_FLAG);
 					}
-					if (p.listChildObjects().stream().anyMatch(o -> o.getObjStatus().equals(AbapGitDialogObjLog.INFO_FLAG))) {
-						p.setObjStatus(AbapGitDialogObjLog.INFO_FLAG);
+					if (AbapGitDialogObjLog.this.abapGitObjLogService.listChildObjects(p).stream()
+							.anyMatch(o -> o.getStatus().equals(AbapGitDialogObjLog.INFO_FLAG))) {
+						p.setStatus(AbapGitDialogObjLog.INFO_FLAG);
 						p.setMsgType(AbapGitDialogObjLog.INFO_FLAG);
 					}
 				}
@@ -401,7 +410,7 @@ public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceCha
 		createTableViewerColumn(Messages.AbapGitDialogImport_column_msg_text, 600).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				IObject p = (IObject) element;
+				IAbapObject p = (IAbapObject) element;
 				return p.getMsgText();
 			}
 		});
@@ -409,8 +418,8 @@ public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceCha
 		createTableViewerColumn(Messages.AbapGitDialogImport_column_obj_type, 1).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				IObject p = (IObject) element;
-				return p.getObjType();
+				IAbapObject p = (IAbapObject) element;
+				return p.getType();
 			}
 		});
 
@@ -487,8 +496,8 @@ public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceCha
 		Object firstElement = AbapGitDialogObjLog.this.tree.getViewer().getStructuredSelection().getFirstElement();
 		final StringBuilder data = new StringBuilder();
 
-		IObject selectedAbapObj = (IObject) firstElement;
-		data.append(selectedAbapObj.getObjName() + " | " + selectedAbapObj.getObjType() + " | " + selectedAbapObj.getMsgType() + " | " //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+		IAbapObject selectedAbapObj = (IAbapObject) firstElement;
+		data.append(selectedAbapObj.getName() + " | " + selectedAbapObj.getType() + " | " + selectedAbapObj.getMsgType() + " | " //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 				+ selectedAbapObj.getMsgText());
 
 		final Clipboard clipboard = new Clipboard(AbapGitDialogObjLog.this.tree.getViewer().getControl().getDisplay());
@@ -505,13 +514,17 @@ public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceCha
 class ObjectTreeContentProvider implements ITreeContentProvider {
 
 	public String filter;
+	private final IAbapGitObjLogService abapGitObjLogService = AbapGitUIServiceFactory.createAbapGitObjLogService();
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public Object[] getElements(Object inputElement) {
+
 		if (this.filter != null) {
-			return ((List<IObject>) inputElement).stream()
-					.filter(o -> o.listChildObjects().stream().anyMatch(c -> c.getObjStatus().equals(this.filter))).toArray();
+			return ((List<IAbapObject>) inputElement).stream()
+					.filter(o -> this.abapGitObjLogService.listChildObjects(o).stream()
+							.anyMatch(c -> c.getStatus().equals(this.filter)))
+					.toArray();
 		}
 		return ArrayContentProvider.getInstance().getElements(inputElement);
 	}
@@ -522,24 +535,23 @@ class ObjectTreeContentProvider implements ITreeContentProvider {
 
 	@Override
 	public Object[] getChildren(Object parentElement) {
-		IObject abapObj = (IObject) parentElement;
+		IAbapObject abapObj = (IAbapObject) parentElement;
 		if (this.filter != null) {
-			return abapObj.listChildObjects().stream().filter(o -> o.getObjStatus().equals(this.filter)).toArray();
+			return this.abapGitObjLogService.listChildObjects(abapObj).stream().filter(o -> o.getStatus().equals(this.filter)).toArray();
 		}
-		return abapObj.listChildObjects().toArray();
+		return this.abapGitObjLogService.listChildObjects(abapObj).toArray();
 	}
 
 	@Override
 	public Object getParent(Object element) {
-		IObject abapObj = (IObject) element;
-		return abapObj.getParent();
+		return null;
 	}
 
 	@Override
 	public boolean hasChildren(Object element) {
-		if (element instanceof IObject) {
-			IObject line = (IObject) element;
-			return line.listChildObjects().size() != 0;
+		if (element instanceof IAbapObject) {
+			IAbapObject line = (IAbapObject) element;
+			return this.abapGitObjLogService.listChildObjects(line).size() != 0;
 		}
 		return false;
 	}

@@ -1,6 +1,7 @@
 package org.abapgit.adt.ui.internal.dialogs;
 
-import org.abapgit.adt.backend.IExternalRepositoryInfoRequest;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfoRequest;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.impl.AbapgitexternalrepoFactoryImpl;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
@@ -142,22 +143,9 @@ public class AbapGitStagingCredentialsDialog extends TitleAreaDialog {
 	}
 
 	public IExternalRepositoryInfoRequest getExternalRepoInfo() {
-		IExternalRepositoryInfoRequest info = new IExternalRepositoryInfoRequest() {
-			@Override
-			public String getUser() {
-				return AbapGitStagingCredentialsDialog.this.username;
-			}
-
-			@Override
-			public String getUrl() {
-				return null;
-			}
-
-			@Override
-			public String getPassword() {
-				return AbapGitStagingCredentialsDialog.this.password;
-			}
-		};
+		IExternalRepositoryInfoRequest info = AbapgitexternalrepoFactoryImpl.eINSTANCE.createExternalRepositoryInfoRequest();
+		info.setUser(this.username);
+		info.setPassword(this.password);
 		return info;
 	}
 

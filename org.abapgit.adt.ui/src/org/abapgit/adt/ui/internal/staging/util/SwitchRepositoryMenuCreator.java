@@ -7,9 +7,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
-import org.abapgit.adt.backend.IRepositories;
-import org.abapgit.adt.backend.IRepository;
 import org.abapgit.adt.backend.IRepositoryService;
+import org.abapgit.adt.backend.model.abapgitrepositories.IRepositories;
+import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.staging.IAbapGitStagingView;
 import org.abapgit.adt.ui.internal.util.AbapGitUIServiceFactory;

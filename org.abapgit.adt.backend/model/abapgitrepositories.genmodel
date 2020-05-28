@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/org.abapgit.adt.backend/src" modelPluginID="org.abapgit.adt.backend"
+    modelName="Abapgitrepositories" rootExtendsClass="org.eclipse.emf.ecore.impl.MinimalEObjectImpl$Container"
+    importerID="org.eclipse.emf.importer.ecore" complianceLevel="8.0" copyrightFields="false"
+    usedGenPackages="../../com.sap.adt.tools.core.base/model/atom.genmodel#//atom"
+    interfaceNamePattern="I{0}" operationReflection="true" importOrganizing="true">
+  <foreignModel>abapgitrepositories.ecore</foreignModel>
+  <genPackages prefix="Abapgitrepositories" basePackage="org.abapgit.adt.backend.model"
+      resource="XML" disposableProviderFactory="true" ecorePackage="abapgitrepositories.ecore#/">
+    <genClasses ecoreClass="abapgitrepositories.ecore#//Repository">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitrepositories.ecore#//Repository/links"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitrepositories.ecore#//Repository/key"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitrepositories.ecore#//Repository/package"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitrepositories.ecore#//Repository/url"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitrepositories.ecore#//Repository/branchName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitrepositories.ecore#//Repository/createdBy"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitrepositories.ecore#//Repository/createdEmail"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitrepositories.ecore#//Repository/createdAt"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitrepositories.ecore#//Repository/deserializedAt"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitrepositories.ecore#//Repository/deserializedEmail"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitrepositories.ecore#//Repository/deserializedBy"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitrepositories.ecore#//Repository/status"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitrepositories.ecore#//Repository/statusText"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitrepositories.ecore#//Repository/remoteUser"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitrepositories.ecore#//Repository/remotePassword"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitrepositories.ecore#//Repository/firstCommit"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitrepositories.ecore#//Repository/transportRequest"/>
+    </genClasses>
+    <genClasses ecoreClass="abapgitrepositories.ecore#//Repositories">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitrepositories.ecore#//Repositories/repositories"/>
+    </genClasses>
+    <genClasses ecoreClass="abapgitrepositories.ecore#//DocumentRoot">
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EAttribute abapgitrepositories.ecore#//DocumentRoot/mixed"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference abapgitrepositories.ecore#//DocumentRoot/xMLNSPrefixMap"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference abapgitrepositories.ecore#//DocumentRoot/xSISchemaLocation"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitrepositories.ecore#//DocumentRoot/repositories"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitrepositories.ecore#//DocumentRoot/repository"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>

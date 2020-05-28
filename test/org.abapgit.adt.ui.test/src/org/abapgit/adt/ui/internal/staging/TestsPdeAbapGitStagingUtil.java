@@ -4,7 +4,7 @@ import static org.easymock.EasyMock.createNiceMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 
-import org.abapgit.adt.backend.IRepository;
+import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitCommitMessage;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitFile;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject;
@@ -249,7 +249,7 @@ public class TestsPdeAbapGitStagingUtil {
 	protected IRepository getRepositoryMock(String url, String branch, String linkedPackage, String createdBy) {
 		IRepository repository = createNiceMock(IRepository.class);
 		expect(repository.getUrl()).andReturn(url).anyTimes();
-		expect(repository.getBranch()).andReturn(branch).anyTimes();
+		expect(repository.getBranchName()).andReturn(branch).anyTimes();
 		expect(repository.getPackage()).andReturn(linkedPackage).anyTimes();
 		expect(repository.getCreatedBy()).andReturn(createdBy).anyTimes();
 		replay(repository);

@@ -5,8 +5,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.abapgit.adt.backend.FileServiceFactory;
-import org.abapgit.adt.backend.IExternalRepositoryInfoRequest;
 import org.abapgit.adt.backend.IFileService;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfoRequest;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitFile;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject;
 import org.abapgit.adt.ui.AbapGitUIPlugin;

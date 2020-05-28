@@ -1,5 +1,11 @@
 package org.abapgit.adt.backend;
 
+import java.net.URI;
+
+import org.abapgit.adt.backend.model.abapObjects.IAbapObjects;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfoRequest;
+import org.abapgit.adt.backend.model.abapgitrepositories.IRepositories;
+import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitStaging;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -19,17 +25,17 @@ public interface IRepositoryService {
 
 	IRepositories getRepositories(IProgressMonitor monitor);
 
-	IObjects cloneRepository(String url, String branch, String targetPackage, String transportRequest, String user, String password,
+	IAbapObjects cloneRepository(String url, String branch, String targetPackage, String transportRequest, String user, String password,
 			IProgressMonitor monitor);
 
 	void cloneRepositories(IRepositories repositories, IProgressMonitor monitor);
 
 	void unlinkRepository(String key, IProgressMonitor monitor);
 
-	IObjects pullRepository(IRepository existingRepository, String branch, String transportRequest, String user, String password,
+	IAbapObjects pullRepository(IRepository existingRepository, String branch, String transportRequest, String user, String password,
 			IProgressMonitor monitor);
 
-	IObjects getRepoObjLog(IProgressMonitor monitor, IRepository currRepository);
+	IAbapObjects getRepoObjLog(IProgressMonitor monitor, IRepository currRepository);
 
 	/**
 	 * Returns the staging data for the given repository
@@ -37,7 +43,7 @@ public interface IRepositoryService {
 	 * @param repository
 	 *            Repository for which the staging data has to be loaded
 	 * @param credentials
-	 * 			  Repository credentials           
+	 * 			  Repository credentials
 	 * @param monitor
 	 *            Progress monitor
 	 * @return Staging model for the given repository
@@ -54,7 +60,7 @@ public interface IRepositoryService {
 	 *            Model which contains the staged objects which are to be
 	 *            committed
 	 * @param credentials
-	 * 			  Repository credentials           
+	 * 			  Repository credentials
 	 * @param repository
 	 *            Repository to which the commit has to happen
 	 */
@@ -74,5 +80,28 @@ public interface IRepositoryService {
 	 */
 	void repositoryChecks(IProgressMonitor monitor, IExternalRepositoryInfoRequest credentials, IRepository repository)
 			throws CommunicationException, ResourceException, OperationCanceledException, OutDatedClientException;
+
+	/**
+	 * Returns Repository for the URL given
+	 *
+	 * @param repositories
+	 *            All linked repositories
+	 * @param url
+	 *            Repository url
+	 * @return Repository matching the given url
+	 */
+	IRepository getRepositoryByURL(IRepositories repositories, String url);
+
+	/**
+	 * Returns the href from the atom link based on the relation
+	 *
+	 * @param repository
+	 *            Repository object
+	 * @param relation
+	 *            Relation of the atom link which has to be retrieved
+	 * @return URI from the atom link found or null if no atom link is present
+	 *         with the given relation
+	 */
+	URI getURIFromAtomLink(IRepository repository, String relation);
 
 }
