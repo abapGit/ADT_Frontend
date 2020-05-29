@@ -255,7 +255,7 @@ public class AbapGitView extends ViewPart {
 	}
 
 	private void setupViewer(Composite parent) {
-		this.viewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+		this.viewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION);
 		this.viewer.getControl().setLayoutData(parent.getLayoutData());
 		Table table = this.viewer.getTable();
 		table.setHeaderVisible(true);
