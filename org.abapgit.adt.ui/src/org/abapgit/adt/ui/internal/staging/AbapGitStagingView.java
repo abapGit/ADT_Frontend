@@ -24,6 +24,7 @@ import org.abapgit.adt.backend.model.abapgitstaging.IAuthor;
 import org.abapgit.adt.backend.model.abapgitstaging.ICommitter;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.internal.i18n.Messages;
+import org.abapgit.adt.ui.internal.repositories.actions.OpenRepositoryAction;
 import org.abapgit.adt.ui.internal.staging.actions.CopyNameAction;
 import org.abapgit.adt.ui.internal.staging.actions.OpenPackageAction;
 import org.abapgit.adt.ui.internal.staging.util.AbapGitStagingTreeComparator;
@@ -169,6 +170,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	protected IAction actionStage;
 	protected IAction actionUnstage;
 	private IAction actionOpenPackage;
+	private IAction actionOpenRepository;
 	private IAction actionCollapseAllUnstaged;
 	private IAction actionCollapseAllStaged;
 	private IAction actionSwitchRepository;
@@ -463,6 +465,9 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		if (this.actionOpenPackage != null) {
 			toolBarManager.add(this.actionOpenPackage);
 		}
+		if (this.actionOpenRepository != null) {
+			toolBarManager.add(this.actionOpenRepository);
+		}
 	}
 
 	/**
@@ -537,6 +542,10 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		//open linked package action
 		if (this.actionOpenPackage == null) {
 			createOpenPackageAction();
+		}
+		//open linked package action
+		if (this.actionOpenRepository == null) {
+			this.actionOpenRepository = new OpenRepositoryAction(this);
 		}
 		//change repository action
 		if (this.actionSwitchRepository == null) {
@@ -878,6 +887,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		this.actionCollapseAllStaged.setEnabled(this.stagedTreeViewer.getTree().getItemCount() > 0 ? true : false);
 		this.actionRefresh.setEnabled(this.repository == null ? false : true);
 		this.actionOpenPackage.setEnabled(this.repository == null ? false : true);
+		this.actionOpenRepository.setEnabled(this.repository == null ? false : true);
 	}
 
 	private List<IAbapGitObject> getUnstagedObjectsFromModel(IAbapGitStaging staging) {
