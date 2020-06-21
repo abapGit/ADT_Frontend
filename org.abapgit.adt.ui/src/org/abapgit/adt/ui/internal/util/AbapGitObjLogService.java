@@ -18,28 +18,24 @@ public class AbapGitObjLogService implements IAbapGitObjLogService {
 	public IAbapObjects renderObjLogInput(IAbapObjects deserializedAbapObjects) {
 
 		IAbapObjects ObjLogInput = IAbapObjectsFactory.eINSTANCE.createAbapObjects();
-		IAbapObject newObj_type = IAbapObjectsFactory.eINSTANCE.createAbapObject();
+		IAbapObject newObjType = IAbapObjectsFactory.eINSTANCE.createAbapObject();
 
-		int m = deserializedAbapObjects.getAbapObjects().size();
-
-		for (int j = 0; j < m; j++) {
-
-			IAbapObject abapobject = deserializedAbapObjects.getAbapObjects().get(j);
+		for (IAbapObject abapObject : deserializedAbapObjects.getAbapObjects()) {
 			// object type already exists = use existing type & add child
 
-			if (ObjLogInput.getAbapObjects().stream().anyMatch(r -> r.getType().equals(abapobject.getType()))) {
-				IAbapObject existingObj = ObjLogInput.getAbapObjects().stream().filter(b -> b.getType().equals(abapobject.getType()))
+			if (ObjLogInput.getAbapObjects().stream().anyMatch(r -> r.getType().equals(abapObject.getType()))) {
+				IAbapObject existingObj = ObjLogInput.getAbapObjects().stream().filter(b -> b.getType().equals(abapObject.getType()))
 						.findFirst().get();
-				existingObj.getAbapLogObjectChildren().add(abapobject);
+				existingObj.getAbapLogObjectChildren().add(abapObject);
 			}
 
 			// new object type = create new type & add child
 			else {
-				newObj_type = IAbapObjectsFactory.eINSTANCE.createAbapObject();
-				newObj_type.setType(abapobject.getType());
-				newObj_type.setName(newObj_type.getType());
-				newObj_type.getAbapLogObjectChildren().add(abapobject);
-				ObjLogInput.getAbapObjects().add(newObj_type);
+				newObjType = IAbapObjectsFactory.eINSTANCE.createAbapObject();
+				newObjType.setType(abapObject.getType());
+				newObjType.setName(newObjType.getType());
+				newObjType.getAbapLogObjectChildren().add(abapObject);
+				ObjLogInput.getAbapObjects().add(newObjType);
 			}
 
 		}

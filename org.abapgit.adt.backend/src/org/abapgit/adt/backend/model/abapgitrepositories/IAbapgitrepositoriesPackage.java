@@ -294,22 +294,13 @@ public interface IAbapgitrepositoriesPackage extends EPackage {
 	int REPOSITORY__REMOTE_PASSWORD = 14;
 
 	/**
-	 * The feature id for the '<em><b>First Commit</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int REPOSITORY__FIRST_COMMIT = 15;
-
-	/**
 	 * The feature id for the '<em><b>Transport Request</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int REPOSITORY__TRANSPORT_REQUEST = 16;
+	int REPOSITORY__TRANSPORT_REQUEST = 15;
 
 	/**
 	 * The number of structural features of the '<em>Repository</em>' class.
@@ -318,7 +309,7 @@ public interface IAbapgitrepositoriesPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REPOSITORY_FEATURE_COUNT = 17;
+	int REPOSITORY_FEATURE_COUNT = 16;
 
 	/**
 	 * The number of operations of the '<em>Repository</em>' class.
@@ -616,17 +607,6 @@ public interface IAbapgitrepositoriesPackage extends EPackage {
 	EAttribute getRepository_RemotePassword();
 
 	/**
-	 * Returns the meta object for the attribute '{@link org.abapgit.adt.backend.model.abapgitrepositories.IRepository#getFirstCommit <em>First Commit</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>First Commit</em>'.
-	 * @see org.abapgit.adt.backend.model.abapgitrepositories.IRepository#getFirstCommit()
-	 * @see #getRepository()
-	 * @generated
-	 */
-	EAttribute getRepository_FirstCommit();
-
-	/**
 	 * Returns the meta object for the attribute '{@link org.abapgit.adt.backend.model.abapgitrepositories.IRepository#getTransportRequest <em>Transport Request</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -875,14 +855,6 @@ public interface IAbapgitrepositoriesPackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute REPOSITORY__REMOTE_PASSWORD = eINSTANCE.getRepository_RemotePassword();
-
-		/**
-		 * The meta object literal for the '<em><b>First Commit</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute REPOSITORY__FIRST_COMMIT = eINSTANCE.getRepository_FirstCommit();
 
 		/**
 		 * The meta object literal for the '<em><b>Transport Request</b></em>' attribute feature.

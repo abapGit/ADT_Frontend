@@ -32,7 +32,6 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link org.abapgit.adt.backend.model.abapgitrepositories.IRepository#getStatusText <em>Status Text</em>}</li>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitrepositories.IRepository#getRemoteUser <em>Remote User</em>}</li>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitrepositories.IRepository#getRemotePassword <em>Remote Password</em>}</li>
- *   <li>{@link org.abapgit.adt.backend.model.abapgitrepositories.IRepository#getFirstCommit <em>First Commit</em>}</li>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitrepositories.IRepository#getTransportRequest <em>Transport Request</em>}</li>
  * </ul>
  *
@@ -375,29 +374,6 @@ public interface IRepository extends EObject {
 	 * @generated
 	 */
 	void setRemotePassword(String value);
-
-	/**
-	 * Returns the value of the '<em><b>First Commit</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>First Commit</em>' attribute.
-	 * @see #setFirstCommit(String)
-	 * @see org.abapgit.adt.backend.model.abapgitrepositories.IAbapgitrepositoriesPackage#getRepository_FirstCommit()
-	 * @model dataType="org.eclipse.emf.ecore.xml.type.String"
-	 *        extendedMetaData="kind='element' namespace='##targetNamespace' name='firstCommit'"
-	 * @generated
-	 */
-	String getFirstCommit();
-
-	/**
-	 * Sets the value of the '{@link org.abapgit.adt.backend.model.abapgitrepositories.IRepository#getFirstCommit <em>First Commit</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>First Commit</em>' attribute.
-	 * @see #getFirstCommit()
-	 * @generated
-	 */
-	void setFirstCommit(String value);
 
 	/**
 	 * Returns the value of the '<em><b>Transport Request</b></em>' attribute.

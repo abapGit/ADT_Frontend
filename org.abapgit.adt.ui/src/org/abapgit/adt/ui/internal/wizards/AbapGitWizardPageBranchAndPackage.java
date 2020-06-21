@@ -252,7 +252,7 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 					}
 				});
 				if (this.cloneData.packageRef == null) {
-					setMessage(Messages.AbapGitWizardPageBranchAndPackage_task_package_validation_error_message, DialogPage.ERROR);
+					setErrorMessage(Messages.AbapGitWizardPageBranchAndPackage_task_package_validation_error_message);
 					setPageComplete(false);
 					return false;
 				}

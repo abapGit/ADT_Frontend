@@ -278,18 +278,8 @@ public class AbapgitrepositoriesPackageImpl extends EPackageImpl implements IAba
 	 * @generated
 	 */
 	@Override
-	public EAttribute getRepository_FirstCommit() {
-		return (EAttribute)repositoryEClass.getEStructuralFeatures().get(15);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
 	public EAttribute getRepository_TransportRequest() {
-		return (EAttribute)repositoryEClass.getEStructuralFeatures().get(16);
+		return (EAttribute)repositoryEClass.getEStructuralFeatures().get(15);
 	}
 
 	/**
@@ -417,7 +407,6 @@ public class AbapgitrepositoriesPackageImpl extends EPackageImpl implements IAba
 		createEAttribute(repositoryEClass, REPOSITORY__STATUS_TEXT);
 		createEAttribute(repositoryEClass, REPOSITORY__REMOTE_USER);
 		createEAttribute(repositoryEClass, REPOSITORY__REMOTE_PASSWORD);
-		createEAttribute(repositoryEClass, REPOSITORY__FIRST_COMMIT);
 		createEAttribute(repositoryEClass, REPOSITORY__TRANSPORT_REQUEST);
 
 		repositoriesEClass = createEClass(REPOSITORIES);
@@ -481,7 +470,6 @@ public class AbapgitrepositoriesPackageImpl extends EPackageImpl implements IAba
 		initEAttribute(getRepository_StatusText(), theXMLTypePackage.getString(), "statusText", null, 0, 1, IRepository.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getRepository_RemoteUser(), theXMLTypePackage.getString(), "remoteUser", null, 0, 1, IRepository.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getRepository_RemotePassword(), theXMLTypePackage.getString(), "remotePassword", null, 0, 1, IRepository.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getRepository_FirstCommit(), theXMLTypePackage.getString(), "firstCommit", null, 0, 1, IRepository.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getRepository_TransportRequest(), theXMLTypePackage.getString(), "transportRequest", null, 0, 1, IRepository.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(repositoriesEClass, IRepositories.class, "Repositories", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
@@ -636,14 +624,6 @@ public class AbapgitrepositoriesPackageImpl extends EPackageImpl implements IAba
 			   "kind", "element",
 			   "namespace", "##targetNamespace",
 			   "name", "remotePassword"
-		   });
-		addAnnotation
-		  (getRepository_FirstCommit(),
-		   source,
-		   new String[] {
-			   "kind", "element",
-			   "namespace", "##targetNamespace",
-			   "name", "firstCommit"
 		   });
 		addAnnotation
 		  (getRepository_TransportRequest(),

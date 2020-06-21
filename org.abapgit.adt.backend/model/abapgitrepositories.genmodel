@@ -24,7 +24,6 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitrepositories.ecore#//Repository/statusText"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitrepositories.ecore#//Repository/remoteUser"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitrepositories.ecore#//Repository/remotePassword"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitrepositories.ecore#//Repository/firstCommit"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitrepositories.ecore#//Repository/transportRequest"/>
     </genClasses>
     <genClasses ecoreClass="abapgitrepositories.ecore#//Repositories">

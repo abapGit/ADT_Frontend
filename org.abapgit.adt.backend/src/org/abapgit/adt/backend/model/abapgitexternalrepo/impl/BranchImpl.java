@@ -4,11 +4,8 @@ package org.abapgit.adt.backend.model.abapgitexternalrepo.impl;
 
 import org.abapgit.adt.backend.model.abapgitexternalrepo.IAbapgitexternalrepoPackage;
 import org.abapgit.adt.backend.model.abapgitexternalrepo.IBranch;
-
 import org.eclipse.emf.common.notify.Notification;
-
 import org.eclipse.emf.ecore.EClass;
-
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
 
@@ -156,7 +153,7 @@ public class BranchImpl extends MinimalEObjectImpl.Container implements IBranch 
 	 */
 	@Override
 	public String getSha1() {
-		return sha1;
+		return this.sha1;
 	}
 
 	/**
@@ -166,10 +163,11 @@ public class BranchImpl extends MinimalEObjectImpl.Container implements IBranch 
 	 */
 	@Override
 	public void setSha1(String newSha1) {
-		String oldSha1 = sha1;
-		sha1 = newSha1;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitexternalrepoPackage.BRANCH__SHA1, oldSha1, sha1));
+		String oldSha1 = this.sha1;
+		this.sha1 = newSha1;
+		if (eNotificationRequired()) {
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitexternalrepoPackage.BRANCH__SHA1, oldSha1, this.sha1));
+		}
 	}
 
 	/**
@@ -179,7 +177,7 @@ public class BranchImpl extends MinimalEObjectImpl.Container implements IBranch 
 	 */
 	@Override
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	/**
@@ -189,10 +187,11 @@ public class BranchImpl extends MinimalEObjectImpl.Container implements IBranch 
 	 */
 	@Override
 	public void setName(String newName) {
-		String oldName = name;
-		name = newName;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitexternalrepoPackage.BRANCH__NAME, oldName, name));
+		String oldName = this.name;
+		this.name = newName;
+		if (eNotificationRequired()) {
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitexternalrepoPackage.BRANCH__NAME, oldName, this.name));
+		}
 	}
 
 	/**
@@ -202,7 +201,7 @@ public class BranchImpl extends MinimalEObjectImpl.Container implements IBranch 
 	 */
 	@Override
 	public String getIsHead() {
-		return isHead;
+		return this.isHead;
 	}
 
 	/**
@@ -212,10 +211,11 @@ public class BranchImpl extends MinimalEObjectImpl.Container implements IBranch 
 	 */
 	@Override
 	public void setIsHead(String newIsHead) {
-		String oldIsHead = isHead;
-		isHead = newIsHead;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitexternalrepoPackage.BRANCH__IS_HEAD, oldIsHead, isHead));
+		String oldIsHead = this.isHead;
+		this.isHead = newIsHead;
+		if (eNotificationRequired()) {
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitexternalrepoPackage.BRANCH__IS_HEAD, oldIsHead, this.isHead));
+		}
 	}
 
 	/**
@@ -225,7 +225,7 @@ public class BranchImpl extends MinimalEObjectImpl.Container implements IBranch 
 	 */
 	@Override
 	public String getType() {
-		return type;
+		return this.type;
 	}
 
 	/**
@@ -235,10 +235,11 @@ public class BranchImpl extends MinimalEObjectImpl.Container implements IBranch 
 	 */
 	@Override
 	public void setType(String newType) {
-		String oldType = type;
-		type = newType;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitexternalrepoPackage.BRANCH__TYPE, oldType, type));
+		String oldType = this.type;
+		this.type = newType;
+		if (eNotificationRequired()) {
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitexternalrepoPackage.BRANCH__TYPE, oldType, this.type));
+		}
 	}
 
 	/**
@@ -248,7 +249,7 @@ public class BranchImpl extends MinimalEObjectImpl.Container implements IBranch 
 	 */
 	@Override
 	public String getDisplayName() {
-		return displayName;
+		return this.displayName;
 	}
 
 	/**
@@ -258,10 +259,11 @@ public class BranchImpl extends MinimalEObjectImpl.Container implements IBranch 
 	 */
 	@Override
 	public void setDisplayName(String newDisplayName) {
-		String oldDisplayName = displayName;
-		displayName = newDisplayName;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitexternalrepoPackage.BRANCH__DISPLAY_NAME, oldDisplayName, displayName));
+		String oldDisplayName = this.displayName;
+		this.displayName = newDisplayName;
+		if (eNotificationRequired()) {
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitexternalrepoPackage.BRANCH__DISPLAY_NAME, oldDisplayName, this.displayName));
+		}
 	}
 
 	/**
@@ -349,15 +351,15 @@ public class BranchImpl extends MinimalEObjectImpl.Container implements IBranch 
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
 			case IAbapgitexternalrepoPackage.BRANCH__SHA1:
-				return SHA1_EDEFAULT == null ? sha1 != null : !SHA1_EDEFAULT.equals(sha1);
+				return SHA1_EDEFAULT == null ? this.sha1 != null : !SHA1_EDEFAULT.equals(this.sha1);
 			case IAbapgitexternalrepoPackage.BRANCH__NAME:
-				return NAME_EDEFAULT == null ? name != null : !NAME_EDEFAULT.equals(name);
+				return NAME_EDEFAULT == null ? this.name != null : !NAME_EDEFAULT.equals(this.name);
 			case IAbapgitexternalrepoPackage.BRANCH__IS_HEAD:
-				return IS_HEAD_EDEFAULT == null ? isHead != null : !IS_HEAD_EDEFAULT.equals(isHead);
+				return IS_HEAD_EDEFAULT == null ? this.isHead != null : !IS_HEAD_EDEFAULT.equals(this.isHead);
 			case IAbapgitexternalrepoPackage.BRANCH__TYPE:
-				return TYPE_EDEFAULT == null ? type != null : !TYPE_EDEFAULT.equals(type);
+				return TYPE_EDEFAULT == null ? this.type != null : !TYPE_EDEFAULT.equals(this.type);
 			case IAbapgitexternalrepoPackage.BRANCH__DISPLAY_NAME:
-				return DISPLAY_NAME_EDEFAULT == null ? displayName != null : !DISPLAY_NAME_EDEFAULT.equals(displayName);
+				return DISPLAY_NAME_EDEFAULT == null ? this.displayName != null : !DISPLAY_NAME_EDEFAULT.equals(this.displayName);
 		}
 		return super.eIsSet(featureID);
 	}
@@ -369,21 +371,85 @@ public class BranchImpl extends MinimalEObjectImpl.Container implements IBranch 
 	 */
 	@Override
 	public String toString() {
-		if (eIsProxy()) return super.toString();
+		if (eIsProxy()) {
+			return super.toString();
+		}
 
 		StringBuilder result = new StringBuilder(super.toString());
 		result.append(" (sha1: ");
-		result.append(sha1);
+		result.append(this.sha1);
 		result.append(", name: ");
-		result.append(name);
+		result.append(this.name);
 		result.append(", isHead: ");
-		result.append(isHead);
+		result.append(this.isHead);
 		result.append(", type: ");
-		result.append(type);
+		result.append(this.type);
 		result.append(", displayName: ");
-		result.append(displayName);
+		result.append(this.displayName);
 		result.append(')');
 		return result.toString();
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((this.displayName == null) ? 0 : this.displayName.hashCode());
+		result = prime * result + ((this.isHead == null) ? 0 : this.isHead.hashCode());
+		result = prime * result + ((this.name == null) ? 0 : this.name.hashCode());
+		result = prime * result + ((this.sha1 == null) ? 0 : this.sha1.hashCode());
+		result = prime * result + ((this.type == null) ? 0 : this.type.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		BranchImpl other = (BranchImpl) obj;
+		if (this.displayName == null) {
+			if (other.displayName != null) {
+				return false;
+			}
+		} else if (!this.displayName.equals(other.displayName)) {
+			return false;
+		}
+		if (this.isHead == null) {
+			if (other.isHead != null) {
+				return false;
+			}
+		} else if (!this.isHead.equals(other.isHead)) {
+			return false;
+		}
+		if (this.name == null) {
+			if (other.name != null) {
+				return false;
+			}
+		} else if (!this.name.equals(other.name)) {
+			return false;
+		}
+		if (this.sha1 == null) {
+			if (other.sha1 != null) {
+				return false;
+			}
+		} else if (!this.sha1.equals(other.sha1)) {
+			return false;
+		}
+		if (this.type == null) {
+			if (other.type != null) {
+				return false;
+			}
+		} else if (!this.type.equals(other.type)) {
+			return false;
+		}
+		return true;
 	}
 
 } //BranchImpl

@@ -5,8 +5,8 @@ package org.abapgit.adt.backend.model.abapgitrepositories.impl;
 import org.abapgit.adt.backend.model.abapgitrepositories.IAbapgitrepositoriesPackage;
 import org.abapgit.adt.backend.model.abapgitrepositories.IDocumentRoot;
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepositories;
-
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
+
 import org.eclipse.emf.common.notify.NotificationChain;
 
 import org.eclipse.emf.common.util.EMap;

@@ -6,16 +6,11 @@ import java.util.Collection;
 
 import org.abapgit.adt.backend.model.abapObjects.IAbapObject;
 import org.abapgit.adt.backend.model.abapObjects.IAbapObjectsPackage;
-
 import org.eclipse.emf.common.notify.Notification;
-
 import org.eclipse.emf.common.util.EList;
-
 import org.eclipse.emf.ecore.EClass;
-
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
-
 import org.eclipse.emf.ecore.util.EObjectResolvingEList;
 
 /**
@@ -194,7 +189,7 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	 */
 	@Override
 	public String getType() {
-		return type;
+		return this.type;
 	}
 
 	/**
@@ -204,10 +199,11 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	 */
 	@Override
 	public void setType(String newType) {
-		String oldType = type;
-		type = newType;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapObjectsPackage.ABAP_OBJECT__TYPE, oldType, type));
+		String oldType = this.type;
+		this.type = newType;
+		if (eNotificationRequired()) {
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapObjectsPackage.ABAP_OBJECT__TYPE, oldType, this.type));
+		}
 	}
 
 	/**
@@ -217,7 +213,7 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	 */
 	@Override
 	public String getPackage() {
-		return package_;
+		return this.package_;
 	}
 
 	/**
@@ -227,10 +223,11 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	 */
 	@Override
 	public void setPackage(String newPackage) {
-		String oldPackage = package_;
-		package_ = newPackage;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapObjectsPackage.ABAP_OBJECT__PACKAGE, oldPackage, package_));
+		String oldPackage = this.package_;
+		this.package_ = newPackage;
+		if (eNotificationRequired()) {
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapObjectsPackage.ABAP_OBJECT__PACKAGE, oldPackage, this.package_));
+		}
 	}
 
 	/**
@@ -240,7 +237,7 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	 */
 	@Override
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	/**
@@ -250,10 +247,11 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	 */
 	@Override
 	public void setName(String newName) {
-		String oldName = name;
-		name = newName;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapObjectsPackage.ABAP_OBJECT__NAME, oldName, name));
+		String oldName = this.name;
+		this.name = newName;
+		if (eNotificationRequired()) {
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapObjectsPackage.ABAP_OBJECT__NAME, oldName, this.name));
+		}
 	}
 
 	/**
@@ -263,7 +261,7 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	 */
 	@Override
 	public String getMsgType() {
-		return msgType;
+		return this.msgType;
 	}
 
 	/**
@@ -273,10 +271,11 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	 */
 	@Override
 	public void setMsgType(String newMsgType) {
-		String oldMsgType = msgType;
-		msgType = newMsgType;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapObjectsPackage.ABAP_OBJECT__MSG_TYPE, oldMsgType, msgType));
+		String oldMsgType = this.msgType;
+		this.msgType = newMsgType;
+		if (eNotificationRequired()) {
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapObjectsPackage.ABAP_OBJECT__MSG_TYPE, oldMsgType, this.msgType));
+		}
 	}
 
 	/**
@@ -286,7 +285,7 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	 */
 	@Override
 	public String getMsgText() {
-		return msgText;
+		return this.msgText;
 	}
 
 	/**
@@ -296,10 +295,11 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	 */
 	@Override
 	public void setMsgText(String newMsgText) {
-		String oldMsgText = msgText;
-		msgText = newMsgText;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapObjectsPackage.ABAP_OBJECT__MSG_TEXT, oldMsgText, msgText));
+		String oldMsgText = this.msgText;
+		this.msgText = newMsgText;
+		if (eNotificationRequired()) {
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapObjectsPackage.ABAP_OBJECT__MSG_TEXT, oldMsgText, this.msgText));
+		}
 	}
 
 	/**
@@ -309,7 +309,7 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	 */
 	@Override
 	public String getStatus() {
-		return status;
+		return this.status;
 	}
 
 	/**
@@ -319,10 +319,11 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	 */
 	@Override
 	public void setStatus(String newStatus) {
-		String oldStatus = status;
-		status = newStatus;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapObjectsPackage.ABAP_OBJECT__STATUS, oldStatus, status));
+		String oldStatus = this.status;
+		this.status = newStatus;
+		if (eNotificationRequired()) {
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapObjectsPackage.ABAP_OBJECT__STATUS, oldStatus, this.status));
+		}
 	}
 
 	/**
@@ -332,10 +333,10 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	 */
 	@Override
 	public EList<IAbapObject> getAbapLogObjectChildren() {
-		if (abapLogObjectChildren == null) {
-			abapLogObjectChildren = new EObjectResolvingEList<IAbapObject>(IAbapObject.class, this, IAbapObjectsPackage.ABAP_OBJECT__ABAP_LOG_OBJECT_CHILDREN);
+		if (this.abapLogObjectChildren == null) {
+			this.abapLogObjectChildren = new EObjectResolvingEList<IAbapObject>(IAbapObject.class, this, IAbapObjectsPackage.ABAP_OBJECT__ABAP_LOG_OBJECT_CHILDREN);
 		}
-		return abapLogObjectChildren;
+		return this.abapLogObjectChildren;
 	}
 
 	/**
@@ -441,19 +442,19 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
 			case IAbapObjectsPackage.ABAP_OBJECT__TYPE:
-				return TYPE_EDEFAULT == null ? type != null : !TYPE_EDEFAULT.equals(type);
+				return TYPE_EDEFAULT == null ? this.type != null : !TYPE_EDEFAULT.equals(this.type);
 			case IAbapObjectsPackage.ABAP_OBJECT__PACKAGE:
-				return PACKAGE_EDEFAULT == null ? package_ != null : !PACKAGE_EDEFAULT.equals(package_);
+				return PACKAGE_EDEFAULT == null ? this.package_ != null : !PACKAGE_EDEFAULT.equals(this.package_);
 			case IAbapObjectsPackage.ABAP_OBJECT__NAME:
-				return NAME_EDEFAULT == null ? name != null : !NAME_EDEFAULT.equals(name);
+				return NAME_EDEFAULT == null ? this.name != null : !NAME_EDEFAULT.equals(this.name);
 			case IAbapObjectsPackage.ABAP_OBJECT__MSG_TYPE:
-				return MSG_TYPE_EDEFAULT == null ? msgType != null : !MSG_TYPE_EDEFAULT.equals(msgType);
+				return MSG_TYPE_EDEFAULT == null ? this.msgType != null : !MSG_TYPE_EDEFAULT.equals(this.msgType);
 			case IAbapObjectsPackage.ABAP_OBJECT__MSG_TEXT:
-				return MSG_TEXT_EDEFAULT == null ? msgText != null : !MSG_TEXT_EDEFAULT.equals(msgText);
+				return MSG_TEXT_EDEFAULT == null ? this.msgText != null : !MSG_TEXT_EDEFAULT.equals(this.msgText);
 			case IAbapObjectsPackage.ABAP_OBJECT__STATUS:
-				return STATUS_EDEFAULT == null ? status != null : !STATUS_EDEFAULT.equals(status);
+				return STATUS_EDEFAULT == null ? this.status != null : !STATUS_EDEFAULT.equals(this.status);
 			case IAbapObjectsPackage.ABAP_OBJECT__ABAP_LOG_OBJECT_CHILDREN:
-				return abapLogObjectChildren != null && !abapLogObjectChildren.isEmpty();
+				return this.abapLogObjectChildren != null && !this.abapLogObjectChildren.isEmpty();
 		}
 		return super.eIsSet(featureID);
 	}
@@ -465,23 +466,103 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	 */
 	@Override
 	public String toString() {
-		if (eIsProxy()) return super.toString();
+		if (eIsProxy()) {
+			return super.toString();
+		}
 
 		StringBuilder result = new StringBuilder(super.toString());
 		result.append(" (type: ");
-		result.append(type);
+		result.append(this.type);
 		result.append(", package: ");
-		result.append(package_);
+		result.append(this.package_);
 		result.append(", name: ");
-		result.append(name);
+		result.append(this.name);
 		result.append(", msgType: ");
-		result.append(msgType);
+		result.append(this.msgType);
 		result.append(", msgText: ");
-		result.append(msgText);
+		result.append(this.msgText);
 		result.append(", status: ");
-		result.append(status);
+		result.append(this.status);
 		result.append(')');
 		return result.toString();
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((this.abapLogObjectChildren == null) ? 0 : this.abapLogObjectChildren.hashCode());
+		result = prime * result + ((this.msgText == null) ? 0 : this.msgText.hashCode());
+		result = prime * result + ((this.msgType == null) ? 0 : this.msgType.hashCode());
+		result = prime * result + ((this.name == null) ? 0 : this.name.hashCode());
+		result = prime * result + ((this.package_ == null) ? 0 : this.package_.hashCode());
+		result = prime * result + ((this.status == null) ? 0 : this.status.hashCode());
+		result = prime * result + ((this.type == null) ? 0 : this.type.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		AbapObjectImpl other = (AbapObjectImpl) obj;
+		if (this.abapLogObjectChildren == null) {
+			if (other.abapLogObjectChildren != null) {
+				return false;
+			}
+		} else if (!this.abapLogObjectChildren.equals(other.abapLogObjectChildren)) {
+			return false;
+		}
+		if (this.msgText == null) {
+			if (other.msgText != null) {
+				return false;
+			}
+		} else if (!this.msgText.equals(other.msgText)) {
+			return false;
+		}
+		if (this.msgType == null) {
+			if (other.msgType != null) {
+				return false;
+			}
+		} else if (!this.msgType.equals(other.msgType)) {
+			return false;
+		}
+		if (this.name == null) {
+			if (other.name != null) {
+				return false;
+			}
+		} else if (!this.name.equals(other.name)) {
+			return false;
+		}
+		if (this.package_ == null) {
+			if (other.package_ != null) {
+				return false;
+			}
+		} else if (!this.package_.equals(other.package_)) {
+			return false;
+		}
+		if (this.status == null) {
+			if (other.status != null) {
+				return false;
+			}
+		} else if (!this.status.equals(other.status)) {
+			return false;
+		}
+		if (this.type == null) {
+			if (other.type != null) {
+				return false;
+			}
+		} else if (!this.type.equals(other.type)) {
+			return false;
+		}
+		return true;
 	}
 
 } //AbapObjectImpl
