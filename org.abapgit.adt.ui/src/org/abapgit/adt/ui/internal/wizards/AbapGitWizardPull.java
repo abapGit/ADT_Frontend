@@ -6,9 +6,9 @@ import java.util.List;
 import org.abapgit.adt.backend.IApackManifest;
 import org.abapgit.adt.backend.IApackManifest.IApackDependency;
 import org.abapgit.adt.backend.IExternalRepositoryInfoService;
-import org.abapgit.adt.backend.IRepository;
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
+import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard.CloneData;
@@ -61,7 +61,7 @@ public class AbapGitWizardPull extends Wizard {
 		this.selRepoData = selRepo;
 		this.allRepositories = allRepositories;
 		this.cloneData.url = selRepo.getUrl();
-		this.cloneData.branch = selRepo.getBranch();
+		this.cloneData.branch = selRepo.getBranchName();
 
 		getPackageAndRepoType();
 
@@ -136,7 +136,7 @@ public class AbapGitWizardPull extends Wizard {
 					IRepositoryService repoService = RepositoryServiceFactory.createRepositoryService(AbapGitWizardPull.this.destination,
 							monitor);
 
-					repoService.pullRepository(AbapGitWizardPull.this.selRepoData, AbapGitWizardPull.this.selRepoData.getBranch(),
+					repoService.pullRepository(AbapGitWizardPull.this.selRepoData, AbapGitWizardPull.this.selRepoData.getBranchName(),
 							AbapGitWizardPull.this.transportPage.getTransportRequestNumber(), AbapGitWizardPull.this.cloneData.user,
 							AbapGitWizardPull.this.cloneData.pass, monitor);
 

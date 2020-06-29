@@ -4,11 +4,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.abapgit.adt.backend.IExternalRepositoryInfo.AccessMode;
-import org.abapgit.adt.backend.IExternalRepositoryInfoRequest;
 import org.abapgit.adt.backend.IExternalRepositoryInfoService;
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.AccessMode;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfoRequest;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.impl.AbapgitexternalrepoFactoryImpl;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.util.ErrorHandlingService;
@@ -347,36 +348,20 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 			return null;
 		}
 		ISecurePreferences preferences = SecurePreferencesFactory.getDefault();
-		String hashedURL = GitCredentialsService.getUrlForNodePath(url);
-		if (hashedURL != null && preferences.nodeExists(hashedURL)) {
-			ISecurePreferences node = preferences.node(hashedURL);
-			return new IExternalRepositoryInfoRequest() {
-				@Override
-				public String getUser() {
-					try {
-						return node.get("user", null); //$NON-NLS-1$
-					} catch (StorageException e) {
-						AbapGitUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getMessage(), e));
-					}
-					return null;
-				}
+		String slashEncodedURL = GitCredentialsService.getUrlForNodePath(url);
+		if (slashEncodedURL != null && preferences.nodeExists(slashEncodedURL)) {
+			ISecurePreferences node = preferences.node(slashEncodedURL);
 
-				@Override
-				public String getUrl() {
-					return url;
-				}
+			IExternalRepositoryInfoRequest credentials = AbapgitexternalrepoFactoryImpl.eINSTANCE.createExternalRepositoryInfoRequest();
 
-				@Override
-				public String getPassword() {
-					try {
-						return node.get("password", null); //$NON-NLS-1$
-					} catch (StorageException e) {
-						AbapGitUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getMessage(), e));
-					}
-
-					return null;
-				}
-			};
+			try {
+				credentials.setUser(node.get("user", null)); //$NON-NLS-1$
+				credentials.setPassword(node.get("password", null)); //$NON-NLS-1$
+			} catch (StorageException e) {
+				AbapGitUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getMessage(), e));
+			}
+			credentials.setUrl(url);
+			return credentials;
 		}
 		return null;
 	}

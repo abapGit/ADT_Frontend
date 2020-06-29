@@ -9,8 +9,8 @@ import org.abapgit.adt.backend.ApackServiceFactory;
 import org.abapgit.adt.backend.IApackGitManifestService;
 import org.abapgit.adt.backend.IApackManifest;
 import org.abapgit.adt.backend.IApackManifest.IApackDependency;
-import org.abapgit.adt.backend.IExternalRepositoryInfo.AccessMode;
-import org.abapgit.adt.backend.IExternalRepositoryInfo.IBranch;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.AccessMode;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.IBranch;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard.CloneData;
 import org.eclipse.core.resources.IProject;
@@ -252,7 +252,7 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 					}
 				});
 				if (this.cloneData.packageRef == null) {
-					setMessage(Messages.AbapGitWizardPageBranchAndPackage_task_package_validation_error_message, DialogPage.ERROR);
+					setErrorMessage(Messages.AbapGitWizardPageBranchAndPackage_task_package_validation_error_message);
 					setPageComplete(false);
 					return false;
 				}
@@ -276,9 +276,10 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 			this.comboBranches.setSelection(StructuredSelection.EMPTY);
 			if (this.cloneData.externalRepoInfo != null) {
 				List<IBranch> branches = this.cloneData.externalRepoInfo.getBranches();
+				branches.removeIf(b -> b.getName().equals("HEAD")); //$NON-NLS-1$
 				this.comboBranches.setInput(branches);
 				if (!branches.isEmpty()) {
-					IBranch selectedBranch = branches.stream().filter(b -> b.isHead()).findFirst()
+					IBranch selectedBranch = branches.stream().filter(b -> b.getIsHead().equals("X")).findFirst() //$NON-NLS-1$
 							.orElse(branches.stream().findFirst().get());
 
 					//PULL branch is pre populated

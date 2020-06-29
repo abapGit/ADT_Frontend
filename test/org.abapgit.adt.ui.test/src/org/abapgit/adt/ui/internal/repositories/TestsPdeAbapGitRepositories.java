@@ -6,13 +6,21 @@ import static org.easymock.EasyMock.createNiceMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import java.io.IOException;
-import org.abapgit.adt.backend.AbapGitModelFactory;
-import org.abapgit.adt.backend.IRepositories;
-import org.abapgit.adt.backend.IRepository;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.abapgit.adt.backend.IRepositoryService;
+import org.abapgit.adt.backend.model.abapgitrepositories.IAbapgitrepositoriesPackage;
+import org.abapgit.adt.backend.model.abapgitrepositories.IRepositories;
+import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
+import org.abapgit.adt.backend.model.abapgitrepositories.impl.AbapgitrepositoriesFactoryImpl;
 import org.abapgit.adt.ui.internal.util.IAbapGitService;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.emf.common.util.BasicEList;
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.InternalEObject;
+import org.eclipse.emf.ecore.util.EObjectContainmentEList;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Event;
 import org.junit.AfterClass;
@@ -42,53 +50,48 @@ public class TestsPdeAbapGitRepositories {
 
 	@Test
 	public void testFilterBox() throws IOException {
-		//repositories
-		IRepositories repositories = AbapGitModelFactory.createRepositories();
-		
 		//create mocks
 		
 		//github repository 1
-		IRepository githubRepositoryOne = createNiceMock(IRepository.class);
-		expect(githubRepositoryOne.getUrl()).andReturn("https://github.com/url_one").anyTimes();		
-		expect(githubRepositoryOne.getPackage()).andReturn("dummy_package_one").anyTimes();
-		expect(githubRepositoryOne.getCreatedEmail()).andReturn("dummy_user@email.com").anyTimes();
-		expect(githubRepositoryOne.getBranch()).andReturn("master").anyTimes();
-		expect(githubRepositoryOne.getDeserializedAt()).andReturn("20200322180503").anyTimes();
-		expect(githubRepositoryOne.getStatusText()).andReturn("dummy_status").anyTimes();
+		IRepository githubRepositoryOne = AbapgitrepositoriesFactoryImpl.eINSTANCE.createRepository();
+		githubRepositoryOne.setUrl("https://github.com/url_one");		
+		githubRepositoryOne.setPackage("dummy_package_one");
+		githubRepositoryOne.setCreatedEmail("dummy_user@email.com");
+		githubRepositoryOne.setBranchName("master");
+		githubRepositoryOne.setDeserializedAt("20200322180503");
+		githubRepositoryOne.setStatusText("dummy_status");
 
-		replay(githubRepositoryOne);
-				
-		repositories.add(githubRepositoryOne);
-
+		
 		//github repository 2
-		IRepository githubRepositoryTwo = createNiceMock(IRepository.class);
-		expect(githubRepositoryTwo.getUrl()).andReturn("https://github.com/url_two").anyTimes();		
-		expect(githubRepositoryTwo.getPackage()).andReturn("dummy_package_two").anyTimes();
-		expect(githubRepositoryTwo.getCreatedEmail()).andReturn("dummy_user_one@email.com").anyTimes();
-		expect(githubRepositoryTwo.getBranch()).andReturn("master").anyTimes();
-		expect(githubRepositoryTwo.getDeserializedAt()).andReturn("20200322180503").anyTimes();
-		expect(githubRepositoryTwo.getStatusText()).andReturn("dummy_status").anyTimes();
+		IRepository githubRepositoryTwo = AbapgitrepositoriesFactoryImpl.eINSTANCE.createRepository();
+		githubRepositoryTwo.setUrl("https://github.com/url_two");		
+		githubRepositoryTwo.setPackage("dummy_package_two");
+		githubRepositoryTwo.setCreatedEmail("dummy_user_one@email.com");
+		githubRepositoryTwo.setBranchName("master");
+		githubRepositoryTwo.setDeserializedAt("20200322180503");
+		githubRepositoryTwo.setStatusText("dummy_status");
 
-		replay(githubRepositoryTwo);
-				
-		repositories.add(githubRepositoryTwo);
 
 		//gitlab repository
-		IRepository gitlabRepository = createNiceMock(IRepository.class);
-		expect(gitlabRepository.getUrl()).andReturn("https://gitlab.com/dummy_url").anyTimes();		
-		expect(gitlabRepository.getPackage()).andReturn("package_gitlab_one").anyTimes();
-		expect(gitlabRepository.getCreatedEmail()).andReturn("dummy_user_one@email.com").anyTimes();
-		expect(gitlabRepository.getBranch()).andReturn("master").anyTimes();
-		expect(gitlabRepository.getDeserializedAt()).andReturn("20200322180503").anyTimes();
-		expect(gitlabRepository.getStatusText()).andReturn("dummy_status").anyTimes();
+		IRepository gitlabRepository = AbapgitrepositoriesFactoryImpl.eINSTANCE.createRepository();
+		gitlabRepository.setUrl("https://gitlab.com/dummy_url");		
+		gitlabRepository.setPackage("package_gitlab_one");
+		gitlabRepository.setCreatedEmail("dummy_user_one@email.com");
+		gitlabRepository.setBranchName("master");
+		gitlabRepository.setDeserializedAt("20200322180503");
+		gitlabRepository.setStatusText("dummy_status");
 
-		replay(gitlabRepository);
-				
-		repositories.add(gitlabRepository);
+		
+		IRepositories repos =  AbapgitrepositoriesFactoryImpl.eINSTANCE.createRepositories();
+			
+		repos.getRepositories().add(githubRepositoryOne);		
+		repos.getRepositories().add(githubRepositoryTwo);
+		repos.getRepositories().add(gitlabRepository);
+		
 
 		//Repository Service
 		IRepositoryService repoService = createNiceMock(IRepositoryService.class);
-		expect(repoService.getRepositories(anyObject())).andReturn(repositories);
+		expect(repoService.getRepositories(anyObject())).andReturn(repos);
 		replay(repoService);
 		
 		//Repositories View Service

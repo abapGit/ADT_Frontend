@@ -1,7 +1,7 @@
 package org.abapgit.adt.ui.internal.staging;
 
-import org.abapgit.adt.backend.IExternalRepositoryInfo;
-import org.abapgit.adt.backend.IRepository;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfo;
+import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.eclipse.core.resources.IProject;
 
 public interface IAbapGitStagingView {

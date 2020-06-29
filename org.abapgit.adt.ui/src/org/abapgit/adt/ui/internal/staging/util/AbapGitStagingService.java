@@ -5,8 +5,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.abapgit.adt.backend.FileServiceFactory;
-import org.abapgit.adt.backend.IExternalRepositoryInfoRequest;
 import org.abapgit.adt.backend.IFileService;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfoRequest;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitFile;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
@@ -100,7 +100,6 @@ public class AbapGitStagingService extends AbapGitService implements IAbapGitSta
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
-					//set credentials to null as reading local file does not require any credentials.
 					String fileContents = FileServiceFactory.createFileService().readLocalFileContents(file, credentials,
 							getDestination(project));
 					openFileEditor(file, fileContents);

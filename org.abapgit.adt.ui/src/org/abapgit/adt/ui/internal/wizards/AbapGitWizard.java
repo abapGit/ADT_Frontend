@@ -4,15 +4,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.abapgit.adt.backend.AbapGitModelFactory;
 import org.abapgit.adt.backend.IApackManifest;
 import org.abapgit.adt.backend.IApackManifest.IApackDependency;
-import org.abapgit.adt.backend.IExternalRepositoryInfo;
-import org.abapgit.adt.backend.IObject;
-import org.abapgit.adt.backend.IRepositories;
-import org.abapgit.adt.backend.IRepository;
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
+import org.abapgit.adt.backend.model.abapObjects.IAbapObject;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfo;
+import org.abapgit.adt.backend.model.abapgitrepositories.IRepositories;
+import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
+import org.abapgit.adt.backend.model.abapgitrepositories.impl.AbapgitrepositoriesFactoryImpl;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.eclipse.core.resources.IProject;
@@ -90,7 +90,7 @@ public class AbapGitWizard extends Wizard {
 			return false;
 		}
 
-		List<IObject> cloneObjects = new LinkedList<>();
+		List<IAbapObject> cloneObjects = new LinkedList<>();
 
 		try {
 			String transportRequestNumber = this.transportPage.getTransportRequestNumber();
@@ -106,14 +106,16 @@ public class AbapGitWizard extends Wizard {
 							monitor);
 					if (AbapGitWizard.this.cloneData.hasDependencies()) {
 
-						IRepositories repositoriesToLink = AbapGitModelFactory.createRepositories();
-						repositoriesToLink.add(createRepository(AbapGitWizard.this.cloneData.url, AbapGitWizard.this.cloneData.branch,
+						IRepositories repositoriesToLink = AbapgitrepositoriesFactoryImpl.eINSTANCE.createRepositories();
+						repositoriesToLink.getRepositories()
+								.add(createRepository(AbapGitWizard.this.cloneData.url, AbapGitWizard.this.cloneData.branch,
 								AbapGitWizard.this.cloneData.packageRef.getName(), transportRequestNumber,
 								AbapGitWizard.this.cloneData.user, AbapGitWizard.this.cloneData.pass));
 						for (IApackDependency apackDependency : AbapGitWizard.this.cloneData.apackManifest.getDescriptor()
 								.getDependencies()) {
 							if (apackDependency.requiresSynchronization()) {
-								repositoriesToLink.add(createRepository(apackDependency.getGitUrl(), IApackManifest.MASTER_BRANCH,
+								repositoriesToLink.getRepositories()
+										.add(createRepository(apackDependency.getGitUrl(), IApackManifest.MASTER_BRANCH,
 										apackDependency.getTargetPackage().getName(), transportRequestNumber,
 										AbapGitWizard.this.cloneData.user, AbapGitWizard.this.cloneData.pass));
 							}
@@ -123,17 +125,18 @@ public class AbapGitWizard extends Wizard {
 							pullLinkedRepositories(monitor, repoService, repositoriesToLink);
 						}
 					} else {
-						List<IObject> abapObjects = repoService.cloneRepository(AbapGitWizard.this.cloneData.url,
+						List<IAbapObject> abapObjects = repoService.cloneRepository(AbapGitWizard.this.cloneData.url,
 								AbapGitWizard.this.cloneData.branch, AbapGitWizard.this.cloneData.packageRef.getName(),
 								transportRequestNumber, AbapGitWizard.this.cloneData.user, AbapGitWizard.this.cloneData.pass, monitor)
-								.getObjects();
+								.getAbapObjects();
 						cloneObjects.addAll(abapObjects);
 
 						//-> Check if link and pull sequence is set
 						if (sequenceLnp) {
 
 							//-> Get linked repository by url
-							IRepository linkedRepo = repoService.getRepositories(monitor).getRepository(AbapGitWizard.this.cloneData.url);
+							IRepository linkedRepo = repoService.getRepositoryByURL(repoService.getRepositories(monitor),
+									AbapGitWizard.this.cloneData.url);
 
 							//-> Pull newly linked repository
 							repoService.pullRepository(linkedRepo, AbapGitWizard.this.cloneData.branch,
@@ -147,9 +150,9 @@ public class AbapGitWizard extends Wizard {
 					// Need to retrieve linked repositories as only they contain the PULL link needed to continue...
 					IRepositories linkedRepositories = repoService.getRepositories(monitor);
 					for (IRepository repository : repositoriesToLink.getRepositories()) {
-						IRepository linkedRepository = linkedRepositories.getRepository(repository.getUrl());
+						IRepository linkedRepository = repoService.getRepositoryByURL(linkedRepositories, repository.getUrl());
 						if (linkedRepository != null) {
-							repoService.pullRepository(linkedRepository, linkedRepository.getBranch(),
+							repoService.pullRepository(linkedRepository, linkedRepository.getBranchName(),
 									AbapGitWizard.this.transportPage.getTransportRequestNumber(),
 									AbapGitWizard.this.cloneData.user, AbapGitWizard.this.cloneData.pass, monitor);
 						}
@@ -271,13 +274,13 @@ public class AbapGitWizard extends Wizard {
 
 	private IRepository createRepository(String url, String branch, String targetPackage, String transportRequest, String userName,
 			String password) {
-		IRepository repository = AbapGitModelFactory.createRepository();
+		IRepository repository = AbapgitrepositoriesFactoryImpl.eINSTANCE.createRepository();
 		repository.setUrl(url);
-		repository.setBranch(branch);
+		repository.setBranchName(branch);
 		repository.setPackage(targetPackage);
 		repository.setTransportRequest(transportRequest);
 		repository.setRemoteUser(userName);
-		repository.setPassword(password);
+		repository.setRemotePassword(password);
 		return repository;
 	}
 

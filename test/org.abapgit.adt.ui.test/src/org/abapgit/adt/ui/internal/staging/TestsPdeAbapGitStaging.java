@@ -9,14 +9,14 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 
-import org.abapgit.adt.backend.AbapGitModelFactory;
-import org.abapgit.adt.backend.IExternalRepositoryInfo;
 import org.abapgit.adt.backend.IExternalRepositoryInfoService;
 import org.abapgit.adt.backend.IFileService;
-import org.abapgit.adt.backend.IRepositories;
-import org.abapgit.adt.backend.IRepository;
 import org.abapgit.adt.backend.IRepositoryService;
-import org.abapgit.adt.backend.IExternalRepositoryInfo.AccessMode;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.AccessMode;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfo;
+import org.abapgit.adt.backend.model.abapgitrepositories.IRepositories;
+import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
+import org.abapgit.adt.backend.model.abapgitrepositories.impl.AbapgitrepositoriesFactoryImpl;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitFile;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapgitstagingFactory;
@@ -121,20 +121,34 @@ public class TestsPdeAbapGitStaging {
 		IProject project_not_support_abapgit = testUtil.createDummyAbapProject("ABAPGIT_TEST_PROJECT_3");
 		
 		//repository
-		IRepository repository1 = testUtil.getRepositoryMock("https://github.com/AbapGit-Push/test_repo_1", "master", "TEST_PACKAGE_1", testUtil.getLoggedOnUser(project));
-		IRepository repository2 = testUtil.getRepositoryMock("https://github.com/AbapGit-Push/test_repo_2", "master", "TEST_PACKAGE_2", "TEST_USER_2");
-		IRepository repository3 = testUtil.getRepositoryMock("https://github.com/AbapGit-Push/abcd_repo", "master", "TEST_PACKAGE_3", "TEST_USER_2");
-		
+		IRepository repository1 = AbapgitrepositoriesFactoryImpl.eINSTANCE.createRepository();
+		repository1.setUrl("https://github.com/AbapGit-Push/test_repo_1");		
+		repository1.setPackage("TEST_PACKAGE_1");
+		repository1.setCreatedBy(testUtil.getLoggedOnUser(project));
+		repository1.setBranchName("master");
+
+		IRepository repository2 = AbapgitrepositoriesFactoryImpl.eINSTANCE.createRepository();
+		repository2.setUrl("https://github.com/AbapGit-Push/test_repo_2");		
+		repository2.setPackage("TEST_PACKAGE_2");
+		repository2.setCreatedBy("TEST_USER_2");
+		repository2.setBranchName("master");
+
+		IRepository repository3 = AbapgitrepositoriesFactoryImpl.eINSTANCE.createRepository();
+		repository3.setUrl("https://github.com/AbapGit-Push/abcd_repo");		
+		repository3.setPackage("TEST_PACKAGE_3");
+		repository3.setCreatedBy("TEST_USER_2");
+		repository3.setBranchName("master");
+
 		//external repository
 		IExternalRepositoryInfo externalRepositoryInfo = createNiceMock(IExternalRepositoryInfo.class);
 		expect(externalRepositoryInfo.getAccessMode()).andReturn(AccessMode.PUBLIC);
 		replay(externalRepositoryInfo);
 		
 		//repository service
-		IRepositories repos = AbapGitModelFactory.createRepositories();
-		repos.add(repository1);
-		repos.add(repository2);
-		repos.add(repository3);
+		IRepositories repos = AbapgitrepositoriesFactoryImpl.eINSTANCE.createRepositories();
+		repos.getRepositories().add(repository1);
+		repos.getRepositories().add(repository2);
+		repos.getRepositories().add(repository3);
 		
 		IRepositoryService repositoryService = createNiceMock(IRepositoryService.class);
 		expect(repositoryService.stage(anyObject(), anyObject(), anyObject())).andReturn(testUtil.getStagingTestData()).anyTimes();
@@ -242,7 +256,7 @@ public class TestsPdeAbapGitStaging {
 		//repository
 		IRepository repository = createNiceMock(IRepository.class);
 		expect(repository.getUrl()).andReturn("https://github.com/AbapGit-Push/lorem_ipsum").anyTimes();
-		expect(repository.getBranch()).andReturn("master");
+		expect(repository.getBranchName()).andReturn("master");
 		replay(repository);
 		
 		//external repository
@@ -604,7 +618,7 @@ public class TestsPdeAbapGitStaging {
 		view.resetStagingView();
 		IRepository repository = createNiceMock(IRepository.class);
 		expect(repository.getUrl()).andReturn("https://github.com/AbapGit-Push/lorem_ipsum").anyTimes();
-		expect(repository.getBranch()).andReturn("master");
+		expect(repository.getBranchName()).andReturn("master");
 		replay(repository);
 		
 		IExternalRepositoryInfo externalRepositoryInfo = createNiceMock(IExternalRepositoryInfo.class);
@@ -656,7 +670,7 @@ public class TestsPdeAbapGitStaging {
 		view.resetStagingView();
 		IRepository repository = createNiceMock(IRepository.class);
 		expect(repository.getUrl()).andReturn("https://github.com/AbapGit-Push/lorem_ipsum").anyTimes();
-		expect(repository.getBranch()).andReturn("master");
+		expect(repository.getBranchName()).andReturn("master");
 		replay(repository);
 		
 		IExternalRepositoryInfo externalRepositoryInfo = createNiceMock(IExternalRepositoryInfo.class);

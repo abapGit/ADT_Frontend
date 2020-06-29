@@ -32,6 +32,10 @@ public class AbapGitUIServiceFactory {
 		return FileServiceFactory.createFileService();
 	}
 
+	public static IAbapGitObjLogService createAbapGitObjLogService() {
+		return new AbapGitObjLogService();
+	}
+
 	private static String getDestination(IProject project) {
 		return AdtProjectServiceFactory.createProjectService().getDestinationId(project);
 	}

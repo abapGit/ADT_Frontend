@@ -12,8 +12,8 @@ import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.abapgit.adt.backend.IExternalRepositoryInfoRequest;
 import org.abapgit.adt.backend.IFileService;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfoRequest;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitFile;
 import org.eclipse.core.runtime.NullProgressMonitor;
 

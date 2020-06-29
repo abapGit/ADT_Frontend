@@ -11,10 +11,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
-import org.abapgit.adt.backend.IObject;
-import org.abapgit.adt.backend.IRepository;
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
+import org.abapgit.adt.backend.model.abapObjects.IAbapObject;
+import org.abapgit.adt.backend.model.abapObjects.IAbapObjects;
+import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.internal.dialogs.AbapGitDialogObjLog;
 import org.abapgit.adt.ui.internal.i18n.Messages;
@@ -254,7 +255,7 @@ public class AbapGitView extends ViewPart {
 	}
 
 	private void setupViewer(Composite parent) {
-		this.viewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+		this.viewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION);
 		this.viewer.getControl().setLayoutData(parent.getLayoutData());
 		Table table = this.viewer.getTable();
 		table.setHeaderVisible(true);
@@ -286,7 +287,7 @@ public class AbapGitView extends ViewPart {
 			@Override
 			public String getText(Object element) {
 				IRepository p = (IRepository) element;
-				return p.getBranch();
+				return p.getBranchName();
 			}
 		});
 
@@ -306,7 +307,7 @@ public class AbapGitView extends ViewPart {
 				IRepository repo = (IRepository) element;
 				String lastChangedAt = repo.getDeserializedAt();
 				if (lastChangedAt == null || lastChangedAt.equals("0.0")) { //$NON-NLS-1$
-					lastChangedAt = repo.getFirstCommit();
+					lastChangedAt = repo.getCreatedAt();
 				}
 				return getFormattedDate(lastChangedAt);
 			}
@@ -326,7 +327,7 @@ public class AbapGitView extends ViewPart {
 
 			@Override
 			public Image getImage(Object element) {
-				String statusFlag = ((IRepository) element).getStatusFlag();
+				String statusFlag = ((IRepository) element).getStatus();
 				if (statusFlag != null) {
 					switch (statusFlag) {
 					case "W": //$NON-NLS-1$
@@ -367,15 +368,15 @@ public class AbapGitView extends ViewPart {
 					if (firstElement instanceof IRepository) {
 						IRepository repository = (IRepository) firstElement;
 						//pull action
-						if (repository.getPullLink(IRepositoryService.RELATION_PULL) != null) {
+						if (AbapGitView.this.repoService.getURIFromAtomLink(repository, IRepositoryService.RELATION_PULL) != null) {
 							manager.add(AbapGitView.this.actionPullWizard);
 						}
 						//stage action
-						if (repository.getStageLink(IRepositoryService.RELATION_STAGE) != null) {
+						if (AbapGitView.this.repoService.getURIFromAtomLink(repository, IRepositoryService.RELATION_STAGE) != null) {
 							manager.add(new OpenStagingViewAction(AbapGitView.this.lastProject, repository));
 						}
 						//object log action
-						if (repository.getLogLink(IRepositoryService.RELATION_LOG) != null) {
+						if (AbapGitView.this.repoService.getURIFromAtomLink(repository, IRepositoryService.RELATION_LOG) != null) {
 							manager.add(new GetObjLogAction(AbapGitView.this.lastProject, repository));
 						}
 						//separator
@@ -385,7 +386,7 @@ public class AbapGitView extends ViewPart {
 						//copy to clip-board action
 						manager.add(AbapGitView.this.actionCopy);
 						//unlink action
-						if (repository.getPullLink(IRepositoryService.RELATION_PULL) != null) {
+						if (AbapGitView.this.repoService.getURIFromAtomLink(repository, IRepositoryService.RELATION_PULL) != null) {
 							manager.add(new Separator());
 							manager.add(new UnlinkAction(AbapGitView.this.lastProject, repository));
 						}
@@ -694,12 +695,12 @@ public class AbapGitView extends ViewPart {
 
 			String lastChangedAt = currRepository.getDeserializedAt();
 			if (lastChangedAt == null || lastChangedAt.equals("0.0")) { //$NON-NLS-1$
-				lastChangedAt = currRepository.getFirstCommit();
+				lastChangedAt = currRepository.getCreatedAt();
 			}
 			String repoLastChangedString = getFormattedDate(lastChangedAt);
 
 			final StringBuilder data = new StringBuilder();
-			data.append(currRepository.getPackage() + " " + currRepository.getUrl() + " " + currRepository.getBranch() + " " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			data.append(currRepository.getPackage() + " " + currRepository.getUrl() + " " + currRepository.getBranchName() + " " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					+ repoUserString + " " + repoLastChangedString + " " + repoStatusString); //$NON-NLS-1$ //$NON-NLS-2$
 
 			final Clipboard clipboard = new Clipboard(AbapGitView.this.viewer.getControl().getDisplay());
@@ -781,7 +782,7 @@ public class AbapGitView extends ViewPart {
 					return true;
 				}
 			}
-			return super.isLeafMatch(viewer, element);
+			return false;
 		}
 
 	}
@@ -845,7 +846,7 @@ public class AbapGitView extends ViewPart {
 
 		@Override
 		public void run() {
-			List<IObject> objectLogItems = new LinkedList<>();
+			List<IAbapObject> objectLogItems = new LinkedList<>();
 
 			try {
 				if (!AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(this.project).isOK()) {
@@ -856,12 +857,13 @@ public class AbapGitView extends ViewPart {
 					@Override
 					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 
-						List<IObject> abapObjects = RepositoryServiceFactory
+						IAbapObjects abapObjects = RepositoryServiceFactory
 								.createRepositoryService(
 										AbapGitView.this.abapGitService.getDestination(GetObjLogAction.this.project), monitor)
-								.getRepoObjLog(monitor, GetObjLogAction.this.repository).getObjects();
+								.getRepoObjLog(monitor, GetObjLogAction.this.repository);
 
-						objectLogItems.addAll(abapObjects);
+						objectLogItems.addAll(
+								AbapGitUIServiceFactory.createAbapGitObjLogService().renderObjLogInput(abapObjects).getAbapObjects());
 
 					}
 				});

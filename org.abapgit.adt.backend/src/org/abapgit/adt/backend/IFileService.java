@@ -3,6 +3,7 @@ package org.abapgit.adt.backend;
 import java.io.IOException;
 import java.util.List;
 
+import org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfoRequest;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitFile;
 
 public interface IFileService {
