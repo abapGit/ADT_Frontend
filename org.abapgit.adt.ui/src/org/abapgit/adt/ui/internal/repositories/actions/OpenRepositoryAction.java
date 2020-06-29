@@ -3,7 +3,7 @@ package org.abapgit.adt.ui.internal.repositories.actions;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.abapgit.adt.backend.IRepository;
+import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.repositories.IAbapGitRepositoriesView;

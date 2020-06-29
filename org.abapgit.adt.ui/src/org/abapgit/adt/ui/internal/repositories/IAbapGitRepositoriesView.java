@@ -1,6 +1,6 @@
 package org.abapgit.adt.ui.internal.repositories;
 
-import org.abapgit.adt.backend.IRepository;
+import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.eclipse.core.resources.IProject;
 
 /**
