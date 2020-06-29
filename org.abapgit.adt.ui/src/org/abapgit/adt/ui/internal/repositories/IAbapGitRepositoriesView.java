@@ -8,10 +8,10 @@ import org.eclipse.core.resources.IProject;
  */
 public interface IAbapGitRepositoriesView {
 	/**
-	 * Returns the repository which is currently under selection. Null if no
-	 * selection is available.
+	 * Returns the repository currently selected.</br>
+	 * Null if no selection is available.
 	 */
-	public IRepository getRepository();
+	public IRepository getRepositorySelection();
 
 	/**
 	 * Returns the project currently loaded.

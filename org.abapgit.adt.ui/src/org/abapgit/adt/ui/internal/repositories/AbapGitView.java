@@ -383,6 +383,12 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 						manager.add(new Separator());
 						//open package action
 						manager.add(AbapGitView.this.actionOpen);
+						//open repository in external browser
+						if (repository.getUrl() != null) {
+							manager.add(AbapGitView.this.actionOpenRepository);
+						}
+						//separator
+						manager.add(new Separator());
 						//copy to clip-board action
 						manager.add(AbapGitView.this.actionCopy);
 						//unlink action
@@ -390,11 +396,6 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 							manager.add(new Separator());
 							manager.add(new UnlinkAction(AbapGitView.this.lastProject, repository));
 						}
-						//open repository in external browser
-						if (repository.getUrl() != null) {
-							manager.add(AbapGitView.this.actionOpenRepository);
-						}
-
 					}
 				}
 			}
@@ -884,7 +885,7 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 	}
 
 	@Override
-	public IRepository getRepository() {
+	public IRepository getRepositorySelection() {
 		Object selObject = this.viewer.getStructuredSelection().getFirstElement();
 		if (selObject != null && selObject instanceof IRepository) {
 			return (IRepository) selObject;

@@ -32,6 +32,5 @@ public interface IAbapGitStagingView {
 	 * Returns ExternalRepositoryInfo of the current repository
 	 *
 	 */
-
 	public IExternalRepositoryInfo getExternalRepositoryInfo();
 }

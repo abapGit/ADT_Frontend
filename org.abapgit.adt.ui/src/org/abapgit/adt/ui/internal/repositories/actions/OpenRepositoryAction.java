@@ -23,6 +23,10 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 public class OpenRepositoryAction extends Action {
 	private final IViewPart view;
 
+	/**
+	 * @param view
+	 *            abapGit repositories view or abapGit staging view
+	 */
 	public OpenRepositoryAction(IViewPart view) {
 		super(Messages.AbapGitView_action_open_repo);
 		setToolTipText(Messages.AbapGitView_action_open_repo_tooltip);
@@ -52,7 +56,7 @@ public class OpenRepositoryAction extends Action {
 			return ((IAbapGitStagingView) this.view).getRepository();
 		} else {
 			//abapGit repositories view
-			return ((IAbapGitRepositoriesView) this.view).getRepository();
+			return ((IAbapGitRepositoriesView) this.view).getRepositorySelection();
 		}
 	}
 }

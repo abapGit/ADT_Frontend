@@ -465,6 +465,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		if (this.actionOpenPackage != null) {
 			toolBarManager.add(this.actionOpenPackage);
 		}
+		//open repository in external browser
 		if (this.actionOpenRepository != null) {
 			toolBarManager.add(this.actionOpenRepository);
 		}
@@ -543,7 +544,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		if (this.actionOpenPackage == null) {
 			createOpenPackageAction();
 		}
-		//open linked package action
+		//open repository in external browser
 		if (this.actionOpenRepository == null) {
 			this.actionOpenRepository = new OpenRepositoryAction(this);
 		}
