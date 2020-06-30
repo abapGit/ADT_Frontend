@@ -11,6 +11,8 @@ public class Messages extends NLS {
 	public static String AbapGitView_action_showMyRepos;
 	public static String AbapGitView_action_open;
 	public static String AbapGitView_action_open_repo;
+	public static String AbapGitView_action_open_repo_tooltip;
+	public static String AbapGitView_action_open_repo_error_dialog_title;
 	public static String AbapGitView_action_open_xtol;
 	public static String AbapGitView_column_branch;
 	public static String AbapGitView_column_firstcommitat;
