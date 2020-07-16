@@ -4,7 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -162,13 +164,43 @@ public class FileService implements IFileService {
 		return headers;
 	}
 
+	/**
+	 * Get the URI from atom link given the relation
+	 */
 	private URI getHrefFromAtomLink(IAbapGitFile file, String relation) {
 		for (IAtomLink link : file.getLinks()) {
 			if (link.getRel().equalsIgnoreCase(relation)) {
-				return link.getHrefAsUri();
+				return generateURIFromString(file, link.getHref());
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Create URI from a uri string
+	 */
+	private URI generateURIFromString(IAbapGitFile file, String uriString) {
+		//Till 2011 SAP ABAP in Cloud release, the backend does not send proper encoded URL for file handling.
+		//If the file name contains some special character then the URI generation will lead to an error.
+		//To prevent this do a client side encoding for the value for filename query parameter.
+		//This handling can be removed once the upgrade to 2011 happens.
+		String encodedFileName = encodeFileName(file.getName());
+		if (encodedFileName != null && !file.getName().equals(encodedFileName)) {
+			String encodedUriString = uriString.replace(file.getName(), encodedFileName);
+			return URI.create(encodedUriString);
+		}
+		return URI.create(uriString);
+	}
+
+	/**
+	 * Encode the file name
+	 */
+	private String encodeFileName(String fileName) {
+		try {
+			return URLEncoder.encode(fileName, StandardCharsets.UTF_8.toString());
+		} catch (UnsupportedEncodingException e) {
+			return null;
+		}
 	}
 
 }
