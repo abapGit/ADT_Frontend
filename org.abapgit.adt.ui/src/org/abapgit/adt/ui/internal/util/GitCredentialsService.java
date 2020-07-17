@@ -57,15 +57,10 @@ public class GitCredentialsService {
 	 */
 	public static IExternalRepositoryInfoRequest getCredentialsFromUser(Shell shell,
 			String repositoryURL, String errorMessage) {
-		//get credentials from the secure storage if present
-		repositoryCredentials = getRepoCredentialsFromSecureStorage(repositoryURL);
 
 		//open the user credentials pop-up
 		Display.getDefault().syncExec(() -> {
-			Dialog userCredentialsDialog = new AbapGitStagingCredentialsDialog(shell, errorMessage, repositoryCredentials);
-			if (repositoryCredentials != null) {
-				((AbapGitStagingCredentialsDialog) userCredentialsDialog).setStoreInSecureStorage(true);
-			}
+			Dialog userCredentialsDialog = new AbapGitStagingCredentialsDialog(shell, errorMessage);
 			if (userCredentialsDialog.open() == IDialogConstants.OK_ID) {
 				repositoryCredentials = ((AbapGitStagingCredentialsDialog) userCredentialsDialog).getExternalRepoInfo();
 				if (repositoryCredentials != null) {
@@ -86,7 +81,8 @@ public class GitCredentialsService {
 	}
 
 	/**
-	 * Opens a dialog for the user to enter the credentials for the git account to access the given repository URL
+	 * Opens a dialog for the user to enter the credentials for the git account
+	 * to access the given repository URL
 	 */
 	public static IExternalRepositoryInfoRequest getCredentialsFromUser(Shell shell, String repositoryURL) {
 		return getCredentialsFromUser(shell, repositoryURL, null);
@@ -163,35 +159,6 @@ public class GitCredentialsService {
 			ISecurePreferences node = preferences.node(hashedURL);
 			node.removeNode();
 		}
-	}
-
-	/**
-	 *
-	 * @param repositoryURL
-	 * @return the credentials from Secure Store for the given repository url
-	 */
-
-	private static IExternalRepositoryInfoRequest getRepoCredentialsFromSecureStorage(String repositoryURL) {
-		if (repositoryURL == null) {
-			return null;
-		}
-		ISecurePreferences preferences = SecurePreferencesFactory.getDefault();
-		String slashEncodedURL = getUrlForNodePath(repositoryURL);
-		if (slashEncodedURL != null && preferences.nodeExists(slashEncodedURL)) {
-			ISecurePreferences node = preferences.node(slashEncodedURL);
-			IExternalRepositoryInfoRequest credentials = AbapgitexternalrepoFactoryImpl.eINSTANCE.createExternalRepositoryInfoRequest();
-
-			try {
-				credentials.setUser(node.get("user", null)); //$NON-NLS-1$
-				credentials.setPassword(node.get("password", null)); //$NON-NLS-1$
-			} catch (StorageException e) {
-				AbapGitUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getMessage(), e));
-			}
-			credentials.setUrl(repositoryURL);
-			return credentials;
-		}
-
-		return null;
 	}
 
 	/**

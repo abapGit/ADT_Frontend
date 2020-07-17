@@ -41,9 +41,9 @@ import com.sap.adt.tools.core.model.atom.IAtomLink;
 public class FileService implements IFileService {
 
 	@Override
-	public String readLocalFileContents(IAbapGitFile file, IExternalRepositoryInfoRequest credentials, String destinationId)
+	public String readLocalFileContents(IAbapGitFile file, String destinationId)
 			throws IOException {
-		return readFileContents(file, LOCAL_VERSION, credentials, destinationId);
+		return readFileContents(file, LOCAL_VERSION, null, destinationId);
 	}
 
 	@Override

@@ -32,12 +32,10 @@ public class AbapGitStagingCredentialsDialog extends TitleAreaDialog {
 	private Label storeCredentialCheckBoxLabel;
 
 	private boolean storeCredsInSecStore = false;
-	private IExternalRepositoryInfoRequest repoCredentials;
 
-	public AbapGitStagingCredentialsDialog(Shell parentShell, String errorMessage, IExternalRepositoryInfoRequest repositoryCredentials) {
+	public AbapGitStagingCredentialsDialog(Shell parentShell, String errorMessage) {
 		super(parentShell);
 		this.errorMessage = errorMessage;
-		this.repoCredentials = repositoryCredentials;
 	}
 
 	public AbapGitStagingCredentialsDialog(Shell parentShell) {
@@ -77,11 +75,6 @@ public class AbapGitStagingCredentialsDialog extends TitleAreaDialog {
 		data = new GridData(GridData.FILL_HORIZONTAL);
 		this.passwordField.setLayoutData(data);
 
-		//Set credentials in the dialog if retrieved from Secure Storage
-		if (this.repoCredentials != null) {
-			this.usernameField.setText(this.repoCredentials.getUser());
-			this.passwordField.setText(this.repoCredentials.getPassword());
-		}
 		this.usernameField.addModifyListener(event -> {
 			validateAndSetMessage();
 		});

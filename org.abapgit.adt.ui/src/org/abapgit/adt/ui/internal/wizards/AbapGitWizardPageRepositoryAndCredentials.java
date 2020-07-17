@@ -319,10 +319,13 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 
 			//if credentials are provided, ask user if the credentials should be stored in the secure storage
 			if (this.cloneData.user != null && this.cloneData.pass != null) {
+				if (this.repositoryCredentials == null
+						|| (this.repositoryCredentials != null && (!this.cloneData.pass.equals(this.repositoryCredentials.getPassword())
+								|| !this.cloneData.user.equals(this.repositoryCredentials.getUser())))) {
 				GitCredentialsService.showPopUpAskingToStoreCredentials(getShell(), this.cloneData.url, this.cloneData.user,
 						this.cloneData.pass);
+				}
 			}
-
 			return true;
 		} catch (InvocationTargetException e) {
 			setPageComplete(false);
