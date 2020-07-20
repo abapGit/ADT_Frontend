@@ -62,6 +62,7 @@ public class CompareAction extends BaseSelectionListenerAction {
 	private final IAbapGitStagingView view;
 	private IFileService fileService;
 	private IExternalRepositoryInfoRequest credentials;
+	private boolean credsRetrievedFromSecureStorage = false;
 
 	public CompareAction(IAbapGitStagingView view, TreeViewer treeViewer) {
 		super(Messages.AbapGitStaging_action_compare);
@@ -302,8 +303,18 @@ public class CompareAction extends BaseSelectionListenerAction {
 	private void handleException(Exception e, String repoURL, Shell shell) {
 		//invalid credentials : this condition check is only valid from 2002
 		if (e instanceof ResourceException && GitCredentialsService.isAuthenticationIssue((ResourceException) e)) {
-			ErrorHandlingService.handleExceptionAndDisplayInErrorDialog(e, shell);
-			if (getGitCredentials(shell, repoURL, e.getLocalizedMessage()).equals(Status.OK_STATUS)) {
+
+			String message = e.getLocalizedMessage();
+			//If credentials not retrieved from secure storage, show appropriate Error Dialog
+			//Otherwise simply show the credentials dialog
+			if (this.credsRetrievedFromSecureStorage == false) {
+				ErrorHandlingService.handleExceptionAndDisplayInErrorDialog(e, shell);
+			} else {
+				GitCredentialsService.deleteCredentialsFromSecureStorage(this.view.getRepository().getUrl());
+				message = null;
+			}
+			this.credsRetrievedFromSecureStorage = false;
+			if (getGitCredentials(shell, repoURL, message).equals(Status.OK_STATUS)) {
 				validateCredsAndCompareFiles(shell, repoURL);
 			}
 		} else {
@@ -328,10 +339,13 @@ public class CompareAction extends BaseSelectionListenerAction {
 		this.credentials = getRepoCredentialsFromSecureStorage(repositoryURL);
 
 		if (this.credentials == null) {
+			this.credsRetrievedFromSecureStorage = false;
 			if (getGitCredentials(shell, repositoryURL, null).equals(Status.CANCEL_STATUS)) {
 				return Status.CANCEL_STATUS;
 			}
 
+		} else {
+			this.credsRetrievedFromSecureStorage = true;
 		}
 
 		validateCredsAndCompareFiles(shell, repositoryURL);

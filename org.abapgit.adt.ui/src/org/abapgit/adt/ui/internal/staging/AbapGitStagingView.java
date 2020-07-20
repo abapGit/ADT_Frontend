@@ -191,6 +191,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	private static final boolean singleFileStageMode = true;
 	private static final String stage = "stage"; //$NON-NLS-1$
 	private static final String push = "push"; //$NON-NLS-1$
+	private boolean credsRetrievedFromSecureStorage = false;
 
 	public AbapGitStagingView() {
 		this.stagingUtil = getStagingUtil();
@@ -709,9 +710,14 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 				this.repositoryCredentials = getRepoCredentialsFromSecureStorage(this.repository.getUrl());
 
 				if (this.repositoryCredentials == null) {
+					this.credsRetrievedFromSecureStorage = false;
+
 					if (getGitCredentials().equals(Status.CANCEL_STATUS)) {
 						return Status.CANCEL_STATUS;
 					}
+				} else {
+					this.credsRetrievedFromSecureStorage = true;
+
 				}
 			}
 			refresh();
@@ -1120,8 +1126,10 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 			//TODO: remove this check once customers upgrade to 2002
 			IExternalRepositoryInfoRequest credentials;
 			if (this.repositoryCredentials != null) {
+				this.credsRetrievedFromSecureStorage = true;
 				credentials = this.repositoryCredentials;
 			} else {
+				this.credsRetrievedFromSecureStorage = false;
 				credentials = GitCredentialsService.getCredentialsFromUser(getSite().getShell(), null);
 				if (credentials == null) {
 					return;
@@ -1133,6 +1141,13 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		//if the user has entered credentials while doing the previous commit, the credentials will be validated before we do a push
 		//hence we can always rely on the value of the variable repositoryCredentials
 		else {
+			
+			if(this.repositoryCredentials == null) {
+				this.credsRetrievedFromSecureStorage = false;
+			} else {
+				this.credsRetrievedFromSecureStorage = true;
+			}
+			
 			if (getGitCredentials().equals(Status.OK_STATUS)) {
 				commitAndPush(this.repositoryCredentials);
 			}
@@ -1202,8 +1217,19 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		//invalid credentials : this condition check is only valid from 2002
 		if (e instanceof ResourceException && GitCredentialsService.isAuthenticationIssue((ResourceException) e)) {
 			AbapGitStagingView.this.repositoryCredentials = null;
-			ErrorHandlingService.handleExceptionAndDisplayInErrorDialog(e, getSite().getShell());
-			if (getGitCredentials(e.getLocalizedMessage()).equals(Status.OK_STATUS)) {
+
+			String message = e.getLocalizedMessage();
+			//If credentials not retrieved from secure storage, show appropriate Error Dialog
+			//Otherwise simply show the credentials dialog
+			if (this.credsRetrievedFromSecureStorage == false) {
+				ErrorHandlingService.handleExceptionAndDisplayInErrorDialog(e, getSite().getShell());
+			} else {
+				GitCredentialsService.deleteCredentialsFromSecureStorage(this.repository.getUrl());
+				message = null;
+			}
+			this.credsRetrievedFromSecureStorage = false;
+
+			if (getGitCredentials(message).equals(Status.OK_STATUS)) {
 				//re-trigger action
 				if (action.equals(stage)) {
 					refresh();
