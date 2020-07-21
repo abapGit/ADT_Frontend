@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: AbapGit UI tests
 Bundle-SymbolicName: org.abapgit.adt.ui.test;singleton:=true
-Bundle-Version: 1.3.1
+Bundle-Version: 1.4.0
 Bundle-ClassPath: .
 Bundle-Vendor: abapGit
 Fragment-Host: org.abapgit.adt.ui;bundle-version="0.13.2"
