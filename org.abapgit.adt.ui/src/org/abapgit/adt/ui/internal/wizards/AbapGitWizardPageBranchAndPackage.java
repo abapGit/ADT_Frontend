@@ -382,35 +382,6 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 		}
 	}
 
-	@Override
-	public boolean canFlipToNextPage() {
-
-		if (!this.pullAction) {
-			if ((getLnpSequence() || this.cloneData.hasDependencies())
-					&& validateClientOnly()) {
-				return true;
-			} else {
-				return false;
-			}
-		}
-		return super.canFlipToNextPage();
-	}
-
-	public boolean canFinishEarly() {
-
-		if (!this.pullAction) {
-			if (!getLnpSequence() && !this.cloneData.hasDependencies()
-					&& validateClientOnly()) {
-				return true;
-			} else {
-				return false;
-			}
-		} else {
-			return false;
-		}
-
-	}
-
 	private static class ApackParameters {
 
 		public String url;

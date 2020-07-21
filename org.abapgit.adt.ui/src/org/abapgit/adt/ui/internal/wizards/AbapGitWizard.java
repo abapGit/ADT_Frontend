@@ -80,16 +80,6 @@ public class AbapGitWizard extends Wizard {
 	@Override
 	public boolean performFinish() {
 
-		//validate input if pageBranchAndPackage finished early
-		if (getContainer().getCurrentPage() == this.pageBranchAndPackage && !this.pageBranchAndPackage.validateAll()) {
-			return false;
-		}
-
-		//validate input if pageApack finished early
-		if (getContainer().getCurrentPage() == this.pageApack && !this.pageApack.validateAll()) {
-			return false;
-		}
-
 		List<IAbapObject> cloneObjects = new LinkedList<>();
 
 		try {
@@ -252,24 +242,6 @@ public class AbapGitWizard extends Wizard {
 			return super.getNextPage(page);
 		}
 
-	}
-
-	@Override
-	public boolean canFinish() {
-		if (getContainer().getCurrentPage() == this.pageBranchAndPackage && this.pageBranchAndPackage.canFinishEarly()) {
-			return true;
-		}
-
-		if (getContainer().getCurrentPage() == this.pageApack && this.pageApack.canFinishEarly()) {
-			return true;
-		}
-
-		return super.canFinish();
-	}
-
-	//If a pull is to be done after link.
-	public boolean linkAndPull() {
-		return this.pageBranchAndPackage.getLnpSequence();
 	}
 
 	private IRepository createRepository(String url, String branch, String targetPackage, String transportRequest, String userName,
