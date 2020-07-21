@@ -11,6 +11,7 @@ import java.util.Set;
 import org.abapgit.adt.backend.IFileService;
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfoRequest;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.impl.AbapgitexternalrepoFactoryImpl;
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitFile;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject;
@@ -34,6 +35,9 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.equinox.security.storage.ISecurePreferences;
+import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
+import org.eclipse.equinox.security.storage.StorageException;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -58,6 +62,7 @@ public class CompareAction extends BaseSelectionListenerAction {
 	private final IAbapGitStagingView view;
 	private IFileService fileService;
 	private IExternalRepositoryInfoRequest credentials;
+	private boolean credsRetrievedFromSecureStorage = false;
 
 	public CompareAction(IAbapGitStagingView view, TreeViewer treeViewer) {
 		super(Messages.AbapGitStaging_action_compare);
@@ -122,7 +127,7 @@ public class CompareAction extends BaseSelectionListenerAction {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
-					String leftFileContents = CompareAction.this.fileService.readLocalFileContents(file, CompareAction.this.credentials,
+					String leftFileContents = CompareAction.this.fileService.readLocalFileContents(file,
 							getDestination(CompareAction.this.view.getProject()));
 					String rightFileContents = CompareAction.this.fileService.readRemoteFileContents(file, CompareAction.this.credentials,
 							getDestination(CompareAction.this.view.getProject()));
@@ -298,8 +303,18 @@ public class CompareAction extends BaseSelectionListenerAction {
 	private void handleException(Exception e, String repoURL, Shell shell) {
 		//invalid credentials : this condition check is only valid from 2002
 		if (e instanceof ResourceException && GitCredentialsService.isAuthenticationIssue((ResourceException) e)) {
-			ErrorHandlingService.handleExceptionAndDisplayInErrorDialog(e, shell);
-			if (getGitCredentials(shell, repoURL, e.getLocalizedMessage()).equals(Status.OK_STATUS)) {
+
+			String message = e.getLocalizedMessage();
+			//If credentials not retrieved from secure storage, show appropriate Error Dialog
+			//Otherwise simply show the credentials dialog
+			if (this.credsRetrievedFromSecureStorage == false) {
+				ErrorHandlingService.handleExceptionAndDisplayInErrorDialog(e, shell);
+			} else {
+				GitCredentialsService.deleteCredentialsFromSecureStorage(this.view.getRepository().getUrl());
+				message = null;
+			}
+			this.credsRetrievedFromSecureStorage = false;
+			if (getGitCredentials(shell, repoURL, message).equals(Status.OK_STATUS)) {
 				validateCredsAndCompareFiles(shell, repoURL);
 			}
 		} else {
@@ -321,12 +336,49 @@ public class CompareAction extends BaseSelectionListenerAction {
 	}
 
 	private IStatus getGitCredentialsAndValidate(Shell shell, String repositoryURL) {
-		if (getGitCredentials(shell, repositoryURL, null).equals(Status.CANCEL_STATUS)) {
-			return Status.CANCEL_STATUS;
+		this.credentials = getRepoCredentialsFromSecureStorage(repositoryURL);
+
+		if (this.credentials == null) {
+			this.credsRetrievedFromSecureStorage = false;
+			if (getGitCredentials(shell, repositoryURL, null).equals(Status.CANCEL_STATUS)) {
+				return Status.CANCEL_STATUS;
+			}
+
+		} else {
+			this.credsRetrievedFromSecureStorage = true;
 		}
 
 		validateCredsAndCompareFiles(shell, repositoryURL);
 		return Status.OK_STATUS;
+	}
+
+	/**
+	 *
+	 * @param repositoryURL
+	 * @return the credentials from Secure Store for the given repository url
+	 */
+
+	private static IExternalRepositoryInfoRequest getRepoCredentialsFromSecureStorage(String repositoryURL) {
+		if (repositoryURL == null) {
+			return null;
+		}
+		ISecurePreferences preferences = SecurePreferencesFactory.getDefault();
+		String slashEncodedURL = GitCredentialsService.getUrlForNodePath(repositoryURL);
+		if (slashEncodedURL != null && preferences.nodeExists(slashEncodedURL)) {
+			ISecurePreferences node = preferences.node(slashEncodedURL);
+			IExternalRepositoryInfoRequest credentials = AbapgitexternalrepoFactoryImpl.eINSTANCE.createExternalRepositoryInfoRequest();
+
+			try {
+				credentials.setUser(node.get("user", null)); //$NON-NLS-1$
+				credentials.setPassword(node.get("password", null)); //$NON-NLS-1$
+			} catch (StorageException e) {
+				AbapGitUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getMessage(), e));
+			}
+			credentials.setUrl(repositoryURL);
+			return credentials;
+		}
+
+		return null;
 	}
 
 	//For Testing

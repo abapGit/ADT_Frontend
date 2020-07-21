@@ -36,15 +36,13 @@ public interface IFileService {
 	 *
 	 * @param file
 	 *            File whose local version to be read
-	 * @param credentials
-	 *            Repository credentials
 	 * @param destinationId
 	 *            Destination ID of the abap project
 	 *
 	 * @return
 	 * @throws IOException
 	 */
-	String readLocalFileContents(IAbapGitFile file, IExternalRepositoryInfoRequest credentials, String destinationId)
+	String readLocalFileContents(IAbapGitFile file, String destinationId)
 			throws IOException;
 
 	/**

@@ -15,6 +15,7 @@ import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
 import org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfo;
 import org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfoRequest;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.impl.AbapgitexternalrepoFactoryImpl;
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitCommitMessage;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject;
@@ -48,6 +49,9 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.equinox.security.storage.ISecurePreferences;
+import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
+import org.eclipse.equinox.security.storage.StorageException;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ControlContribution;
 import org.eclipse.jface.action.IAction;
@@ -187,6 +191,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	private static final boolean singleFileStageMode = true;
 	private static final String stage = "stage"; //$NON-NLS-1$
 	private static final String push = "push"; //$NON-NLS-1$
+	private boolean credsRetrievedFromSecureStorage = false;
 
 	public AbapGitStagingView() {
 		this.stagingUtil = getStagingUtil();
@@ -702,8 +707,17 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		if (this.repositoryExternalInfo != null) {
 			//get credentials from user if the repository is private
 			if (checkIfCredentialsRequired()) {
-				if (getGitCredentials().equals(Status.CANCEL_STATUS)) {
-					return Status.CANCEL_STATUS;
+				this.repositoryCredentials = getRepoCredentialsFromSecureStorage(this.repository.getUrl());
+
+				if (this.repositoryCredentials == null) {
+					this.credsRetrievedFromSecureStorage = false;
+
+					if (getGitCredentials().equals(Status.CANCEL_STATUS)) {
+						return Status.CANCEL_STATUS;
+					}
+				} else {
+					this.credsRetrievedFromSecureStorage = true;
+
 				}
 			}
 			refresh();
@@ -1105,13 +1119,21 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	}
 
 	private void fetchCredentialsAndCommit() {
+		this.repositoryCredentials = getRepoCredentialsFromSecureStorage(this.repository.getUrl());
+
 		if (this.repoService.getURIFromAtomLink(this.repository, IRepositoryService.RELATION_CHECK) == null) {
 			//compatibility handling for credentials checks for 1911
 			//TODO: remove this check once customers upgrade to 2002
-			IExternalRepositoryInfoRequest credentials = GitCredentialsService.getCredentialsFromUser(getSite().getShell(),
-					this.repository.getUrl(), null);
-			if (credentials == null) {
-				return;
+			IExternalRepositoryInfoRequest credentials;
+			if (this.repositoryCredentials != null) {
+				this.credsRetrievedFromSecureStorage = true;
+				credentials = this.repositoryCredentials;
+			} else {
+				this.credsRetrievedFromSecureStorage = false;
+				credentials = GitCredentialsService.getCredentialsFromUser(getSite().getShell(), null);
+				if (credentials == null) {
+					return;
+				}
 			}
 			commitAndPush(credentials);
 		}
@@ -1119,12 +1141,15 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		//if the user has entered credentials while doing the previous commit, the credentials will be validated before we do a push
 		//hence we can always rely on the value of the variable repositoryCredentials
 		else {
-			//open get credentials Dialog
-			IExternalRepositoryInfoRequest credentials = GitCredentialsService.getCredentialsFromUser(getSite().getShell(),
-					this.repository.getUrl(),
-					null);
-			if (credentials != null) {
-				commitAndPush(credentials);
+			
+			if(this.repositoryCredentials == null) {
+				this.credsRetrievedFromSecureStorage = false;
+			} else {
+				this.credsRetrievedFromSecureStorage = true;
+			}
+			
+			if (getGitCredentials().equals(Status.OK_STATUS)) {
+				commitAndPush(this.repositoryCredentials);
 			}
 		}
 	}
@@ -1136,7 +1161,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
 					if (credentials != null) {
-						AbapGitStagingView.this.repositoryCredentials =  credentials;
+						AbapGitStagingView.this.repositoryCredentials = credentials;
 					}
 					//perform repository checks
 					repositoryChecks(monitor);
@@ -1192,8 +1217,19 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		//invalid credentials : this condition check is only valid from 2002
 		if (e instanceof ResourceException && GitCredentialsService.isAuthenticationIssue((ResourceException) e)) {
 			AbapGitStagingView.this.repositoryCredentials = null;
-			ErrorHandlingService.handleExceptionAndDisplayInErrorDialog(e, getSite().getShell());
-			if (getGitCredentials(e.getLocalizedMessage()).equals(Status.OK_STATUS)) {
+
+			String message = e.getLocalizedMessage();
+			//If credentials not retrieved from secure storage, show appropriate Error Dialog
+			//Otherwise simply show the credentials dialog
+			if (this.credsRetrievedFromSecureStorage == false) {
+				ErrorHandlingService.handleExceptionAndDisplayInErrorDialog(e, getSite().getShell());
+			} else {
+				GitCredentialsService.deleteCredentialsFromSecureStorage(this.repository.getUrl());
+				message = null;
+			}
+			this.credsRetrievedFromSecureStorage = false;
+
+			if (getGitCredentials(message).equals(Status.OK_STATUS)) {
 				//re-trigger action
 				if (action.equals(stage)) {
 					refresh();
@@ -1273,7 +1309,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 			if (event.getSelection() instanceof IStructuredSelection) {
 				IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 				Object object = selection.getFirstElement();
-				this.stagingUtil.openEditor(object, this.project, this.repositoryCredentials);
+				this.stagingUtil.openEditor(object, this.project);
 			}
 		});
 	}
@@ -1360,6 +1396,35 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	@Override
 	public IExternalRepositoryInfo getExternalRepositoryInfo() {
 		return this.repositoryExternalInfo;
+	}
+
+	/**
+	 *
+	 * @param repositoryURL
+	 * @return the credentials from Secure Store for the given repository url
+	 */
+
+	private static IExternalRepositoryInfoRequest getRepoCredentialsFromSecureStorage(String repositoryURL) {
+		if (repositoryURL == null) {
+			return null;
+		}
+		ISecurePreferences preferences = SecurePreferencesFactory.getDefault();
+		String slashEncodedURL = GitCredentialsService.getUrlForNodePath(repositoryURL);
+		if (slashEncodedURL != null && preferences.nodeExists(slashEncodedURL)) {
+			ISecurePreferences node = preferences.node(slashEncodedURL);
+			IExternalRepositoryInfoRequest credentials = AbapgitexternalrepoFactoryImpl.eINSTANCE.createExternalRepositoryInfoRequest();
+
+			try {
+				credentials.setUser(node.get("user", null)); //$NON-NLS-1$
+				credentials.setPassword(node.get("password", null)); //$NON-NLS-1$
+			} catch (StorageException e) {
+				AbapGitUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getMessage(), e));
+			}
+			credentials.setUrl(repositoryURL);
+			return credentials;
+		}
+
+		return null;
 	}
 
 }

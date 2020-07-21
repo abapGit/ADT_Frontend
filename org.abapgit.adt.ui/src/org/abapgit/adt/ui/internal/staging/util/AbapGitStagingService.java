@@ -6,7 +6,6 @@ import java.net.URISyntaxException;
 
 import org.abapgit.adt.backend.FileServiceFactory;
 import org.abapgit.adt.backend.IFileService;
-import org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfoRequest;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitFile;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
@@ -36,13 +35,13 @@ import com.sap.adt.tools.core.ui.navigation.AdtNavigationServiceFactory;
 
 public class AbapGitStagingService extends AbapGitService implements IAbapGitStagingService {
 
-	public void openEditor(Object object, IProject project, IExternalRepositoryInfoRequest credentials) {
+	public void openEditor(Object object, IProject project) {
 		if (object instanceof IAbapGitObject) {
 			//open the abap object in the native ADT editor
 			openAbapObject((IAbapGitObject) object, project);
 		} else if (object instanceof IAbapGitFile) {
 			//open the abapgit file
-			openAbapGitFile((IAbapGitFile) object, project, credentials);
+			openAbapGitFile((IAbapGitFile) object, project);
 		}
 	}
 
@@ -78,7 +77,7 @@ public class AbapGitStagingService extends AbapGitService implements IAbapGitSta
 	 * @param project
 	 *            Abap project
 	 */
-	private void openAbapGitFile(IAbapGitFile file, IProject project, IExternalRepositoryInfoRequest credentials) {
+	private void openAbapGitFile(IAbapGitFile file, IProject project) {
 		if (!isFetchFileContentSupported(file)) {
 			IAbapGitObject abapObject = (IAbapGitObject) file.eContainer();
 			if (abapObject.getType() == null) {
@@ -100,7 +99,7 @@ public class AbapGitStagingService extends AbapGitService implements IAbapGitSta
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
-					String fileContents = FileServiceFactory.createFileService().readLocalFileContents(file, credentials,
+					String fileContents = FileServiceFactory.createFileService().readLocalFileContents(file,
 							getDestination(project));
 					openFileEditor(file, fileContents);
 					return Status.OK_STATUS;

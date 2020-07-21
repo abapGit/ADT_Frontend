@@ -337,7 +337,7 @@ public class TestsPdeAbapGitStaging {
 		
 		//create file service mock
 		IFileService fileService = createNiceMock(IFileService.class);
-		expect(fileService.readLocalFileContents(anyObject(), anyObject(), anyObject())).andReturn("hello");
+		expect(fileService.readLocalFileContents(anyObject(), anyObject())).andReturn("hello");
 		expect(fileService.readRemoteFileContents(anyObject(), anyObject(), anyObject())).andReturn("world");
 		replay(fileService);
 		
@@ -376,7 +376,7 @@ public class TestsPdeAbapGitStaging {
 		view.unstagedTreeViewer.setSelection(new StructuredSelection(testUtil.getFile2ForClassMock()), true);
 		
 		fileService = createNiceMock(IFileService.class);
-		expect(fileService.readLocalFileContents(anyObject(), anyObject(), anyObject())).andReturn("hello");
+		expect(fileService.readLocalFileContents(anyObject(), anyObject())).andReturn("hello");
 		expect(fileService.readRemoteFileContents(anyObject(), anyObject(), anyObject())).andReturn("world");
 		replay(fileService);
 		
