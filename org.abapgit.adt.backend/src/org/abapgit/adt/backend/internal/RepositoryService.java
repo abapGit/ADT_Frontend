@@ -70,39 +70,31 @@ public class RepositoryService implements IRepositoryService {
 
 	@Override
 	public IAbapObjects cloneRepository(String url, String branch, String targetPackage, String transportRequest, String user,
-			String password,
-			IProgressMonitor monitor) {
+			String password, IProgressMonitor monitor) {
+
+		IRepository repository = AbapgitrepositoriesFactoryImpl.eINSTANCE.createRepository();
+		repository.setUrl(url);
+		repository.setPackage(targetPackage);
+		repository.setBranchName(branch);
+		if (user != null && !user.isEmpty()) {
+			repository.setRemoteUser(user);
+		}
+		if (password != null && !password.isEmpty()) {
+			repository.setRemotePassword(password);
+		}
+		repository.setTransportRequest(transportRequest);
+		repository.setPackage(targetPackage);
+
 		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory().createResourceWithStatelessSession(this.uri,
 				this.destinationId);
 
 		IContentHandler<IRepository> requestContentHandlerV1 = new RepositoryContentHandlerV1();
 		restResource.addContentHandler(requestContentHandlerV1);
 
-		IRepository repository = AbapgitrepositoriesFactoryImpl.eINSTANCE.createRepository();
-		repository.setUrl(url);
-		repository.setPackage(targetPackage);
-		repository.setBranchName(branch);
-
-		if (user != null && !user.isEmpty()) {
-			repository.setRemoteUser(user);
-		}
-
-		if (password != null && !password.isEmpty()) {
-			repository.setRemotePassword(password);
-		}
-
-		repository.setTransportRequest(transportRequest);
-		repository.setPackage(targetPackage);
-
-		IAdtCompatibleRestResourceFilter compatibilityFilter = AdtCompatibleRestResourceFilterFactory.createFilter(new IContentHandler[0]);
-
 		IContentHandler<IAbapObjects> responseContentHandlerV1 = new AbapObjectContentHandlerV1();
 		restResource.addContentHandler(responseContentHandlerV1);
 
-		IAdtCompatibleRestResourceFilter responseCompatibilityFilter = AdtCompatibleRestResourceFilterFactory
-				.createFilter(new IContentHandler[0]);
-
-		restResource.addResponseFilter(responseCompatibilityFilter);
+		IAdtCompatibleRestResourceFilter compatibilityFilter = AdtCompatibleRestResourceFilterFactory.createFilter(responseContentHandlerV1);
 		restResource.addRequestFilter(compatibilityFilter);
 
 		return restResource.post(monitor, IAbapObjects.class, repository);
