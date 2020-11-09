@@ -29,7 +29,6 @@ public class AbapGitStagingCredentialsDialog extends TitleAreaDialog {
 	private String errorMessage;
 
 	private Button storeCredentialCheckBox;
-	private Label storeCredentialCheckBoxLabel;
 
 	private boolean storeCredsInSecStore = false;
 
@@ -85,11 +84,8 @@ public class AbapGitStagingCredentialsDialog extends TitleAreaDialog {
 
 		// Check Box to store credentials in secure storage
 
-		this.storeCredentialCheckBoxLabel = new Label(credentialsComposite, SWT.NONE);
-		this.storeCredentialCheckBoxLabel.setText(Messages.AbapGitStagingCredentialsDialog_label_store_in_secure_store);
-		GridDataFactory.swtDefaults().applyTo(this.storeCredentialCheckBoxLabel);
-
 		this.storeCredentialCheckBox = new Button(credentialsComposite, SWT.CHECK);
+		this.storeCredentialCheckBox.setText(Messages.AbapGitStagingCredentialsDialog_label_store_in_secure_store);
 		GridDataFactory.swtDefaults().applyTo(this.storeCredentialCheckBox);
 
 		this.storeCredentialCheckBox.setSelection(this.storeCredsInSecStore);

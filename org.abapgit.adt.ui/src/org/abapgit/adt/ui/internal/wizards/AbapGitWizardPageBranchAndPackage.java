@@ -152,13 +152,12 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 		//-> Show checkbox only in link wizard
 		if (!this.pullAction) {
 			/////// CHECKBOX Link & Pull
-			Label lblLnp = new Label(container, SWT.NONE);
-			lblLnp.setText(Messages.AbapGitWizardPageBranchAndPackage_chbox_activate);
-			lblLnp.setToolTipText(Messages.AbapGitWizardPageBranchAndPackage_chbox_activate_tooltip);
-			GridDataFactory.swtDefaults().applyTo(lblLnp);
 
 			this.checkbox_lnp = new Button(container, SWT.CHECK);
+			this.checkbox_lnp.setText(Messages.AbapGitWizardPageBranchAndPackage_chbox_activate);
+			this.checkbox_lnp.setToolTipText(Messages.AbapGitWizardPageBranchAndPackage_chbox_activate_tooltip);
 			GridDataFactory.swtDefaults().applyTo(this.checkbox_lnp);
+
 
 			this.checkbox_lnp.addSelectionListener(new SelectionAdapter() {
 				@Override
