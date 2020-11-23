@@ -1,5 +1,7 @@
 package org.abapgit.adt.ui.internal.util;
 
+import java.util.List;
+
 import org.eclipse.core.resources.IProject;
 
 public interface IAbapGitService {
@@ -44,4 +46,12 @@ public interface IAbapGitService {
 	 */
 	boolean isAbapGitSupported(IProject project);
 
+	/**
+	 * Get the accepted content types from the discovery
+	 *
+	 * @return The accepted content types for the project
+	 *
+	 */
+
+	List<String> getAcceptedContentTypes(IProject project);
 }

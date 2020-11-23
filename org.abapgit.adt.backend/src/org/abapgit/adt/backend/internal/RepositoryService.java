@@ -7,10 +7,13 @@ import java.util.Base64;
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.model.abapObjects.IAbapObjects;
 import org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfoRequest;
+import org.abapgit.adt.backend.model.abapgitpullrequest.IAbapGitPullRequest;
+import org.abapgit.adt.backend.model.abapgitpullrequest.impl.AbapgitpullrequestFactoryImpl;
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepositories;
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.abapgit.adt.backend.model.abapgitrepositories.impl.AbapgitrepositoriesFactoryImpl;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitStaging;
+import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAbapGitPullModifiedObjects;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import com.sap.adt.communication.content.IContentHandler;
@@ -254,6 +257,77 @@ public class RepositoryService implements IRepositoryService {
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public IAbapGitPullModifiedObjects getModifiedObjects(IProgressMonitor monitor, IRepository currRepository,
+			String user, String password) {
+		//This URI is not a part of the URI's associated with a repository in the backend.
+		//Do/Should we add this to that list in the backend and then fetch the URI from Atom Link, like we do for other URI
+		String uriToModifiedObjectsString = getURIFromAtomLink(currRepository, IRepositoryService.RELATION_PULL).toString()
+				+ "/modifiedobjects"; //$NON-NLS-1$
+		URI uriToModifiedObjects = URI.create(uriToModifiedObjectsString);
+
+		IHeaders headers = null;
+		if (user != null && password != null) {
+			headers = getHttpHeadersForCredentials(user, password);
+		}
+
+		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory()
+				.createResourceWithStatelessSession(uriToModifiedObjects,
+				this.destinationId);
+
+		IContentHandler<IAbapGitPullModifiedObjects> responseContentHandlerV1 = new AbapGitPullModifiedObjectsContentHandlerV1();
+		restResource.addContentHandler(responseContentHandlerV1);
+
+		IAdtCompatibleRestResourceFilter compatibilityFilter = AdtCompatibleRestResourceFilterFactory
+				.createFilter(responseContentHandlerV1);
+		restResource.addRequestFilter(compatibilityFilter);
+		restResource.addResponseFilter(compatibilityFilter);
+
+		return restResource.get(monitor, headers, IAbapGitPullModifiedObjects.class);
+
+	}
+
+	@Override
+	public IAbapObjects pullRepository(IRepository existingRepository, String branch, String transportRequest, String user, String password,
+			IAbapGitPullModifiedObjects selectedObjectsToPull, IProgressMonitor monitor) {
+		URI uriToRepo = getURIFromAtomLink(existingRepository, IRepositoryService.RELATION_PULL);
+		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory().createResourceWithStatelessSession(uriToRepo,
+				this.destinationId);
+
+		IContentHandler<IAbapGitPullRequest> requestContentHandlerV1 = new AbapGitPullRequestContentHandler();
+		restResource.addContentHandler(requestContentHandlerV1);
+
+		IAbapGitPullRequest abapGitPullReq = AbapgitpullrequestFactoryImpl.eINSTANCE.createAbapGitPullRequest();
+
+		abapGitPullReq.setBranchName(branch);
+		abapGitPullReq.setTransportRequest(transportRequest);
+
+		if (user != null && !user.isEmpty()) {
+			abapGitPullReq.setUser(user);
+		}
+
+		if (password != null && !password.isEmpty()) {
+			abapGitPullReq.setPassword(password);
+		}
+
+		if (selectedObjectsToPull != null) {
+		abapGitPullReq.setPackageWarningObjects(selectedObjectsToPull.getPackageWarningObjects());
+		abapGitPullReq.setOverwriteObjects(selectedObjectsToPull.getOverwriteObjects());
+	}
+
+		IAdtCompatibleRestResourceFilter compatibilityFilter = AdtCompatibleRestResourceFilterFactory.createFilter(new IContentHandler[0]);
+		restResource.addRequestFilter(compatibilityFilter);
+
+		IContentHandler<IAbapObjects> responseContentHandlerV1 = new AbapObjectContentHandlerV1();
+		restResource.addContentHandler(responseContentHandlerV1);
+
+		IAdtCompatibleRestResourceFilter responseCompatibilityFilter = AdtCompatibleRestResourceFilterFactory
+				.createFilter(new IContentHandler[0]);
+		restResource.addResponseFilter(responseCompatibilityFilter);
+
+		return restResource.post(monitor, IAbapObjects.class, abapGitPullReq);
 	}
 
 }

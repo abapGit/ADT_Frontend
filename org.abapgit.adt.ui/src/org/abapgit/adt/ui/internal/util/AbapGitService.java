@@ -1,5 +1,8 @@
 package org.abapgit.adt.ui.internal.util;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitFile;
@@ -7,6 +10,9 @@ import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
+import com.sap.adt.compatibility.discovery.AdtDiscoveryFactory;
+import com.sap.adt.compatibility.discovery.IAdtDiscovery;
+import com.sap.adt.compatibility.discovery.IAdtDiscoveryCollectionMember;
 import com.sap.adt.destinations.logon.AdtLogonServiceFactory;
 import com.sap.adt.destinations.ui.logon.AdtLogonServiceUIFactory;
 import com.sap.adt.tools.core.model.atom.IAtomLink;
@@ -56,6 +62,19 @@ public class AbapGitService implements IAbapGitService {
 	public boolean isAbapGitSupported(IProject project) {
 		IRepositoryService service = RepositoryServiceFactory.createRepositoryService(getDestination(project), new NullProgressMonitor());
 		return service != null ? true : false;
+	}
+
+	@Override
+	public List<String> getAcceptedContentTypes(IProject project) {
+		final String SCHEME = "http://www.sap.com/adt/categories/abapgit"; //$NON-NLS-1$
+		final String TERM_REPOS = "repos"; //$NON-NLS-1$
+
+		IAdtDiscovery discovery = AdtDiscoveryFactory.createDiscovery(getDestination(project), AdtDiscoveryFactory.RESOURCE_URI);
+
+		IAdtDiscoveryCollectionMember repoMember = discovery.getCollectionMember(SCHEME, TERM_REPOS, new NullProgressMonitor());
+
+		return Arrays.asList(repoMember.getAcceptedContentTypes());
+
 	}
 
 }

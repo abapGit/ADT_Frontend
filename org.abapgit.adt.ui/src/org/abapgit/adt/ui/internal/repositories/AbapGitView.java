@@ -21,11 +21,14 @@ import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.repositories.actions.OpenRepositoryAction;
 import org.abapgit.adt.ui.internal.staging.AbapGitStagingView;
 import org.abapgit.adt.ui.internal.staging.IAbapGitStagingView;
+import org.abapgit.adt.ui.internal.util.AbapGitService;
 import org.abapgit.adt.ui.internal.util.AbapGitUIServiceFactory;
 import org.abapgit.adt.ui.internal.util.GitCredentialsService;
 import org.abapgit.adt.ui.internal.util.IAbapGitService;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizardPull;
+import org.abapgit.adt.ui.internal.wizards.AbapGitWizardSelectObjectsAndPull;
+import org.abapgit.adt.ui.internal.wizards.AbapGitWizardPullV2;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -499,11 +502,30 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 				if (!AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(AbapGitView.this.lastProject).isOK()) {
 					return;
 				}
-				WizardDialog wizardDialog = new WizardDialog(AbapGitView.this.viewer.getControl().getShell(),
-						new AbapGitWizard(AbapGitView.this.lastProject));
 
+				AbapGitWizard abapGitWizard = new AbapGitWizard(AbapGitView.this.lastProject);
+				WizardDialog wizardDialog = new WizardDialog(AbapGitView.this.viewer.getControl().getShell(),
+						abapGitWizard);
 				wizardDialog.open();
 				updateView(true);
+
+				//Compatibility handling for back end versions before 2105 Release
+				//The following logic is only valid from 2105 Release
+				// After Link is successful (Link Wizard is finished), and Pull is requested after Linking, 
+				// another wizard is opened to provide a way to select objects to pull and then perform the pull action
+				List<String> acceptedContentTypes = new AbapGitService()
+						.getAcceptedContentTypes(AbapGitView.this.lastProject);
+				if (acceptedContentTypes.contains("application/abapgit.adt.repo.pull.modified.objs.v1+xml") //$NON-NLS-1$
+						&& abapGitWizard.isPullRequested()) {
+					//getters for cloneData and Transport Request are exposed from the Link Wizard
+					// The information provided in Link Wizard is reused in AbapGitWizardSelectObjectsAndPull wizard, which is required for pull Action
+					AbapGitWizardSelectObjectsAndPull selectObjectsAndPullWizard = new AbapGitWizardSelectObjectsAndPull(
+							AbapGitView.this.lastProject, abapGitWizard.getCloneData(), abapGitWizard.getTransportRequest());
+					wizardDialog = new WizardDialog(AbapGitView.this.viewer.getControl().getShell(), selectObjectsAndPullWizard);
+					wizardDialog.open();
+					updateView(true);
+				}
+
 			}
 		};
 		this.actionWizard.setText(Messages.AbapGitView_action_clone);
@@ -535,17 +557,32 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 						allRepositories.addAll(viewerRepositories);
 					}
 
-					WizardDialog wizardDialog = new WizardDialog(AbapGitView.this.viewer.getControl().getShell(),
-							new AbapGitWizardPull(AbapGitView.this.lastProject, this.selRepo, allRepositories));
-
-					// customized MessageDialog with configured buttons
-					MessageDialog dialog = new MessageDialog(getSite().getShell(), Messages.AbapGitView_ConfDialog_title, null,
-							Messages.AbapGitView_ConfDialog_MsgText,
-							MessageDialog.CONFIRM,
-							new String[] { Messages.AbapGitView_ConfDialog_Btn_confirm, Messages.AbapGitView_ConfDialog_Btn_cancel }, 0);
-					int confirmResult = dialog.open();
-					if (confirmResult == 0) {
+					// AbapGitWizardPullV2 handles selective pulling
+					// and is valid from backend version 2105
+					
+					//Compatibility handling
+					List<String> acceptedContentTypes = new AbapGitService()
+							.getAcceptedContentTypes(AbapGitView.this.lastProject);
+					WizardDialog wizardDialog;
+					if (acceptedContentTypes.contains("application/abapgit.adt.repo.pull.modified.objs.v1+xml")) { //$NON-NLS-1$
+						wizardDialog = new WizardDialog(AbapGitView.this.viewer.getControl().getShell(),
+								new AbapGitWizardPullV2(AbapGitView.this.lastProject, this.selRepo, allRepositories));
 						wizardDialog.open();
+
+					} else {
+						wizardDialog = new WizardDialog(AbapGitView.this.viewer.getControl().getShell(),
+								new AbapGitWizardPull(AbapGitView.this.lastProject, this.selRepo, allRepositories));
+
+						// customized MessageDialog with configured buttons
+						MessageDialog dialog = new MessageDialog(getSite().getShell(), Messages.AbapGitView_ConfDialog_title, null,
+								Messages.AbapGitView_ConfDialog_MsgText, MessageDialog.CONFIRM,
+								new String[] { Messages.AbapGitView_ConfDialog_Btn_confirm, Messages.AbapGitView_ConfDialog_Btn_cancel },
+								0);
+						int confirmResult = dialog.open();
+						if (confirmResult == 0) {
+							wizardDialog.open();
+						}
+
 					}
 
 				}

@@ -114,7 +114,7 @@ public class AbapGitWizardPull extends Wizard {
 				this.pullAction);
 		this.pageBranchAndPackage = new AbapGitWizardPageBranchAndPackage(this.project, this.destination, this.cloneData, this.pullAction);
 		this.transportService = AdtTransportServiceFactory.createTransportService(this.destination);
-		this.pageApack = new AbapGitWizardPageApack(this.destination, this.cloneData, this.transportService, true);
+		this.pageApack = new AbapGitWizardPageApack(this.destination, this.cloneData, this.transportService, true, this.project);
 		this.transportPage = AdtTransportSelectionWizardPageFactory.createTransportSelectionPage(this.transportService);
 
 		addPage(this.pageCredentials);

@@ -1,6 +1,7 @@
 package org.abapgit.adt.ui.internal.wizards;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -15,6 +16,8 @@ import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.abapgit.adt.backend.model.abapgitrepositories.impl.AbapgitrepositoriesFactoryImpl;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.internal.i18n.Messages;
+import org.abapgit.adt.ui.internal.repositories.ModifiedObjectsForRepository;
+import org.abapgit.adt.ui.internal.util.AbapGitService;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -43,6 +46,8 @@ public class AbapGitWizard extends Wizard {
 	private final IProject project;
 	private final String destination;
 	private final CloneData cloneData;
+	private boolean pullRequested = false;
+	private String transportRequest;
 	private PageChangeListener pageChangeListener;
 
 	private AbapGitWizardPageRepositoryAndCredentials pageRepo;
@@ -64,12 +69,27 @@ public class AbapGitWizard extends Wizard {
 				AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID, "icons/wizban/abapGit_import_wizban.png")); //$NON-NLS-1$
 	}
 
+	// Required for Pulling Objects after the Link Wizard is finished.
+	public CloneData getCloneData() {
+		return this.cloneData;
+	}
+
+	public boolean isPullRequested() {
+		return this.pullRequested;
+	}
+
+	public String getTransportRequest() {
+		return this.transportRequest;
+	}
+
 	@Override
 	public void addPages() {
 		this.pageRepo = new AbapGitWizardPageRepositoryAndCredentials(this.project, this.destination, this.cloneData, false);
-		this.pageBranchAndPackage = new AbapGitWizardPageBranchAndPackage(this.project, this.destination, this.cloneData, false);
+		this.pageBranchAndPackage = new AbapGitWizardPageBranchAndPackage(this.project, this.destination, this.cloneData,
+				false);
 		this.transportService = AdtTransportServiceFactory.createTransportService(this.destination);
-		this.pageApack = new AbapGitWizardPageApack(this.destination, this.cloneData, this.transportService, false);
+		this.pageApack = new AbapGitWizardPageApack(this.destination, this.cloneData, this.transportService, false,
+				this.project);
 		this.transportPage = AdtTransportSelectionWizardPageFactory.createTransportSelectionPage(this.transportService);
 		addPage(this.pageRepo);
 		addPage(this.pageBranchAndPackage);
@@ -84,12 +104,14 @@ public class AbapGitWizard extends Wizard {
 
 		try {
 			String transportRequestNumber = this.transportPage.getTransportRequestNumber();
+			this.transportRequest = transportRequestNumber;
 			getContainer().run(true, true, new IRunnableWithProgress() {
 
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 
 					Boolean sequenceLnp = AbapGitWizard.this.pageBranchAndPackage.getLnpSequence();
+					AbapGitWizard.this.pullRequested = sequenceLnp;
 
 					monitor.beginTask(Messages.AbapGitWizard_task_cloning_repository, IProgressMonitor.UNKNOWN);
 					IRepositoryService repoService = RepositoryServiceFactory.createRepositoryService(AbapGitWizard.this.destination,
@@ -112,7 +134,13 @@ public class AbapGitWizard extends Wizard {
 						}
 						repoService.cloneRepositories(repositoriesToLink, monitor);
 						if (sequenceLnp) {
-							pullLinkedRepositories(monitor, repoService, repositoriesToLink);
+							//This is valid only for back end versions before 2105.
+							//Compatibility handling
+							List<String> acceptedContentTypes = new AbapGitService()
+									.getAcceptedContentTypes(AbapGitWizard.this.project);
+							if (!acceptedContentTypes.contains("application/abapgit.adt.repo.pull.modified.objs.v1+xml")) { //$NON-NLS-1$
+								pullLinkedRepositories(monitor, repoService, repositoriesToLink);
+							}
 						}
 					} else {
 						List<IAbapObject> abapObjects = repoService.cloneRepository(AbapGitWizard.this.cloneData.url,
@@ -128,10 +156,17 @@ public class AbapGitWizard extends Wizard {
 							IRepository linkedRepo = repoService.getRepositoryByURL(repoService.getRepositories(monitor),
 									AbapGitWizard.this.cloneData.url);
 
-							//-> Pull newly linked repository
-							repoService.pullRepository(linkedRepo, AbapGitWizard.this.cloneData.branch,
-									AbapGitWizard.this.transportPage.getTransportRequestNumber(), AbapGitWizard.this.cloneData.user,
-									AbapGitWizard.this.cloneData.pass, monitor);
+							//This is valid only for back end versions before 2105.
+							//Compatibility handling
+							List<String> acceptedContentTypes = new AbapGitService()
+									.getAcceptedContentTypes(AbapGitWizard.this.project);
+							if (!acceptedContentTypes.contains("application/abapgit.adt.repo.pull.modified.objs.v1+xml")) { //$NON-NLS-1$
+								//-> Pull newly linked repository
+								repoService.pullRepository(linkedRepo, AbapGitWizard.this.cloneData.branch,
+										AbapGitWizard.this.transportPage.getTransportRequestNumber(), AbapGitWizard.this.cloneData.user,
+										AbapGitWizard.this.cloneData.pass, monitor);
+							}
+
 						}
 					}
 				}
@@ -261,6 +296,11 @@ public class AbapGitWizard extends Wizard {
 	 * refined in the future, e.g. by using data binding.
 	 */
 	static class CloneData {
+		public CloneData() {
+			super();
+			this.repoToModifiedOverwriteObjects = new ArrayList<ModifiedObjectsForRepository>();
+			this.repoToModifiedPackageWarningObjects = new ArrayList<ModifiedObjectsForRepository>();
+		}
 		public IRepositories repositories;
 		public IExternalRepositoryInfo externalRepoInfo;
 		public IAdtObjectReference packageRef;
@@ -269,7 +309,8 @@ public class AbapGitWizard extends Wizard {
 		public String user;
 		public String pass;
 		public IApackManifest apackManifest;
-
+		public List<ModifiedObjectsForRepository> repoToModifiedOverwriteObjects; // List of all repositories (including dependencies), mapped to their locally modified Overwrite Objects
+		public List<ModifiedObjectsForRepository> repoToModifiedPackageWarningObjects; // List of all repositories (including dependencies), mapped to their locally modified PackageWarning Objects
 		public boolean hasDependencies() {
 			return this.apackManifest != null && this.apackManifest.hasDependencies();
 		}
