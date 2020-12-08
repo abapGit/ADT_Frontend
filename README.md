@@ -23,7 +23,7 @@ Not all abapGit functionality is available with this plugin!
 ## How to obtain support
 Report Bugs via GitHub's bug tracking system.
 <hr />
-A bug is a _demonstrable problem_ that is caused by the code in the repository. Good bug reports are extremely helpful - thank you!
+A bug is a *demonstrable problem* that is caused by the code in the repository. Good bug reports are extremely helpful - thank you!
 
 Guidelines for bug reports:
 
