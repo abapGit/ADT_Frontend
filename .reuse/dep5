@@ -41,4 +41,4 @@ Files:
     DEV-GUIDELINES.md
     pom.xml
 Copyright: 2020 SAP SE or an SAP affiliate company and ABAP development tools plug-in for abapGit contributors
-License: Apache-2.0
+License: MIT
