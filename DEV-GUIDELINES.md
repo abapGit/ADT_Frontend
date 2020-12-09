@@ -4,12 +4,12 @@
 * Java 8
 * [Eclipse for RCP and RAP Developers](https://www.eclipse.org/downloads/packages/release/2020-09/r/eclipse-ide-rcp-and-rap-developers)
 * Latest [ADT Plugins](https://tools.hana.ondemand.com/#abap) installed in Eclipse for RCP and RAP Developers
-* Latest [ADT_Backend](https://github.com/abapGit/ADT_Backend) for Z-Namespace or [Project Odense](https://github.com/SAP/project-odense) for SAP Namespace installed via [abapGit](https://github.com/abapGit/abapGit) ([documentation](https://docs.abapgit.org/guide-online-install.html)) on your ABAP system
+* Latest [ADT_Backend](https://github.com/abapGit/ADT_Backend) or [odense-z](https://github.com/abapGit/odense-z) for Z-Namespace or [Project Odense](https://github.com/SAP/project-odense) for SAP Namespace installed via [abapGit](https://github.com/abapGit/abapGit) ([documentation](https://docs.abapgit.org/guide-online-install.html)) on your ABAP system
 
 ## Import
 * Clone git repository on disk
 * Import via Eclipse:
-  * File -> Import -> Existing Projects into Workspace
+  * `File` -> `Import` -> `Existing Projects into Workspace`
   * Select root directory: `<path to cloned repo on disk>`
   * Select All
   * Finish
