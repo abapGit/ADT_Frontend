@@ -1,0 +1,8 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: ABAP development tools plug-in for abapGit
+Upstream-Contact: Andre Becker <andre.becker@sap.com>
+Source: https://github.com/abapGit/abapGit-ADT-plugin
+
+Files: *
+Copyright: 2020 abapGit
+License: MIT
