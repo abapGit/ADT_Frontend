@@ -49,7 +49,6 @@ public class AbapGitPullModifiedObjectsContentHandlerV1 implements IContentHandl
 
 	@Override
 	public IMessageBody serialize(IAbapGitPullModifiedObjects dataObject, Charset charset) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

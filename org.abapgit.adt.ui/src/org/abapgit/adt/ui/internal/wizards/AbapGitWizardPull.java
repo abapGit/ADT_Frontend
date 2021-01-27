@@ -38,6 +38,16 @@ import com.sap.adt.transport.IAdtTransportService;
 import com.sap.adt.transport.ui.wizard.AdtTransportSelectionWizardPageFactory;
 import com.sap.adt.transport.ui.wizard.IAdtTransportSelectionWizardPage;
 
+/**
+ * This wizard is valid for back end versions before 2105 where selective pull
+ * is not supported.
+ *
+ * To be removed after 2105 release reaches all customers.
+ *
+ * @author I517012
+ *
+ */
+
 public class AbapGitWizardPull extends Wizard {
 
 	private final IProject project;
@@ -114,7 +124,7 @@ public class AbapGitWizardPull extends Wizard {
 				this.pullAction);
 		this.pageBranchAndPackage = new AbapGitWizardPageBranchAndPackage(this.project, this.destination, this.cloneData, this.pullAction);
 		this.transportService = AdtTransportServiceFactory.createTransportService(this.destination);
-		this.pageApack = new AbapGitWizardPageApack(this.destination, this.cloneData, this.transportService, true, this.project);
+		this.pageApack = new AbapGitWizardPageApack(this.destination, this.cloneData, this.transportService, true);
 		this.transportPage = AdtTransportSelectionWizardPageFactory.createTransportSelectionPage(this.transportService);
 
 		addPage(this.pageCredentials);

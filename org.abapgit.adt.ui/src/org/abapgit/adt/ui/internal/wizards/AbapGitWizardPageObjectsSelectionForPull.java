@@ -2,14 +2,20 @@ package org.abapgit.adt.ui.internal.wizards;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAbapGitObject;
-import org.abapgit.adt.ui.internal.repositories.ModifiedObjectsForRepository;
+import org.abapgit.adt.ui.internal.i18n.Messages;
+import org.abapgit.adt.ui.internal.repositories.IRepositoryModifiedObjects;
+import org.abapgit.adt.ui.internal.repositories.RepositoryModifiedObjects;
+import org.eclipse.jface.layout.TreeColumnLayout;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
 import org.eclipse.jface.viewers.CheckboxTreeViewer;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.ICheckStateListener;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewerColumn;
@@ -17,46 +23,49 @@ import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
+/**
+ * A wizard page, which lists all the modified objects for a repository and
+ * provides a check box to select the objects which should be pulled from remote
+ * repository and overwrite local versions..
+ *
+ * @author I517012
+ *
+ */
 public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 
 	private static final String PAGE_NAME = AbapGitWizardPageObjectsSelectionForPull.class.getName();
 
-	List<ModifiedObjectsForRepository> repoToModifiedObjects;
-	private CheckboxTreeViewer modifiedObjTreeViewer;
+	Set<IRepositoryModifiedObjects> repoToModifiedObjects;
+	protected CheckboxTreeViewer modifiedObjTreeViewer;
 	private Composite container;
 	private Object[] selectedObjectsForRepository;
+	private TreeColumnLayout treeColumnLayout;
 
-	public AbapGitWizardPageObjectsSelectionForPull(List<ModifiedObjectsForRepository> repoToModifiedObjects, String message,
+	public AbapGitWizardPageObjectsSelectionForPull(Set<IRepositoryModifiedObjects> repoToModifiedOverwriteObjects, String message,
 			int messageType) {
 		super(PAGE_NAME);
-		setTitle("Locally Modified Objects."); //$NON-NLS-1$
+		setTitle(Messages.AbapGitWizardPageObjectsSelectionForPull_Title);
 		setMessage(message, messageType);
-		this.repoToModifiedObjects = repoToModifiedObjects;
+		this.repoToModifiedObjects = repoToModifiedOverwriteObjects;
 	}
 
 	@Override
 	public void createControl(Composite parent) {
+		this.treeColumnLayout = new TreeColumnLayout();
 
 		this.container = new Composite(parent, SWT.NONE);
-
-		GridLayout layout = new GridLayout();
-		this.container.setLayout(layout);
-
+		this.container.setLayout(this.treeColumnLayout);
 		this.container.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		this.modifiedObjTreeViewer = new CheckboxTreeViewer(this.container,
 				SWT.MULTI | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FILL);
 
 		this.modifiedObjTreeViewer.setContentProvider(new ModifiedObjectTreeContentProvider());
-
 		this.modifiedObjTreeViewer.getTree().setFocus();
 		this.modifiedObjTreeViewer.getTree().setHeaderVisible(true);
 		this.modifiedObjTreeViewer.getTree().setLinesVisible(true);
-		this.modifiedObjTreeViewer.getTree().setLayout(layout);
-		this.modifiedObjTreeViewer.getTree().setLayoutData(this.container.getLayoutData());
 
 		createColumns();
 
@@ -70,7 +79,7 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 
 			@Override
 			public void checkStateChanged(CheckStateChangedEvent event) {
-				if (event.getElement() instanceof ModifiedObjectsForRepository) {
+				if (event.getElement() instanceof IRepositoryModifiedObjects) {
 					if (event.getChecked()) {
 						AbapGitWizardPageObjectsSelectionForPull.this.modifiedObjTreeViewer.setSubtreeChecked(event.getElement(), true);
 
@@ -87,13 +96,13 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 	private void createColumns() {
 
 		// TYPE/OBJECT COLUMN
-		createTableViewerColumn("Name", 400).setLabelProvider(new ColumnLabelProvider() { //$NON-NLS-1$
+		createTreeViewerColumn("Name", 400).setLabelProvider(new ColumnLabelProvider() { //$NON-NLS-1$
 			@Override
 			public String getText(Object element) {
 				String result = ""; //$NON-NLS-1$
 
-				if (element instanceof ModifiedObjectsForRepository) {
-					result = ((ModifiedObjectsForRepository) element).getRepositoryURL();
+				if (element instanceof IRepositoryModifiedObjects) {
+					result = ((IRepositoryModifiedObjects) element).getRepositoryURL();
 
 				} else if (element instanceof IAbapGitObject) {
 					result = ((IAbapGitObject) element).getName();
@@ -104,7 +113,7 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 		});
 
 
-		createTableViewerColumn("Package", 200).setLabelProvider(new ColumnLabelProvider() { //$NON-NLS-1$
+		createTreeViewerColumn("Package", 200).setLabelProvider(new ColumnLabelProvider() { //$NON-NLS-1$
 			@Override
 			public String getText(Object element) {
 				if (element instanceof IAbapGitObject) {
@@ -116,7 +125,7 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 
 		});
 
-		createTableViewerColumn("Type", 100).setLabelProvider(new ColumnLabelProvider() { //$NON-NLS-1$
+		createTreeViewerColumn("Type", 100).setLabelProvider(new ColumnLabelProvider() { //$NON-NLS-1$
 			@Override
 			public String getText(Object element) {
 				if (element instanceof IAbapGitObject) {
@@ -128,12 +137,10 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 
 	}
 
-	private TreeViewerColumn createTableViewerColumn(String title, int bound) {
+	private TreeViewerColumn createTreeViewerColumn(String title, int bound) {
 		TreeViewerColumn viewerColumn = new TreeViewerColumn(this.modifiedObjTreeViewer, SWT.NONE);
 		viewerColumn.getColumn().setText(title);
-		viewerColumn.getColumn().setWidth(bound);
-		viewerColumn.getColumn().setResizable(true);
-		viewerColumn.getColumn().setMoveable(true);
+		this.treeColumnLayout.setColumnData(viewerColumn.getColumn(), new ColumnWeightData(20, bound, true));
 		return viewerColumn;
 	}
 
@@ -164,33 +171,40 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 		return super.getNextPage();
 	}
 
+	/**
+	 * Returns the selected objects to be pulled as a set of
+	 * IRepositoryModifiedObjects
+	 *
+	 * @return checkedObjectsForRepository
+	 */
 	@SuppressWarnings("unchecked")
-	public List<ModifiedObjectsForRepository> getSelectedObjects() {
+	public Set<IRepositoryModifiedObjects> getSelectedObjects() {
+		Set<IRepositoryModifiedObjects> checkedObjectsForRepository = new HashSet<IRepositoryModifiedObjects>();
+		Set<IRepositoryModifiedObjects> input = (Set<IRepositoryModifiedObjects>) this.modifiedObjTreeViewer.getInput();
 
-		List<ModifiedObjectsForRepository> checkedObjectsForRepository = new ArrayList<ModifiedObjectsForRepository>();
-		List<ModifiedObjectsForRepository> input = (List<ModifiedObjectsForRepository>) this.modifiedObjTreeViewer.getInput();
-
-		for (ModifiedObjectsForRepository modifiedObjectsForRepository : input) {
+		// Loop over the input for the checkboxTreeViewer (modifiedobjects)
+		for (IRepositoryModifiedObjects modifiedObjectsForRepository : input) {
 			List<IAbapGitObject> objects = new ArrayList<IAbapGitObject>();
 			String repositoryURL = modifiedObjectsForRepository.getRepositoryURL();
 
 			for (IAbapGitObject obj : modifiedObjectsForRepository.getModifiedObjects()) {
+				//If the object is in the list of checked/selected objects ,
+				// add it to the list of objects to pull and map it to the corresponding repo
 				if (Arrays.asList(this.selectedObjectsForRepository).contains(obj)) {
 					objects.add(obj);
 				}
 			}
 
+			// map list of objects to pull  to the corresponding repo
 			if (!objects.isEmpty()) {
-				checkedObjectsForRepository.add(new ModifiedObjectsForRepository(repositoryURL, objects));
+				checkedObjectsForRepository.add(new RepositoryModifiedObjects(repositoryURL, objects));
 			}
-
 		}
 		return checkedObjectsForRepository;
 	}
 
 	private class ModifiedObjectTreeContentProvider implements ITreeContentProvider {
 
-		@SuppressWarnings("unchecked")
 		@Override
 		public Object[] getElements(Object inputElement) {
 			return ArrayContentProvider.getInstance().getElements(inputElement);
@@ -198,8 +212,8 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 
 		@Override
 		public Object[] getChildren(Object parentElement) {
-			if (parentElement instanceof ModifiedObjectsForRepository) {
-				ModifiedObjectsForRepository modifiedObjectsForRepo = (ModifiedObjectsForRepository) parentElement;
+			if (parentElement instanceof IRepositoryModifiedObjects) {
+				IRepositoryModifiedObjects modifiedObjectsForRepo = (IRepositoryModifiedObjects) parentElement;
 				return modifiedObjectsForRepo.getModifiedObjects().toArray();
 			}
 			return null;
@@ -212,8 +226,8 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 
 		@Override
 		public boolean hasChildren(Object element) {
-			if (element instanceof ModifiedObjectsForRepository) {
-				ModifiedObjectsForRepository modifiedObjectsForRepo = (ModifiedObjectsForRepository) element;
+			if (element instanceof IRepositoryModifiedObjects) {
+				IRepositoryModifiedObjects modifiedObjectsForRepo = (IRepositoryModifiedObjects) element;
 				return modifiedObjectsForRepo.getModifiedObjects().size() == 0 ? false : true;
 			}
 			return false;

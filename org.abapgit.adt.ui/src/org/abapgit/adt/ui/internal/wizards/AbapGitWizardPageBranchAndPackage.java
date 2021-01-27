@@ -13,11 +13,11 @@ import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
 import org.abapgit.adt.backend.model.abapgitexternalrepo.AccessMode;
 import org.abapgit.adt.backend.model.abapgitexternalrepo.IBranch;
-import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAbapGitObject;
-import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAbapGitPullModifiedObjects;
+import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.abapgit.adt.ui.internal.i18n.Messages;
-import org.abapgit.adt.ui.internal.repositories.ModifiedObjectsForRepository;
-import org.abapgit.adt.ui.internal.util.AbapGitService;
+import org.abapgit.adt.ui.internal.util.AbapGitUIServiceFactory;
+import org.abapgit.adt.ui.internal.util.IAbapGitService;
+import org.abapgit.adt.ui.internal.util.RepositoryUtil;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard.CloneData;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -310,7 +310,15 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 	public IWizardPage getNextPage() {
 		// fetch modified objects when next button is pressed
 		if (this.pullAction == true) {
-			fetchModifiedObjects();
+			IAbapGitService abapGitService = AbapGitUIServiceFactory.createAbapGitService();
+			IRepositoryService repoService = RepositoryServiceFactory.createRepositoryService(this.destination, new NullProgressMonitor());
+			IRepository repository = repoService.getRepositoryByURL(this.cloneData.repositories, this.cloneData.url);
+
+			//This is valid only for back end versions from 2105 where selective pull is supported.
+			// If selectivePull is not supported, fetching modified objects is not required and all objects are to be pulled
+			if (abapGitService.isSelectivePullSupported(repository)) {
+				RepositoryUtil.fetchAndExtractModifiedObjectsToPull(repository, repoService, this.cloneData);
+			}
 		}
 		return super.getNextPage();
 	}
@@ -400,34 +408,6 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 			// Call was aborted - no dependencies will be retrieved and used in the import
 			setPageComplete(true);
 		}
-	}
-
-	//A backend query to fetch the modified objects for current repository
-	private void fetchModifiedObjects() {
-
-		//Compatibility Handling
-		//This method does nothing for versions older than 2105
-		List<String> acceptedContentTypes = new AbapGitService().getAcceptedContentTypes(this.project);
-		if (!acceptedContentTypes.contains("application/abapgit.adt.repo.pull.modified.objs.v1+xml")) { //$NON-NLS-1$
-			return;
-		}
-
-		IRepositoryService repoService = RepositoryServiceFactory.createRepositoryService(this.destination,
-				new NullProgressMonitor());
-
-		IAbapGitPullModifiedObjects abapPullModifiedObjects = repoService.getModifiedObjects(new NullProgressMonitor(),
-				repoService.getRepositoryByURL(this.cloneData.repositories, this.cloneData.url), this.cloneData.user, this.cloneData.pass);
-
-		if (!abapPullModifiedObjects.getOverwriteObjects().getAbapgitobjects().isEmpty()) {
-			this.cloneData.repoToModifiedOverwriteObjects.add(new ModifiedObjectsForRepository(this.cloneData.url,
-					new ArrayList<IAbapGitObject>(abapPullModifiedObjects.getOverwriteObjects().getAbapgitobjects())));
-		}
-
-		if (!abapPullModifiedObjects.getPackageWarningObjects().getAbapgitobjects().isEmpty()) {
-			this.cloneData.repoToModifiedPackageWarningObjects.add(new ModifiedObjectsForRepository(this.cloneData.url,
-					new ArrayList<IAbapGitObject>(abapPullModifiedObjects.getPackageWarningObjects().getAbapgitobjects())));
-		}
-
 	}
 
 	private static class ApackParameters {

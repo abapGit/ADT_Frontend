@@ -1,7 +1,6 @@
 package org.abapgit.adt.ui.internal.dialogs;
 
 import org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfoRequest;
-import org.abapgit.adt.ui.internal.dialogs.AbapGitStagingCredentialsDialog;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.staging.AbapGitStagingView;
 import org.abapgit.adt.ui.internal.staging.TestsPdeAbapGitStagingUtil;

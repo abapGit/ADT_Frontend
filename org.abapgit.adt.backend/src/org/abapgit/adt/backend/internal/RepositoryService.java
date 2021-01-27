@@ -103,6 +103,9 @@ public class RepositoryService implements IRepositoryService {
 		return restResource.post(monitor, IAbapObjects.class, repository);
 	}
 
+	/*
+	 * To be deleted after 2105 back end release (with selective pull feature) reaches all customers
+	 */
 	@Override
 	public IAbapObjects pullRepository(IRepository existingRepository, String branch, String transportRequest, String user, String password,
 			IProgressMonitor monitor) {
@@ -262,11 +265,7 @@ public class RepositoryService implements IRepositoryService {
 	@Override
 	public IAbapGitPullModifiedObjects getModifiedObjects(IProgressMonitor monitor, IRepository currRepository,
 			String user, String password) {
-		//This URI is not a part of the URI's associated with a repository in the backend.
-		//Do/Should we add this to that list in the backend and then fetch the URI from Atom Link, like we do for other URI
-		String uriToModifiedObjectsString = getURIFromAtomLink(currRepository, IRepositoryService.RELATION_PULL).toString()
-				+ "/modifiedobjects"; //$NON-NLS-1$
-		URI uriToModifiedObjects = URI.create(uriToModifiedObjectsString);
+		URI uriToModifiedObjects = getURIFromAtomLink(currRepository, IRepositoryService.RELATION_MODIFIED_OBJECTS);
 
 		IHeaders headers = null;
 		if (user != null && password != null) {

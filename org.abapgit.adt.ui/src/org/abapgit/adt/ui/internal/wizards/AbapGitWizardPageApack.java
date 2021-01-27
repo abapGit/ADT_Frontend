@@ -9,13 +9,11 @@ import org.abapgit.adt.backend.IApackManifest.IApackManifestDescriptor;
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
-import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAbapGitObject;
-import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAbapGitPullModifiedObjects;
 import org.abapgit.adt.ui.internal.i18n.Messages;
-import org.abapgit.adt.ui.internal.repositories.ModifiedObjectsForRepository;
-import org.abapgit.adt.ui.internal.util.AbapGitService;
+import org.abapgit.adt.ui.internal.util.AbapGitUIServiceFactory;
+import org.abapgit.adt.ui.internal.util.IAbapGitService;
+import org.abapgit.adt.ui.internal.util.RepositoryUtil;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard.CloneData;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.DialogPage;
@@ -50,7 +48,6 @@ public class AbapGitWizardPageApack extends WizardPage {
 
 	private static final String PAGE_NAME = AbapGitWizardPageApack.class.getName();
 
-	private final IProject project;
 	private final String destination;
 	private final CloneData cloneData;
 	private final IAdtTransportService transportService;
@@ -63,13 +60,12 @@ public class AbapGitWizardPageApack extends WizardPage {
 	private Table table;
 	private Button pullAllCheckBox;
 
-	public AbapGitWizardPageApack(String destination, CloneData cloneData, IAdtTransportService transportService, boolean pullScenario, IProject project) {
+	public AbapGitWizardPageApack(String destination, CloneData cloneData, IAdtTransportService transportService, boolean pullScenario) {
 		super(PAGE_NAME);
 		this.destination = destination;
 		this.cloneData = cloneData;
 		this.transportService = transportService;
 		this.pullScenario = pullScenario;
-		this.project = project;
 
 		setTitle(Messages.AbapGitWizardPageApack_title);
 		setDescription(Messages.AbapGitWizardPageApack_description);
@@ -374,41 +370,22 @@ public class AbapGitWizardPageApack extends WizardPage {
 
 		// fetch modified objects for each dependency (repository)
 		if (this.pullScenario == true && this.pullAllCheckBox.getSelection() && this.cloneData.hasDependencies()) {
+
+			IAbapGitService abapGitService = AbapGitUIServiceFactory.createAbapGitService();
+			IRepositoryService repoService = RepositoryServiceFactory.createRepositoryService(this.destination, new NullProgressMonitor());
+
 			for (IApackDependency apackDependency : this.cloneData.apackManifest.getDescriptor().getDependencies()) {
 					IRepository dependencyRepository = RepositoryServiceFactory.createRepositoryService(this.destination,
 							new NullProgressMonitor()).getRepositoryByURL(this.cloneData.repositories, apackDependency.getGitUrl()) ;
-					if (dependencyRepository != null) {
-						fetchModifiedObjects(dependencyRepository.getUrl());
+
+					//This is valid only for back end versions from 2105 where selective pull is supported.
+					// If selectivePull is not supported, fetching modified objects is not required and all objects are to be pulled
+					if (dependencyRepository != null && abapGitService.isSelectivePullSupported(dependencyRepository)) {
+						RepositoryUtil.fetchAndExtractModifiedObjectsToPull(dependencyRepository, repoService, this.cloneData);
 					}
 			}
 		}
 		return super.getNextPage();
 	}
 
-	//A backend query to fetch the modified objects for current repository
-	private void fetchModifiedObjects(String repositoryURL) {
-		
-		//Compatibility Handling
-		//The modified Objects are fetched only from 2105 release 
-		List<String> acceptedContentTypes = new AbapGitService().getAcceptedContentTypes(this.project);
-		if (!acceptedContentTypes.contains("application/abapgit.adt.repo.pull.modified.objs.v1+xml")) { //$NON-NLS-1$
-			return;
-		}
-
-		IRepositoryService repoService = RepositoryServiceFactory.createRepositoryService(this.destination, new NullProgressMonitor());
-
-		IAbapGitPullModifiedObjects abapPullModifiedObjects = repoService.getModifiedObjects(new NullProgressMonitor(),
-				repoService.getRepositoryByURL(this.cloneData.repositories, repositoryURL), this.cloneData.user, this.cloneData.pass);
-
-		if (!abapPullModifiedObjects.getOverwriteObjects().getAbapgitobjects().isEmpty()) {
-			this.cloneData.repoToModifiedOverwriteObjects.add(new ModifiedObjectsForRepository(repositoryURL,
-					new ArrayList<IAbapGitObject>(abapPullModifiedObjects.getOverwriteObjects().getAbapgitobjects())));
-		}
-
-		if (!abapPullModifiedObjects.getPackageWarningObjects().getAbapgitobjects().isEmpty()) {
-			this.cloneData.repoToModifiedPackageWarningObjects.add(new ModifiedObjectsForRepository(repositoryURL,
-					new ArrayList<IAbapGitObject>(abapPullModifiedObjects.getPackageWarningObjects().getAbapgitobjects())));
-		}
-
-	}
 }

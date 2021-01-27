@@ -21,14 +21,14 @@ import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.repositories.actions.OpenRepositoryAction;
 import org.abapgit.adt.ui.internal.staging.AbapGitStagingView;
 import org.abapgit.adt.ui.internal.staging.IAbapGitStagingView;
-import org.abapgit.adt.ui.internal.util.AbapGitService;
 import org.abapgit.adt.ui.internal.util.AbapGitUIServiceFactory;
 import org.abapgit.adt.ui.internal.util.GitCredentialsService;
 import org.abapgit.adt.ui.internal.util.IAbapGitService;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard;
+import org.abapgit.adt.ui.internal.wizards.AbapGitWizard.CloneData;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizardPull;
-import org.abapgit.adt.ui.internal.wizards.AbapGitWizardSelectObjectsAndPull;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizardPullV2;
+import org.abapgit.adt.ui.internal.wizards.AbapGitWizardSelectivePullAfterLink;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -502,30 +502,15 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 				if (!AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(AbapGitView.this.lastProject).isOK()) {
 					return;
 				}
-
 				AbapGitWizard abapGitWizard = new AbapGitWizard(AbapGitView.this.lastProject);
 				WizardDialog wizardDialog = new WizardDialog(AbapGitView.this.viewer.getControl().getShell(),
 						abapGitWizard);
 				wizardDialog.open();
 				updateView(true);
 
-				//Compatibility handling for back end versions before 2105 Release
-				//The following logic is only valid from 2105 Release
-				// After Link is successful (Link Wizard is finished), and Pull is requested after Linking, 
-				// another wizard is opened to provide a way to select objects to pull and then perform the pull action
-				List<String> acceptedContentTypes = new AbapGitService()
-						.getAcceptedContentTypes(AbapGitView.this.lastProject);
-				if (acceptedContentTypes.contains("application/abapgit.adt.repo.pull.modified.objs.v1+xml") //$NON-NLS-1$
-						&& abapGitWizard.isPullRequested()) {
-					//getters for cloneData and Transport Request are exposed from the Link Wizard
-					// The information provided in Link Wizard is reused in AbapGitWizardSelectObjectsAndPull wizard, which is required for pull Action
-					AbapGitWizardSelectObjectsAndPull selectObjectsAndPullWizard = new AbapGitWizardSelectObjectsAndPull(
-							AbapGitView.this.lastProject, abapGitWizard.getCloneData(), abapGitWizard.getTransportRequest());
-					wizardDialog = new WizardDialog(AbapGitView.this.viewer.getControl().getShell(), selectObjectsAndPullWizard);
-					wizardDialog.open();
-					updateView(true);
-				}
-
+				//Open SelectivePull Wizard for backend versions later than 2105 where selective pull is supported
+				//Compatibility handling inside the method
+				openSelectivePullWizard(abapGitWizard);
 			}
 		};
 		this.actionWizard.setText(Messages.AbapGitView_action_clone);
@@ -558,18 +543,16 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 					}
 
 					// AbapGitWizardPullV2 handles selective pulling
-					// and is valid from backend version 2105
-					
-					//Compatibility handling
-					List<String> acceptedContentTypes = new AbapGitService()
-							.getAcceptedContentTypes(AbapGitView.this.lastProject);
+					//The following compatibility handling is only valid from 2105 Release with selective pull feature
 					WizardDialog wizardDialog;
-					if (acceptedContentTypes.contains("application/abapgit.adt.repo.pull.modified.objs.v1+xml")) { //$NON-NLS-1$
+					if (AbapGitView.this.abapGitService.isSelectivePullSupported(this.selRepo)) {
 						wizardDialog = new WizardDialog(AbapGitView.this.viewer.getControl().getShell(),
 								new AbapGitWizardPullV2(AbapGitView.this.lastProject, this.selRepo, allRepositories));
 						wizardDialog.open();
 
 					} else {
+						// AbapGitWizardPull handles backend versions before 2105 where selective pull feature is not supported
+
 						wizardDialog = new WizardDialog(AbapGitView.this.viewer.getControl().getShell(),
 								new AbapGitWizardPull(AbapGitView.this.lastProject, this.selRepo, allRepositories));
 
@@ -598,6 +581,27 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 		this.actionOpenRepository = new OpenRepositoryAction(this);
 	}
 
+	private void openSelectivePullWizard(AbapGitWizard abapGitWizard) {
+
+		//Getters for cloneData and Transport Request are exposed from the Link Wizard (AbapGitWizard)
+		// The information provided in Link Wizard is reused in AbapGitWizardSelectivePull wizard, which is required for pull Action
+		CloneData cloneData = abapGitWizard.getCloneData(); //getter from cloneData exposed from the Link Wizard
+		IRepository clonedRepository = AbapGitView.this.repoService.getRepositoryByURL(cloneData.repositories, cloneData.url);
+
+		//Compatibility handling for back end versions before 2105 Release
+		//The following logic is only valid from 2105 Release where selective pull is supported
+		// After Link is successful (Link Wizard is finished), and Pull is requested after Linking,
+		// another wizard is opened to provide a way to select objects to pull and then perform the pull action
+		if (AbapGitView.this.abapGitService.isSelectivePullSupported(clonedRepository)
+				&& abapGitWizard.isPullRequested()) {
+			AbapGitWizardSelectivePullAfterLink selectivePullWizard = new AbapGitWizardSelectivePullAfterLink(
+					AbapGitView.this.lastProject, cloneData, abapGitWizard.getTransportRequest()); //getter for Transport Request are exposed from the Link Wizard
+			WizardDialog wizardDialog = new WizardDialog(AbapGitView.this.viewer.getControl().getShell(), selectivePullWizard);
+			wizardDialog.open();
+			updateView(true);
+		}
+
+	}
 	private List<IRepository> getRepositories(String destinationId, Boolean byCurrUser) {
 		List<IRepository> repos = new LinkedList<>();
 		List<IRepository> myrepos = new LinkedList<>();

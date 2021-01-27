@@ -12,12 +12,9 @@ import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAbapGitPullModifiedObjects;
-import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAgitpullmodifiedobjectsFactory;
-import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IOverwriteObjects;
-import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IPackageWarningObjects;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.internal.i18n.Messages;
-import org.abapgit.adt.ui.internal.repositories.ModifiedObjectsForRepository;
+import org.abapgit.adt.ui.internal.util.AbapGitUIServiceFactory;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard.CloneData;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
@@ -46,6 +43,15 @@ import com.sap.adt.transport.IAdtTransportService;
 import com.sap.adt.transport.ui.wizard.AdtTransportSelectionWizardPageFactory;
 import com.sap.adt.transport.ui.wizard.IAdtTransportSelectionWizardPage;
 
+/**
+ * This is wizard that handles selective pull and is valid for back end versions
+ * from 2105 where selective pull is supported.
+ *
+ * To be renamed to AbapGitWizardPullV2 after 2105 release reaches all customers
+ *
+ * @author I517012
+ *
+ */
 public class AbapGitWizardPullV2 extends Wizard {
 
 	private final IProject project;
@@ -126,8 +132,7 @@ public class AbapGitWizardPullV2 extends Wizard {
 		this.pageBranchAndPackage = new AbapGitWizardPageBranchAndPackage(this.project, this.destination, this.cloneData,
 				this.pullAction);
 		this.transportService = AdtTransportServiceFactory.createTransportService(this.destination);
-		this.pageApack = new AbapGitWizardPageApack(this.destination, this.cloneData, this.transportService, true,
-				this.project);
+		this.pageApack = new AbapGitWizardPageApack(this.destination, this.cloneData, this.transportService, true);
 		this.transportPage = AdtTransportSelectionWizardPageFactory.createTransportSelectionPage(this.transportService);
 		this.pageOverwriteObjectsSelection = new AbapGitWizardPageObjectsSelectionForPull(
 				this.cloneData.repoToModifiedOverwriteObjects, Messages.AbapGitWizardPullSelectedObjects_OverwriteObjectsMessage,
@@ -158,8 +163,12 @@ public class AbapGitWizardPullV2 extends Wizard {
 					IRepositoryService repoService = RepositoryServiceFactory.createRepositoryService(AbapGitWizardPullV2.this.destination,
 							monitor);
 
-					getSelectedObjectsToPull();
+					//get the selected objects to be pulled
+					AbapGitWizardPullV2.this.repoToSelectedObjects = AbapGitUIServiceFactory.createAbapGitPullService()
+							.getSelectedObjectsToPullforRepo(AbapGitWizardPullV2.this.pageOverwriteObjectsSelection.getSelectedObjects(),
+									AbapGitWizardPullV2.this.pagePackageWarningObjectsSelection.getSelectedObjects());
 
+					//pull the selected objects
 					repoService.pullRepository(AbapGitWizardPullV2.this.selRepoData, AbapGitWizardPullV2.this.selRepoData.getBranchName(),
 							AbapGitWizardPullV2.this.transportPage.getTransportRequestNumber(), AbapGitWizardPullV2.this.cloneData.user,
 							AbapGitWizardPullV2.this.cloneData.pass,
@@ -168,54 +177,6 @@ public class AbapGitWizardPullV2 extends Wizard {
 					if (AbapGitWizardPullV2.this.cloneData.hasDependencies()) {
 						pullDependencies(monitor, repoService);
 					}
-				}
-
-				private void getSelectedObjectsToPull() {
-					//To create a map from repository to the selected IAbapGitPullModifiedObjects (including both Overwrite and package Warning Objects)
-
-					List<ModifiedObjectsForRepository> overwriteObjectsSelectedToPull = AbapGitWizardPullV2.this.pageOverwriteObjectsSelection
-							.getSelectedObjects();
-					List<ModifiedObjectsForRepository> packageWarningObjectsSelectedToPull = AbapGitWizardPullV2.this.pagePackageWarningObjectsSelection
-							.getSelectedObjects();
-
-					//Loop over selected overwrite objects for all repositories and insert in repoToSelectedObjectsMap
-					for (ModifiedObjectsForRepository obj : overwriteObjectsSelectedToPull) {
-						IAbapGitPullModifiedObjects objectsToPull = IAgitpullmodifiedobjectsFactory.eINSTANCE
-								.createAbapGitPullModifiedObjects();
-
-						if (!obj.getModifiedObjects().isEmpty()) {
-							IOverwriteObjects overwriteObjects = IAgitpullmodifiedobjectsFactory.eINSTANCE.createOverwriteObjects();
-							overwriteObjects.getAbapgitobjects().addAll(obj.getModifiedObjects());
-							objectsToPull.setOverwriteObjects(overwriteObjects);
-
-						}
-
-						AbapGitWizardPullV2.this.repoToSelectedObjects.put(obj.getRepositoryURL(), objectsToPull);
-					}
-
-					//Loop over selected package warning objects for all repositories and insert in repoToSelectedObjectsMap
-					for (ModifiedObjectsForRepository obj : packageWarningObjectsSelectedToPull) {
-						IAbapGitPullModifiedObjects objectsToPull = IAgitpullmodifiedobjectsFactory.eINSTANCE
-								.createAbapGitPullModifiedObjects();
-
-						if (!obj.getModifiedObjects().isEmpty()) {
-							IPackageWarningObjects packageWarningObjects = IAgitpullmodifiedobjectsFactory.eINSTANCE
-									.createPackageWarningObjects();
-							packageWarningObjects.getAbapgitobjects().addAll(obj.getModifiedObjects());
-							objectsToPull.setPackageWarningObjects(packageWarningObjects);
-
-							// if the repoToSelectedObjectsMap doesn't already have an entry for the repository from filling in overwrite objects, create an entry in the map
-							// else fill in the package warning objects
-							if(AbapGitWizardPullV2.this.repoToSelectedObjects.get(obj.getRepositoryURL()) == null) {
-								AbapGitWizardPullV2.this.repoToSelectedObjects.put(obj.getRepositoryURL(), objectsToPull);
-							} else {
-								AbapGitWizardPullV2.this.repoToSelectedObjects.get(obj.getRepositoryURL()).setPackageWarningObjects(packageWarningObjects);
-							}
-
-						}
-
-					}
-
 				}
 
 				private void pullDependencies(IProgressMonitor monitor, IRepositoryService repoService) {

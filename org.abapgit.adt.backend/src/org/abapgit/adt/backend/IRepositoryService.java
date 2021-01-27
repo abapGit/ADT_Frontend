@@ -23,6 +23,7 @@ public interface IRepositoryService {
 	String RELATION_STAGE = "http://www.sap.com/adt/abapgit/relations/stage"; //$NON-NLS-1$
 	String RELATION_PUSH = "http://www.sap.com/adt/abapgit/relations/push"; //$NON-NLS-1$
 	String RELATION_CHECK = "http://www.sap.com/adt/abapgit/relations/check"; //$NON-NLS-1$
+	String RELATION_MODIFIED_OBJECTS = "http://www.sap.com/adt/abapgit/relations/pull/modifiedobjects"; //$NON-NLS-1$
 
 	IRepositories getRepositories(IProgressMonitor monitor);
 
@@ -118,7 +119,11 @@ public interface IRepositoryService {
 	IAbapGitPullModifiedObjects getModifiedObjects(IProgressMonitor monitor, IRepository currRepository,
 			String user, String password);
 
-	//Valid for older backend before 2105
+	//Valid for older backend before 2105 where selective pull feature is not supported
+	/*
+	 * To be deleted after 2105 back end release with selective pull feature reaches all customers
+	 */
+
 	/**
 	 * Performs pull action for the given repository and replace all the
 	 * modified objects
@@ -139,7 +144,7 @@ public interface IRepositoryService {
 	IAbapObjects pullRepository(IRepository existingRepository, String branch, String transportRequest, String user, String password,
 			IProgressMonitor monitor);
 
-	//Valid for backend versions post 2105
+	//Valid for backend versions post 2105 where selective pull is supported
 	/**
 	 * Performs pull action for the given repository and replace the selected
 	 * modified objects

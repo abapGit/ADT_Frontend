@@ -24,6 +24,10 @@ public class AbapGitUIServiceFactory {
 		return new AbapGitStagingService();
 	}
 
+	public static IAbapGitPullService createAbapGitPullService() {
+		return new AbapGitPullService();
+	}
+
 	public static IRepositoryService createRepositoryService(IProject project) {
 		return RepositoryServiceFactory.createRepositoryService(getDestination(project), new NullProgressMonitor());
 	}
