@@ -6,14 +6,22 @@ import java.util.List;
 
 import org.abapgit.adt.backend.IApackManifest.IApackDependency;
 import org.abapgit.adt.backend.IApackManifest.IApackManifestDescriptor;
+import org.abapgit.adt.backend.IRepositoryService;
+import org.abapgit.adt.backend.RepositoryServiceFactory;
+import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.abapgit.adt.ui.internal.i18n.Messages;
+import org.abapgit.adt.ui.internal.util.AbapGitUIServiceFactory;
+import org.abapgit.adt.ui.internal.util.IAbapGitService;
+import org.abapgit.adt.ui.internal.util.RepositoryUtil;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard.CloneData;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
@@ -350,6 +358,34 @@ public class AbapGitWizardPageApack extends WizardPage {
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public boolean canFlipToNextPage() {
+		return true;
+	}
+
+	@Override
+	public IWizardPage getNextPage() {
+
+		// fetch modified objects for each dependency (repository)
+		if (this.pullScenario == true && this.pullAllCheckBox.getSelection() && this.cloneData.hasDependencies()) {
+
+			IAbapGitService abapGitService = AbapGitUIServiceFactory.createAbapGitService();
+			IRepositoryService repoService = RepositoryServiceFactory.createRepositoryService(this.destination, new NullProgressMonitor());
+
+			for (IApackDependency apackDependency : this.cloneData.apackManifest.getDescriptor().getDependencies()) {
+					IRepository dependencyRepository = RepositoryServiceFactory.createRepositoryService(this.destination,
+							new NullProgressMonitor()).getRepositoryByURL(this.cloneData.repositories, apackDependency.getGitUrl()) ;
+
+					//This is valid only for back end versions from 2105 where selective pull is supported.
+					// If selectivePull is not supported, fetching modified objects is not required and all objects are to be pulled
+					if (dependencyRepository != null && abapGitService.isSelectivePullSupported(dependencyRepository)) {
+						RepositoryUtil.fetchAndExtractModifiedObjectsToPull(dependencyRepository, repoService, this.cloneData);
+					}
+			}
+		}
+		return super.getNextPage();
 	}
 
 }

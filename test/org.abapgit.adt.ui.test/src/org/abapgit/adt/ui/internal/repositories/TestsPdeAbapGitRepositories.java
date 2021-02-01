@@ -6,21 +6,14 @@ import static org.easymock.EasyMock.createNiceMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.abapgit.adt.backend.IRepositoryService;
-import org.abapgit.adt.backend.model.abapgitrepositories.IAbapgitrepositoriesPackage;
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepositories;
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.abapgit.adt.backend.model.abapgitrepositories.impl.AbapgitrepositoriesFactoryImpl;
 import org.abapgit.adt.ui.internal.util.IAbapGitService;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.emf.common.util.BasicEList;
-import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.ecore.InternalEObject;
-import org.eclipse.emf.ecore.util.EObjectContainmentEList;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Event;
 import org.junit.AfterClass;
@@ -114,8 +107,6 @@ public class TestsPdeAbapGitRepositories {
 		filter();
 			
 	}
-	
-
 	
 	
 	private void refresh() {

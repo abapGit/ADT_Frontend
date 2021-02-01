@@ -7,6 +7,7 @@ import org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfo
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepositories;
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitStaging;
+import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAbapGitPullModifiedObjects;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 
@@ -22,6 +23,7 @@ public interface IRepositoryService {
 	String RELATION_STAGE = "http://www.sap.com/adt/abapgit/relations/stage"; //$NON-NLS-1$
 	String RELATION_PUSH = "http://www.sap.com/adt/abapgit/relations/push"; //$NON-NLS-1$
 	String RELATION_CHECK = "http://www.sap.com/adt/abapgit/relations/check"; //$NON-NLS-1$
+	String RELATION_MODIFIED_OBJECTS = "http://www.sap.com/adt/abapgit/relations/pull/modifiedobjects"; //$NON-NLS-1$
 
 	IRepositories getRepositories(IProgressMonitor monitor);
 
@@ -31,9 +33,6 @@ public interface IRepositoryService {
 	void cloneRepositories(IRepositories repositories, IProgressMonitor monitor);
 
 	void unlinkRepository(String key, IProgressMonitor monitor);
-
-	IAbapObjects pullRepository(IRepository existingRepository, String branch, String transportRequest, String user, String password,
-			IProgressMonitor monitor);
 
 	IAbapObjects getRepoObjLog(IProgressMonitor monitor, IRepository currRepository);
 
@@ -103,5 +102,69 @@ public interface IRepositoryService {
 	 *         with the given relation
 	 */
 	URI getURIFromAtomLink(IRepository repository, String relation);
+
+	/**
+	 * Returns the locally modified objects for the given repository
+	 *
+	 * @param currRepository
+	 *            Repository for which the modified Objects are to be fetched
+	 * @param user
+	 *            User
+	 * @param password
+	 *            Repository Password
+	 * @param monitor
+	 *            Progress monitor
+	 * @return Modified Objects for the given repository
+	 */
+	IAbapGitPullModifiedObjects getModifiedObjects(IProgressMonitor monitor, IRepository currRepository,
+			String user, String password);
+
+	//Valid for older backend before 2105 where selective pull feature is not supported
+	/*
+	 * TODO: To be deleted after 2105 back end release with selective pull feature reaches all customers
+	 */
+
+	/**
+	 * Performs pull action for the given repository and replace all the
+	 * modified objects
+	 *
+	 * @param existingRepository
+	 *            Repository for which the pull action is to be performed
+	 * @param branch
+	 *            Branch to be pulled
+	 * @param monitor
+	 *            Progress monitor
+	 * @param transportRequest
+	 *            Transport Request for the pulled objects
+	 * @param user
+	 *            User name
+	 * @param password
+	 *            Password for Repository
+	 */
+	IAbapObjects pullRepository(IRepository existingRepository, String branch, String transportRequest, String user, String password,
+			IProgressMonitor monitor);
+
+	//Valid for backend versions post 2105 where selective pull is supported
+	/**
+	 * Performs pull action for the given repository and replace the selected
+	 * modified objects
+	 *
+	 * @param existingRepository
+	 *            Repository for which the pull action is to be performed
+	 * @param branch
+	 *            Branch to be pulled
+	 * @param monitor
+	 *            Progress monitor
+	 * @param transportRequest
+	 *            Transport Request for the pulled objects
+	 * @param user
+	 *            User name
+	 * @param password
+	 *            Password
+	 * @param selectedObjectsToPull
+	 *            Objects selected by the user to be pulled
+	 */
+	IAbapObjects pullRepository(IRepository existingRepository, String branch, String transportRequest, String user, String password,
+			IAbapGitPullModifiedObjects selectedObjectsToPull, IProgressMonitor monitor);
 
 }

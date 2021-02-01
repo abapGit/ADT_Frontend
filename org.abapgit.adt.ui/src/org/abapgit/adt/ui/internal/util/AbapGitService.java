@@ -2,6 +2,7 @@ package org.abapgit.adt.ui.internal.util;
 
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
+import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitFile;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject;
 import org.eclipse.core.resources.IProject;
@@ -56,6 +57,18 @@ public class AbapGitService implements IAbapGitService {
 	public boolean isAbapGitSupported(IProject project) {
 		IRepositoryService service = RepositoryServiceFactory.createRepositoryService(getDestination(project), new NullProgressMonitor());
 		return service != null ? true : false;
+	}
+
+	//TODO: Remove after 2105 back end release supporting selective pull reaches all customers	
+	@Override
+	public boolean isSelectivePullSupported(IRepository repository) {
+
+		for (IAtomLink link : repository.getLinks()) {
+			if (link.getRel().equalsIgnoreCase(IRepositoryService.RELATION_MODIFIED_OBJECTS)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }

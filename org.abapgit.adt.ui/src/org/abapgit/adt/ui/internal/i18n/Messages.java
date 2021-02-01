@@ -51,6 +51,8 @@ public class Messages extends NLS {
 	public static String AbapGitWizard_task_pulling_repository;
 	public static String AbapGitWizard_title;
 	public static String AbapGitWizardPull_title;
+	public static String AbapGitWizardPullSelectedObjects_OverwriteObjectsMessage;
+	public static String AbapGitWizardPullSelectedObjects_PackageWarningObjectsMessage;
 	public static String AbapGitWizardPageApack_checkbox_pull_all_dependencies;
 	public static String AbapGitWizardPageApack_description;
 	public static String AbapGitWizardPageApack_label_dependencies;
@@ -94,6 +96,7 @@ public class Messages extends NLS {
 	public static String AbapGitDialogPageObjLog_filter_error_tooltip;
 	public static String AbapGitDialogPageObjLog_filter_all_tooltip;
 	public static String AbapGitWizardPageBranchAndPackage_title;
+	public static String AbapGitWizardPageObjectsSelectionForPull_Title;
 	public static String AbapGitWizardPageRepositoryAndCredentials_credentials_manager_popup_title;
 	public static String AbapGitWizardPageRepositoryAndCredentials_description;
 	public static String AbapGitWizardPageRepositoryAndCredentials_label_password;

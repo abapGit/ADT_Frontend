@@ -1,5 +1,6 @@
 package org.abapgit.adt.ui.internal.util;
 
+import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.eclipse.core.resources.IProject;
 
 public interface IAbapGitService {
@@ -43,5 +44,11 @@ public interface IAbapGitService {
 	 * enabled only for steampunk projects.
 	 */
 	boolean isAbapGitSupported(IProject project);
+
+	/**
+	 * Checks whether the given project supports to selectively pull objects
+	 * from remote repository.
+	 */
+	boolean isSelectivePullSupported(IRepository repository);
 
 }

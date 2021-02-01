@@ -63,4 +63,33 @@
             type="abapobjects"
             class="org.abapgit.adt.backend.model.abapObjects.util.AbapObjectsResourceFactoryImpl"/>
    </extension>
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated abapgitpullrequest -->
+      <package
+            uri="http://www.sap.com/adt/abapgit/abapgitpullrequest"
+            class="org.abapgit.adt.backend.model.abapgitpullrequest.IAbapgitpullrequestPackage"
+            genModel="model/abapgitpullrequest.genmodel"/>
+   </extension>
+
+
+   <extension point="org.eclipse.emf.ecore.extension_parser">
+      <!-- @generated abapgitpullrequest -->
+      <parser
+            type="abapgitpullrequest"
+            class="org.abapgit.adt.backend.model.abapgitpullrequest.util.AbapgitpullrequestResourceFactoryImpl"/>
+   </extension>
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated agitpullmodifiedobjects -->
+      <package
+            uri="http://www.sap.com/adt/abapgit/agitpullmodifiedobjects"
+            class="org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAgitpullmodifiedobjectsPackage"
+            genModel="model/agitpullmodifiedobjects.genmodel"/>
+   </extension>
+
+   <extension point="org.eclipse.emf.ecore.extension_parser">
+      <!-- @generated agitpullmodifiedobjects -->
+      <parser
+            type="agitpullmodifiedobjects"
+            class="org.abapgit.adt.backend.model.agitpullmodifiedobjects.util.AgitpullmodifiedobjectsResourceFactoryImpl"/>
+   </extension>
 </plugin>

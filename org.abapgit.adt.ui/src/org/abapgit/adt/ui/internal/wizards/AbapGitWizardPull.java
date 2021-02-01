@@ -38,6 +38,16 @@ import com.sap.adt.transport.IAdtTransportService;
 import com.sap.adt.transport.ui.wizard.AdtTransportSelectionWizardPageFactory;
 import com.sap.adt.transport.ui.wizard.IAdtTransportSelectionWizardPage;
 
+/**
+ * This wizard is valid for back end versions before 2105 where selective pull
+ * is not supported.
+ *
+ * TODO:To be removed after 2105 release reaches all customers.
+ *
+ * @author I517012
+ *
+ */
+
 public class AbapGitWizardPull extends Wizard {
 
 	private final IProject project;

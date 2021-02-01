@@ -9,12 +9,19 @@ import org.abapgit.adt.backend.ApackServiceFactory;
 import org.abapgit.adt.backend.IApackGitManifestService;
 import org.abapgit.adt.backend.IApackManifest;
 import org.abapgit.adt.backend.IApackManifest.IApackDependency;
+import org.abapgit.adt.backend.IRepositoryService;
+import org.abapgit.adt.backend.RepositoryServiceFactory;
 import org.abapgit.adt.backend.model.abapgitexternalrepo.AccessMode;
 import org.abapgit.adt.backend.model.abapgitexternalrepo.IBranch;
+import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.abapgit.adt.ui.internal.i18n.Messages;
+import org.abapgit.adt.ui.internal.util.AbapGitUIServiceFactory;
+import org.abapgit.adt.ui.internal.util.IAbapGitService;
+import org.abapgit.adt.ui.internal.util.RepositoryUtil;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard.CloneData;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -43,7 +50,7 @@ import com.sap.adt.util.ui.swt.AdtSWTUtilFactory;
 
 public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 
-	private static final String PAGE_NAME = AbapGitWizardPageRepositoryAndCredentials.class.getName();
+	private static final String PAGE_NAME = AbapGitWizardPageBranchAndPackage.class.getName();
 
 	private final IProject project;
 	private final String destination;
@@ -292,6 +299,28 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 
 			fetchApackManifest();
 		}
+	}
+
+	@Override
+	public boolean canFlipToNextPage() {
+		return true;
+	}
+
+	@Override
+	public IWizardPage getNextPage() {
+		// fetch modified objects when next button is pressed
+		if (this.pullAction == true) {
+			IAbapGitService abapGitService = AbapGitUIServiceFactory.createAbapGitService();
+			IRepositoryService repoService = RepositoryServiceFactory.createRepositoryService(this.destination, new NullProgressMonitor());
+			IRepository repository = repoService.getRepositoryByURL(this.cloneData.repositories, this.cloneData.url);
+
+			//This is valid only for back end versions from 2105 where selective pull is supported.
+			// If selectivePull is not supported, fetching modified objects is not required and all objects are to be pulled
+			if (abapGitService.isSelectivePullSupported(repository)) {
+				RepositoryUtil.fetchAndExtractModifiedObjectsToPull(repository, repoService, this.cloneData);
+			}
+		}
+		return super.getNextPage();
 	}
 
 	private void fetchApackManifest() {

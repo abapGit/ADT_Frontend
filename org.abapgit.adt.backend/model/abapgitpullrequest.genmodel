@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/org.abapgit.adt.backend/src" modelPluginID="org.abapgit.adt.backend"
+    modelName="Abapgitpullrequest" rootExtendsClass="org.eclipse.emf.ecore.impl.MinimalEObjectImpl$Container"
+    importerID="org.eclipse.emf.importer.ecore" complianceLevel="8.0" copyrightFields="false"
+    usedGenPackages="../../com.sap.adt.tools.core.base/model/adtcore.genmodel#//adtcore ../../com.sap.adt.tools.core.base/model/atom.genmodel#//atom"
+    interfaceNamePattern="I{0}" operationReflection="true" importOrganizing="true">
+  <foreignModel>abapgitpullrequest.ecore</foreignModel>
+  <genPackages prefix="Abapgitpullrequest" basePackage="org.abapgit.adt.backend.model"
+      resource="XML" disposableProviderFactory="true" ecorePackage="abapgitpullrequest.ecore#/">
+    <genClasses ecoreClass="abapgitpullrequest.ecore#//DocumentRoot">
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EAttribute abapgitpullrequest.ecore#//DocumentRoot/mixed"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference abapgitpullrequest.ecore#//DocumentRoot/xMLNSPrefixMap"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference abapgitpullrequest.ecore#//DocumentRoot/xSISchemaLocation"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitpullrequest.ecore#//DocumentRoot/abapgitpullrequest"/>
+    </genClasses>
+    <genClasses ecoreClass="abapgitpullrequest.ecore#//AbapGitPullRequest">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitpullrequest.ecore#//AbapGitPullRequest/overwriteObjects"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitpullrequest.ecore#//AbapGitPullRequest/packageWarningObjects"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitpullrequest.ecore#//AbapGitPullRequest/branchName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitpullrequest.ecore#//AbapGitPullRequest/transportRequest"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitpullrequest.ecore#//AbapGitPullRequest/user"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitpullrequest.ecore#//AbapGitPullRequest/password"/>
+    </genClasses>
+  </genPackages>
+  <genPackages prefix="Agitpullmodifiedobjects" basePackage="org.abapgit.adt.backend.model"
+      ecorePackage="agitpullmodifiedobjects.ecore#/">
+    <genClasses ecoreClass="agitpullmodifiedobjects.ecore#//AbapGitPullModifiedObjects">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference agitpullmodifiedobjects.ecore#//AbapGitPullModifiedObjects/overwriteObjects"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference agitpullmodifiedobjects.ecore#//AbapGitPullModifiedObjects/packageWarningObjects"/>
+    </genClasses>
+    <genClasses ecoreClass="agitpullmodifiedobjects.ecore#//DocumentRoot">
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EAttribute agitpullmodifiedobjects.ecore#//DocumentRoot/mixed"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference agitpullmodifiedobjects.ecore#//DocumentRoot/xMLNSPrefixMap"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference agitpullmodifiedobjects.ecore#//DocumentRoot/xSISchemaLocation"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference agitpullmodifiedobjects.ecore#//DocumentRoot/abapgitpullmodifiedobjects"/>
+    </genClasses>
+    <genClasses ecoreClass="agitpullmodifiedobjects.ecore#//OverwriteObjects">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference agitpullmodifiedobjects.ecore#//OverwriteObjects/abapgitobjects"/>
+    </genClasses>
+    <genClasses ecoreClass="agitpullmodifiedobjects.ecore#//PackageWarningObjects">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference agitpullmodifiedobjects.ecore#//PackageWarningObjects/abapgitobjects"/>
+    </genClasses>
+    <genClasses ecoreClass="agitpullmodifiedobjects.ecore#//AbapGitObject"/>
+  </genPackages>
+</genmodel:GenModel>
