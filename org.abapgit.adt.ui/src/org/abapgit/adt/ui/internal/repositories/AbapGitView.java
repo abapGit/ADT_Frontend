@@ -33,6 +33,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
@@ -551,7 +552,7 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 						wizardDialog.open();
 
 					} else {
-						//TODO: Remove after all customers update back end versions which support selective pull feature 
+						//TODO: Remove after all customers update back end versions which support selective pull feature
 						// AbapGitWizardPull handles backend versions before 2105 where selective pull feature is not supported
 
 						wizardDialog = new WizardDialog(AbapGitView.this.viewer.getControl().getShell(),
@@ -587,6 +588,7 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 		//Getters for cloneData and Transport Request are exposed from the Link Wizard (AbapGitWizard)
 		// The information provided in Link Wizard is reused in AbapGitWizardSelectivePull wizard, which is required for pull Action
 		CloneData cloneData = abapGitWizard.getCloneData(); //getter from cloneData exposed from the Link Wizard
+		cloneData.repositories = this.repoService.getRepositories(new NullProgressMonitor());
 		IRepository clonedRepository = AbapGitView.this.repoService.getRepositoryByURL(cloneData.repositories, cloneData.url);
 
 		//Compatibility handling for back end versions before 2105 Release

@@ -10,6 +10,7 @@ import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAbapGitObject;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.repositories.IRepositoryModifiedObjects;
 import org.abapgit.adt.ui.internal.repositories.RepositoryModifiedObjects;
+import org.abapgit.adt.ui.internal.util.RepositoryUtil;
 import org.eclipse.jface.layout.TreeColumnLayout;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
@@ -96,13 +97,13 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 	private void createColumns() {
 
 		// TYPE/OBJECT COLUMN
-		createTreeViewerColumn("Name", 400).setLabelProvider(new ColumnLabelProvider() { //$NON-NLS-1$
+		createTreeViewerColumn("Name", 300).setLabelProvider(new ColumnLabelProvider() { //$NON-NLS-1$
 			@Override
 			public String getText(Object element) {
 				String result = ""; //$NON-NLS-1$
 
 				if (element instanceof IRepositoryModifiedObjects) {
-					result = ((IRepositoryModifiedObjects) element).getRepositoryURL();
+					result = "Repository: " + RepositoryUtil.getRepoNameFromUrl(((IRepositoryModifiedObjects) element).getRepositoryURL()); //$NON-NLS-1$
 
 				} else if (element instanceof IAbapGitObject) {
 					result = ((IAbapGitObject) element).getName();
@@ -125,7 +126,7 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 
 		});
 
-		createTreeViewerColumn("Type", 100).setLabelProvider(new ColumnLabelProvider() { //$NON-NLS-1$
+		createTreeViewerColumn("Type", 50).setLabelProvider(new ColumnLabelProvider() { //$NON-NLS-1$
 			@Override
 			public String getText(Object element) {
 				if (element instanceof IAbapGitObject) {
