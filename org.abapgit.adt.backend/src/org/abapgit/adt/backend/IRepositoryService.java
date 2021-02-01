@@ -121,7 +121,7 @@ public interface IRepositoryService {
 
 	//Valid for older backend before 2105 where selective pull feature is not supported
 	/*
-	 * To be deleted after 2105 back end release with selective pull feature reaches all customers
+	 * TODO: To be deleted after 2105 back end release with selective pull feature reaches all customers
 	 */
 
 	/**

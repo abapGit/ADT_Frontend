@@ -42,7 +42,7 @@ import com.sap.adt.transport.ui.wizard.IAdtTransportSelectionWizardPage;
  * This wizard is valid for back end versions before 2105 where selective pull
  * is not supported.
  *
- * To be removed after 2105 release reaches all customers.
+ * TODO:To be removed after 2105 release reaches all customers.
  *
  * @author I517012
  *

@@ -551,6 +551,7 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 						wizardDialog.open();
 
 					} else {
+						//TODO: Remove after all customers update back end versions which support selective pull feature 
 						// AbapGitWizardPull handles backend versions before 2105 where selective pull feature is not supported
 
 						wizardDialog = new WizardDialog(AbapGitView.this.viewer.getControl().getShell(),

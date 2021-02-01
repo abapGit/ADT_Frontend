@@ -141,6 +141,7 @@ public class AbapGitWizard extends Wizard {
 							IRepository linkedRepo = repoService.getRepositoryByURL(repoService.getRepositories(monitor),
 									AbapGitWizard.this.cloneData.url);
 
+							//TODO: Remove
 							//This is valid only for back end versions before 2105 where selective pull is not supported.
 							//Required for Compatibility handling for Selective Pull
 							// If selectivePull is not supported pull all objects from the repositories.
@@ -164,6 +165,7 @@ public class AbapGitWizard extends Wizard {
 							IRepository linkedRepo = repoService.getRepositoryByURL(repoService.getRepositories(monitor),
 									AbapGitWizard.this.cloneData.url);
 
+							//TODO: Remove
 							//This is valid only for back end versions before 2105 where selective pull is not supported.
 							//Required for Compatibility handling for Selective Pull
 							// If selectivePull is not supported, pull all objects from the repository.

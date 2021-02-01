@@ -59,6 +59,7 @@ public class AbapGitService implements IAbapGitService {
 		return service != null ? true : false;
 	}
 
+	//TODO: Remove after 2105 back end release supporting selective pull reaches all customers	
 	@Override
 	public boolean isSelectivePullSupported(IRepository repository) {
 
