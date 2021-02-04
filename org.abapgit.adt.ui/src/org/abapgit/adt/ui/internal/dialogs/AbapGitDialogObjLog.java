@@ -74,6 +74,30 @@ public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceCha
 	private final static String INFO_FLAG = "I"; //$NON-NLS-1$
 	private final static String SUCCESS_FLAG = "S"; //$NON-NLS-1$
 
+	private String getTitleText() {
+
+		if (this.repodata.getStatusText().trim().toLowerCase().startsWith("push")) { //$NON-NLS-1$
+			return Messages.AbapGitDialogPageObjLog_push_title;
+		} else if (this.repodata.getStatusText().trim().toLowerCase().startsWith("pull")) { //$NON-NLS-1$
+			return Messages.AbapGitDialogPageObjLog_pull_title;
+		}
+
+		return Messages.AbapGitDialogPageObjLog_default_title;
+
+	}
+
+	private String getDescriptionText() {
+
+		if (this.repodata.getStatusText().trim().toLowerCase().startsWith("push")) { //$NON-NLS-1$
+			return Messages.AbapGitDialogPageObjLog_push_description;
+		} else if (this.repodata.getStatusText().trim().toLowerCase().startsWith("pull")) { //$NON-NLS-1$
+			return Messages.AbapGitDialogPageObjLog_pull_description;
+		}
+
+		return Messages.AbapGitDialogPageObjLog_default_description;
+
+	}
+
 	public AbapGitDialogObjLog(Shell parentShell, List<IAbapObject> pullObjects, IRepository repository) {
 		super(parentShell);
 		this.abapObjects = pullObjects;
@@ -93,7 +117,7 @@ public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceCha
 	@Override
 	public void create() {
 		super.create();
-		setTitle(Messages.AbapGitDialogPageObjLog_title);
+		setTitle(getTitleText());
 
 		int dialogMessageIcon = IMessageProvider.INFORMATION;
 		String dialogStatusFlag = this.repodata.getStatus();
@@ -107,7 +131,7 @@ public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceCha
 
 		if (dialogStatusFlag != null && dialogStatusFlag.equals(SUCCESS_FLAG)) {
 		}
-		setMessage(this.repodata.getStatusText() + "\n " + Messages.AbapGitDialogPageObjLog_description, dialogMessageIcon); //$NON-NLS-1$
+		setMessage(this.repodata.getStatusText() + "\n " + getDescriptionText(), dialogMessageIcon); //$NON-NLS-1$
 	}
 
 	@Override

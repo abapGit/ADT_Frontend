@@ -114,12 +114,18 @@ public class Messages extends NLS {
 	public static String AbapGitWizardPageRepositoryAndCredentials_validate_url_error;
 	public static String AbapGitWizardPageRepositoryAndCredentials_validate_user_error;
 	public static String AbapGitDialogPageObjLog_default_path;
+	public static String AbapGitDialogPageObjLog_default_description;
+	public static String AbapGitDialogPageObjLog_default_title;
 	public static String AbapGitDialogPageObjLog_export_log_tooltip;
 	public static String AbapGitDialogPageObjLog_export_error_msg;
 	public static String AbapGitDialogPageObjLog_export_log_obj_name;
 	public static String AbapGitDialogPageObjLog_export_log_obj_type;
 	public static String AbapGitDialogPageObjLog_export_log_obj_msg;
 	public static String AbapGitDialogPageObjLog_export_log_obj_flag;
+	public static String AbapGitDialogPageObjLog_pull_description;
+	public static String AbapGitDialogPageObjLog_pull_title;
+	public static String AbapGitDialogPageObjLog_push_description;
+	public static String AbapGitDialogPageObjLog_push_title;
 
 	//ABAPGIT STAGING MESSAGES
 	public static String AbapGitStaging_no_repository_selected;
