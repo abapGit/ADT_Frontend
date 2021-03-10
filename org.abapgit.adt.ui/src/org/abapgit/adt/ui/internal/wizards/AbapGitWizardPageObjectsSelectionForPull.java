@@ -88,6 +88,8 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 						AbapGitWizardPageObjectsSelectionForPull.this.modifiedObjTreeViewer.setSubtreeChecked(event.getElement(), false);
 					}
 				}
+				AbapGitWizardPageObjectsSelectionForPull.this.selectedObjectsForRepository = AbapGitWizardPageObjectsSelectionForPull.this.modifiedObjTreeViewer
+						.getCheckedElements();
 
 			}
 		});
