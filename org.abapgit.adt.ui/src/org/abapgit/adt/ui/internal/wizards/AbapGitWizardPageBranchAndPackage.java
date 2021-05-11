@@ -41,6 +41,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
+import com.sap.adt.communication.resources.ResourceException;
 import com.sap.adt.tools.core.model.adtcore.IAdtObjectReference;
 import com.sap.adt.tools.core.ui.packages.AdtPackageProposalProviderFactory;
 import com.sap.adt.tools.core.ui.packages.AdtPackageServiceUIFactory;
@@ -314,10 +315,16 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 			IRepositoryService repoService = RepositoryServiceFactory.createRepositoryService(this.destination, new NullProgressMonitor());
 			IRepository repository = repoService.getRepositoryByURL(this.cloneData.repositories, this.cloneData.url);
 
-			//This is valid only for back end versions from 2105 where selective pull is supported.
+			// This is valid only for back end versions from 2105 where selective pull is supported.
 			// If selectivePull is not supported, fetching modified objects is not required and all objects are to be pulled
 			if (abapGitService.isSelectivePullSupported(repository)) {
-				RepositoryUtil.fetchAndExtractModifiedObjectsToPull(repository, repoService, this.cloneData);
+				try {
+					RepositoryUtil.fetchAndExtractModifiedObjectsToPull(repository, repoService, this.cloneData);
+				} catch (ResourceException e) {
+					setMessage(e.getMessage(), DialogPage.ERROR);
+					setPageComplete(false);
+					return null;
+				}
 			}
 		}
 		return super.getNextPage();

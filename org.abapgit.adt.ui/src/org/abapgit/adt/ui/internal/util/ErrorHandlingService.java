@@ -91,7 +91,7 @@ public class ErrorHandlingService {
 		}
 	}
 
-// Open Error Message in ErrorDialog and display longText in details area
+	// Open Error Message in ErrorDialog and display longText in details area
 	private static void openErrorDialog(String title, String errorMessage, boolean runInUIThread, String longText, Shell shell) {
 		if (runInUIThread) {
 
@@ -117,7 +117,6 @@ public class ErrorHandlingService {
 	 * @param runInUIThread
 	 *            Set it to true, if this method is called from a non UI thread
 	 */
-
 	public static void openErrorDialog(String title, String message, Shell shell, boolean runInUIThread) {
 		if (runInUIThread) {
 			Display.getDefault().syncExec(() -> MessageDialog.openError(shell, title, message));

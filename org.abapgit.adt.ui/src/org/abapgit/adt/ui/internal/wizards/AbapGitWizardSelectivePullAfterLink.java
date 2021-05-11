@@ -30,6 +30,7 @@ import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
+import com.sap.adt.communication.resources.ResourceException;
 import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
 
 public class AbapGitWizardSelectivePullAfterLink extends Wizard {
@@ -43,7 +44,7 @@ public class AbapGitWizardSelectivePullAfterLink extends Wizard {
 	IRepositoryService repoService;
 
 	public AbapGitWizardSelectivePullAfterLink(IProject project, CloneData cloneData,
-			String transportRequest) {
+			String transportRequest) throws ResourceException {
 		this.destination = AdtProjectServiceFactory.createProjectService().getDestinationId(project);
 		this.cloneData = cloneData;
 		this.repoToSelectedObjectsMap = new HashMap<String, IAbapGitPullModifiedObjects>();
@@ -77,7 +78,6 @@ public class AbapGitWizardSelectivePullAfterLink extends Wizard {
 				}
 			}
 		}
-
 	}
 
 	@Override

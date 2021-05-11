@@ -22,6 +22,7 @@ import org.abapgit.adt.ui.internal.repositories.actions.OpenRepositoryAction;
 import org.abapgit.adt.ui.internal.staging.AbapGitStagingView;
 import org.abapgit.adt.ui.internal.staging.IAbapGitStagingView;
 import org.abapgit.adt.ui.internal.util.AbapGitUIServiceFactory;
+import org.abapgit.adt.ui.internal.util.ErrorHandlingService;
 import org.abapgit.adt.ui.internal.util.GitCredentialsService;
 import org.abapgit.adt.ui.internal.util.IAbapGitService;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard;
@@ -87,6 +88,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.osgi.framework.Bundle;
 
+import com.sap.adt.communication.resources.ResourceException;
 import com.sap.adt.destinations.model.IDestinationData;
 import com.sap.adt.destinations.ui.logon.AdtLogonServiceUIFactory;
 import com.sap.adt.project.ui.util.ProjectUtil;
@@ -597,11 +599,15 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 		// another wizard is opened to provide a way to select objects to pull and then perform the pull action
 		if (AbapGitView.this.abapGitService.isSelectivePullSupported(clonedRepository)
 				&& abapGitWizard.isPullRequested()) {
-			AbapGitWizardSelectivePullAfterLink selectivePullWizard = new AbapGitWizardSelectivePullAfterLink(
-					AbapGitView.this.lastProject, cloneData, abapGitWizard.getTransportRequest()); //getter for Transport Request are exposed from the Link Wizard
-			WizardDialog wizardDialog = new WizardDialog(AbapGitView.this.viewer.getControl().getShell(), selectivePullWizard);
-			wizardDialog.open();
-			updateView(true);
+			try {
+				AbapGitWizardSelectivePullAfterLink selectivePullWizard = new AbapGitWizardSelectivePullAfterLink(
+						AbapGitView.this.lastProject, cloneData, abapGitWizard.getTransportRequest()); //getter for Transport Request are exposed from the Link Wizard
+				WizardDialog wizardDialog = new WizardDialog(AbapGitView.this.viewer.getControl().getShell(), selectivePullWizard);
+				wizardDialog.open();
+				updateView(true);
+			} catch (ResourceException e) {
+				ErrorHandlingService.openErrorDialog(Messages.AbapGitView_context_pull_error, e.getMessage(), getSite().getShell(), true);
+			}
 		}
 
 	}
