@@ -59,15 +59,19 @@ public class AbapGitService implements IAbapGitService {
 		return service != null ? true : false;
 	}
 
-	//TODO: Remove after 2105 back end release supporting selective pull reaches all customers	
+	//TODO: Remove after 2105 back end release supporting selective pull reaches all customers
 	@Override
 	public boolean isSelectivePullSupported(IRepository repository) {
+		/*
+		 * Disable the selective pull temporarily because of the incident https://support.wdf.sap.corp/sap/support/message/2170159859. 
+		 * Selective pull backend call runs into error while PULL as it somehow involves package creation which requires a transport request to be passed on.
+		 */
 
-		for (IAtomLink link : repository.getLinks()) {
-			if (link.getRel().equalsIgnoreCase(IRepositoryService.RELATION_MODIFIED_OBJECTS)) {
-				return true;
-			}
-		}
+//		for (IAtomLink link : repository.getLinks()) {
+//			if (link.getRel().equalsIgnoreCase(IRepositoryService.RELATION_MODIFIED_OBJECTS)) {
+//				return true;
+//			}
+//		}
 		return false;
 	}
 
