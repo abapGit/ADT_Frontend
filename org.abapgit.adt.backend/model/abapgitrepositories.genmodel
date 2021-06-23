@@ -12,6 +12,7 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitrepositories.ecore#//Repository/links"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitrepositories.ecore#//Repository/key"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitrepositories.ecore#//Repository/package"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitrepositories.ecore#//Repository/folderLogic"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitrepositories.ecore#//Repository/url"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitrepositories.ecore#//Repository/branchName"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitrepositories.ecore#//Repository/createdBy"/>
@@ -28,6 +29,7 @@
     </genClasses>
     <genClasses ecoreClass="abapgitrepositories.ecore#//Repositories">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitrepositories.ecore#//Repositories/repositories"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitrepositories.ecore#//Repositories/links"/>
     </genClasses>
     <genClasses ecoreClass="abapgitrepositories.ecore#//DocumentRoot">
       <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EAttribute abapgitrepositories.ecore#//DocumentRoot/mixed"/>

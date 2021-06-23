@@ -158,7 +158,7 @@ public class AbapgitrepositoriesPackageImpl extends EPackageImpl implements IAba
 	 * @generated
 	 */
 	@Override
-	public EAttribute getRepository_Url() {
+	public EAttribute getRepository_FolderLogic() {
 		return (EAttribute)repositoryEClass.getEStructuralFeatures().get(3);
 	}
 
@@ -168,7 +168,7 @@ public class AbapgitrepositoriesPackageImpl extends EPackageImpl implements IAba
 	 * @generated
 	 */
 	@Override
-	public EAttribute getRepository_BranchName() {
+	public EAttribute getRepository_Url() {
 		return (EAttribute)repositoryEClass.getEStructuralFeatures().get(4);
 	}
 
@@ -178,7 +178,7 @@ public class AbapgitrepositoriesPackageImpl extends EPackageImpl implements IAba
 	 * @generated
 	 */
 	@Override
-	public EAttribute getRepository_CreatedBy() {
+	public EAttribute getRepository_BranchName() {
 		return (EAttribute)repositoryEClass.getEStructuralFeatures().get(5);
 	}
 
@@ -188,7 +188,7 @@ public class AbapgitrepositoriesPackageImpl extends EPackageImpl implements IAba
 	 * @generated
 	 */
 	@Override
-	public EAttribute getRepository_CreatedEmail() {
+	public EAttribute getRepository_CreatedBy() {
 		return (EAttribute)repositoryEClass.getEStructuralFeatures().get(6);
 	}
 
@@ -198,7 +198,7 @@ public class AbapgitrepositoriesPackageImpl extends EPackageImpl implements IAba
 	 * @generated
 	 */
 	@Override
-	public EAttribute getRepository_CreatedAt() {
+	public EAttribute getRepository_CreatedEmail() {
 		return (EAttribute)repositoryEClass.getEStructuralFeatures().get(7);
 	}
 
@@ -208,7 +208,7 @@ public class AbapgitrepositoriesPackageImpl extends EPackageImpl implements IAba
 	 * @generated
 	 */
 	@Override
-	public EAttribute getRepository_DeserializedAt() {
+	public EAttribute getRepository_CreatedAt() {
 		return (EAttribute)repositoryEClass.getEStructuralFeatures().get(8);
 	}
 
@@ -218,7 +218,7 @@ public class AbapgitrepositoriesPackageImpl extends EPackageImpl implements IAba
 	 * @generated
 	 */
 	@Override
-	public EAttribute getRepository_DeserializedEmail() {
+	public EAttribute getRepository_DeserializedAt() {
 		return (EAttribute)repositoryEClass.getEStructuralFeatures().get(9);
 	}
 
@@ -228,7 +228,7 @@ public class AbapgitrepositoriesPackageImpl extends EPackageImpl implements IAba
 	 * @generated
 	 */
 	@Override
-	public EAttribute getRepository_DeserializedBy() {
+	public EAttribute getRepository_DeserializedEmail() {
 		return (EAttribute)repositoryEClass.getEStructuralFeatures().get(10);
 	}
 
@@ -238,7 +238,7 @@ public class AbapgitrepositoriesPackageImpl extends EPackageImpl implements IAba
 	 * @generated
 	 */
 	@Override
-	public EAttribute getRepository_Status() {
+	public EAttribute getRepository_DeserializedBy() {
 		return (EAttribute)repositoryEClass.getEStructuralFeatures().get(11);
 	}
 
@@ -248,7 +248,7 @@ public class AbapgitrepositoriesPackageImpl extends EPackageImpl implements IAba
 	 * @generated
 	 */
 	@Override
-	public EAttribute getRepository_StatusText() {
+	public EAttribute getRepository_Status() {
 		return (EAttribute)repositoryEClass.getEStructuralFeatures().get(12);
 	}
 
@@ -258,7 +258,7 @@ public class AbapgitrepositoriesPackageImpl extends EPackageImpl implements IAba
 	 * @generated
 	 */
 	@Override
-	public EAttribute getRepository_RemoteUser() {
+	public EAttribute getRepository_StatusText() {
 		return (EAttribute)repositoryEClass.getEStructuralFeatures().get(13);
 	}
 
@@ -268,7 +268,7 @@ public class AbapgitrepositoriesPackageImpl extends EPackageImpl implements IAba
 	 * @generated
 	 */
 	@Override
-	public EAttribute getRepository_RemotePassword() {
+	public EAttribute getRepository_RemoteUser() {
 		return (EAttribute)repositoryEClass.getEStructuralFeatures().get(14);
 	}
 
@@ -278,8 +278,18 @@ public class AbapgitrepositoriesPackageImpl extends EPackageImpl implements IAba
 	 * @generated
 	 */
 	@Override
-	public EAttribute getRepository_TransportRequest() {
+	public EAttribute getRepository_RemotePassword() {
 		return (EAttribute)repositoryEClass.getEStructuralFeatures().get(15);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public EAttribute getRepository_TransportRequest() {
+		return (EAttribute)repositoryEClass.getEStructuralFeatures().get(16);
 	}
 
 	/**
@@ -300,6 +310,16 @@ public class AbapgitrepositoriesPackageImpl extends EPackageImpl implements IAba
 	@Override
 	public EReference getRepositories_Repositories() {
 		return (EReference)repositoriesEClass.getEStructuralFeatures().get(0);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public EReference getRepositories_Links() {
+		return (EReference)repositoriesEClass.getEStructuralFeatures().get(1);
 	}
 
 	/**
@@ -395,6 +415,7 @@ public class AbapgitrepositoriesPackageImpl extends EPackageImpl implements IAba
 		createEReference(repositoryEClass, REPOSITORY__LINKS);
 		createEAttribute(repositoryEClass, REPOSITORY__KEY);
 		createEAttribute(repositoryEClass, REPOSITORY__PACKAGE);
+		createEAttribute(repositoryEClass, REPOSITORY__FOLDER_LOGIC);
 		createEAttribute(repositoryEClass, REPOSITORY__URL);
 		createEAttribute(repositoryEClass, REPOSITORY__BRANCH_NAME);
 		createEAttribute(repositoryEClass, REPOSITORY__CREATED_BY);
@@ -411,6 +432,7 @@ public class AbapgitrepositoriesPackageImpl extends EPackageImpl implements IAba
 
 		repositoriesEClass = createEClass(REPOSITORIES);
 		createEReference(repositoriesEClass, REPOSITORIES__REPOSITORIES);
+		createEReference(repositoriesEClass, REPOSITORIES__LINKS);
 
 		documentRootEClass = createEClass(DOCUMENT_ROOT);
 		createEAttribute(documentRootEClass, DOCUMENT_ROOT__MIXED);
@@ -458,6 +480,7 @@ public class AbapgitrepositoriesPackageImpl extends EPackageImpl implements IAba
 		initEReference(getRepository_Links(), theAtomPackage.getAtomLink(), null, "links", null, 0, -1, IRepository.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getRepository_Key(), theXMLTypePackage.getString(), "key", null, 0, 1, IRepository.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getRepository_Package(), theXMLTypePackage.getString(), "package", null, 0, 1, IRepository.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getRepository_FolderLogic(), theXMLTypePackage.getString(), "folderLogic", null, 0, 1, IRepository.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getRepository_Url(), theXMLTypePackage.getString(), "url", null, 0, 1, IRepository.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getRepository_BranchName(), theXMLTypePackage.getString(), "branchName", null, 0, 1, IRepository.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getRepository_CreatedBy(), theXMLTypePackage.getString(), "createdBy", null, 0, 1, IRepository.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -474,6 +497,7 @@ public class AbapgitrepositoriesPackageImpl extends EPackageImpl implements IAba
 
 		initEClass(repositoriesEClass, IRepositories.class, "Repositories", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getRepositories_Repositories(), this.getRepository(), null, "repositories", null, 0, -1, IRepositories.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getRepositories_Links(), theAtomPackage.getAtomLink(), null, "links", null, 0, -1, IRepositories.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(documentRootEClass, IDocumentRoot.class, "DocumentRoot", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getDocumentRoot_Mixed(), ecorePackage.getEFeatureMapEntry(), "mixed", null, 0, -1, null, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -528,6 +552,14 @@ public class AbapgitrepositoriesPackageImpl extends EPackageImpl implements IAba
 			   "kind", "element",
 			   "namespace", "##targetNamespace",
 			   "name", "package"
+		   });
+		addAnnotation
+		  (getRepository_FolderLogic(),
+		   source,
+		   new String[] {
+			   "kind", "element",
+			   "namespace", "##targetNamespace",
+			   "name", "folderLogic"
 		   });
 		addAnnotation
 		  (getRepository_Url(),
@@ -647,6 +679,14 @@ public class AbapgitrepositoriesPackageImpl extends EPackageImpl implements IAba
 			   "kind", "element",
 			   "namespace", "##targetNamespace",
 			   "name", "repository"
+		   });
+		addAnnotation
+		  (getRepositories_Links(),
+		   source,
+		   new String[] {
+			   "kind", "element",
+			   "namespace", "http://www.w3.org/2005/Atom",
+			   "name", "link"
 		   });
 		addAnnotation
 		  (documentRootEClass,

@@ -2,11 +2,10 @@
  */
 package org.abapgit.adt.backend.model.abapgitrepositories;
 
-import com.sap.adt.tools.core.model.atom.IAtomLink;
-
 import org.eclipse.emf.common.util.EList;
-
 import org.eclipse.emf.ecore.EObject;
+
+import com.sap.adt.tools.core.model.atom.IAtomLink;
 
 /**
  * <!-- begin-user-doc -->
@@ -20,6 +19,7 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link org.abapgit.adt.backend.model.abapgitrepositories.IRepository#getLinks <em>Links</em>}</li>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitrepositories.IRepository#getKey <em>Key</em>}</li>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitrepositories.IRepository#getPackage <em>Package</em>}</li>
+ *   <li>{@link org.abapgit.adt.backend.model.abapgitrepositories.IRepository#getFolderLogic <em>Folder Logic</em>}</li>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitrepositories.IRepository#getUrl <em>Url</em>}</li>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitrepositories.IRepository#getBranchName <em>Branch Name</em>}</li>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitrepositories.IRepository#getCreatedBy <em>Created By</em>}</li>
@@ -40,6 +40,15 @@ import org.eclipse.emf.ecore.EObject;
  * @generated
  */
 public interface IRepository extends EObject {
+
+	/**
+	 * Supported Folder Logics for a repository
+	 *
+	 */
+	public enum FolderLogic {
+		PREFIX, FULL
+	}
+
 	/**
 	 * Returns the value of the '<em><b>Links</b></em>' containment reference list.
 	 * The list contents are of type {@link com.sap.adt.tools.core.model.atom.IAtomLink}.
@@ -98,6 +107,29 @@ public interface IRepository extends EObject {
 	 * @generated
 	 */
 	void setPackage(String value);
+
+	/**
+	 * Returns the value of the '<em><b>Folder Logic</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Folder Logic</em>' attribute.
+	 * @see #setFolderLogic(String)
+	 * @see org.abapgit.adt.backend.model.abapgitrepositories.IAbapgitrepositoriesPackage#getRepository_FolderLogic()
+	 * @model dataType="org.eclipse.emf.ecore.xml.type.String"
+	 *        extendedMetaData="kind='element' namespace='##targetNamespace' name='folderLogic'"
+	 * @generated
+	 */
+	String getFolderLogic();
+
+	/**
+	 * Sets the value of the '{@link org.abapgit.adt.backend.model.abapgitrepositories.IRepository#getFolderLogic <em>Folder Logic</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Folder Logic</em>' attribute.
+	 * @see #getFolderLogic()
+	 * @generated
+	 */
+	void setFolderLogic(String value);
 
 	/**
 	 * Returns the value of the '<em><b>Url</b></em>' attribute.

@@ -153,6 +153,7 @@ public class AbapGitWizard extends Wizard {
 					} else {
 						List<IAbapObject> abapObjects = repoService.cloneRepository(AbapGitWizard.this.cloneData.url,
 								AbapGitWizard.this.cloneData.branch, AbapGitWizard.this.cloneData.packageRef.getName(),
+								AbapGitWizard.this.cloneData.folderLogic,
 								AbapGitWizard.this.transportRequest, AbapGitWizard.this.cloneData.user, AbapGitWizard.this.cloneData.pass,
 								monitor)
 								.getAbapObjects();
@@ -313,6 +314,7 @@ public class AbapGitWizard extends Wizard {
 		public IRepositories repositories;
 		public IExternalRepositoryInfo externalRepoInfo;
 		public IAdtObjectReference packageRef;
+		public String folderLogic;
 		public String branch;
 		public String url;
 		public String user;

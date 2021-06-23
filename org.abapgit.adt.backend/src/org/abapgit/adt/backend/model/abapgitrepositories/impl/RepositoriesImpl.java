@@ -2,6 +2,7 @@
  */
 package org.abapgit.adt.backend.model.abapgitrepositories.impl;
 
+import com.sap.adt.tools.core.model.atom.IAtomLink;
 import java.util.Collection;
 
 import org.abapgit.adt.backend.model.abapgitrepositories.IAbapgitrepositoriesPackage;
@@ -29,6 +30,7 @@ import org.eclipse.emf.ecore.util.InternalEList;
  * </p>
  * <ul>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitrepositories.impl.RepositoriesImpl#getRepositories <em>Repositories</em>}</li>
+ *   <li>{@link org.abapgit.adt.backend.model.abapgitrepositories.impl.RepositoriesImpl#getLinks <em>Links</em>}</li>
  * </ul>
  *
  * @generated
@@ -43,6 +45,16 @@ public class RepositoriesImpl extends MinimalEObjectImpl.Container implements IR
 	 * @ordered
 	 */
 	protected EList<IRepository> repositories;
+
+	/**
+	 * The cached value of the '{@link #getLinks() <em>Links</em>}' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getLinks()
+	 * @generated
+	 * @ordered
+	 */
+	protected EList<IAtomLink> links;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -82,10 +94,25 @@ public class RepositoriesImpl extends MinimalEObjectImpl.Container implements IR
 	 * @generated
 	 */
 	@Override
+	public EList<IAtomLink> getLinks() {
+		if (links == null) {
+			links = new EObjectContainmentEList<IAtomLink>(IAtomLink.class, this, IAbapgitrepositoriesPackage.REPOSITORIES__LINKS);
+		}
+		return links;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
 			case IAbapgitrepositoriesPackage.REPOSITORIES__REPOSITORIES:
 				return ((InternalEList<?>)getRepositories()).basicRemove(otherEnd, msgs);
+			case IAbapgitrepositoriesPackage.REPOSITORIES__LINKS:
+				return ((InternalEList<?>)getLinks()).basicRemove(otherEnd, msgs);
 		}
 		return super.eInverseRemove(otherEnd, featureID, msgs);
 	}
@@ -100,6 +127,8 @@ public class RepositoriesImpl extends MinimalEObjectImpl.Container implements IR
 		switch (featureID) {
 			case IAbapgitrepositoriesPackage.REPOSITORIES__REPOSITORIES:
 				return getRepositories();
+			case IAbapgitrepositoriesPackage.REPOSITORIES__LINKS:
+				return getLinks();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -117,6 +146,10 @@ public class RepositoriesImpl extends MinimalEObjectImpl.Container implements IR
 				getRepositories().clear();
 				getRepositories().addAll((Collection<? extends IRepository>)newValue);
 				return;
+			case IAbapgitrepositoriesPackage.REPOSITORIES__LINKS:
+				getLinks().clear();
+				getLinks().addAll((Collection<? extends IAtomLink>)newValue);
+				return;
 		}
 		super.eSet(featureID, newValue);
 	}
@@ -132,6 +165,9 @@ public class RepositoriesImpl extends MinimalEObjectImpl.Container implements IR
 			case IAbapgitrepositoriesPackage.REPOSITORIES__REPOSITORIES:
 				getRepositories().clear();
 				return;
+			case IAbapgitrepositoriesPackage.REPOSITORIES__LINKS:
+				getLinks().clear();
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -146,6 +182,8 @@ public class RepositoriesImpl extends MinimalEObjectImpl.Container implements IR
 		switch (featureID) {
 			case IAbapgitrepositoriesPackage.REPOSITORIES__REPOSITORIES:
 				return repositories != null && !repositories.isEmpty();
+			case IAbapgitrepositoriesPackage.REPOSITORIES__LINKS:
+				return links != null && !links.isEmpty();
 		}
 		return super.eIsSet(featureID);
 	}

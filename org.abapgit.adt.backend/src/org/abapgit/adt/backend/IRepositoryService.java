@@ -24,10 +24,12 @@ public interface IRepositoryService {
 	String RELATION_PUSH = "http://www.sap.com/adt/abapgit/relations/push"; //$NON-NLS-1$
 	String RELATION_CHECK = "http://www.sap.com/adt/abapgit/relations/check"; //$NON-NLS-1$
 	String RELATION_MODIFIED_OBJECTS = "http://www.sap.com/adt/abapgit/relations/pull/modifiedobjects"; //$NON-NLS-1$
+	String RELATION_FOLDER_LOGIC = "http://www.sap.com/adt/abapgit/relations/folderlogic"; //$NON-NLS-1$
 
 	IRepositories getRepositories(IProgressMonitor monitor);
 
-	IAbapObjects cloneRepository(String url, String branch, String targetPackage, String transportRequest, String user, String password,
+	IAbapObjects cloneRepository(String url, String branch, String targetPackage, String folderLogic, String transportRequest, String user,
+			String password,
 			IProgressMonitor monitor);
 
 	void cloneRepositories(IRepositories repositories, IProgressMonitor monitor);

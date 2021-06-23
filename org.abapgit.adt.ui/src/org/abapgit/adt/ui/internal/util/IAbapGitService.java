@@ -1,5 +1,7 @@
 package org.abapgit.adt.ui.internal.util;
 
+import org.abapgit.adt.backend.IRepositoryService;
+import org.abapgit.adt.backend.model.abapgitrepositories.IRepositories;
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.eclipse.core.resources.IProject;
 
@@ -44,6 +46,14 @@ public interface IAbapGitService {
 	 * enabled only for steampunk projects.
 	 */
 	boolean isAbapGitSupported(IProject project);
+
+	/**
+	 * Checks whether selecting folder logic is supported while linking
+	 * repositories. The feature would be available if the repositories contains
+	 * an atom link with relation
+	 * {@link IRepositoryService.RELATION_FOLDER_LOGIC}
+	 */
+	boolean isFolderLogicSupportedWhileLink(IRepositories repositories);
 
 	/**
 	 * Checks whether the given project supports to selectively pull objects

@@ -29,6 +29,7 @@ import com.sap.adt.tools.core.model.atom.IAtomLink;
  *   <li>{@link org.abapgit.adt.backend.model.abapgitrepositories.impl.RepositoryImpl#getLinks <em>Links</em>}</li>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitrepositories.impl.RepositoryImpl#getKey <em>Key</em>}</li>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitrepositories.impl.RepositoryImpl#getPackage <em>Package</em>}</li>
+ *   <li>{@link org.abapgit.adt.backend.model.abapgitrepositories.impl.RepositoryImpl#getFolderLogic <em>Folder Logic</em>}</li>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitrepositories.impl.RepositoryImpl#getUrl <em>Url</em>}</li>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitrepositories.impl.RepositoryImpl#getBranchName <em>Branch Name</em>}</li>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitrepositories.impl.RepositoryImpl#getCreatedBy <em>Created By</em>}</li>
@@ -96,6 +97,26 @@ public class RepositoryImpl extends MinimalEObjectImpl.Container implements IRep
 	 * @ordered
 	 */
 	protected String package_ = PACKAGE_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getFolderLogic() <em>Folder Logic</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getFolderLogic()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String FOLDER_LOGIC_EDEFAULT = null;
+
+	/**
+	 * The cached value of the '{@link #getFolderLogic() <em>Folder Logic</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getFolderLogic()
+	 * @generated
+	 * @ordered
+	 */
+	protected String folderLogic = FOLDER_LOGIC_EDEFAULT;
 
 	/**
 	 * The default value of the '{@link #getUrl() <em>Url</em>}' attribute.
@@ -383,10 +404,10 @@ public class RepositoryImpl extends MinimalEObjectImpl.Container implements IRep
 	 */
 	@Override
 	public EList<IAtomLink> getLinks() {
-		if (this.links == null) {
-			this.links = new EObjectContainmentEList<IAtomLink>(IAtomLink.class, this, IAbapgitrepositoriesPackage.REPOSITORY__LINKS);
+		if (links == null) {
+			links = new EObjectContainmentEList<IAtomLink>(IAtomLink.class, this, IAbapgitrepositoriesPackage.REPOSITORY__LINKS);
 		}
-		return this.links;
+		return links;
 	}
 
 	/**
@@ -396,7 +417,7 @@ public class RepositoryImpl extends MinimalEObjectImpl.Container implements IRep
 	 */
 	@Override
 	public String getKey() {
-		return this.key;
+		return key;
 	}
 
 	/**
@@ -406,11 +427,10 @@ public class RepositoryImpl extends MinimalEObjectImpl.Container implements IRep
 	 */
 	@Override
 	public void setKey(String newKey) {
-		String oldKey = this.key;
-		this.key = newKey;
-		if (eNotificationRequired()) {
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitrepositoriesPackage.REPOSITORY__KEY, oldKey, this.key));
-		}
+		String oldKey = key;
+		key = newKey;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitrepositoriesPackage.REPOSITORY__KEY, oldKey, key));
 	}
 
 	/**
@@ -420,7 +440,7 @@ public class RepositoryImpl extends MinimalEObjectImpl.Container implements IRep
 	 */
 	@Override
 	public String getPackage() {
-		return this.package_;
+		return package_;
 	}
 
 	/**
@@ -430,11 +450,33 @@ public class RepositoryImpl extends MinimalEObjectImpl.Container implements IRep
 	 */
 	@Override
 	public void setPackage(String newPackage) {
-		String oldPackage = this.package_;
-		this.package_ = newPackage;
-		if (eNotificationRequired()) {
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitrepositoriesPackage.REPOSITORY__PACKAGE, oldPackage, this.package_));
-		}
+		String oldPackage = package_;
+		package_ = newPackage;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitrepositoriesPackage.REPOSITORY__PACKAGE, oldPackage, package_));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public String getFolderLogic() {
+		return folderLogic;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public void setFolderLogic(String newFolderLogic) {
+		String oldFolderLogic = folderLogic;
+		folderLogic = newFolderLogic;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitrepositoriesPackage.REPOSITORY__FOLDER_LOGIC, oldFolderLogic, folderLogic));
 	}
 
 	/**
@@ -444,7 +486,7 @@ public class RepositoryImpl extends MinimalEObjectImpl.Container implements IRep
 	 */
 	@Override
 	public String getUrl() {
-		return this.url;
+		return url;
 	}
 
 	/**
@@ -454,11 +496,10 @@ public class RepositoryImpl extends MinimalEObjectImpl.Container implements IRep
 	 */
 	@Override
 	public void setUrl(String newUrl) {
-		String oldUrl = this.url;
-		this.url = newUrl;
-		if (eNotificationRequired()) {
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitrepositoriesPackage.REPOSITORY__URL, oldUrl, this.url));
-		}
+		String oldUrl = url;
+		url = newUrl;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitrepositoriesPackage.REPOSITORY__URL, oldUrl, url));
 	}
 
 	/**
@@ -468,7 +509,7 @@ public class RepositoryImpl extends MinimalEObjectImpl.Container implements IRep
 	 */
 	@Override
 	public String getBranchName() {
-		return this.branchName;
+		return branchName;
 	}
 
 	/**
@@ -478,11 +519,10 @@ public class RepositoryImpl extends MinimalEObjectImpl.Container implements IRep
 	 */
 	@Override
 	public void setBranchName(String newBranchName) {
-		String oldBranchName = this.branchName;
-		this.branchName = newBranchName;
-		if (eNotificationRequired()) {
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitrepositoriesPackage.REPOSITORY__BRANCH_NAME, oldBranchName, this.branchName));
-		}
+		String oldBranchName = branchName;
+		branchName = newBranchName;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitrepositoriesPackage.REPOSITORY__BRANCH_NAME, oldBranchName, branchName));
 	}
 
 	/**
@@ -492,7 +532,7 @@ public class RepositoryImpl extends MinimalEObjectImpl.Container implements IRep
 	 */
 	@Override
 	public String getCreatedBy() {
-		return this.createdBy;
+		return createdBy;
 	}
 
 	/**
@@ -502,11 +542,10 @@ public class RepositoryImpl extends MinimalEObjectImpl.Container implements IRep
 	 */
 	@Override
 	public void setCreatedBy(String newCreatedBy) {
-		String oldCreatedBy = this.createdBy;
-		this.createdBy = newCreatedBy;
-		if (eNotificationRequired()) {
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitrepositoriesPackage.REPOSITORY__CREATED_BY, oldCreatedBy, this.createdBy));
-		}
+		String oldCreatedBy = createdBy;
+		createdBy = newCreatedBy;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitrepositoriesPackage.REPOSITORY__CREATED_BY, oldCreatedBy, createdBy));
 	}
 
 	/**
@@ -516,7 +555,7 @@ public class RepositoryImpl extends MinimalEObjectImpl.Container implements IRep
 	 */
 	@Override
 	public String getCreatedEmail() {
-		return this.createdEmail;
+		return createdEmail;
 	}
 
 	/**
@@ -526,11 +565,10 @@ public class RepositoryImpl extends MinimalEObjectImpl.Container implements IRep
 	 */
 	@Override
 	public void setCreatedEmail(String newCreatedEmail) {
-		String oldCreatedEmail = this.createdEmail;
-		this.createdEmail = newCreatedEmail;
-		if (eNotificationRequired()) {
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitrepositoriesPackage.REPOSITORY__CREATED_EMAIL, oldCreatedEmail, this.createdEmail));
-		}
+		String oldCreatedEmail = createdEmail;
+		createdEmail = newCreatedEmail;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitrepositoriesPackage.REPOSITORY__CREATED_EMAIL, oldCreatedEmail, createdEmail));
 	}
 
 	/**
@@ -540,7 +578,7 @@ public class RepositoryImpl extends MinimalEObjectImpl.Container implements IRep
 	 */
 	@Override
 	public String getCreatedAt() {
-		return this.createdAt;
+		return createdAt;
 	}
 
 	/**
@@ -550,11 +588,10 @@ public class RepositoryImpl extends MinimalEObjectImpl.Container implements IRep
 	 */
 	@Override
 	public void setCreatedAt(String newCreatedAt) {
-		String oldCreatedAt = this.createdAt;
-		this.createdAt = newCreatedAt;
-		if (eNotificationRequired()) {
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitrepositoriesPackage.REPOSITORY__CREATED_AT, oldCreatedAt, this.createdAt));
-		}
+		String oldCreatedAt = createdAt;
+		createdAt = newCreatedAt;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitrepositoriesPackage.REPOSITORY__CREATED_AT, oldCreatedAt, createdAt));
 	}
 
 	/**
@@ -564,7 +601,7 @@ public class RepositoryImpl extends MinimalEObjectImpl.Container implements IRep
 	 */
 	@Override
 	public String getDeserializedAt() {
-		return this.deserializedAt;
+		return deserializedAt;
 	}
 
 	/**
@@ -574,11 +611,10 @@ public class RepositoryImpl extends MinimalEObjectImpl.Container implements IRep
 	 */
 	@Override
 	public void setDeserializedAt(String newDeserializedAt) {
-		String oldDeserializedAt = this.deserializedAt;
-		this.deserializedAt = newDeserializedAt;
-		if (eNotificationRequired()) {
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitrepositoriesPackage.REPOSITORY__DESERIALIZED_AT, oldDeserializedAt, this.deserializedAt));
-		}
+		String oldDeserializedAt = deserializedAt;
+		deserializedAt = newDeserializedAt;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitrepositoriesPackage.REPOSITORY__DESERIALIZED_AT, oldDeserializedAt, deserializedAt));
 	}
 
 	/**
@@ -588,7 +624,7 @@ public class RepositoryImpl extends MinimalEObjectImpl.Container implements IRep
 	 */
 	@Override
 	public String getDeserializedEmail() {
-		return this.deserializedEmail;
+		return deserializedEmail;
 	}
 
 	/**
@@ -598,11 +634,10 @@ public class RepositoryImpl extends MinimalEObjectImpl.Container implements IRep
 	 */
 	@Override
 	public void setDeserializedEmail(String newDeserializedEmail) {
-		String oldDeserializedEmail = this.deserializedEmail;
-		this.deserializedEmail = newDeserializedEmail;
-		if (eNotificationRequired()) {
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitrepositoriesPackage.REPOSITORY__DESERIALIZED_EMAIL, oldDeserializedEmail, this.deserializedEmail));
-		}
+		String oldDeserializedEmail = deserializedEmail;
+		deserializedEmail = newDeserializedEmail;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitrepositoriesPackage.REPOSITORY__DESERIALIZED_EMAIL, oldDeserializedEmail, deserializedEmail));
 	}
 
 	/**
@@ -612,7 +647,7 @@ public class RepositoryImpl extends MinimalEObjectImpl.Container implements IRep
 	 */
 	@Override
 	public String getDeserializedBy() {
-		return this.deserializedBy;
+		return deserializedBy;
 	}
 
 	/**
@@ -622,11 +657,10 @@ public class RepositoryImpl extends MinimalEObjectImpl.Container implements IRep
 	 */
 	@Override
 	public void setDeserializedBy(String newDeserializedBy) {
-		String oldDeserializedBy = this.deserializedBy;
-		this.deserializedBy = newDeserializedBy;
-		if (eNotificationRequired()) {
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitrepositoriesPackage.REPOSITORY__DESERIALIZED_BY, oldDeserializedBy, this.deserializedBy));
-		}
+		String oldDeserializedBy = deserializedBy;
+		deserializedBy = newDeserializedBy;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitrepositoriesPackage.REPOSITORY__DESERIALIZED_BY, oldDeserializedBy, deserializedBy));
 	}
 
 	/**
@@ -636,7 +670,7 @@ public class RepositoryImpl extends MinimalEObjectImpl.Container implements IRep
 	 */
 	@Override
 	public String getStatus() {
-		return this.status;
+		return status;
 	}
 
 	/**
@@ -646,11 +680,10 @@ public class RepositoryImpl extends MinimalEObjectImpl.Container implements IRep
 	 */
 	@Override
 	public void setStatus(String newStatus) {
-		String oldStatus = this.status;
-		this.status = newStatus;
-		if (eNotificationRequired()) {
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitrepositoriesPackage.REPOSITORY__STATUS, oldStatus, this.status));
-		}
+		String oldStatus = status;
+		status = newStatus;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitrepositoriesPackage.REPOSITORY__STATUS, oldStatus, status));
 	}
 
 	/**
@@ -660,7 +693,7 @@ public class RepositoryImpl extends MinimalEObjectImpl.Container implements IRep
 	 */
 	@Override
 	public String getStatusText() {
-		return this.statusText;
+		return statusText;
 	}
 
 	/**
@@ -670,11 +703,10 @@ public class RepositoryImpl extends MinimalEObjectImpl.Container implements IRep
 	 */
 	@Override
 	public void setStatusText(String newStatusText) {
-		String oldStatusText = this.statusText;
-		this.statusText = newStatusText;
-		if (eNotificationRequired()) {
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitrepositoriesPackage.REPOSITORY__STATUS_TEXT, oldStatusText, this.statusText));
-		}
+		String oldStatusText = statusText;
+		statusText = newStatusText;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitrepositoriesPackage.REPOSITORY__STATUS_TEXT, oldStatusText, statusText));
 	}
 
 	/**
@@ -684,7 +716,7 @@ public class RepositoryImpl extends MinimalEObjectImpl.Container implements IRep
 	 */
 	@Override
 	public String getRemoteUser() {
-		return this.remoteUser;
+		return remoteUser;
 	}
 
 	/**
@@ -694,11 +726,10 @@ public class RepositoryImpl extends MinimalEObjectImpl.Container implements IRep
 	 */
 	@Override
 	public void setRemoteUser(String newRemoteUser) {
-		String oldRemoteUser = this.remoteUser;
-		this.remoteUser = newRemoteUser;
-		if (eNotificationRequired()) {
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitrepositoriesPackage.REPOSITORY__REMOTE_USER, oldRemoteUser, this.remoteUser));
-		}
+		String oldRemoteUser = remoteUser;
+		remoteUser = newRemoteUser;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitrepositoriesPackage.REPOSITORY__REMOTE_USER, oldRemoteUser, remoteUser));
 	}
 
 	/**
@@ -708,7 +739,7 @@ public class RepositoryImpl extends MinimalEObjectImpl.Container implements IRep
 	 */
 	@Override
 	public String getRemotePassword() {
-		return this.remotePassword;
+		return remotePassword;
 	}
 
 	/**
@@ -718,11 +749,10 @@ public class RepositoryImpl extends MinimalEObjectImpl.Container implements IRep
 	 */
 	@Override
 	public void setRemotePassword(String newRemotePassword) {
-		String oldRemotePassword = this.remotePassword;
-		this.remotePassword = newRemotePassword;
-		if (eNotificationRequired()) {
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitrepositoriesPackage.REPOSITORY__REMOTE_PASSWORD, oldRemotePassword, this.remotePassword));
-		}
+		String oldRemotePassword = remotePassword;
+		remotePassword = newRemotePassword;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitrepositoriesPackage.REPOSITORY__REMOTE_PASSWORD, oldRemotePassword, remotePassword));
 	}
 
 	/**
@@ -732,7 +762,7 @@ public class RepositoryImpl extends MinimalEObjectImpl.Container implements IRep
 	 */
 	@Override
 	public String getTransportRequest() {
-		return this.transportRequest;
+		return transportRequest;
 	}
 
 	/**
@@ -742,11 +772,10 @@ public class RepositoryImpl extends MinimalEObjectImpl.Container implements IRep
 	 */
 	@Override
 	public void setTransportRequest(String newTransportRequest) {
-		String oldTransportRequest = this.transportRequest;
-		this.transportRequest = newTransportRequest;
-		if (eNotificationRequired()) {
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitrepositoriesPackage.REPOSITORY__TRANSPORT_REQUEST, oldTransportRequest, this.transportRequest));
-		}
+		String oldTransportRequest = transportRequest;
+		transportRequest = newTransportRequest;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitrepositoriesPackage.REPOSITORY__TRANSPORT_REQUEST, oldTransportRequest, transportRequest));
 	}
 
 	/**
@@ -777,6 +806,8 @@ public class RepositoryImpl extends MinimalEObjectImpl.Container implements IRep
 				return getKey();
 			case IAbapgitrepositoriesPackage.REPOSITORY__PACKAGE:
 				return getPackage();
+			case IAbapgitrepositoriesPackage.REPOSITORY__FOLDER_LOGIC:
+				return getFolderLogic();
 			case IAbapgitrepositoriesPackage.REPOSITORY__URL:
 				return getUrl();
 			case IAbapgitrepositoriesPackage.REPOSITORY__BRANCH_NAME:
@@ -825,6 +856,9 @@ public class RepositoryImpl extends MinimalEObjectImpl.Container implements IRep
 				return;
 			case IAbapgitrepositoriesPackage.REPOSITORY__PACKAGE:
 				setPackage((String)newValue);
+				return;
+			case IAbapgitrepositoriesPackage.REPOSITORY__FOLDER_LOGIC:
+				setFolderLogic((String)newValue);
 				return;
 			case IAbapgitrepositoriesPackage.REPOSITORY__URL:
 				setUrl((String)newValue);
@@ -886,6 +920,9 @@ public class RepositoryImpl extends MinimalEObjectImpl.Container implements IRep
 			case IAbapgitrepositoriesPackage.REPOSITORY__PACKAGE:
 				setPackage(PACKAGE_EDEFAULT);
 				return;
+			case IAbapgitrepositoriesPackage.REPOSITORY__FOLDER_LOGIC:
+				setFolderLogic(FOLDER_LOGIC_EDEFAULT);
+				return;
 			case IAbapgitrepositoriesPackage.REPOSITORY__URL:
 				setUrl(URL_EDEFAULT);
 				return;
@@ -938,37 +975,39 @@ public class RepositoryImpl extends MinimalEObjectImpl.Container implements IRep
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
 			case IAbapgitrepositoriesPackage.REPOSITORY__LINKS:
-				return this.links != null && !this.links.isEmpty();
+				return links != null && !links.isEmpty();
 			case IAbapgitrepositoriesPackage.REPOSITORY__KEY:
-				return KEY_EDEFAULT == null ? this.key != null : !KEY_EDEFAULT.equals(this.key);
+				return KEY_EDEFAULT == null ? key != null : !KEY_EDEFAULT.equals(key);
 			case IAbapgitrepositoriesPackage.REPOSITORY__PACKAGE:
-				return PACKAGE_EDEFAULT == null ? this.package_ != null : !PACKAGE_EDEFAULT.equals(this.package_);
+				return PACKAGE_EDEFAULT == null ? package_ != null : !PACKAGE_EDEFAULT.equals(package_);
+			case IAbapgitrepositoriesPackage.REPOSITORY__FOLDER_LOGIC:
+				return FOLDER_LOGIC_EDEFAULT == null ? folderLogic != null : !FOLDER_LOGIC_EDEFAULT.equals(folderLogic);
 			case IAbapgitrepositoriesPackage.REPOSITORY__URL:
-				return URL_EDEFAULT == null ? this.url != null : !URL_EDEFAULT.equals(this.url);
+				return URL_EDEFAULT == null ? url != null : !URL_EDEFAULT.equals(url);
 			case IAbapgitrepositoriesPackage.REPOSITORY__BRANCH_NAME:
-				return BRANCH_NAME_EDEFAULT == null ? this.branchName != null : !BRANCH_NAME_EDEFAULT.equals(this.branchName);
+				return BRANCH_NAME_EDEFAULT == null ? branchName != null : !BRANCH_NAME_EDEFAULT.equals(branchName);
 			case IAbapgitrepositoriesPackage.REPOSITORY__CREATED_BY:
-				return CREATED_BY_EDEFAULT == null ? this.createdBy != null : !CREATED_BY_EDEFAULT.equals(this.createdBy);
+				return CREATED_BY_EDEFAULT == null ? createdBy != null : !CREATED_BY_EDEFAULT.equals(createdBy);
 			case IAbapgitrepositoriesPackage.REPOSITORY__CREATED_EMAIL:
-				return CREATED_EMAIL_EDEFAULT == null ? this.createdEmail != null : !CREATED_EMAIL_EDEFAULT.equals(this.createdEmail);
+				return CREATED_EMAIL_EDEFAULT == null ? createdEmail != null : !CREATED_EMAIL_EDEFAULT.equals(createdEmail);
 			case IAbapgitrepositoriesPackage.REPOSITORY__CREATED_AT:
-				return CREATED_AT_EDEFAULT == null ? this.createdAt != null : !CREATED_AT_EDEFAULT.equals(this.createdAt);
+				return CREATED_AT_EDEFAULT == null ? createdAt != null : !CREATED_AT_EDEFAULT.equals(createdAt);
 			case IAbapgitrepositoriesPackage.REPOSITORY__DESERIALIZED_AT:
-				return DESERIALIZED_AT_EDEFAULT == null ? this.deserializedAt != null : !DESERIALIZED_AT_EDEFAULT.equals(this.deserializedAt);
+				return DESERIALIZED_AT_EDEFAULT == null ? deserializedAt != null : !DESERIALIZED_AT_EDEFAULT.equals(deserializedAt);
 			case IAbapgitrepositoriesPackage.REPOSITORY__DESERIALIZED_EMAIL:
-				return DESERIALIZED_EMAIL_EDEFAULT == null ? this.deserializedEmail != null : !DESERIALIZED_EMAIL_EDEFAULT.equals(this.deserializedEmail);
+				return DESERIALIZED_EMAIL_EDEFAULT == null ? deserializedEmail != null : !DESERIALIZED_EMAIL_EDEFAULT.equals(deserializedEmail);
 			case IAbapgitrepositoriesPackage.REPOSITORY__DESERIALIZED_BY:
-				return DESERIALIZED_BY_EDEFAULT == null ? this.deserializedBy != null : !DESERIALIZED_BY_EDEFAULT.equals(this.deserializedBy);
+				return DESERIALIZED_BY_EDEFAULT == null ? deserializedBy != null : !DESERIALIZED_BY_EDEFAULT.equals(deserializedBy);
 			case IAbapgitrepositoriesPackage.REPOSITORY__STATUS:
-				return STATUS_EDEFAULT == null ? this.status != null : !STATUS_EDEFAULT.equals(this.status);
+				return STATUS_EDEFAULT == null ? status != null : !STATUS_EDEFAULT.equals(status);
 			case IAbapgitrepositoriesPackage.REPOSITORY__STATUS_TEXT:
-				return STATUS_TEXT_EDEFAULT == null ? this.statusText != null : !STATUS_TEXT_EDEFAULT.equals(this.statusText);
+				return STATUS_TEXT_EDEFAULT == null ? statusText != null : !STATUS_TEXT_EDEFAULT.equals(statusText);
 			case IAbapgitrepositoriesPackage.REPOSITORY__REMOTE_USER:
-				return REMOTE_USER_EDEFAULT == null ? this.remoteUser != null : !REMOTE_USER_EDEFAULT.equals(this.remoteUser);
+				return REMOTE_USER_EDEFAULT == null ? remoteUser != null : !REMOTE_USER_EDEFAULT.equals(remoteUser);
 			case IAbapgitrepositoriesPackage.REPOSITORY__REMOTE_PASSWORD:
-				return REMOTE_PASSWORD_EDEFAULT == null ? this.remotePassword != null : !REMOTE_PASSWORD_EDEFAULT.equals(this.remotePassword);
+				return REMOTE_PASSWORD_EDEFAULT == null ? remotePassword != null : !REMOTE_PASSWORD_EDEFAULT.equals(remotePassword);
 			case IAbapgitrepositoriesPackage.REPOSITORY__TRANSPORT_REQUEST:
-				return TRANSPORT_REQUEST_EDEFAULT == null ? this.transportRequest != null : !TRANSPORT_REQUEST_EDEFAULT.equals(this.transportRequest);
+				return TRANSPORT_REQUEST_EDEFAULT == null ? transportRequest != null : !TRANSPORT_REQUEST_EDEFAULT.equals(transportRequest);
 		}
 		return super.eIsSet(featureID);
 	}
@@ -980,41 +1019,41 @@ public class RepositoryImpl extends MinimalEObjectImpl.Container implements IRep
 	 */
 	@Override
 	public String toString() {
-		if (eIsProxy()) {
-			return super.toString();
-		}
+		if (eIsProxy()) return super.toString();
 
 		StringBuilder result = new StringBuilder(super.toString());
 		result.append(" (key: ");
-		result.append(this.key);
+		result.append(key);
 		result.append(", package: ");
-		result.append(this.package_);
+		result.append(package_);
+		result.append(", folderLogic: ");
+		result.append(folderLogic);
 		result.append(", url: ");
-		result.append(this.url);
+		result.append(url);
 		result.append(", branchName: ");
-		result.append(this.branchName);
+		result.append(branchName);
 		result.append(", createdBy: ");
-		result.append(this.createdBy);
+		result.append(createdBy);
 		result.append(", createdEmail: ");
-		result.append(this.createdEmail);
+		result.append(createdEmail);
 		result.append(", createdAt: ");
-		result.append(this.createdAt);
+		result.append(createdAt);
 		result.append(", deserializedAt: ");
-		result.append(this.deserializedAt);
+		result.append(deserializedAt);
 		result.append(", deserializedEmail: ");
-		result.append(this.deserializedEmail);
+		result.append(deserializedEmail);
 		result.append(", deserializedBy: ");
-		result.append(this.deserializedBy);
+		result.append(deserializedBy);
 		result.append(", status: ");
-		result.append(this.status);
+		result.append(status);
 		result.append(", statusText: ");
-		result.append(this.statusText);
+		result.append(statusText);
 		result.append(", remoteUser: ");
-		result.append(this.remoteUser);
+		result.append(remoteUser);
 		result.append(", remotePassword: ");
-		result.append(this.remotePassword);
+		result.append(remotePassword);
 		result.append(", transportRequest: ");
-		result.append(this.transportRequest);
+		result.append(transportRequest);
 		result.append(')');
 		return result.toString();
 	}
