@@ -36,6 +36,7 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -313,15 +314,23 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 				}
 			}
 
-			if (this.cloneData.repositories != null) {
-				// read atom link from repositories and check for feature availability for folder logic support
-				if (!AbapGitUIServiceFactory.createAbapGitService().isFolderLogicSupportedWhileLink(this.cloneData.repositories)) {
+			setFolderLogicControlVisibility();
+			fetchApackManifest();
+		}
+	}
+
+	private void setFolderLogicControlVisibility() {
+		if (this.cloneData.repositories != null) {
+			// read atom link from repositories and check for feature availability for folder logic support
+			if (!AbapGitUIServiceFactory.createAbapGitService().isFolderLogicSupportedWhileLink(this.cloneData.repositories)) {
+				if (this.lblFolderLogic != null) {
 					this.lblFolderLogic.setVisible(false);
 					this.comboFolderLogic.getCombo().setVisible(false);
+					((GridData) this.lblFolderLogic.getLayoutData()).exclude = true;
+					((GridData) this.comboFolderLogic.getCombo().getLayoutData()).exclude = true;
+					this.lblFolderLogic.getParent().layout();
 				}
 			}
-
-			fetchApackManifest();
 		}
 	}
 
