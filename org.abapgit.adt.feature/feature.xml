@@ -2,7 +2,7 @@
 <feature
       id="org.abapgit.adt.feature"
       label="abapGit for ABAP Development Tools (ADT)"
-      version="1.5.3">
+      version="1.6.0">
 
    <description url="http://abapgit.org">
       abapGit plugin for ABAP Development Tools (ADT)
