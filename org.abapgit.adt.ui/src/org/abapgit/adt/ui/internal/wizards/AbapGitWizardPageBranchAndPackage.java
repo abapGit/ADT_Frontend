@@ -34,6 +34,8 @@ import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -176,6 +178,17 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 			this.cloneData.folderLogic = IRepository.FolderLogic.PREFIX.name();
 			this.comboFolderLogic.addSelectionChangedListener(
 					event -> this.cloneData.folderLogic = this.comboFolderLogic.getStructuredSelection().getFirstElement().toString());
+			this.comboFolderLogic.getCombo().addFocusListener(new FocusListener() {
+				@Override
+				public void focusLost(FocusEvent e) {
+					setMessage(Messages.AbapGitWizardPageBranchAndPackage_description);
+				}
+
+				@Override
+				public void focusGained(FocusEvent e) {
+					setMessage(Messages.AbapGitWizardPageBranchAndPackage_folder_logic_info, INFORMATION);
+				}
+			});
 
 			// checkbox for executing pull after repository linking
 			this.checkbox_lnp = new Button(container, SWT.CHECK);
