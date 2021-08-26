@@ -186,13 +186,22 @@ public interface IAbapgitrepositoriesPackage extends EPackage {
 	int REPOSITORY__PACKAGE = 2;
 
 	/**
+	 * The feature id for the '<em><b>Folder Logic</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int REPOSITORY__FOLDER_LOGIC = 3;
+
+	/**
 	 * The feature id for the '<em><b>Url</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int REPOSITORY__URL = 3;
+	int REPOSITORY__URL = 4;
 
 	/**
 	 * The feature id for the '<em><b>Branch Name</b></em>' attribute.
@@ -201,7 +210,7 @@ public interface IAbapgitrepositoriesPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REPOSITORY__BRANCH_NAME = 4;
+	int REPOSITORY__BRANCH_NAME = 5;
 
 	/**
 	 * The feature id for the '<em><b>Created By</b></em>' attribute.
@@ -210,7 +219,7 @@ public interface IAbapgitrepositoriesPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REPOSITORY__CREATED_BY = 5;
+	int REPOSITORY__CREATED_BY = 6;
 
 	/**
 	 * The feature id for the '<em><b>Created Email</b></em>' attribute.
@@ -219,7 +228,7 @@ public interface IAbapgitrepositoriesPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REPOSITORY__CREATED_EMAIL = 6;
+	int REPOSITORY__CREATED_EMAIL = 7;
 
 	/**
 	 * The feature id for the '<em><b>Created At</b></em>' attribute.
@@ -228,7 +237,7 @@ public interface IAbapgitrepositoriesPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REPOSITORY__CREATED_AT = 7;
+	int REPOSITORY__CREATED_AT = 8;
 
 	/**
 	 * The feature id for the '<em><b>Deserialized At</b></em>' attribute.
@@ -237,7 +246,7 @@ public interface IAbapgitrepositoriesPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REPOSITORY__DESERIALIZED_AT = 8;
+	int REPOSITORY__DESERIALIZED_AT = 9;
 
 	/**
 	 * The feature id for the '<em><b>Deserialized Email</b></em>' attribute.
@@ -246,7 +255,7 @@ public interface IAbapgitrepositoriesPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REPOSITORY__DESERIALIZED_EMAIL = 9;
+	int REPOSITORY__DESERIALIZED_EMAIL = 10;
 
 	/**
 	 * The feature id for the '<em><b>Deserialized By</b></em>' attribute.
@@ -255,7 +264,7 @@ public interface IAbapgitrepositoriesPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REPOSITORY__DESERIALIZED_BY = 10;
+	int REPOSITORY__DESERIALIZED_BY = 11;
 
 	/**
 	 * The feature id for the '<em><b>Status</b></em>' attribute.
@@ -264,7 +273,7 @@ public interface IAbapgitrepositoriesPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REPOSITORY__STATUS = 11;
+	int REPOSITORY__STATUS = 12;
 
 	/**
 	 * The feature id for the '<em><b>Status Text</b></em>' attribute.
@@ -273,7 +282,7 @@ public interface IAbapgitrepositoriesPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REPOSITORY__STATUS_TEXT = 12;
+	int REPOSITORY__STATUS_TEXT = 13;
 
 	/**
 	 * The feature id for the '<em><b>Remote User</b></em>' attribute.
@@ -282,7 +291,7 @@ public interface IAbapgitrepositoriesPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REPOSITORY__REMOTE_USER = 13;
+	int REPOSITORY__REMOTE_USER = 14;
 
 	/**
 	 * The feature id for the '<em><b>Remote Password</b></em>' attribute.
@@ -291,7 +300,7 @@ public interface IAbapgitrepositoriesPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REPOSITORY__REMOTE_PASSWORD = 14;
+	int REPOSITORY__REMOTE_PASSWORD = 15;
 
 	/**
 	 * The feature id for the '<em><b>Transport Request</b></em>' attribute.
@@ -300,7 +309,7 @@ public interface IAbapgitrepositoriesPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REPOSITORY__TRANSPORT_REQUEST = 15;
+	int REPOSITORY__TRANSPORT_REQUEST = 16;
 
 	/**
 	 * The number of structural features of the '<em>Repository</em>' class.
@@ -309,7 +318,7 @@ public interface IAbapgitrepositoriesPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int REPOSITORY_FEATURE_COUNT = 16;
+	int REPOSITORY_FEATURE_COUNT = 17;
 
 	/**
 	 * The number of operations of the '<em>Repository</em>' class.
@@ -340,13 +349,22 @@ public interface IAbapgitrepositoriesPackage extends EPackage {
 	int REPOSITORIES__REPOSITORIES = 0;
 
 	/**
+	 * The feature id for the '<em><b>Links</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int REPOSITORIES__LINKS = 1;
+
+	/**
 	 * The number of structural features of the '<em>Repositories</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int REPOSITORIES_FEATURE_COUNT = 1;
+	int REPOSITORIES_FEATURE_COUNT = 2;
 
 	/**
 	 * The number of operations of the '<em>Repositories</em>' class.
@@ -473,6 +491,17 @@ public interface IAbapgitrepositoriesPackage extends EPackage {
 	 * @generated
 	 */
 	EAttribute getRepository_Package();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.abapgit.adt.backend.model.abapgitrepositories.IRepository#getFolderLogic <em>Folder Logic</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Folder Logic</em>'.
+	 * @see org.abapgit.adt.backend.model.abapgitrepositories.IRepository#getFolderLogic()
+	 * @see #getRepository()
+	 * @generated
+	 */
+	EAttribute getRepository_FolderLogic();
 
 	/**
 	 * Returns the meta object for the attribute '{@link org.abapgit.adt.backend.model.abapgitrepositories.IRepository#getUrl <em>Url</em>}'.
@@ -639,6 +668,17 @@ public interface IAbapgitrepositoriesPackage extends EPackage {
 	EReference getRepositories_Repositories();
 
 	/**
+	 * Returns the meta object for the containment reference list '{@link org.abapgit.adt.backend.model.abapgitrepositories.IRepositories#getLinks <em>Links</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Links</em>'.
+	 * @see org.abapgit.adt.backend.model.abapgitrepositories.IRepositories#getLinks()
+	 * @see #getRepositories()
+	 * @generated
+	 */
+	EReference getRepositories_Links();
+
+	/**
 	 * Returns the meta object for class '{@link org.abapgit.adt.backend.model.abapgitrepositories.IDocumentRoot <em>Document Root</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -761,6 +801,14 @@ public interface IAbapgitrepositoriesPackage extends EPackage {
 		EAttribute REPOSITORY__PACKAGE = eINSTANCE.getRepository_Package();
 
 		/**
+		 * The meta object literal for the '<em><b>Folder Logic</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute REPOSITORY__FOLDER_LOGIC = eINSTANCE.getRepository_FolderLogic();
+
+		/**
 		 * The meta object literal for the '<em><b>Url</b></em>' attribute feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
@@ -881,6 +929,14 @@ public interface IAbapgitrepositoriesPackage extends EPackage {
 		 * @generated
 		 */
 		EReference REPOSITORIES__REPOSITORIES = eINSTANCE.getRepositories_Repositories();
+
+		/**
+		 * The meta object literal for the '<em><b>Links</b></em>' containment reference list feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference REPOSITORIES__LINKS = eINSTANCE.getRepositories_Links();
 
 		/**
 		 * The meta object literal for the '{@link org.abapgit.adt.backend.model.abapgitrepositories.impl.DocumentRootImpl <em>Document Root</em>}' class.

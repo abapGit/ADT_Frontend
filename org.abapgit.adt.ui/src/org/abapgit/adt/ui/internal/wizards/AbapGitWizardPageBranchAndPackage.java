@@ -34,8 +34,11 @@ import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -62,6 +65,8 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 	private Boolean chboxLinkAndPull;
 	private TextViewer txtPackage;
 	private ComboViewer comboBranches;
+	private Label lblFolderLogic;
+	private ComboViewer comboFolderLogic;
 
 	private final Boolean pullAction;
 	private boolean backButtonEnabled = true;
@@ -157,15 +162,39 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 			}
 		});
 
-		//-> Show checkbox only in link wizard
+		// if the page is added for repository link wizard
 		if (!this.pullAction) {
-			/////// CHECKBOX Link & Pull
+			//read atom link for folder logic. if present create the controls
+			this.lblFolderLogic = new Label(container, SWT.NONE);
+			this.lblFolderLogic.setText(Messages.AbapGitWizardPageBranchAndPackage_label_folder_logic);
+			GridDataFactory.swtDefaults().applyTo(this.lblFolderLogic);
 
+			this.comboFolderLogic = new ComboViewer(container, SWT.BORDER | SWT.READ_ONLY);
+			GridDataFactory.swtDefaults().span(2, 0).align(SWT.FILL, SWT.CENTER).grab(true, false)
+					.applyTo(this.comboFolderLogic.getControl());
+			this.comboFolderLogic.setContentProvider(ArrayContentProvider.getInstance());
+			this.comboFolderLogic.setInput(IRepository.FolderLogic.values());
+			this.comboFolderLogic.setSelection(new StructuredSelection(IRepository.FolderLogic.PREFIX));
+			this.cloneData.folderLogic = IRepository.FolderLogic.PREFIX.name();
+			this.comboFolderLogic.addSelectionChangedListener(
+					event -> this.cloneData.folderLogic = this.comboFolderLogic.getStructuredSelection().getFirstElement().toString());
+			this.comboFolderLogic.getCombo().addFocusListener(new FocusListener() {
+				@Override
+				public void focusLost(FocusEvent e) {
+					setMessage(Messages.AbapGitWizardPageBranchAndPackage_description);
+				}
+
+				@Override
+				public void focusGained(FocusEvent e) {
+					setMessage(Messages.AbapGitWizardPageBranchAndPackage_folder_logic_info, INFORMATION);
+				}
+			});
+
+			// checkbox for executing pull after repository linking
 			this.checkbox_lnp = new Button(container, SWT.CHECK);
 			this.checkbox_lnp.setText(Messages.AbapGitWizardPageBranchAndPackage_chbox_activate);
 			this.checkbox_lnp.setToolTipText(Messages.AbapGitWizardPageBranchAndPackage_chbox_activate_tooltip);
 			GridDataFactory.swtDefaults().applyTo(this.checkbox_lnp);
-
 
 			this.checkbox_lnp.addSelectionListener(new SelectionAdapter() {
 				@Override
@@ -298,9 +327,26 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 				}
 			}
 
+			setFolderLogicControlVisibility();
 			fetchApackManifest();
 		}
 	}
+
+	private void setFolderLogicControlVisibility() {
+		if (this.cloneData.repositories != null) {
+			// read atom link from repositories and check for feature availability for folder logic support
+			if (!AbapGitUIServiceFactory.createAbapGitService().isFolderLogicSupportedWhileLink(this.cloneData.repositories)) {
+				if (this.lblFolderLogic != null) {
+					this.lblFolderLogic.setVisible(false);
+					this.comboFolderLogic.getCombo().setVisible(false);
+					((GridData) this.lblFolderLogic.getLayoutData()).exclude = true;
+					((GridData) this.comboFolderLogic.getCombo().getLayoutData()).exclude = true;
+					this.lblFolderLogic.getParent().layout();
+				}
+			}
+		}
+	}
+
 
 	@Override
 	public boolean canFlipToNextPage() {

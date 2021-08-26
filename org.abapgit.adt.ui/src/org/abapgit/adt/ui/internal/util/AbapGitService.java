@@ -2,6 +2,7 @@ package org.abapgit.adt.ui.internal.util;
 
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
+import org.abapgit.adt.backend.model.abapgitrepositories.IRepositories;
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitFile;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject;
@@ -59,11 +60,20 @@ public class AbapGitService implements IAbapGitService {
 		return service != null ? true : false;
 	}
 
+	public boolean isFolderLogicSupportedWhileLink(IRepositories repositories) {
+		for (IAtomLink link : repositories.getLinks()) {
+			if (link.getRel().equalsIgnoreCase(IRepositoryService.RELATION_FOLDER_LOGIC)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	//TODO: Remove after 2105 back end release supporting selective pull reaches all customers
 	@Override
 	public boolean isSelectivePullSupported(IRepository repository) {
 		/*
-		 * Disable the selective pull temporarily because of the incident https://support.wdf.sap.corp/sap/support/message/2170159859. 
+		 * Disable the selective pull temporarily because of the incident https://support.wdf.sap.corp/sap/support/message/2170159859.
 		 * Selective pull backend call runs into error while PULL as it somehow involves package creation which requires a transport request to be passed on.
 		 */
 

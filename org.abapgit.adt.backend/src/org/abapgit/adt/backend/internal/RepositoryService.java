@@ -72,12 +72,13 @@ public class RepositoryService implements IRepositoryService {
 	}
 
 	@Override
-	public IAbapObjects cloneRepository(String url, String branch, String targetPackage, String transportRequest, String user,
-			String password, IProgressMonitor monitor) {
+	public IAbapObjects cloneRepository(String url, String branch, String targetPackage, String folderLogic, String transportRequest,
+			String user, String password, IProgressMonitor monitor) {
 
 		IRepository repository = AbapgitrepositoriesFactoryImpl.eINSTANCE.createRepository();
 		repository.setUrl(url);
 		repository.setPackage(targetPackage);
+		repository.setFolderLogic(folderLogic);
 		repository.setBranchName(branch);
 		if (user != null && !user.isEmpty()) {
 			repository.setRemoteUser(user);
