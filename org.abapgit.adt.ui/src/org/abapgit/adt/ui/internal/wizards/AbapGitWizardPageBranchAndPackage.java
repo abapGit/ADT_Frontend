@@ -174,18 +174,20 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 					.applyTo(this.comboFolderLogic.getControl());
 			this.comboFolderLogic.setContentProvider(ArrayContentProvider.getInstance());
 			this.comboFolderLogic.setInput(IRepository.FolderLogic.values());
-			this.comboFolderLogic.setSelection(new StructuredSelection(IRepository.FolderLogic.PREFIX));
-			this.cloneData.folderLogic = IRepository.FolderLogic.PREFIX.name();
+			this.comboFolderLogic.setSelection(new StructuredSelection(IRepository.FolderLogic.FULL));
+			this.cloneData.folderLogic = IRepository.FolderLogic.FULL.name();
 			this.comboFolderLogic.addSelectionChangedListener(
 					event -> this.cloneData.folderLogic = this.comboFolderLogic.getStructuredSelection().getFirstElement().toString());
 			this.comboFolderLogic.getCombo().addFocusListener(new FocusListener() {
 				@Override
 				public void focusLost(FocusEvent e) {
+					setMessage(null);
 					setMessage(Messages.AbapGitWizardPageBranchAndPackage_description);
 				}
 
 				@Override
 				public void focusGained(FocusEvent e) {
+					setMessage(null);
 					setMessage(Messages.AbapGitWizardPageBranchAndPackage_folder_logic_info, INFORMATION);
 				}
 			});
