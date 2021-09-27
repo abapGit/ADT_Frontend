@@ -128,7 +128,7 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 
 		});
 
-		createTreeViewerColumn("Type", 50).setLabelProvider(new ColumnLabelProvider() { //$NON-NLS-1$
+		createTreeViewerColumn("Type", 20).setLabelProvider(new ColumnLabelProvider() { //$NON-NLS-1$
 			@Override
 			public String getText(Object element) {
 				if (element instanceof IAbapGitObject) {
@@ -145,6 +145,7 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 		viewerColumn.getColumn().setText(title);
 		this.treeColumnLayout.setColumnData(viewerColumn.getColumn(), new ColumnWeightData(20, bound, true));
 		return viewerColumn;
+
 	}
 
 	@Override
