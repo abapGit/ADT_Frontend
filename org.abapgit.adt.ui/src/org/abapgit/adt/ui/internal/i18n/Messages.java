@@ -77,6 +77,7 @@ public class Messages extends NLS {
 	public static String AbapGitWizardPageBranchAndPackage_btn_browse;
 	public static String AbapGitWizardPageBranchAndPackage_combobox_branch_message;
 	public static String AbapGitWizardPageBranchAndPackage_description;
+	public static String AbapGitWizardPageBranchAndPackageAndFolderLogic_description;
 	public static String AbapGitWizardPageBranchAndPackage_label_branch;
 	public static String AbapGitWizardPageBranchAndPackage_label_package;
 	public static String AbapGitWizardPageBranchAndPackage_label_folder_logic;
