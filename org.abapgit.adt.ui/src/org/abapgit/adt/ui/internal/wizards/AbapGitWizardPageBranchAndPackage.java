@@ -182,7 +182,7 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 				@Override
 				public void focusLost(FocusEvent e) {
 					setMessage(null);
-					setMessage(Messages.AbapGitWizardPageBranchAndPackage_description);
+					setMessage(Messages.AbapGitWizardPageBranchAndPackageAndFolderLogic_description);
 				}
 
 				@Override
@@ -344,6 +344,11 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 					((GridData) this.lblFolderLogic.getLayoutData()).exclude = true;
 					((GridData) this.comboFolderLogic.getCombo().getLayoutData()).exclude = true;
 					this.lblFolderLogic.getParent().layout();
+				}
+			} else {
+				if (!this.pullAction) {
+					setDescription(null);
+					setDescription(Messages.AbapGitWizardPageBranchAndPackageAndFolderLogic_description);
 				}
 			}
 		}
