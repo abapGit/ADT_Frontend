@@ -3,14 +3,14 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
   <modelVersion>4.0.0</modelVersion>
   <artifactId>org.abapgit.adt.backend</artifactId>
   <groupId>org.abapgit.adt</groupId>
-  <version>1.6.3</version>
+  <version>1.6.4</version>
   <name>org.abapgit.adt.backend</name>
   <packaging>eclipse-plugin</packaging>
 
   <parent>
     <artifactId>org.abapgit.adt.parent</artifactId>
     <groupId>org.abapgit.adt</groupId>
-    <version>1.6.3</version>
+    <version>1.6.4</version>
     <relativePath>../</relativePath>
   </parent>
 
