@@ -353,18 +353,20 @@ public class CompareAction extends BaseSelectionListenerAction {
 	}
 
 	/**
+	 * Retrieves the credentials for a given repository from the secure storage
+	 * if it exists. This method is not moved to GitCredentialsService, as it
+	 * should not be a public method
 	 *
 	 * @param repositoryURL
 	 * @return the credentials from Secure Store for the given repository url
 	 */
-
 	private static IExternalRepositoryInfoRequest getRepoCredentialsFromSecureStorage(String repositoryURL) {
 		if (repositoryURL == null) {
 			return null;
 		}
 		ISecurePreferences preferences = SecurePreferencesFactory.getDefault();
 		String slashEncodedURL = GitCredentialsService.getUrlForNodePath(repositoryURL);
-		if (slashEncodedURL != null && preferences.nodeExists(slashEncodedURL)) {
+		if (slashEncodedURL != null && preferences != null && preferences.nodeExists(slashEncodedURL)) {
 			ISecurePreferences node = preferences.node(slashEncodedURL);
 			IExternalRepositoryInfoRequest credentials = AbapgitexternalrepoFactoryImpl.eINSTANCE.createExternalRepositoryInfoRequest();
 
@@ -373,6 +375,10 @@ public class CompareAction extends BaseSelectionListenerAction {
 				credentials.setPassword(node.get("password", null)); //$NON-NLS-1$
 			} catch (StorageException e) {
 				AbapGitUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getMessage(), e));
+				return null;
+			}
+			if (credentials.getPassword() == null || credentials.getUser() == null) {
+				return null;
 			}
 			credentials.setUrl(repositoryURL);
 			return credentials;

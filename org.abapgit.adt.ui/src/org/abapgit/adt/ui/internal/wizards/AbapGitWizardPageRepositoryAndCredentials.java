@@ -138,7 +138,8 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 			validateAll();
 		}
 
-		if ((this.repositoryCredentials = getRepoCredentialsFromSecureStorage(this.cloneData.url)) != null) {
+		if ((this.repositoryCredentials = getRepoCredentialsFromSecureStorage(this.cloneData.url)) != null
+				&& this.repositoryCredentials.getUser() != null && this.repositoryCredentials.getPassword() != null) {
 			this.txtUser.setText(this.repositoryCredentials.getUser());
 			this.txtPwd.setText(this.repositoryCredentials.getPassword());
 			validateClientOnly();
@@ -345,14 +346,21 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 		this.lblPwd.setVisible(visible);
 	}
 
-	//Retrieve credentials for the given repositoryURL from Secure Store (if they exist)
+	/**
+	 * Retrieves the credentials for a given repository from the secure storage
+	 * if it exists. This method is not moved to GitCredentialsService, as it
+	 * should not be a public method
+	 *
+	 * @param repositoryURL
+	 * @return the credentials from Secure Store for the given repository url
+	 */
 	private static IExternalRepositoryInfoRequest getRepoCredentialsFromSecureStorage(String url) {
 		if (url == null) {
 			return null;
 		}
 		ISecurePreferences preferences = SecurePreferencesFactory.getDefault();
 		String slashEncodedURL = GitCredentialsService.getUrlForNodePath(url);
-		if (slashEncodedURL != null && preferences.nodeExists(slashEncodedURL)) {
+		if (slashEncodedURL != null && preferences != null && preferences.nodeExists(slashEncodedURL)) {
 			ISecurePreferences node = preferences.node(slashEncodedURL);
 
 			IExternalRepositoryInfoRequest credentials = AbapgitexternalrepoFactoryImpl.eINSTANCE.createExternalRepositoryInfoRequest();
@@ -362,6 +370,10 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 				credentials.setPassword(node.get("password", null)); //$NON-NLS-1$
 			} catch (StorageException e) {
 				AbapGitUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getMessage(), e));
+				return null;
+			}
+			if (credentials.getPassword() == null || credentials.getUser() == null) {
+				return null;
 			}
 			credentials.setUrl(url);
 			return credentials;
