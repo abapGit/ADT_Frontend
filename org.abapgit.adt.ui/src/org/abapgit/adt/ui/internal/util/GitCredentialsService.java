@@ -133,11 +133,16 @@ public class GitCredentialsService {
 				ISecurePreferences preferences = SecurePreferencesFactory.open(null, options);
 				if (preferences != null && hashedURL != null) {
 					ISecurePreferences node = preferences.node(hashedURL);
-					node.put("user", repositoryCredentials.getUser(), false); //$NON-NLS-1$
-					node.put("password", repositoryCredentials.getPassword(), true); //$NON-NLS-1$
+					if (node != null) {
+						node.put("user", repositoryCredentials.getUser(), false); //$NON-NLS-1$
+						node.put("password", repositoryCredentials.getPassword(), true); //$NON-NLS-1$
+					}
 				}
 			} catch (IOException | StorageException e) {
 				AbapGitUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getMessage(), e));
+
+				GitCredentialsService.deleteCredentialsFromSecureStorage(repositoryURL); // if anything stored in the secure storage
+
 			}
 		}
 
@@ -155,7 +160,7 @@ public class GitCredentialsService {
 		}
 		ISecurePreferences preferences = SecurePreferencesFactory.getDefault();
 		String hashedURL = getUrlForNodePath(repositoryURL);
-		if (hashedURL != null && preferences.nodeExists(hashedURL)) {
+		if (hashedURL != null && preferences != null && preferences.nodeExists(hashedURL)) {
 			ISecurePreferences node = preferences.node(hashedURL);
 			node.removeNode();
 		}
