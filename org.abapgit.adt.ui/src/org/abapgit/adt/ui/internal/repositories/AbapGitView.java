@@ -98,6 +98,8 @@ import com.sap.adt.tools.core.project.IAbapProject;
 import com.sap.adt.tools.core.ui.navigation.AdtNavigationServiceFactory;
 import com.sap.adt.tools.core.ui.packages.AdtPackageServiceUIFactory;
 import com.sap.adt.tools.core.ui.packages.IAdtPackageServiceUI;
+import com.sap.adt.tools.core.ui.userinfo.AdtUserInfoFormatterFactory;
+import com.sap.adt.tools.core.ui.userinfo.IAdtUserInfoFormatter;
 
 public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 
@@ -754,6 +756,11 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 
 		if (lastChangedBy == null || lastChangedBy.isEmpty()) {
 			lastChangedBy = repo.getCreatedBy();
+
+			// format the user name to display the full name along with the user id
+			String destinationId = AbapGitView.this.abapGitService.getDestination(AbapGitView.this.lastProject);
+			lastChangedBy = AdtUserInfoFormatterFactory.createAdtUserInfoFormatter().format(new NullProgressMonitor(), destinationId,
+					lastChangedBy, IAdtUserInfoFormatter.FormatStyle.ID_AND_USERNAME_IN_BRACKETS);
 		}
 		return lastChangedBy;
 	}
