@@ -19,6 +19,7 @@ import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.repositories.IRepositoryModifiedObjects;
 import org.abapgit.adt.ui.internal.util.AbapGitUIServiceFactory;
+import org.abapgit.adt.ui.internal.util.ErrorHandlingService;
 import org.abapgit.adt.ui.internal.util.IAbapGitService;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
@@ -32,8 +33,10 @@ import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.jface.wizard.WizardPage;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
+import com.sap.adt.communication.resources.ResourceException;
 import com.sap.adt.tools.core.model.adtcore.IAdtCoreFactory;
 import com.sap.adt.tools.core.model.adtcore.IAdtObjectReference;
 import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
@@ -48,7 +51,6 @@ public class AbapGitWizard extends Wizard {
 	private final IProject project;
 	private final String destination;
 	private final CloneData cloneData;
-	private boolean pullRequested = false;
 	private String transportRequest;
 	private PageChangeListener pageChangeListener;
 
@@ -57,6 +59,8 @@ public class AbapGitWizard extends Wizard {
 	private AbapGitWizardPageApack pageApack;
 	private IAdtTransportService transportService;
 	private IAdtTransportSelectionWizardPage transportPage;
+
+	private final String ErrorMessageRetrievingLinkedRepo = "Error retrieving linked repository or the link action itself failed. Check abapGit repositories view."; //$NON-NLS-1$
 
 	public AbapGitWizard(IProject project) {
 		this.project = project;
@@ -69,20 +73,6 @@ public class AbapGitWizard extends Wizard {
 
 		setDefaultPageImageDescriptor(
 				AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID, "icons/wizban/abapGit_import_wizban.png")); //$NON-NLS-1$
-	}
-
-	// Getters for cloneData, transportRequest and if pull after link is requested are required for Pulling Objects after the Link Wizard is finished.
-	//The wizard AbapGitWizardSelectivePull is responsible for pulling after link is done in case it is requested and if Selective Pull is supported.
-	public CloneData getCloneData() {
-		return this.cloneData;
-	}
-
-	public boolean isPullRequested() {
-		return this.pullRequested;
-	}
-
-	public String getTransportRequest() {
-		return this.transportRequest;
 	}
 
 	@Override
@@ -113,7 +103,6 @@ public class AbapGitWizard extends Wizard {
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 
 					Boolean sequenceLnp = AbapGitWizard.this.pageBranchAndPackage.getLnpSequence();
-					AbapGitWizard.this.pullRequested = sequenceLnp;
 
 					monitor.beginTask(Messages.AbapGitWizard_task_cloning_repository, IProgressMonitor.UNKNOWN);
 					IRepositoryService repoService = RepositoryServiceFactory.createRepositoryService(AbapGitWizard.this.destination,
@@ -141,12 +130,19 @@ public class AbapGitWizard extends Wizard {
 							IRepository linkedRepo = repoService.getRepositoryByURL(repoService.getRepositories(monitor),
 									AbapGitWizard.this.cloneData.url);
 
+							if (linkedRepo == null) {
+								//if due to some reason the linkedRepo is not returned by the URL
+								throw new InterruptedException(AbapGitWizard.this.ErrorMessageRetrievingLinkedRepo);
+							}
 							//TODO: Remove
 							//This is valid only for back end versions before 2105 where selective pull is not supported.
 							//Required for Compatibility handling for Selective Pull
 							// If selectivePull is not supported pull all objects from the repositories.
 							// Otherwise a new wizard is opened to allow selective pulling of objects
-							if (!abapGitService.isSelectivePullSupported(linkedRepo)) {
+							if (abapGitService.isSelectivePullSupported(linkedRepo)) {
+								openSelectivePullWizard();
+							} else {
+								//Pull all objects for linked repositories
 								pullLinkedRepositories(monitor, repoService, repositoriesToLink);
 							}
 						}
@@ -166,12 +162,19 @@ public class AbapGitWizard extends Wizard {
 							IRepository linkedRepo = repoService.getRepositoryByURL(repoService.getRepositories(monitor),
 									AbapGitWizard.this.cloneData.url);
 
+							if (linkedRepo == null) {
+								//if due to some reason the linkedRepo is not returned by the URL
+								throw new InterruptedException(AbapGitWizard.this.ErrorMessageRetrievingLinkedRepo);
+							}
+
 							//TODO: Remove
 							//This is valid only for back end versions before 2105 where selective pull is not supported.
 							//Required for Compatibility handling for Selective Pull
 							// If selectivePull is not supported, pull all objects from the repository.
 							// Otherwise a new wizard is opened to allow selective pulling of objects
-							if (!abapGitService.isSelectivePullSupported(linkedRepo)) {
+							if (abapGitService.isSelectivePullSupported(linkedRepo)) {
+								openSelectivePullWizard();
+							} else {
 								//-> Pull newly linked repository
 								repoService.pullRepository(linkedRepo, AbapGitWizard.this.cloneData.branch,
 										AbapGitWizard.this.transportPage.getTransportRequestNumber(), AbapGitWizard.this.cloneData.user,
@@ -198,7 +201,8 @@ public class AbapGitWizard extends Wizard {
 
 			return true;
 		} catch (InterruptedException e) {
-
+			((WizardPage) getContainer().getCurrentPage()).setPageComplete(false);
+			((WizardPage) getContainer().getCurrentPage()).setMessage(e.getMessage(), DialogPage.ERROR);
 			return false;
 		} catch (InvocationTargetException e) {
 			((WizardPage) getContainer().getCurrentPage()).setPageComplete(false);
@@ -326,6 +330,32 @@ public class AbapGitWizard extends Wizard {
 		public boolean hasDependencies() {
 			return this.apackManifest != null && this.apackManifest.hasDependencies();
 		}
+	}
+
+	/**
+	 * For pull after link. Opens a wizard to allow selection of objects to be
+	 * pulled for the linked repository. In case the linked repository has APACK
+	 * dependencies, the wizard allows to select objects to be pulled for each
+	 * of these repositories.
+	 */
+	private void openSelectivePullWizard() {
+
+		AbapGitWizardSelectivePullAfterLink selectivePullWizard = new AbapGitWizardSelectivePullAfterLink(this.project, this.cloneData,
+				this.transportRequest);
+
+		Display.getDefault().asyncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					try {
+					WizardDialog wizardDialog = new WizardDialog(Display.getDefault().getActiveShell(), selectivePullWizard);
+					wizardDialog.open();
+				} catch (ResourceException e) {
+					ErrorHandlingService.openErrorDialog(Messages.AbapGitView_context_pull_error, e.getMessage(), getShell(), true);
+				}
+				}
+			});
+
 	}
 
 }
