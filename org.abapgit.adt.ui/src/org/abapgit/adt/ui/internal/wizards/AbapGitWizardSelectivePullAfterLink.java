@@ -53,6 +53,10 @@ public class AbapGitWizardSelectivePullAfterLink extends Wizard {
 
 		fetchModifiedObjectsinCloneData(); //fetch the modified objects for repository and its dependencies
 
+		//If no modified objects, set message
+		if (this.cloneData.repoToModifiedOverwriteObjects.isEmpty() && this.cloneData.repoToModifiedPackageWarningObjects.isEmpty()) {
+			getContainer().getCurrentPage().setDescription("No modified objects. All objects will be pulled."); //$NON-NLS-1$
+		}
 		setWindowTitle(Messages.AbapGitWizardPull_title);
 		setNeedsProgressMonitor(true);
 		setDefaultPageImageDescriptor(

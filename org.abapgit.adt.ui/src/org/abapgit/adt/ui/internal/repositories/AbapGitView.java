@@ -22,14 +22,11 @@ import org.abapgit.adt.ui.internal.repositories.actions.OpenRepositoryAction;
 import org.abapgit.adt.ui.internal.staging.AbapGitStagingView;
 import org.abapgit.adt.ui.internal.staging.IAbapGitStagingView;
 import org.abapgit.adt.ui.internal.util.AbapGitUIServiceFactory;
-import org.abapgit.adt.ui.internal.util.ErrorHandlingService;
 import org.abapgit.adt.ui.internal.util.GitCredentialsService;
 import org.abapgit.adt.ui.internal.util.IAbapGitService;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard;
-import org.abapgit.adt.ui.internal.wizards.AbapGitWizard.CloneData;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizardPull;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizardPullV2;
-import org.abapgit.adt.ui.internal.wizards.AbapGitWizardSelectivePullAfterLink;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -88,7 +85,6 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.osgi.framework.Bundle;
 
-import com.sap.adt.communication.resources.ResourceException;
 import com.sap.adt.destinations.model.IDestinationData;
 import com.sap.adt.destinations.ui.logon.AdtLogonServiceUIFactory;
 import com.sap.adt.project.ui.util.ProjectUtil;
@@ -513,9 +509,6 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 				wizardDialog.open();
 				updateView(true);
 
-				//Open SelectivePull Wizard for backend versions later than 2105 where selective pull is supported
-				//Compatibility handling inside the method
-				openSelectivePullWizard(abapGitWizard);
 			}
 		};
 		this.actionWizard.setText(Messages.AbapGitView_action_clone);
@@ -587,32 +580,6 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 		this.actionOpenRepository = new OpenRepositoryAction(this);
 	}
 
-	private void openSelectivePullWizard(AbapGitWizard abapGitWizard) {
-
-		//Getters for cloneData and Transport Request are exposed from the Link Wizard (AbapGitWizard)
-		// The information provided in Link Wizard is reused in AbapGitWizardSelectivePull wizard, which is required for pull Action
-		CloneData cloneData = abapGitWizard.getCloneData(); //getter from cloneData exposed from the Link Wizard
-		cloneData.repositories = this.repoService.getRepositories(new NullProgressMonitor());
-		IRepository clonedRepository = AbapGitView.this.repoService.getRepositoryByURL(cloneData.repositories, cloneData.url);
-
-		//Compatibility handling for back end versions before 2105 Release
-		//The following logic is only valid from 2105 Release where selective pull is supported
-		// After Link is successful (Link Wizard is finished), and Pull is requested after Linking,
-		// another wizard is opened to provide a way to select objects to pull and then perform the pull action
-		if (AbapGitView.this.abapGitService.isSelectivePullSupported(clonedRepository)
-				&& abapGitWizard.isPullRequested()) {
-			try {
-				AbapGitWizardSelectivePullAfterLink selectivePullWizard = new AbapGitWizardSelectivePullAfterLink(
-						AbapGitView.this.lastProject, cloneData, abapGitWizard.getTransportRequest()); //getter for Transport Request are exposed from the Link Wizard
-				WizardDialog wizardDialog = new WizardDialog(AbapGitView.this.viewer.getControl().getShell(), selectivePullWizard);
-				wizardDialog.open();
-				updateView(true);
-			} catch (ResourceException e) {
-				ErrorHandlingService.openErrorDialog(Messages.AbapGitView_context_pull_error, e.getMessage(), getSite().getShell(), true);
-			}
-		}
-
-	}
 	private List<IRepository> getRepositories(String destinationId, Boolean byCurrUser) {
 		List<IRepository> repos = new LinkedList<>();
 		List<IRepository> myrepos = new LinkedList<>();
