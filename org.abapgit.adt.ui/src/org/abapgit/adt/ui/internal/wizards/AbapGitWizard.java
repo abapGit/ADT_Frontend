@@ -21,9 +21,11 @@ import org.abapgit.adt.ui.internal.repositories.IRepositoryModifiedObjects;
 import org.abapgit.adt.ui.internal.util.AbapGitUIServiceFactory;
 import org.abapgit.adt.ui.internal.util.ErrorHandlingService;
 import org.abapgit.adt.ui.internal.util.IAbapGitService;
+import org.abapgit.adt.ui.internal.util.RepositoryUtil;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.dialogs.IPageChangingListener;
 import org.eclipse.jface.dialogs.PageChangingEvent;
@@ -139,7 +141,8 @@ public class AbapGitWizard extends Wizard {
 							//Required for Compatibility handling for Selective Pull
 							// If selectivePull is not supported pull all objects from the repositories.
 							// Otherwise a new wizard is opened to allow selective pulling of objects
-							if (abapGitService.isSelectivePullSupported(linkedRepo)) {
+							if (abapGitService.isSelectivePullSupported(linkedRepo)
+									&& fillModifiedObjectsinCloneData(repoService, linkedRepo)) {
 								openSelectivePullWizard();
 							} else {
 								//Pull all objects for linked repositories
@@ -172,7 +175,8 @@ public class AbapGitWizard extends Wizard {
 							//Required for Compatibility handling for Selective Pull
 							// If selectivePull is not supported, pull all objects from the repository.
 							// Otherwise a new wizard is opened to allow selective pulling of objects
-							if (abapGitService.isSelectivePullSupported(linkedRepo)) {
+							if (abapGitService.isSelectivePullSupported(linkedRepo)
+									&& fillModifiedObjectsinCloneData(repoService, linkedRepo)) {
 								openSelectivePullWizard();
 							} else {
 								//-> Pull newly linked repository
@@ -330,6 +334,36 @@ public class AbapGitWizard extends Wizard {
 		public boolean hasDependencies() {
 			return this.apackManifest != null && this.apackManifest.hasDependencies();
 		}
+	}
+
+	/**
+	 * Fetch the modified objects for the main repository and dependencies (if
+	 * any) Then maintain the overWrite objects and warning package objects,
+	 * separately in the clone data object
+	 *
+	 * Return true in case there are modified objects, otherwise return false.
+	 */
+	private boolean fillModifiedObjectsinCloneData(IRepositoryService repoService, IRepository repository) {
+
+		IRepositories repositories = repoService.getRepositories(new NullProgressMonitor());
+
+		RepositoryUtil.fetchAndExtractModifiedObjectsToPull(repository, repoService, this.cloneData);
+
+		if (this.cloneData.hasDependencies()) {
+			for (IApackDependency apackDependency : this.cloneData.apackManifest.getDescriptor().getDependencies()) {
+				IRepository dependencyRepository = repoService.getRepositoryByURL(repositories, apackDependency.getGitUrl());
+				if (dependencyRepository != null) {
+					RepositoryUtil.fetchAndExtractModifiedObjectsToPull(dependencyRepository, repoService, this.cloneData);
+				}
+			}
+		}
+
+		//In case no modified objects present
+		if (this.cloneData.repoToModifiedOverwriteObjects.isEmpty() && this.cloneData.repoToModifiedPackageWarningObjects.isEmpty()) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**

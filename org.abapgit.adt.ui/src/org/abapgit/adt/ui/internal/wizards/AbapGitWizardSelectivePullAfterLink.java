@@ -14,7 +14,6 @@ import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAbapGitPullModifie
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.util.AbapGitUIServiceFactory;
-import org.abapgit.adt.ui.internal.util.RepositoryUtil;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard.CloneData;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
@@ -51,37 +50,10 @@ public class AbapGitWizardSelectivePullAfterLink extends Wizard {
 		this.transportRequest = transportRequest;
 		this.repoService = RepositoryServiceFactory.createRepositoryService(this.destination, new NullProgressMonitor());
 
-		fetchModifiedObjectsinCloneData(); //fetch the modified objects for repository and its dependencies
-
-		//If no modified objects, set message
-		if (this.cloneData.repoToModifiedOverwriteObjects.isEmpty() && this.cloneData.repoToModifiedPackageWarningObjects.isEmpty()) {
-			getContainer().getCurrentPage().setDescription("No modified objects. All objects will be pulled."); //$NON-NLS-1$
-		}
 		setWindowTitle(Messages.AbapGitWizardPull_title);
 		setNeedsProgressMonitor(true);
 		setDefaultPageImageDescriptor(
 				AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID, "icons/wizban/abapGit_import_wizban.png")); //$NON-NLS-1$
-	}
-
-	/**
-	 * Fetch the modified objects for the main repository and dependencies (if
-	 * any) Then maintain the overWrite objects and warning package objects,
-	 * separately in the clone data object
-	 */
-	private void fetchModifiedObjectsinCloneData() {
-		IRepositories repositories = this.repoService.getRepositories(new NullProgressMonitor());
-
-		IRepository repository = this.repoService.getRepositoryByURL(repositories, this.cloneData.url);
-		RepositoryUtil.fetchAndExtractModifiedObjectsToPull(repository, this.repoService, this.cloneData);
-
-		if (this.cloneData.hasDependencies()) {
-			for (IApackDependency apackDependency : this.cloneData.apackManifest.getDescriptor().getDependencies()) {
-				IRepository dependencyRepository = this.repoService.getRepositoryByURL(repositories, apackDependency.getGitUrl());
-				if (dependencyRepository != null) {
-					RepositoryUtil.fetchAndExtractModifiedObjectsToPull(dependencyRepository, this.repoService, this.cloneData);
-				}
-			}
-		}
 	}
 
 	@Override
