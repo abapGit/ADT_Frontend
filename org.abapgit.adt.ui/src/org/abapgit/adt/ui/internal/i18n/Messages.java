@@ -47,6 +47,7 @@ public class Messages extends NLS {
 	public static String AbapGitView_ConfDialog_Btn_confirm;
 	public static String AbapGitView_ConfDialog_Btn_cancel;
 	public static String AbapGitView_Type_Filter_Text;
+	public static String AbapGitWizard_errorRetrievingLinkedRepo;
 	public static String AbapGitWizard_task_cloning_repository;
 	public static String AbapGitWizard_task_pulling_repository;
 	public static String AbapGitWizard_title;
@@ -181,6 +182,8 @@ public class Messages extends NLS {
 	public static String AbapGitStaging_switch_repository_no_repositories_xmsg;
 	public static String AbapGitStagingCredentialsDialog_label_store_in_secure_store;
 	public static String AbapGitStagingView_authentication_error;
+	public static String AbapGitStagingView_unstagedSectionDescription;
+	public static String AbapGitStagingView_unstagedSectionToolTip;
 
 	static {
 		// initialize resource bundle

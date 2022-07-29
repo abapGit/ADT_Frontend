@@ -62,7 +62,7 @@ public class AbapGitWizard extends Wizard {
 	private IAdtTransportService transportService;
 	private IAdtTransportSelectionWizardPage transportPage;
 
-	private final String ErrorMessageRetrievingLinkedRepo = "Error retrieving linked repository or the link action itself failed. Check abapGit repositories view."; //$NON-NLS-1$
+	private final String ErrorMessageRetrievingLinkedRepo = Messages.AbapGitWizard_errorRetrievingLinkedRepo;
 
 	public AbapGitWizard(IProject project) {
 		this.project = project;
