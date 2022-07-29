@@ -240,8 +240,12 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	}
 
 	private void createUnstagedComposite(Composite parent) {
-		this.unstagedSection = this.toolkit.createSection(parent, ExpandableComposite.SHORT_TITLE_BAR);
+		this.unstagedSection = this.toolkit.createSection(parent, ExpandableComposite.SHORT_TITLE_BAR | Section.DESCRIPTION);
 		this.unstagedSection.setText(Messages.AbapGitStaging_unstaged_changes_section_header + " (0)"); //$NON-NLS-1$
+		this.unstagedSection.setDescription(Messages.AbapGitStagingView_unstagedSectionDescription);
+		this.unstagedSection.setToolTipText(
+				Messages.AbapGitStagingView_unstagedSectionToolTip);
+
 		this.unstagedSection.clientVerticalSpacing = 0;
 
 		//unstaged section toolbar
