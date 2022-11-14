@@ -16,6 +16,7 @@ public class Messages extends NLS {
 	public static String AbapGitView_action_open_xtol;
 	public static String AbapGitView_column_branch;
 	public static String AbapGitView_column_firstcommitat;
+	public static String AbapGitView_column_folder_logic;
 	public static String AbapGitView_column_package;
 	public static String AbapGitView_column_url;
 	public static String AbapGitView_column_user;
