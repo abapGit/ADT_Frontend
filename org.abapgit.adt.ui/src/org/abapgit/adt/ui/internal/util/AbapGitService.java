@@ -1,5 +1,7 @@
 package org.abapgit.adt.ui.internal.util;
 
+import java.util.List;
+
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepositories;
@@ -78,6 +80,21 @@ public class AbapGitService implements IAbapGitService {
 				return true;
 			}
 		}
+		return false;
+	}
+
+	@Override
+	public boolean isFolderLogicAvailable(List<IRepository> repositories) {
+
+		if (repositories == null) {
+			return false;
+		}
+		for (IRepository repo : repositories) {
+			if (repo.getFolderLogic() != null && !repo.getFolderLogic().isEmpty()) {
+				return true;
+			}
+		}
+
 		return false;
 	}
 

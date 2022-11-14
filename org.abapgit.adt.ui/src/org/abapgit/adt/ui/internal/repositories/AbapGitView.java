@@ -295,6 +295,17 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 			}
 		});
 
+		//Create the folder logic column, but set the width to 0
+		//The width will be updated once the repositories are loaded
+		//TODO: Set the width to 180, once the 2302 back-ends are updated by all
+		createTableViewerColumn(Messages.AbapGitView_column_folder_logic, 0).setLabelProvider(new ColumnLabelProvider() {
+			@Override
+			public String getText(Object element) {
+				IRepository p = (IRepository) element;
+				return p.getFolderLogic();
+			}
+		});
+
 		createTableViewerColumn(Messages.AbapGitView_column_user, 200).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -654,6 +665,14 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 		if (repos != null) {
 			setContentDescription(NLS.bind(Messages.AbapGitView_repos_in_project, this.lastProject.getName()));
 			setControlsEnabled(true);
+
+			//TODO: Remove this check once the 2302 back-end is updated
+			if(this.abapGitService.isFolderLogicAvailable(repos)) {
+				setFolderLogicColumnVisible(true);
+			} else {
+				setFolderLogicColumnVisible(false);
+			}
+
 			this.viewer.setInput(repos);
 		} else {
 			setContentDescription(NLS.bind(Messages.AbapGitView_not_supported, this.lastProject.getName()));
@@ -661,6 +680,21 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 			this.viewer.setInput(null);
 		}
 
+	}
+
+	/**
+	 * Toggle whether the folder logic column should be visible or not
+	 *
+	 * @param visible
+	 */
+	private void setFolderLogicColumnVisible(boolean visible) {
+		TableColumn[] columns = this.viewer.getTable().getColumns();
+
+		for (TableColumn column : columns) {
+			if (column.getText().equals(Messages.AbapGitView_column_folder_logic)) {
+				column.setWidth(visible ? 150 : 0);
+			}
+		}
 	}
 
 	private void setControlsEnabled(boolean enabled) {

@@ -1,5 +1,7 @@
 package org.abapgit.adt.ui.internal.util;
 
+import java.util.List;
+
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepositories;
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
@@ -60,5 +62,10 @@ public interface IAbapGitService {
 	 * from remote repository.
 	 */
 	boolean isSelectivePullSupported(IRepository repository);
+
+	/**
+	 * Checks whether the folder logic is sent from back-end.
+	 */
+	boolean isFolderLogicAvailable(List<IRepository> repositories);
 
 }
