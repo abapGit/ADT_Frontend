@@ -185,6 +185,14 @@ public class Messages extends NLS {
 	public static String AbapGitStagingView_authentication_error;
 	public static String AbapGitStagingView_unstagedSectionDescription;
 	public static String AbapGitStagingView_unstagedSectionToolTip;
+	public static String AbapGitStagingView_GroupByMenu;
+	public static String AbapGitStagingView_GroupByNoneAction;
+	public static String AbapGitStagingView_GroupByPackageAction;
+	public static String AbapGitStagingView_GroupByTransportAction;
+	public static String AbapGitStagingView_PackageGroupNode;
+	public static String AbapGitStagingView_TransportGroupNode;
+	public static String AbapGitStagingView_PackageWBKey;
+	public static String AbapGitStagingView_TransportWBKey;
 
 	static {
 		// initialize resource bundle

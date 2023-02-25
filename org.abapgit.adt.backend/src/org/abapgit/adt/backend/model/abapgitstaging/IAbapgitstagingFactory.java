@@ -112,6 +112,15 @@ public interface IAbapgitstagingFactory extends EFactory {
 	IIgnoredObjects createIgnoredObjects();
 
 	/**
+	 * Returns a new object of class '<em>Transport</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return a new object of class '<em>Transport</em>'.
+	 * @generated
+	 */
+	ITransport createTransport();
+
+	/**
 	 * Returns the package supported by this factory.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->

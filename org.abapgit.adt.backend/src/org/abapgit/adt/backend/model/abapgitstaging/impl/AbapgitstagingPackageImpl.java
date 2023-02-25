@@ -17,6 +17,7 @@ import org.abapgit.adt.backend.model.abapgitstaging.ICommitter;
 import org.abapgit.adt.backend.model.abapgitstaging.IDocumentRoot;
 import org.abapgit.adt.backend.model.abapgitstaging.IIgnoredObjects;
 import org.abapgit.adt.backend.model.abapgitstaging.IStagedObjects;
+import org.abapgit.adt.backend.model.abapgitstaging.ITransport;
 import org.abapgit.adt.backend.model.abapgitstaging.IUnstagedObjects;
 
 import org.eclipse.emf.ecore.EAttribute;
@@ -106,6 +107,13 @@ public class AbapgitstagingPackageImpl extends EPackageImpl implements IAbapgits
 	 * @generated
 	 */
 	private EClass ignoredObjectsEClass = null;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	private EClass transportEClass = null;
 
 	/**
 	 * Creates an instance of the model <b>Package</b>, registered with
@@ -359,6 +367,15 @@ public class AbapgitstagingPackageImpl extends EPackageImpl implements IAbapgits
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EReference getAbapGitObject_Transport() {
+		return (EReference)abapGitObjectEClass.getEStructuralFeatures().get(4);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EClass getAbapGitFile() {
 		return abapGitFileEClass;
 	}
@@ -521,6 +538,33 @@ public class AbapgitstagingPackageImpl extends EPackageImpl implements IAbapgits
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EClass getTransport() {
+		return transportEClass;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getTransport_Number() {
+		return (EAttribute)transportEClass.getEStructuralFeatures().get(0);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EReference getTransport_Links() {
+		return (EReference)transportEClass.getEStructuralFeatures().get(1);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public IAbapgitstagingFactory getAbapgitstagingFactory() {
 		return (IAbapgitstagingFactory)getEFactoryInstance();
 	}
@@ -567,6 +611,7 @@ public class AbapgitstagingPackageImpl extends EPackageImpl implements IAbapgits
 		createEAttribute(abapGitObjectEClass, ABAP_GIT_OBJECT__VERSION);
 		createEReference(abapGitObjectEClass, ABAP_GIT_OBJECT__FILES);
 		createEReference(abapGitObjectEClass, ABAP_GIT_OBJECT__LINKS);
+		createEReference(abapGitObjectEClass, ABAP_GIT_OBJECT__TRANSPORT);
 
 		abapGitFileEClass = createEClass(ABAP_GIT_FILE);
 		createEAttribute(abapGitFileEClass, ABAP_GIT_FILE__NAME);
@@ -591,6 +636,10 @@ public class AbapgitstagingPackageImpl extends EPackageImpl implements IAbapgits
 
 		ignoredObjectsEClass = createEClass(IGNORED_OBJECTS);
 		createEReference(ignoredObjectsEClass, IGNORED_OBJECTS__ABAPGITOBJECT);
+
+		transportEClass = createEClass(TRANSPORT);
+		createEAttribute(transportEClass, TRANSPORT__NUMBER);
+		createEReference(transportEClass, TRANSPORT__LINKS);
 	}
 
 	/**
@@ -652,6 +701,7 @@ public class AbapgitstagingPackageImpl extends EPackageImpl implements IAbapgits
 		initEAttribute(getAbapGitObject_Version(), theXMLTypePackage.getString(), "version", null, 0, 1, IAbapGitObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getAbapGitObject_Files(), this.getAbapGitFile(), null, "files", null, 0, -1, IAbapGitObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getAbapGitObject_Links(), theAtomPackage.getAtomLink(), null, "links", null, 0, -1, IAbapGitObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getAbapGitObject_Transport(), this.getTransport(), null, "transport", null, 0, 1, IAbapGitObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(abapGitFileEClass, IAbapGitFile.class, "AbapGitFile", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getAbapGitFile_Name(), theXMLTypePackage.getString(), "name", null, 0, 1, IAbapGitFile.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -676,6 +726,10 @@ public class AbapgitstagingPackageImpl extends EPackageImpl implements IAbapgits
 
 		initEClass(ignoredObjectsEClass, IIgnoredObjects.class, "IgnoredObjects", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getIgnoredObjects_Abapgitobject(), this.getAbapGitObject(), null, "abapgitobject", null, 0, -1, IIgnoredObjects.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+
+		initEClass(transportEClass, ITransport.class, "Transport", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
+		initEAttribute(getTransport_Number(), theXMLTypePackage.getString(), "number", null, 0, 1, ITransport.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getTransport_Links(), theAtomPackage.getAtomLink(), null, "links", null, 0, -1, ITransport.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		// Create resource
 		createResource(eNS_URI);
@@ -847,6 +901,14 @@ public class AbapgitstagingPackageImpl extends EPackageImpl implements IAbapgits
 			   "namespace", "http://www.w3.org/2005/Atom"
 		   });
 		addAnnotation
+		  (getAbapGitObject_Transport(),
+		   source,
+		   new String[] {
+			   "kind", "element",
+			   "namespace", "##targetNamespace",
+			   "name", "transport"
+		   });
+		addAnnotation
 		  (abapGitFileEClass,
 		   source,
 		   new String[] {
@@ -983,6 +1045,29 @@ public class AbapgitstagingPackageImpl extends EPackageImpl implements IAbapgits
 			   "kind", "element",
 			   "namespace", "##targetNamespace",
 			   "name", "abapgitobject"
+		   });
+		addAnnotation
+		  (transportEClass,
+		   source,
+		   new String[] {
+			   "name", "transport",
+			   "kind", "elementOnly"
+		   });
+		addAnnotation
+		  (getTransport_Number(),
+		   source,
+		   new String[] {
+			   "kind", "element",
+			   "namespace", "##targetNamespace",
+			   "name", "number"
+		   });
+		addAnnotation
+		  (getTransport_Links(),
+		   source,
+		   new String[] {
+			   "kind", "element",
+			   "name", "link",
+			   "namespace", "http://www.w3.org/2005/Atom"
 		   });
 	}
 

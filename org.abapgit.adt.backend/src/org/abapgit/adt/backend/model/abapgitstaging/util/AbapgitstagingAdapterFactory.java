@@ -110,6 +110,10 @@ public class AbapgitstagingAdapterFactory extends AdapterFactoryImpl {
 				return createIgnoredObjectsAdapter();
 			}
 			@Override
+			public Adapter caseTransport(ITransport object) {
+				return createTransportAdapter();
+			}
+			@Override
 			public Adapter caseAdtObjectReference(IAdtObjectReference object) {
 				return createAdtObjectReferenceAdapter();
 			}
@@ -270,6 +274,20 @@ public class AbapgitstagingAdapterFactory extends AdapterFactoryImpl {
 	 * @generated
 	 */
 	public Adapter createIgnoredObjectsAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link org.abapgit.adt.backend.model.abapgitstaging.ITransport <em>Transport</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see org.abapgit.adt.backend.model.abapgitstaging.ITransport
+	 * @generated
+	 */
+	public Adapter createTransportAdapter() {
 		return null;
 	}
 

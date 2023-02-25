@@ -5,6 +5,8 @@ import java.util.regex.Pattern;
 
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitFile;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject;
+import org.abapgit.adt.ui.internal.staging.AbapGitStagingGroupNode;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 
@@ -25,12 +27,60 @@ public class AbapGitStagingTreeFilter extends ViewerFilter {
 			if (this.pattern.matcher(name).find()) {
 				return true;
 			}
+			else {
+				boolean result = select(viewer, null, parentElement);
+				if (result) {
+					return true;
+				}
+			}
+
 			return hasVisibleChildren((IAbapGitObject) element);
 		} else if (element instanceof IAbapGitFile) {
 			String name = ((IAbapGitFile) element).getName();
 			if (this.pattern.matcher(name).find()) {
 				return true;
 			}
+			else {
+				boolean result = select(viewer, get_parent(viewer, (IAbapGitObject) parentElement), parentElement);
+				if (result) {
+					return true;
+				}
+			}
+
+		} else if (element instanceof AbapGitStagingGroupNode) {
+			String name = ((AbapGitStagingGroupNode) element).getValue();
+			if (this.pattern.matcher(name).find()) {
+				return true;
+			}
+			return hasVisibleChildren((AbapGitStagingGroupNode) element);
+		}
+		return false;
+	}
+
+	private AbapGitStagingGroupNode get_parent(Viewer viewer, IAbapGitObject abapGitObject ) {
+		TreeViewer treeViewer = (TreeViewer) viewer;
+
+		Object[] input = (Object[]) treeViewer.getInput();
+
+		for (Object obj : input) {
+			if (obj instanceof AbapGitStagingGroupNode) {
+				if (((AbapGitStagingGroupNode) obj).getAbapGitObjects().contains(abapGitObject)) {
+					return (AbapGitStagingGroupNode) obj;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	private boolean hasVisibleChildren(AbapGitStagingGroupNode stagingGroupNode) {
+		for (Object object : stagingGroupNode.getAbapGitObjects()) {
+			String name = ((IAbapGitObject) object).getName();
+
+			if (this.pattern.matcher(name).find()) {
+				return true;
+			}
+			return hasVisibleChildren((IAbapGitObject) object);
 		}
 		return false;
 	}
