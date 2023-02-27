@@ -85,6 +85,19 @@ public class AbapGitStagingGroupingUtil {
 		}
 
 
+//		Map<String, List<IAbapGitObject>> packageToObjectsHashMap = new HashMap<>();
+//
+//		if (packageToObjects.get(packageGroupNodeForObjectsNotAssignedToAPackage) != null) {
+//			packageToObjectsHashMap.put(packageGroupNodeForObjectsNotAssignedToAPackage,
+//					packageToObjects.get(packageGroupNodeForObjectsNotAssignedToAPackage));
+//		}
+//		packageToObjects.remove(packageGroupNodeForObjectsNotAssignedToAPackage);
+//		packageToObjectsHashMap.putAll(packageToObjects);
+//
+//		for (Entry<String, List<IAbapGitObject>> entry : packageToObjects.entrySet()) {
+//			packageToObjectsHashMap.put(entry.getKey(), entry.getValue());
+//		}
+
 		return packageToObjects;
 
 	}
@@ -109,6 +122,18 @@ public class AbapGitStagingGroupingUtil {
 				transportToObjects.get(obj.getTransport().getNumber()).add(obj);
 			}
 		}
+
+//		Map<String, List<IAbapGitObject>> transportToObjectsHashMap = new HashMap<>();
+//
+//		if (transportToObjects.get(transportGroupNodeForObjectsNotAssignedToATransport) != null) {
+//			transportToObjectsHashMap.put(transportGroupNodeForObjectsNotAssignedToATransport,
+//					transportToObjects.get(transportGroupNodeForObjectsNotAssignedToATransport));
+//		}
+//		transportToObjects.remove(transportGroupNodeForObjectsNotAssignedToATransport);
+//
+//		for (Entry<String, List<IAbapGitObject>> entry : transportToObjects.entrySet()) {
+//			transportToObjectsHashMap.put(entry.getKey(), entry.getValue());
+//		}
 
 		return transportToObjects;
 
@@ -140,10 +165,16 @@ public class AbapGitStagingGroupingUtil {
 			groupNode.setUri(transportURIStaged);
 			groupNode.getAbapgitobjects().addAll(EcoreUtil.copyAll(entry.getValue()));
 
-			transportGroupNodes.add(groupNode);
+			if (entry.getKey().equals(transportGroupNodeForObjectsNotAssignedToATransport)) {
+				transportGroupNodes.add(0, groupNode);
+			} else {
+				transportGroupNodes.add(groupNode);
+			}
+
 		}
 
 		return transportGroupNodes;
+
 
 	}
 
@@ -168,7 +199,12 @@ public class AbapGitStagingGroupingUtil {
 			groupNode.setUri(packageURIStaged);
 			groupNode.getAbapgitobjects().addAll(EcoreUtil.copyAll(entry.getValue()));
 
-			packageGroupNodes.add(groupNode);
+			if (entry.getKey().equals(packageGroupNodeForObjectsNotAssignedToAPackage)) {
+				packageGroupNodes.add(0, groupNode);
+			} else {
+				packageGroupNodes.add(groupNode);
+			}
+
 		}
 
 		return packageGroupNodes;
