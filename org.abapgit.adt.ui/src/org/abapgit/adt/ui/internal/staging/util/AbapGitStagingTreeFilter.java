@@ -5,8 +5,8 @@ import java.util.regex.Pattern;
 
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitFile;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject;
-import org.abapgit.adt.ui.internal.staging.AbapGitStagingGroupNode;
-import org.eclipse.jface.viewers.TreeViewer;
+import org.abapgit.adt.backend.model.abapgitstagingobjectgrouping.IAbapGitStagingGroupNode;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 
@@ -24,63 +24,63 @@ public class AbapGitStagingTreeFilter extends ViewerFilter {
 		}
 		if (element instanceof IAbapGitObject) {
 			String name = ((IAbapGitObject) element).getName();
+			//If AbapObject name matches pattern
 			if (this.pattern.matcher(name).find()) {
 				return true;
 			}
-			else {
-				boolean result = select(viewer, null, parentElement);
-				if (result) {
-					return true;
-				}
+			
+			//If GroupNode name matches the pattern
+			if (parentElement instanceof IAbapGitStagingGroupNode
+					&& this.pattern.matcher(((IAbapGitStagingGroupNode)parentElement).getValue()).find()) {
+				return true;
 			}
-
+			
+			//If one of the file names matches the pattern
 			return hasVisibleChildren((IAbapGitObject) element);
 		} else if (element instanceof IAbapGitFile) {
 			String name = ((IAbapGitFile) element).getName();
+			//If the file name matches the pattern
 			if (this.pattern.matcher(name).find()) {
 				return true;
 			}
-			else {
-				boolean result = select(viewer, get_parent(viewer, (IAbapGitObject) parentElement), parentElement);
-				if (result) {
+			//If the name of abapObject container of file matches the pattern
+			if (parentElement instanceof IAbapGitObject && this.pattern.matcher(((IAbapGitObject) parentElement).getName()).find()) {
+				return true;
+			}
+			if (parentElement instanceof IAbapGitObject) {
+				EObject parentOfParent = ((IAbapGitObject) parentElement).eContainer();
+
+				//If the name of group node of the abapObject container of file matches the pattern
+				if (parentOfParent instanceof IAbapGitStagingGroupNode
+						&& this.pattern.matcher(((IAbapGitStagingGroupNode) parentOfParent).getValue()).find()) {
 					return true;
 				}
 			}
-
-		} else if (element instanceof AbapGitStagingGroupNode) {
-			String name = ((AbapGitStagingGroupNode) element).getValue();
+			return false;
+		} else if (element instanceof IAbapGitStagingGroupNode) {
+			String name = ((IAbapGitStagingGroupNode) element).getValue();
+			//If GroupNode name matches the pattern
 			if (this.pattern.matcher(name).find()) {
 				return true;
 			}
-			return hasVisibleChildren((AbapGitStagingGroupNode) element);
+			
+			//If name of any object or file under the group node, matches the pattern
+			return hasVisibleChildren((IAbapGitStagingGroupNode) element);
 		}
 		return false;
 	}
 
-	private AbapGitStagingGroupNode get_parent(Viewer viewer, IAbapGitObject abapGitObject ) {
-		TreeViewer treeViewer = (TreeViewer) viewer;
-
-		Object[] input = (Object[]) treeViewer.getInput();
-
-		for (Object obj : input) {
-			if (obj instanceof AbapGitStagingGroupNode) {
-				if (((AbapGitStagingGroupNode) obj).getAbapGitObjects().contains(abapGitObject)) {
-					return (AbapGitStagingGroupNode) obj;
-				}
-			}
-		}
-
-		return null;
-	}
-
-	private boolean hasVisibleChildren(AbapGitStagingGroupNode stagingGroupNode) {
-		for (Object object : stagingGroupNode.getAbapGitObjects()) {
+	private boolean hasVisibleChildren(IAbapGitStagingGroupNode stagingGroupNode) {
+		for (Object object : stagingGroupNode.getAbapgitobjects()) {
 			String name = ((IAbapGitObject) object).getName();
-
 			if (this.pattern.matcher(name).find()) {
 				return true;
 			}
-			return hasVisibleChildren((IAbapGitObject) object);
+			if (hasVisibleChildren((IAbapGitObject) object)) {
+				return true;
+			} else {
+				continue;
+			}
 		}
 		return false;
 	}

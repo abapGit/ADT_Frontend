@@ -193,6 +193,8 @@ public class Messages extends NLS {
 	public static String AbapGitStagingView_TransportGroupNode;
 	public static String AbapGitStagingView_PackageWBKey;
 	public static String AbapGitStagingView_TransportWBKey;
+	public static String AbapGitStagingView_PackageRel;
+	public static String AbapGitStagingView_TransportRel;
 
 	static {
 		// initialize resource bundle

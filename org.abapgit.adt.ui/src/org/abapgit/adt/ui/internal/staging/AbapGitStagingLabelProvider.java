@@ -6,6 +6,7 @@ import java.util.Locale;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitFile;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject;
 import org.abapgit.adt.backend.model.abapgitstaging.IIgnoredObjects;
+import org.abapgit.adt.backend.model.abapgitstagingobjectgrouping.IAbapGitStagingGroupNode;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.eclipse.core.runtime.Platform;
@@ -60,6 +61,9 @@ public class AbapGitStagingLabelProvider extends StyledCellLabelProvider {
 		} else if (cell.getElement() instanceof IAbapGitFile) {
 			IAbapGitFile file = (IAbapGitFile) cell.getElement();
 			updateFileCell(cell, file);
+		} else if (cell.getElement() instanceof IAbapGitStagingGroupNode) {
+			IAbapGitStagingGroupNode object = (IAbapGitStagingGroupNode) cell.getElement();
+			updateGroupNodeCell(cell, object);
 		}
 	}
 
@@ -80,6 +84,21 @@ public class AbapGitStagingLabelProvider extends StyledCellLabelProvider {
 
 		cell.setText(text.getString());
 		cell.setStyleRanges(text.getStyleRanges());
+	}
+
+	private void updateGroupNodeCell(ViewerCell cell, IAbapGitStagingGroupNode object) {
+		StyledString text = new StyledString();
+		text.append(object.getValue());
+		cell.setText(text.getString());
+
+		if (object.getType().equals(Messages.AbapGitStagingView_PackageGroupNode)) {
+			cell.setImage(com.sap.adt.tools.core.ui.Activator.getDefault()
+					.getImageDescriptor(com.sap.adt.tools.core.ui.ISharedImages.PACKAGE).createImage());
+		}
+		if (object.getType().equals(Messages.AbapGitStagingView_TransportGroupNode)) {
+			cell.setImage(com.sap.adt.tools.core.ui.Activator.getDefault()
+					.getImageDescriptor(com.sap.adt.tools.core.ui.ISharedImages.TRANSPORT_REQUEST).createImage());
+		}
 	}
 
 	private Image getObjectImage(IAbapGitObject object) {

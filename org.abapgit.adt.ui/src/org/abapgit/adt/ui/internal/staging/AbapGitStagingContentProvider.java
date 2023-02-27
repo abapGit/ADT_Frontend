@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitFile;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject;
+import org.abapgit.adt.backend.model.abapgitstagingobjectgrouping.IAbapGitStagingGroupNode;
+import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 
 public class AbapGitStagingContentProvider implements ITreeContentProvider {
@@ -16,14 +18,18 @@ public class AbapGitStagingContentProvider implements ITreeContentProvider {
 		}
 		if (inputElement instanceof IAbapGitObject) {
 			return getChildren(inputElement);
+		} else {
+			return ArrayContentProvider.getInstance().getElements(inputElement);
 		}
-		return null;
 	}
 
 	@Override
 	public Object[] getChildren(Object parentElement) {
 		if (parentElement instanceof IAbapGitObject) {
 			return ((IAbapGitObject) parentElement).getFiles().toArray();
+		}
+		if (parentElement instanceof IAbapGitStagingGroupNode) {
+			return ((IAbapGitStagingGroupNode) parentElement).getAbapgitobjects().toArray();
 		}
 		return null;
 	}
@@ -33,11 +39,19 @@ public class AbapGitStagingContentProvider implements ITreeContentProvider {
 		if (element instanceof IAbapGitFile) {
 			return ((IAbapGitFile) element).eContainer();
 		}
+		if(element instanceof IAbapGitObject){
+			if(((IAbapGitObject) element).eContainer() instanceof IAbapGitStagingGroupNode){
+				return ((IAbapGitObject) element).eContainer();				
+			}
+		}
 		return null;
 	}
 
 	@Override
 	public boolean hasChildren(Object element) {
+		if (element instanceof IAbapGitStagingGroupNode) {
+			return true;
+		}
 		if (element instanceof IAbapGitObject) {
 			return true;
 		}

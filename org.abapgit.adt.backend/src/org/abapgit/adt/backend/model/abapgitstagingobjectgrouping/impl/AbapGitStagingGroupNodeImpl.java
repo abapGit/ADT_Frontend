@@ -3,23 +3,18 @@
 package org.abapgit.adt.backend.model.abapgitstagingobjectgrouping.impl;
 
 import java.util.Collection;
+import java.util.Objects;
 
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject;
-
 import org.abapgit.adt.backend.model.abapgitstagingobjectgrouping.IAbapGitStagingGroupNode;
 import org.abapgit.adt.backend.model.abapgitstagingobjectgrouping.IAbapgitstagingobjectgroupingPackage;
-
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
-
 import org.eclipse.emf.common.util.EList;
-
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.InternalEObject;
-
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
-
 import org.eclipse.emf.ecore.util.EObjectContainmentEList;
 import org.eclipse.emf.ecore.util.InternalEList;
 
@@ -136,7 +131,7 @@ public class AbapGitStagingGroupNodeImpl extends MinimalEObjectImpl.Container im
 	 */
 	@Override
 	public String getType() {
-		return type;
+		return this.type;
 	}
 
 	/**
@@ -146,10 +141,11 @@ public class AbapGitStagingGroupNodeImpl extends MinimalEObjectImpl.Container im
 	 */
 	@Override
 	public void setType(String newType) {
-		String oldType = type;
-		type = newType;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitstagingobjectgroupingPackage.ABAP_GIT_STAGING_GROUP_NODE__TYPE, oldType, type));
+		String oldType = this.type;
+		this.type = newType;
+		if (eNotificationRequired()) {
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitstagingobjectgroupingPackage.ABAP_GIT_STAGING_GROUP_NODE__TYPE, oldType, this.type));
+		}
 	}
 
 	/**
@@ -159,7 +155,7 @@ public class AbapGitStagingGroupNodeImpl extends MinimalEObjectImpl.Container im
 	 */
 	@Override
 	public String getValue() {
-		return value;
+		return this.value;
 	}
 
 	/**
@@ -169,10 +165,11 @@ public class AbapGitStagingGroupNodeImpl extends MinimalEObjectImpl.Container im
 	 */
 	@Override
 	public void setValue(String newValue) {
-		String oldValue = value;
-		value = newValue;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitstagingobjectgroupingPackage.ABAP_GIT_STAGING_GROUP_NODE__VALUE, oldValue, value));
+		String oldValue = this.value;
+		this.value = newValue;
+		if (eNotificationRequired()) {
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitstagingobjectgroupingPackage.ABAP_GIT_STAGING_GROUP_NODE__VALUE, oldValue, this.value));
+		}
 	}
 
 	/**
@@ -182,7 +179,7 @@ public class AbapGitStagingGroupNodeImpl extends MinimalEObjectImpl.Container im
 	 */
 	@Override
 	public String getUri() {
-		return uri;
+		return this.uri;
 	}
 
 	/**
@@ -192,10 +189,11 @@ public class AbapGitStagingGroupNodeImpl extends MinimalEObjectImpl.Container im
 	 */
 	@Override
 	public void setUri(String newUri) {
-		String oldUri = uri;
-		uri = newUri;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitstagingobjectgroupingPackage.ABAP_GIT_STAGING_GROUP_NODE__URI, oldUri, uri));
+		String oldUri = this.uri;
+		this.uri = newUri;
+		if (eNotificationRequired()) {
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitstagingobjectgroupingPackage.ABAP_GIT_STAGING_GROUP_NODE__URI, oldUri, this.uri));
+		}
 	}
 
 	/**
@@ -205,10 +203,10 @@ public class AbapGitStagingGroupNodeImpl extends MinimalEObjectImpl.Container im
 	 */
 	@Override
 	public EList<IAbapGitObject> getAbapgitobjects() {
-		if (abapgitobjects == null) {
-			abapgitobjects = new EObjectContainmentEList<IAbapGitObject>(IAbapGitObject.class, this, IAbapgitstagingobjectgroupingPackage.ABAP_GIT_STAGING_GROUP_NODE__ABAPGITOBJECTS);
+		if (this.abapgitobjects == null) {
+			this.abapgitobjects = new EObjectContainmentEList<IAbapGitObject>(IAbapGitObject.class, this, IAbapgitstagingobjectgroupingPackage.ABAP_GIT_STAGING_GROUP_NODE__ABAPGITOBJECTS);
 		}
-		return abapgitobjects;
+		return this.abapgitobjects;
 	}
 
 	/**
@@ -304,13 +302,13 @@ public class AbapGitStagingGroupNodeImpl extends MinimalEObjectImpl.Container im
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
 			case IAbapgitstagingobjectgroupingPackage.ABAP_GIT_STAGING_GROUP_NODE__TYPE:
-				return TYPE_EDEFAULT == null ? type != null : !TYPE_EDEFAULT.equals(type);
+				return TYPE_EDEFAULT == null ? this.type != null : !TYPE_EDEFAULT.equals(this.type);
 			case IAbapgitstagingobjectgroupingPackage.ABAP_GIT_STAGING_GROUP_NODE__VALUE:
-				return VALUE_EDEFAULT == null ? value != null : !VALUE_EDEFAULT.equals(value);
+				return VALUE_EDEFAULT == null ? this.value != null : !VALUE_EDEFAULT.equals(this.value);
 			case IAbapgitstagingobjectgroupingPackage.ABAP_GIT_STAGING_GROUP_NODE__URI:
-				return URI_EDEFAULT == null ? uri != null : !URI_EDEFAULT.equals(uri);
+				return URI_EDEFAULT == null ? this.uri != null : !URI_EDEFAULT.equals(this.uri);
 			case IAbapgitstagingobjectgroupingPackage.ABAP_GIT_STAGING_GROUP_NODE__ABAPGITOBJECTS:
-				return abapgitobjects != null && !abapgitobjects.isEmpty();
+				return this.abapgitobjects != null && !this.abapgitobjects.isEmpty();
 		}
 		return super.eIsSet(featureID);
 	}
@@ -322,17 +320,39 @@ public class AbapGitStagingGroupNodeImpl extends MinimalEObjectImpl.Container im
 	 */
 	@Override
 	public String toString() {
-		if (eIsProxy()) return super.toString();
+		if (eIsProxy()) {
+			return super.toString();
+		}
 
 		StringBuilder result = new StringBuilder(super.toString());
 		result.append(" (type: ");
-		result.append(type);
+		result.append(this.type);
 		result.append(", value: ");
-		result.append(value);
+		result.append(this.value);
 		result.append(", uri: ");
-		result.append(uri);
+		result.append(this.uri);
 		result.append(')');
 		return result.toString();
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.type, this.uri, this.value);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		AbapGitStagingGroupNodeImpl other = (AbapGitStagingGroupNodeImpl) obj;
+		return Objects.equals(this.type, other.type) && Objects.equals(this.uri, other.uri) && Objects.equals(this.value, other.value);
 	}
 
 } //AbapGitStagingGroupNodeImpl
