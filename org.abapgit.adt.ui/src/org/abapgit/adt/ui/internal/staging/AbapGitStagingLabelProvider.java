@@ -95,17 +95,9 @@ public class AbapGitStagingLabelProvider extends StyledCellLabelProvider {
 		if (object.getType() != null && object.getType().equals(Messages.AbapGitStagingView_PackageGroupNode)
 				&& !object.getValue().equals(AbapGitStagingGroupingUtil.packageGroupNodeForObjectsNotAssignedToAPackage)) {
 			cell.setImage(AbapCoreUi.getSharedImages().getImage(com.sap.adt.tools.core.ui.ISharedImages.PACKAGE));
-
-//			cell.setImage(com.sap.adt.tools.core.ui.Activator.getDefault()
-//					.getImageDescriptor(com.sap.adt.tools.core.ui.ISharedImages.PACKAGE).createImage());
-
-		}
-		else if (object.getType() != null && object.getType().equals(Messages.AbapGitStagingView_TransportGroupNode)
+		} else if (object.getType() != null && object.getType().equals(Messages.AbapGitStagingView_TransportGroupNode)
 				&& !object.getValue().equals(AbapGitStagingGroupingUtil.transportGroupNodeForObjectsNotAssignedToATransport)) {
-//			cell.setImage(com.sap.adt.tools.core.ui.Activator.getDefault()
-//					.getImageDescriptor(com.sap.adt.tools.core.ui.ISharedImages.TRANSPORT_REQUEST).createImage());
-			cell.setImage(AbapCoreUi.getSharedImages().getImage(com.sap.adt.tools.core.ui.ISharedImages.TRANSPORT_REQUEST));
-
+			cell.setImage(AbapCoreUi.getSharedImages().getImage("TRANSPORT_REQUEST")); //$NON-NLS-1$
 		} else {
 			cell.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FOLDER));
 		}
