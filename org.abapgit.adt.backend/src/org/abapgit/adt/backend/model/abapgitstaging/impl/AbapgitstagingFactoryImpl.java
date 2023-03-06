@@ -66,6 +66,7 @@ public class AbapgitstagingFactoryImpl extends EFactoryImpl implements IAbapgits
 			case IAbapgitstagingPackage.UNSTAGED_OBJECTS: return createUnstagedObjects();
 			case IAbapgitstagingPackage.STAGED_OBJECTS: return createStagedObjects();
 			case IAbapgitstagingPackage.IGNORED_OBJECTS: return createIgnoredObjects();
+			case IAbapgitstagingPackage.TRANSPORT: return createTransport();
 			default:
 				throw new IllegalArgumentException("The class '" + eClass.getName() + "' is not a valid classifier");
 		}
@@ -169,6 +170,16 @@ public class AbapgitstagingFactoryImpl extends EFactoryImpl implements IAbapgits
 	public IIgnoredObjects createIgnoredObjects() {
 		IgnoredObjectsImpl ignoredObjects = new IgnoredObjectsImpl();
 		return ignoredObjects;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public ITransport createTransport() {
+		TransportImpl transport = new TransportImpl();
+		return transport;
 	}
 
 	/**

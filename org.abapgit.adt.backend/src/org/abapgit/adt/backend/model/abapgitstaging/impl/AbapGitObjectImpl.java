@@ -7,6 +7,7 @@ import java.util.Collection;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitFile;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapgitstagingPackage;
+import org.abapgit.adt.backend.model.abapgitstaging.ITransport;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
 import org.eclipse.emf.common.util.EList;
@@ -31,6 +32,7 @@ import com.sap.adt.tools.core.model.atom.IAtomLink;
  *   <li>{@link org.abapgit.adt.backend.model.abapgitstaging.impl.AbapGitObjectImpl#getVersion <em>Version</em>}</li>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitstaging.impl.AbapGitObjectImpl#getFiles <em>Files</em>}</li>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitstaging.impl.AbapGitObjectImpl#getLinks <em>Links</em>}</li>
+ *   <li>{@link org.abapgit.adt.backend.model.abapgitstaging.impl.AbapGitObjectImpl#getTransport <em>Transport</em>}</li>
  * </ul>
  *
  * @generated
@@ -95,6 +97,16 @@ public class AbapGitObjectImpl extends AdtObjectReferenceImpl implements IAbapGi
 	 * @ordered
 	 */
 	protected EList<IAtomLink> links;
+
+	/**
+	 * The cached value of the '{@link #getTransport() <em>Transport</em>}' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getTransport()
+	 * @generated
+	 * @ordered
+	 */
+	protected ITransport transport;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -186,6 +198,49 @@ public class AbapGitObjectImpl extends AdtObjectReferenceImpl implements IAbapGi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public ITransport getTransport() {
+		return transport;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public NotificationChain basicSetTransport(ITransport newTransport, NotificationChain msgs) {
+		ITransport oldTransport = transport;
+		transport = newTransport;
+		if (eNotificationRequired()) {
+			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, IAbapgitstagingPackage.ABAP_GIT_OBJECT__TRANSPORT, oldTransport, newTransport);
+			if (msgs == null) msgs = notification; else msgs.add(notification);
+		}
+		return msgs;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setTransport(ITransport newTransport) {
+		if (newTransport != transport) {
+			NotificationChain msgs = null;
+			if (transport != null)
+				msgs = ((InternalEObject)transport).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - IAbapgitstagingPackage.ABAP_GIT_OBJECT__TRANSPORT, null, msgs);
+			if (newTransport != null)
+				msgs = ((InternalEObject)newTransport).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - IAbapgitstagingPackage.ABAP_GIT_OBJECT__TRANSPORT, null, msgs);
+			msgs = basicSetTransport(newTransport, msgs);
+			if (msgs != null) msgs.dispatch();
+		}
+		else if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitstagingPackage.ABAP_GIT_OBJECT__TRANSPORT, newTransport, newTransport));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
@@ -193,6 +248,8 @@ public class AbapGitObjectImpl extends AdtObjectReferenceImpl implements IAbapGi
 				return ((InternalEList<?>)getFiles()).basicRemove(otherEnd, msgs);
 			case IAbapgitstagingPackage.ABAP_GIT_OBJECT__LINKS:
 				return ((InternalEList<?>)getLinks()).basicRemove(otherEnd, msgs);
+			case IAbapgitstagingPackage.ABAP_GIT_OBJECT__TRANSPORT:
+				return basicSetTransport(null, msgs);
 		}
 		return super.eInverseRemove(otherEnd, featureID, msgs);
 	}
@@ -213,6 +270,8 @@ public class AbapGitObjectImpl extends AdtObjectReferenceImpl implements IAbapGi
 				return getFiles();
 			case IAbapgitstagingPackage.ABAP_GIT_OBJECT__LINKS:
 				return getLinks();
+			case IAbapgitstagingPackage.ABAP_GIT_OBJECT__TRANSPORT:
+				return getTransport();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -240,6 +299,9 @@ public class AbapGitObjectImpl extends AdtObjectReferenceImpl implements IAbapGi
 				getLinks().clear();
 				getLinks().addAll((Collection<? extends IAtomLink>)newValue);
 				return;
+			case IAbapgitstagingPackage.ABAP_GIT_OBJECT__TRANSPORT:
+				setTransport((ITransport)newValue);
+				return;
 		}
 		super.eSet(featureID, newValue);
 	}
@@ -264,6 +326,9 @@ public class AbapGitObjectImpl extends AdtObjectReferenceImpl implements IAbapGi
 			case IAbapgitstagingPackage.ABAP_GIT_OBJECT__LINKS:
 				getLinks().clear();
 				return;
+			case IAbapgitstagingPackage.ABAP_GIT_OBJECT__TRANSPORT:
+				setTransport((ITransport)null);
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -284,6 +349,8 @@ public class AbapGitObjectImpl extends AdtObjectReferenceImpl implements IAbapGi
 				return files != null && !files.isEmpty();
 			case IAbapgitstagingPackage.ABAP_GIT_OBJECT__LINKS:
 				return links != null && !links.isEmpty();
+			case IAbapgitstagingPackage.ABAP_GIT_OBJECT__TRANSPORT:
+				return transport != null;
 		}
 		return super.eIsSet(featureID);
 	}

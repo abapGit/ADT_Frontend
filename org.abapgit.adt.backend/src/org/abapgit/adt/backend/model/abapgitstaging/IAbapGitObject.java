@@ -20,6 +20,7 @@ import org.eclipse.emf.common.util.EList;
  *   <li>{@link org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject#getVersion <em>Version</em>}</li>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject#getFiles <em>Files</em>}</li>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject#getLinks <em>Links</em>}</li>
+ *   <li>{@link org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject#getTransport <em>Transport</em>}</li>
  * </ul>
  *
  * @see org.abapgit.adt.backend.model.abapgitstaging.IAbapgitstagingPackage#getAbapGitObject()
@@ -98,5 +99,28 @@ public interface IAbapGitObject extends IAdtObjectReference {
 	 * @generated
 	 */
 	EList<IAtomLink> getLinks();
+
+	/**
+	 * Returns the value of the '<em><b>Transport</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Transport</em>' containment reference.
+	 * @see #setTransport(ITransport)
+	 * @see org.abapgit.adt.backend.model.abapgitstaging.IAbapgitstagingPackage#getAbapGitObject_Transport()
+	 * @model containment="true"
+	 *        extendedMetaData="kind='element' namespace='##targetNamespace' name='transport'"
+	 * @generated
+	 */
+	ITransport getTransport();
+
+	/**
+	 * Sets the value of the '{@link org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject#getTransport <em>Transport</em>}' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Transport</em>' containment reference.
+	 * @see #getTransport()
+	 * @generated
+	 */
+	void setTransport(ITransport value);
 
 } // IAbapGitObject

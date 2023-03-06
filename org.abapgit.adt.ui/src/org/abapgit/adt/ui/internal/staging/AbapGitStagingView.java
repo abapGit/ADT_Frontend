@@ -23,14 +23,17 @@ import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitStaging;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapgitstagingFactory;
 import org.abapgit.adt.backend.model.abapgitstaging.IAuthor;
 import org.abapgit.adt.backend.model.abapgitstaging.ICommitter;
+import org.abapgit.adt.backend.model.abapgitstagingobjectgrouping.IAbapGitStagingGroupNode;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.repositories.actions.OpenRepositoryAction;
 import org.abapgit.adt.ui.internal.staging.actions.CopyNameAction;
 import org.abapgit.adt.ui.internal.staging.actions.OpenPackageAction;
+import org.abapgit.adt.ui.internal.staging.util.AbapGitStagingGroupingUtil;
 import org.abapgit.adt.ui.internal.staging.util.AbapGitStagingTreeComparator;
 import org.abapgit.adt.ui.internal.staging.util.AbapGitStagingTreeFilter;
 import org.abapgit.adt.ui.internal.staging.util.FileStagingModeUtil;
+import org.abapgit.adt.ui.internal.staging.util.FileStagingModeUtilForGroupNode;
 import org.abapgit.adt.ui.internal.staging.util.IAbapGitStagingService;
 import org.abapgit.adt.ui.internal.staging.util.ObjectStagingModeUtil;
 import org.abapgit.adt.ui.internal.staging.util.ProjectChangeListener;
@@ -49,13 +52,18 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.equinox.security.storage.ISecurePreferences;
 import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
 import org.eclipse.equinox.security.storage.StorageException;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ControlContribution;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.bindings.keys.KeyStroke;
@@ -103,6 +111,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.Widget;
+import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.IFormColors;
@@ -141,6 +150,9 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	private IExternalRepositoryInfo repositoryExternalInfo;
 	private IExternalRepositoryInfoRequest repositoryCredentials;
 
+	//UI Model for grouping
+	private IAbapGitStagingGrouping groupingModel;
+
 	private FormToolkit toolkit;
 	protected Form mainForm;
 	protected Text filterText;
@@ -151,14 +163,14 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	protected TreeViewer unstagedTreeViewer;
 	private ToolBarManager unstagedToolbarManager;
 	private AbapGitStagingObjectMenuFactory unstagedMenuFactory;
-	private final List<IAbapGitObject> unstagedTreeViewerInput = new ArrayList<>();
+	private final List<EObject> unstagedTreeViewerInput = new ArrayList<>();
 
 	//staged section controls
 	private Section stagedSection;
 	protected TreeViewer stagedTreeViewer;
 	private ToolBarManager stagedToolbarManager;
 	private AbapGitStagingObjectMenuFactory stagedMenuFactory;
-	private final List<IAbapGitObject> stagedTreeViewerInput = new ArrayList<>();
+	private final List<EObject> stagedTreeViewerInput = new ArrayList<>();
 
 	//commit section controls
 	private Section commitSection;
@@ -178,6 +190,11 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	private IAction actionCollapseAllUnstaged;
 	private IAction actionCollapseAllStaged;
 	private IAction actionSwitchRepository;
+
+	protected IAction actionGroupByNone;
+	protected IAction actionGroupByPackage;
+	protected IAction actionGroupByTransport;
+	protected String groupingSelection = Messages.AbapGitStagingView_GroupByNoneAction;
 
 	//key binding for copy text
 	private static final KeyStroke KEY_STROKE_COPY = KeyStroke.getInstance(SWT.MOD1, 'C' | 'c');
@@ -452,6 +469,30 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 	}
 
 	/**
+	 * Adds a drop down menu to action bar
+	 */
+	private void addDropDownMenuToActionBar() {
+		IActionBars actionBars = getViewSite().getActionBars();
+		IMenuManager dropdownMenu = actionBars.getMenuManager();
+
+		dropdownMenu.setRemoveAllWhenShown(true);
+		dropdownMenu.addMenuListener(new IMenuListener() {
+
+			@Override
+			public void menuAboutToShow(IMenuManager manager) {
+				MenuManager subMenu = new MenuManager(Messages.AbapGitStagingView_GroupByMenu, null);
+				subMenu.add(AbapGitStagingView.this.actionGroupByNone);
+
+				if (AbapGitStagingView.this.stagingUtil.isGroupingObjectsSupported(AbapGitStagingView.this.model)) {
+					subMenu.add(AbapGitStagingView.this.actionGroupByPackage);
+					subMenu.add(AbapGitStagingView.this.actionGroupByTransport);
+				}
+				manager.add(subMenu);
+			}
+		});
+	}
+
+	/**
 	 * Adds actions to the view toolbar
 	 */
 	private void contributeToActionBars() {
@@ -478,6 +519,9 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		if (this.actionOpenRepository != null) {
 			toolBarManager.add(this.actionOpenRepository);
 		}
+
+		//Add drop-down-menu to Action bar
+		addDropDownMenuToActionBar();
 	}
 
 	/**
@@ -494,7 +538,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 				AbapGitStagingView.this.filterText = new Text(filterComposite, SWT.SEARCH | SWT.ICON_CANCEL | SWT.ICON_SEARCH);
 				AbapGitStagingView.this.filterText.setMessage(Messages.AbapGitStaging_object_filter_text);
 				GridData data = new GridData(SWT.LEFT, SWT.TOP, true, false);
-				data.minimumWidth = 150;
+				data.minimumWidth = 200;
 				AbapGitStagingView.this.filterText.setLayoutData(data);
 
 				AbapGitStagingView.this.filterText.addModifyListener(e -> applyFilter());
@@ -561,6 +605,44 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		if (this.actionSwitchRepository == null) {
 			createRepositorySelectionToolbarAction();
 		}
+
+		//group by none action
+		if (this.actionGroupByNone == null) {
+			createGroupByNoneAction();
+		}
+
+		//group by package action
+		if (this.actionGroupByPackage == null) {
+			createGroupByPackageAction();
+		}
+		//group by transport action
+		if (this.actionGroupByTransport == null) {
+			createGroupByTransportAction();
+		}
+	}
+
+	/**
+	 * Action for not grouping staging objects under any nodes. AbapGitStaging
+	 * objects are root level
+	 *
+	 * This action is the default action i.e. no grouping
+	 */
+	private void createGroupByNoneAction() {
+		this.actionGroupByNone = new GroupByNoneAction();
+	}
+
+	/**
+	 * Action for grouping staging objects under packages
+	 */
+	private void createGroupByPackageAction() {
+		this.actionGroupByPackage = new GroupByPackageAction();
+	}
+
+	/**
+	 * Action for grouping staging objects under transports
+	 */
+	private void createGroupByTransportAction() {
+		this.actionGroupByTransport = new GroupByTransportAction();
 	}
 
 	/**
@@ -638,29 +720,70 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 
 	protected void stageSelectedObjects(IStructuredSelection selection) {
 		List<Object> expandedNodes = new ArrayList<>();
-		if (!AbapGitStagingView.singleFileStageMode) {
-			ObjectStagingModeUtil.stageObjects(this.unstagedTreeViewer, selection, this.model, expandedNodes);
-		} else {
-			FileStagingModeUtil.stageObjects(this.unstagedTreeViewer, selection, this.model, expandedNodes);
+
+		//In case no grouping is selected
+		if (this.groupingSelection == Messages.AbapGitStagingView_GroupByNoneAction) {
+			if (!AbapGitStagingView.singleFileStageMode) {
+				ObjectStagingModeUtil.stageObjects(this.unstagedTreeViewer, selection, this.model, expandedNodes);
+			} else {
+				FileStagingModeUtil.stageObjects(this.unstagedTreeViewer, selection, this.model, expandedNodes);
+			}
+		}
+
+		//In case grouping is selected
+		if (this.groupingSelection == Messages.AbapGitStagingView_GroupByPackageAction
+				|| this.groupingSelection == Messages.AbapGitStagingView_GroupByTransportAction) {
+			if (AbapGitStagingView.singleFileStageMode) {
+				FileStagingModeUtilForGroupNode.stageObjects(this.unstagedTreeViewer, selection, this.groupingModel, expandedNodes);
+			}
+			updateModelFromGroupingModel();
 		}
 
 		//update the tree viewers
+		Object[] expandedElements = this.stagedTreeViewer.getExpandedElements();
 		refreshUI();
-		expandedNodes.addAll(Arrays.asList(this.stagedTreeViewer.getExpandedElements()));
+		expandedNodes.addAll(Arrays.asList(expandedElements));
 		this.stagedTreeViewer.setExpandedElements(expandedNodes.toArray());
+	}
+
+	private void updateModelFromGroupingModel() {
+		this.model.getStagedObjects().getAbapgitobject().clear();
+		this.model.getUnstagedObjects().getAbapgitobject().clear();
+
+		for (IAbapGitStagingGroupNode stagedGroupNode : this.groupingModel.getStagedGroupObjects()) {
+			this.model.getStagedObjects().getAbapgitobject().addAll(EcoreUtil.copyAll(stagedGroupNode.getAbapgitobjects()));
+		}
+
+		for (IAbapGitStagingGroupNode unStagedGroupNode : this.groupingModel.getUnstagedGroupObjects()) {
+			this.model.getUnstagedObjects().getAbapgitobject().addAll(EcoreUtil.copyAll(unStagedGroupNode.getAbapgitobjects()));
+		}
 	}
 
 	protected void unstageSelectedObjects(IStructuredSelection selection) {
 		List<Object> expandedNodes = new ArrayList<>();
-		if (!AbapGitStagingView.singleFileStageMode) {
-			ObjectStagingModeUtil.unstageObjects(this.stagedTreeViewer, selection, this.model, expandedNodes);
-		} else {
-			FileStagingModeUtil.unstageObjects(this.stagedTreeViewer, selection, this.model, expandedNodes);
+
+		//In case no grouping is selected
+		if (this.groupingSelection == Messages.AbapGitStagingView_GroupByNoneAction) {
+			if (!AbapGitStagingView.singleFileStageMode) {
+				ObjectStagingModeUtil.unstageObjects(this.stagedTreeViewer, selection, this.model, expandedNodes);
+			} else {
+				FileStagingModeUtil.unstageObjects(this.stagedTreeViewer, selection, this.model, expandedNodes);
+			}
+		}
+
+		//In case grouping is selected
+		if (this.groupingSelection == Messages.AbapGitStagingView_GroupByPackageAction
+				|| this.groupingSelection == Messages.AbapGitStagingView_GroupByTransportAction) {
+			if (AbapGitStagingView.singleFileStageMode) {
+				FileStagingModeUtilForGroupNode.unstageObjects(this.stagedTreeViewer, selection, this.groupingModel, expandedNodes);
+			}
+			updateModelFromGroupingModel();
 		}
 
 		//update the tree viewers
+		Object[] expandedElements = this.unstagedTreeViewer.getExpandedElements();
 		refreshUI();
-		expandedNodes.addAll(Arrays.asList(this.unstagedTreeViewer.getExpandedElements()));
+		expandedNodes.addAll(Arrays.asList(expandedElements));
 		this.unstagedTreeViewer.setExpandedElements(expandedNodes.toArray());
 	}
 
@@ -745,6 +868,13 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 					AbapGitStagingView.this.model = AbapGitStagingView.this.repoService
 							.stage(AbapGitStagingView.this.repository, AbapGitStagingView.this.repositoryCredentials, monitor);
 					if (AbapGitStagingView.this.model != null) {
+						//If grouping is selected, group the objects from model
+						if (AbapGitStagingView.this.groupingSelection.equals(Messages.AbapGitStagingView_GroupByPackageAction)
+								|| AbapGitStagingView.this.groupingSelection.equals(Messages.AbapGitStagingView_GroupByTransportAction)) {
+
+							AbapGitStagingView.this.groupingModel = AbapGitStagingGroupingUtil.groupObjects(AbapGitStagingView.this.model,
+									AbapGitStagingView.this.groupingSelection);
+						}
 						//refresh UI
 						refreshUI();
 					}
@@ -773,9 +903,19 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 					+ this.project.getName() + "]"); //$NON-NLS-1$
 
 			AbapGitStagingView.this.unstagedTreeViewerInput.clear();
-			AbapGitStagingView.this.unstagedTreeViewerInput.addAll(getUnstagedObjectsFromModel(AbapGitStagingView.this.model));
 			AbapGitStagingView.this.stagedTreeViewerInput.clear();
-			AbapGitStagingView.this.stagedTreeViewerInput.addAll(getStagedObjectsFromModel(AbapGitStagingView.this.model));
+
+			if (this.groupingSelection.equals(Messages.AbapGitStagingView_GroupByPackageAction)
+					|| this.groupingSelection.equals(Messages.AbapGitStagingView_GroupByTransportAction)) {
+				AbapGitStagingView.this.unstagedTreeViewerInput
+						.addAll(this.groupingModel.getUnstagedGroupObjects());
+				AbapGitStagingView.this.stagedTreeViewerInput
+						.addAll(this.groupingModel.getStagedGroupObjects());
+			}
+			else {
+				AbapGitStagingView.this.unstagedTreeViewerInput.addAll(getUnstagedObjectsFromModel(AbapGitStagingView.this.model));
+				AbapGitStagingView.this.stagedTreeViewerInput.addAll(getStagedObjectsFromModel(AbapGitStagingView.this.model));
+			}
 
 			//update the tree viewers
 			this.unstagedTreeViewer.getControl().setRedraw(false);
@@ -850,6 +990,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		this.repository = null;
 		this.repositoryExternalInfo = null;
 		this.repositoryCredentials = null;
+		this.groupingModel = null;
 	}
 
 	private void resetUI() {
@@ -866,6 +1007,12 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 
 		updateSectionHeaders();
 		updateButtonsState();
+
+		//Update the default grouping to NONE
+		this.groupingSelection = Messages.AbapGitStagingView_GroupByNoneAction;
+		this.actionGroupByPackage.setChecked(false);
+		this.actionGroupByTransport.setChecked(false);
+		this.actionGroupByNone.setChecked(true);
 	}
 
 	private void resetTreeFilter() {
@@ -1184,6 +1331,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 						AbapGitStagingView.this.commitMessageTextViewer.getTextWidget().setText(""); //$NON-NLS-1$
 						//clear staged changes
 						AbapGitStagingView.this.stagedTreeViewerInput.clear();
+						AbapGitStagingView.this.model.getStagedObjects().getAbapgitobject().clear();
 						AbapGitStagingView.this.stagedTreeViewer.refresh();
 						//update view
 						updateButtonsState();
@@ -1436,6 +1584,76 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		}
 
 		return null;
+	}
+
+	public class GroupByNoneAction extends Action {
+
+		protected GroupByNoneAction() {
+			super(Messages.AbapGitStagingView_GroupByNoneAction, Action.AS_RADIO_BUTTON);
+		}
+
+		@Override
+		public void run() {
+			AbapGitStagingView.this.groupingSelection = Messages.AbapGitStagingView_GroupByNoneAction;
+
+			refreshUI();
+
+			AbapGitStagingView.this.unstagedTreeViewer.setInput(AbapGitStagingView.this.unstagedTreeViewerInput);
+			AbapGitStagingView.this.stagedTreeViewer.setInput(AbapGitStagingView.this.stagedTreeViewerInput);
+
+		}
+
+	}
+
+	public class GroupByPackageAction extends Action {
+
+		protected GroupByPackageAction() {
+			super(Messages.AbapGitStagingView_GroupByPackageAction, Action.AS_RADIO_BUTTON);
+		}
+
+		@Override
+		public void run() {
+			//Set the grouping selection to packages.
+			//TODO May be this is not needed and we can retrieve selection from Group By Action
+			AbapGitStagingView.this.groupingSelection = Messages.AbapGitStagingView_GroupByPackageAction;
+
+			//Group objects under packages
+			AbapGitStagingView.this.groupingModel = AbapGitStagingGroupingUtil.groupObjects(AbapGitStagingView.this.model,
+					AbapGitStagingView.this.groupingSelection);
+
+			//Refresh the UI
+			refreshUI();
+
+			//Set the input
+			AbapGitStagingView.this.unstagedTreeViewer.setInput(AbapGitStagingView.this.unstagedTreeViewerInput);
+			AbapGitStagingView.this.stagedTreeViewer.setInput(AbapGitStagingView.this.stagedTreeViewerInput);
+
+
+		}
+
+	}
+
+	public class GroupByTransportAction extends Action {
+
+		protected GroupByTransportAction() {
+			super(Messages.AbapGitStagingView_GroupByTransportAction, Action.AS_RADIO_BUTTON);
+		}
+
+		@Override
+		public void run() {
+			AbapGitStagingView.this.groupingSelection = Messages.AbapGitStagingView_GroupByTransportAction;
+
+			//Group objects under transports
+			AbapGitStagingView.this.groupingModel = AbapGitStagingGroupingUtil.groupObjects(AbapGitStagingView.this.model,
+					AbapGitStagingView.this.groupingSelection);
+
+			//Refresh the UI
+			refreshUI();
+
+			//Set the input
+			AbapGitStagingView.this.unstagedTreeViewer.setInput(AbapGitStagingView.this.unstagedTreeViewerInput);
+			AbapGitStagingView.this.stagedTreeViewer.setInput(AbapGitStagingView.this.stagedTreeViewerInput);
+		}
 	}
 
 }

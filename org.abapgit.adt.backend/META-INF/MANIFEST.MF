@@ -9,6 +9,7 @@ Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime;bundle-version="[3.12.0,4.0.0)",
  org.eclipse.emf.ecore;visibility:=reexport,
  org.eclipse.emf.ecore.xmi;visibility:=reexport,
+ org.abapgit.adt.backend;visibility:=reexport,
  com.sap.adt.tools.core.base;visibility:=reexport,
  org.eclipse.core.resources;bundle-version="[3.12.0,4.0.0)",
  com.sap.adt.compatibility;bundle-version="[2.106.1,4.0.0)",
@@ -40,4 +41,7 @@ Export-Package: org.abapgit.adt.backend;
  org.abapgit.adt.backend.model.abapgitpullrequest.util,
  org.abapgit.adt.backend.model.agitpullmodifiedobjects,
  org.abapgit.adt.backend.model.agitpullmodifiedobjects.impl,
- org.abapgit.adt.backend.model.agitpullmodifiedobjects.util
+ org.abapgit.adt.backend.model.agitpullmodifiedobjects.util,
+ org.abapgit.adt.backend.model.abapgitstagingobjectgrouping,
+ org.abapgit.adt.backend.model.abapgitstagingobjectgrouping.impl,
+ org.abapgit.adt.backend.model.abapgitstagingobjectgrouping.util

@@ -1,6 +1,7 @@
 package org.abapgit.adt.ui.internal.staging.util;
 
 import org.abapgit.adt.backend.IFileService;
+import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitStaging;
 import org.abapgit.adt.ui.internal.util.IAbapGitService;
 import org.eclipse.core.resources.IProject;
 
@@ -31,5 +32,12 @@ public interface IAbapGitStagingService extends IAbapGitService {
 	 * abapgit file object.
 	 */
 	boolean isFetchFileContentSupported(Object object);
+
+	/**
+	 * Checks whether grouping of objects under packages/transports is supported
+	 * by the backend. If supported, for at least one object either transport
+	 * detail or package details will be sent from backend as staging response.
+	 */
+	boolean isGroupingObjectsSupported(IAbapGitStaging model);
 
 }

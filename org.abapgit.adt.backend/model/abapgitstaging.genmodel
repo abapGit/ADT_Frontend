@@ -33,6 +33,7 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitstaging.ecore#//AbapGitObject/version"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitstaging.ecore#//AbapGitObject/files"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitstaging.ecore#//AbapGitObject/links"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitstaging.ecore#//AbapGitObject/transport"/>
     </genClasses>
     <genClasses ecoreClass="abapgitstaging.ecore#//AbapGitFile">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitstaging.ecore#//AbapGitFile/name"/>
@@ -57,6 +58,10 @@
     </genClasses>
     <genClasses ecoreClass="abapgitstaging.ecore#//IgnoredObjects">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitstaging.ecore#//IgnoredObjects/abapgitobject"/>
+    </genClasses>
+    <genClasses ecoreClass="abapgitstaging.ecore#//Transport">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitstaging.ecore#//Transport/number"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitstaging.ecore#//Transport/links"/>
     </genClasses>
   </genPackages>
 </genmodel:GenModel>

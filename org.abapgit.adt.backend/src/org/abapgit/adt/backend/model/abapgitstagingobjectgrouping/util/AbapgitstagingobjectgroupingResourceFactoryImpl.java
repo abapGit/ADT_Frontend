@@ -1,27 +1,30 @@
 /**
  */
-package org.abapgit.adt.backend.model.abapgitstaging.util;
+package org.abapgit.adt.backend.model.abapgitstagingobjectgrouping.util;
 
 import org.eclipse.emf.common.util.URI;
+
 import org.eclipse.emf.ecore.resource.Resource;
+
 import org.eclipse.emf.ecore.resource.impl.ResourceFactoryImpl;
+
 import org.eclipse.emf.ecore.xmi.XMLResource;
 
 /**
  * <!-- begin-user-doc -->
  * The <b>Resource Factory</b> associated with the package.
  * <!-- end-user-doc -->
- * @see org.abapgit.adt.backend.model.abapgitstaging.util.AbapgitstagingResourceImpl
+ * @see org.abapgit.adt.backend.model.abapgitstagingobjectgrouping.util.AbapgitstagingobjectgroupingResourceImpl
  * @generated
  */
-public class AbapgitstagingResourceFactoryImpl extends ResourceFactoryImpl {
+public class AbapgitstagingobjectgroupingResourceFactoryImpl extends ResourceFactoryImpl {
 	/**
 	 * Creates an instance of the resource factory.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public AbapgitstagingResourceFactoryImpl() {
+	public AbapgitstagingobjectgroupingResourceFactoryImpl() {
 		super();
 	}
 
@@ -33,7 +36,7 @@ public class AbapgitstagingResourceFactoryImpl extends ResourceFactoryImpl {
 	 */
 	@Override
 	public Resource createResource(URI uri) {
-		XMLResource result = new AbapgitstagingResourceImpl(uri);
+		XMLResource result = new AbapgitstagingobjectgroupingResourceImpl(uri);
 		result.getDefaultSaveOptions().put(XMLResource.OPTION_EXTENDED_META_DATA, Boolean.TRUE);
 		result.getDefaultLoadOptions().put(XMLResource.OPTION_EXTENDED_META_DATA, Boolean.TRUE);
 
@@ -46,4 +49,4 @@ public class AbapgitstagingResourceFactoryImpl extends ResourceFactoryImpl {
 		return result;
 	}
 
-} //AbapgitstagingResourceFactoryImpl
+} //AbapgitstagingobjectgroupingResourceFactoryImpl

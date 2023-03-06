@@ -92,4 +92,18 @@
             type="agitpullmodifiedobjects"
             class="org.abapgit.adt.backend.model.agitpullmodifiedobjects.util.AgitpullmodifiedobjectsResourceFactoryImpl"/>
    </extension>
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated abapgitstagingobjectgrouping -->
+      <package
+            uri="http://www.sap.com/adt/abapgit/staging/grouping"
+            class="org.abapgit.adt.backend.model.abapgitstagingobjectgrouping.IAbapgitstagingobjectgroupingPackage"
+            genModel="model/abapgitstagingobjectgrouping.genmodel"/>
+   </extension>
+
+   <extension point="org.eclipse.emf.ecore.extension_parser">
+      <!-- @generated abapgitstagingobjectgrouping -->
+      <parser
+            type="abapgitstagingobjectgrouping"
+            class="org.abapgit.adt.backend.model.abapgitstagingobjectgrouping.util.AbapgitstagingobjectgroupingResourceFactoryImpl"/>
+   </extension>
 </plugin>

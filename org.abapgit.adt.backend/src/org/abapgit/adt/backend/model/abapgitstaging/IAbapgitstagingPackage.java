@@ -22,81 +22,81 @@ import com.sap.adt.tools.core.model.adtcore.IAdtCorePackage;
  * </ul>
  * <!-- end-user-doc -->
  * <!-- begin-model-doc -->
- *
+ * 
  * 			Schema definition for
  * 			ABAP Development Tools core types
- *
+ * 
  * 			Author: SAP AG
  * 			Copyright (c) 2009 by
  * 			SAP AG
- *
- *
+ * 		
+ * 
  * 			Schema definition for
  * 			ATOM links
- *
+ * 
  * 			Author: SAP AG
  * 			Copyright (c) 2011 by
  * 			SAP AG
- *
- *
+ * 		
+ * 
  *    See http://www.w3.org/XML/1998/namespace.html and
  *    http://www.w3.org/TR/REC-xml for information about this namespace.
- *
+ * 
  *     This schema document describes the XML namespace, in a form
- *     suitable for import by other schema documents.
- *
+ *     suitable for import by other schema documents.  
+ * 
  *     Note that local names in this namespace are intended to be defined
  *     only by the World Wide Web Consortium or its subgroups.  The
  *     following names are currently defined in this namespace and should
  *     not be used with conflicting semantics by any Working Group,
  *     specification, or document instance:
- *
+ * 
  *     base (as an attribute name): denotes an attribute whose value
  *          provides a URI to be used as the base for interpreting any
  *          relative URIs in the scope of the element on which it
  *          appears; its value is inherited.  This name is reserved
  *          by virtue of its definition in the XML Base specification.
- *
+ * 
  *     lang (as an attribute name): denotes an attribute whose value
  *          is a language code for the natural language of the content of
  *          any element; its value is inherited.  This name is reserved
  *          by virtue of its definition in the XML specification.
- *
+ *   
  *     space (as an attribute name): denotes an attribute whose
  *          value is a keyword indicating what whitespace processing
  *          discipline is intended for the content of the element; its
  *          value is inherited.  This name is reserved by virtue of its
  *          definition in the XML specification.
- *
- *     Father (in any context at all): denotes Jon Bosak, the chair of
- *          the original XML Working Group.  This name is reserved by
- *          the following decision of the W3C XML Plenary and
+ * 
+ *     Father (in any context at all): denotes Jon Bosak, the chair of 
+ *          the original XML Working Group.  This name is reserved by 
+ *          the following decision of the W3C XML Plenary and 
  *          XML Coordination groups:
- *
+ * 
  *              In appreciation for his vision, leadership and dedication
  *              the W3C XML Plenary on this 10th day of February, 2000
  *              reserves for Jon Bosak in perpetuity the XML name
  *              xml:Father
- *
+ *   
  * This schema defines attributes and an attribute group
  *         suitable for use by
  *         schemas wishing to allow xml:base, xml:lang or xml:space attributes
  *         on elements they define.
- *
+ * 
  *         To enable this, such a schema must import this schema
  *         for the XML namespace, e.g. as follows:
  *         <schema . . .>
  *          . . .
  *          <import namespace="http://www.w3.org/XML/1998/namespace"
  *                     schemaLocation="http://www.w3.org/2001/03/xml.xsd"/>
- *
+ * 
  *         Subsequently, qualified reference to any of the attributes
  *         or the group defined below will have the desired effect, e.g.
- *
+ * 
  *         <type . . .>
  *          . . .
  *          <attributeGroup ref="xml:specialAttrs"/>
- *
+ *  
  *          will define a type which will schema-validate an instance
  *          element with any of those attributes
  * In keeping with the XML Schema WG's standard versioning
@@ -111,7 +111,7 @@ import com.sap.adt.tools.core.model.adtcore.IAdtCorePackage;
  *    http://www.w3.org/2001/xml.xsd will change
  *    accordingly; the version at
  *    http://www.w3.org/2001/03/xml.xsd will not change.
- *
+ *   
  * <!-- end-model-doc -->
  * @see org.abapgit.adt.backend.model.abapgitstaging.IAbapgitstagingFactory
  * @model kind="package"
@@ -452,13 +452,22 @@ public interface IAbapgitstagingPackage extends EPackage {
 	int ABAP_GIT_OBJECT__LINKS = IAdtCorePackage.ADT_OBJECT_REFERENCE_FEATURE_COUNT + 3;
 
 	/**
+	 * The feature id for the '<em><b>Transport</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ABAP_GIT_OBJECT__TRANSPORT = IAdtCorePackage.ADT_OBJECT_REFERENCE_FEATURE_COUNT + 4;
+
+	/**
 	 * The number of structural features of the '<em>Abap Git Object</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int ABAP_GIT_OBJECT_FEATURE_COUNT = IAdtCorePackage.ADT_OBJECT_REFERENCE_FEATURE_COUNT + 4;
+	int ABAP_GIT_OBJECT_FEATURE_COUNT = IAdtCorePackage.ADT_OBJECT_REFERENCE_FEATURE_COUNT + 5;
 
 	/**
 	 * The number of operations of the '<em>Abap Git Object</em>' class.
@@ -747,6 +756,53 @@ public interface IAbapgitstagingPackage extends EPackage {
 
 
 	/**
+	 * The meta object id for the '{@link org.abapgit.adt.backend.model.abapgitstaging.impl.TransportImpl <em>Transport</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see org.abapgit.adt.backend.model.abapgitstaging.impl.TransportImpl
+	 * @see org.abapgit.adt.backend.model.abapgitstaging.impl.AbapgitstagingPackageImpl#getTransport()
+	 * @generated
+	 */
+	int TRANSPORT = 10;
+
+	/**
+	 * The feature id for the '<em><b>Number</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TRANSPORT__NUMBER = 0;
+
+	/**
+	 * The feature id for the '<em><b>Links</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TRANSPORT__LINKS = 1;
+
+	/**
+	 * The number of structural features of the '<em>Transport</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TRANSPORT_FEATURE_COUNT = 2;
+
+	/**
+	 * The number of operations of the '<em>Transport</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TRANSPORT_OPERATION_COUNT = 0;
+
+
+	/**
 	 * Returns the meta object for class '{@link org.abapgit.adt.backend.model.abapgitstaging.IAbapGitStaging <em>Abap Git Staging</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -963,6 +1019,17 @@ public interface IAbapgitstagingPackage extends EPackage {
 	EReference getAbapGitObject_Links();
 
 	/**
+	 * Returns the meta object for the containment reference '{@link org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject#getTransport <em>Transport</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Transport</em>'.
+	 * @see org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject#getTransport()
+	 * @see #getAbapGitObject()
+	 * @generated
+	 */
+	EReference getAbapGitObject_Transport();
+
+	/**
 	 * Returns the meta object for class '{@link org.abapgit.adt.backend.model.abapgitstaging.IAbapGitFile <em>Abap Git File</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -1153,6 +1220,38 @@ public interface IAbapgitstagingPackage extends EPackage {
 	 * @generated
 	 */
 	EReference getIgnoredObjects_Abapgitobject();
+
+	/**
+	 * Returns the meta object for class '{@link org.abapgit.adt.backend.model.abapgitstaging.ITransport <em>Transport</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Transport</em>'.
+	 * @see org.abapgit.adt.backend.model.abapgitstaging.ITransport
+	 * @generated
+	 */
+	EClass getTransport();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.abapgit.adt.backend.model.abapgitstaging.ITransport#getNumber <em>Number</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Number</em>'.
+	 * @see org.abapgit.adt.backend.model.abapgitstaging.ITransport#getNumber()
+	 * @see #getTransport()
+	 * @generated
+	 */
+	EAttribute getTransport_Number();
+
+	/**
+	 * Returns the meta object for the containment reference list '{@link org.abapgit.adt.backend.model.abapgitstaging.ITransport#getLinks <em>Links</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Links</em>'.
+	 * @see org.abapgit.adt.backend.model.abapgitstaging.ITransport#getLinks()
+	 * @see #getTransport()
+	 * @generated
+	 */
+	EReference getTransport_Links();
 
 	/**
 	 * Returns the factory that creates the instances of the model.
@@ -1346,6 +1445,14 @@ public interface IAbapgitstagingPackage extends EPackage {
 		EReference ABAP_GIT_OBJECT__LINKS = eINSTANCE.getAbapGitObject_Links();
 
 		/**
+		 * The meta object literal for the '<em><b>Transport</b></em>' containment reference feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference ABAP_GIT_OBJECT__TRANSPORT = eINSTANCE.getAbapGitObject_Transport();
+
+		/**
 		 * The meta object literal for the '{@link org.abapgit.adt.backend.model.abapgitstaging.impl.AbapGitFileImpl <em>Abap Git File</em>}' class.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
@@ -1500,6 +1607,32 @@ public interface IAbapgitstagingPackage extends EPackage {
 		 * @generated
 		 */
 		EReference IGNORED_OBJECTS__ABAPGITOBJECT = eINSTANCE.getIgnoredObjects_Abapgitobject();
+
+		/**
+		 * The meta object literal for the '{@link org.abapgit.adt.backend.model.abapgitstaging.impl.TransportImpl <em>Transport</em>}' class.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see org.abapgit.adt.backend.model.abapgitstaging.impl.TransportImpl
+		 * @see org.abapgit.adt.backend.model.abapgitstaging.impl.AbapgitstagingPackageImpl#getTransport()
+		 * @generated
+		 */
+		EClass TRANSPORT = eINSTANCE.getTransport();
+
+		/**
+		 * The meta object literal for the '<em><b>Number</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute TRANSPORT__NUMBER = eINSTANCE.getTransport_Number();
+
+		/**
+		 * The meta object literal for the '<em><b>Links</b></em>' containment reference list feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference TRANSPORT__LINKS = eINSTANCE.getTransport_Links();
 
 	}
 

@@ -13,6 +13,7 @@ import org.abapgit.adt.backend.model.abapgitstaging.IAbapgitstagingFactory;
 import org.abapgit.adt.backend.model.abapgitstaging.IAuthor;
 import org.abapgit.adt.backend.model.abapgitstaging.ICommitter;
 import org.abapgit.adt.backend.model.abapgitstaging.IStagedObjects;
+import org.abapgit.adt.backend.model.abapgitstaging.ITransport;
 import org.abapgit.adt.backend.model.abapgitstaging.IUnstagedObjects;
 import org.abapgit.adt.ui.internal.staging.AbapGitStagingView;
 import org.eclipse.core.resources.IProject;
@@ -171,6 +172,11 @@ public class TestsPdeAbapGitStagingUtil {
 		object.setType("CLAS"); 
 		object.setWbkey("CLAS/OC");
 		object.setUri("/sap/bc/adt/oo/classes/CL_DUMMY_CLAS");
+		object.setPackageName("PACKAGE2");
+
+		ITransport transport = IAbapgitstagingFactory.eINSTANCE.createTransport();
+		transport.setNumber("UIAK123456");
+		object.setTransport(transport);
 
 		object.getFiles().add(getFile1ForClassMock());
 		object.getFiles().add(getFile2ForClassMock());
@@ -201,7 +207,12 @@ public class TestsPdeAbapGitStagingUtil {
 		object.setType("INTF"); 
 		object.setWbkey("INTF/OI");
 		object.setUri("/sap/bc/adt/interfaces/IF_DUMMY_INTF");
+		object.setPackageName("PACKAGE2");
 
+		ITransport transport = IAbapgitstagingFactory.eINSTANCE.createTransport();
+		transport.setNumber("UIAK123456");
+		object.setTransport(transport);
+		
 		IAbapGitFile file = IAbapgitstagingFactory.eINSTANCE.createAbapGitFile();
 		file.setName("file2.xml");
 		file.setPath("/src/");
@@ -223,6 +234,11 @@ public class TestsPdeAbapGitStagingUtil {
 		object.setType("TABL");
 		object.setWbkey("TABL/DT");
 		object.setUri("/sap/bc/adt/table/DUMMY_TABL");
+		object.setPackageName("PACKAGE1");
+		
+		ITransport transport = IAbapgitstagingFactory.eINSTANCE.createTransport();
+		transport.setNumber("UIAK12345");
+		object.setTransport(transport);
 	
 		IAbapGitFile file = IAbapgitstagingFactory.eINSTANCE.createAbapGitFile();
 		file.setName("file3.xml");
