@@ -20,6 +20,7 @@ import org.abapgit.adt.backend.model.abapgitrepositories.impl.Abapgitrepositorie
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitFile;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapgitstagingFactory;
+import org.abapgit.adt.backend.model.abapgitstagingobjectgrouping.IAbapGitStagingGroupNode;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.staging.AbapGitStagingView;
 import org.abapgit.adt.ui.internal.staging.actions.CompareAction;
@@ -325,7 +326,86 @@ public class TestsPdeAbapGitStaging {
 		copy();
 	
 	}
+
+	@Test
+	public void groupingObjects() throws IOException {
+		view.resetStagingView();
+		
+		//create mocks
+		
+		//repository
+		IRepository repository = createNiceMock(IRepository.class);
+		expect(repository.getUrl()).andReturn("https://github.com/AbapGit-Push/lorem_ipsum").anyTimes();
+		expect(repository.getBranchName()).andReturn("master");
+		replay(repository);
+		
+		//external repository
+		IExternalRepositoryInfo externalRepositoryInfo = createNiceMock(IExternalRepositoryInfo.class);
+		expect(externalRepositoryInfo.getAccessMode()).andReturn(AccessMode.PUBLIC);
+		replay(externalRepositoryInfo);
+		
+		//repository service
+		IRepositoryService repositoryService = createNiceMock(IRepositoryService.class);
+		expect(repositoryService.stage(anyObject(), anyObject(), anyObject())).andReturn(testUtil.getStagingTestData());
+		replay(repositoryService);
+		
+		//external repository service
+		IExternalRepositoryInfoService externalRepositoryService = createNiceMock(IExternalRepositoryInfoService.class);
+		expect(externalRepositoryService.getExternalRepositoryInfo(anyObject(), anyObject(), anyObject(), anyObject())).andReturn(externalRepositoryInfo);
+		replay(externalRepositoryService);
+		
+		IAbapGitStagingService stagingService = createNiceMock(IAbapGitStagingService.class);
+		expect(stagingService.ensureLoggedOn(anyObject())).andReturn(true);
+		replay(stagingService);
+		
+		//inject mocks
+		view.repoExternaService = externalRepositoryService;
+		view.repoService = repositoryService;
+		view.stagingUtil = stagingService;
+		
+		//open repository in staging view
+		view.unstagedTreeViewer.setAutoExpandLevel(2);
+		view.stagedTreeViewer.setAutoExpandLevel(2);
+
+		view.openStagingView(repository, project);
+		testUtil.waitInUI(3000);
+		//Run group by package
+		view.actionGroupByPackage.run();
+		testUtil.waitInUI(3000);
+		
+		//check if tree viewers are loaded properly
+		Assert.assertEquals(view.unstagedTreeViewer.getTree().getItemCount(), 3);
+		Assert.assertEquals(view.stagedTreeViewer.getTree().getItemCount(), 0);
+		
+		Assert.assertEquals(view.actionRefresh.isEnabled(), true);
+		Assert.assertEquals(view.actionStage.isEnabled(), true);
+		Assert.assertEquals(view.actionUnstage.isEnabled(), false);
+		Assert.assertEquals(view.commitAndPushButton.getEnabled(), false);
+		
+		//check sort order
+		Assert.assertEquals(((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(0).getData()).getType(), null);
+		Assert.assertEquals(((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(0).getData()).getValue(), "Not assigned to a package");
+		Assert.assertEquals(((IAbapGitObject)((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(0).getData()).getAbapgitobjects().get(0)), testUtil.getNonCodeMock());
+		
+		Assert.assertEquals(((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(1).getData()).getType(), "package");
+		Assert.assertEquals(((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(1).getData()).getValue(), "PACKAGE1");
+		Assert.assertEquals(((IAbapGitObject)((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(1).getData()).getAbapgitobjects().get(0)), testUtil.getTableMock());
+
+		Assert.assertEquals(((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(2).getData()).getType(), "package");
+		Assert.assertEquals(((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(2).getData()).getValue(), "PACKAGE2");
+		Assert.assertEquals(((IAbapGitObject)((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(2).getData()).getAbapgitobjects().get(0)), testUtil.getClassMock());
+		Assert.assertEquals(((IAbapGitObject)((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(2).getData()).getAbapgitobjects().get(1)), testUtil.getInterfaceMock());
+				
+		
+		//test satge and unstage
+		stageAndUnstageGroupedByPackage();
+		
+		//test filter
+		filterPackageGroup();
+			
+	}
 	
+
 	/**
 	 * test file compare action
 	 */
@@ -412,7 +492,7 @@ public class TestsPdeAbapGitStaging {
 	}
 	
 	private void stageAndUnstage() {
-		
+
 		//set a selection in unstaged tree viewer		
 		view.unstagedTreeViewer.setSelection(new StructuredSelection(testUtil.getClassMock()), true);
 		//stage the selection
@@ -524,6 +604,53 @@ public class TestsPdeAbapGitStaging {
 		Assert.assertEquals(view.unstagedTreeViewer.getTree().getItemCount(), 3);
 		Assert.assertEquals(view.stagedTreeViewer.getTree().getItemCount(), 1);
 	}
+
+	private void stageAndUnstageGroupedByPackage() {
+		
+		//set a selection in unstaged tree viewer		
+		view.unstagedTreeViewer.setSelection(new StructuredSelection(testUtil.getClassMock()), true);
+		//stage the selection
+		view.actionStage.run(); //move class object to staged
+				
+		//check if tree viewers are loaded properly
+		Assert.assertEquals(3, view.unstagedTreeViewer.getTree().getItemCount());
+		Assert.assertEquals(1, view.stagedTreeViewer.getTree().getItemCount());
+		
+		//set a new selection in unstaged tree viewer
+		view.unstagedTreeViewer.setSelection(new StructuredSelection(testUtil.getInterfaceMock()), true);
+		//stage the selection
+		view.actionStage.run(); // move interface object to staged 
+		
+		//check if tree viewers are loaded properly
+		Assert.assertEquals(view.unstagedTreeViewer.getTree().getItemCount(), 2);
+		Assert.assertEquals(view.stagedTreeViewer.getTree().getItemCount(), 1);
+		
+		//check sort order
+		Assert.assertEquals(((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(0).getData()).getType(), null);
+		Assert.assertEquals(((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(0).getData()).getValue(), "Not assigned to a package");
+		Assert.assertEquals(((IAbapGitObject)((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(0).getData()).getAbapgitobjects().get(0)), testUtil.getNonCodeMock());
+		
+		Assert.assertEquals(((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(1).getData()).getType(), "package");
+		Assert.assertEquals(((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(1).getData()).getValue(), "PACKAGE1");
+		Assert.assertEquals(((IAbapGitObject)((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(1).getData()).getAbapgitobjects().get(0)), testUtil.getTableMock());
+		
+		Assert.assertEquals(((IAbapGitStagingGroupNode)view.stagedTreeViewer.getTree().getItem(0).getData()).getType(), "package");
+		Assert.assertEquals(((IAbapGitStagingGroupNode)view.stagedTreeViewer.getTree().getItem(0).getData()).getValue(), "PACKAGE2");
+		Assert.assertEquals(((IAbapGitObject)((IAbapGitStagingGroupNode)view.stagedTreeViewer.getTree().getItem(0).getData()).getAbapgitobjects().get(0)), testUtil.getClassMock());
+		Assert.assertEquals(((IAbapGitObject)((IAbapGitStagingGroupNode)view.stagedTreeViewer.getTree().getItem(0).getData()).getAbapgitobjects().get(1)), testUtil.getInterfaceMock());
+		
+		//set a new selection in staged tree viewer
+		view.stagedTreeViewer.setSelection(new StructuredSelection(testUtil.getInterfaceMock()), true);
+		//unstage the selection
+		view.actionUnstage.run(); // move interface object to unstaged
+		
+		//check if tree viewers are loaded properly
+		Assert.assertEquals(view.unstagedTreeViewer.getTree().getItemCount(), 3);
+		Assert.assertEquals(view.stagedTreeViewer.getTree().getItemCount(), 1);
+				
+	}
+	
+
 	
 	private void filter() {
 		//test filter box
@@ -548,7 +675,58 @@ public class TestsPdeAbapGitStaging {
 		Assert.assertEquals(view.unstagedTreeViewer.getTree().getItemCount(), 3);
 		Assert.assertEquals(view.stagedTreeViewer.getTree().getItemCount(), 1);
 	}
+
 	
+	private void filterPackageGroup() {
+		//test filter box
+		view.filterText.setText("IF_DUMMY_INTF");
+		view.filterText.notifyListeners(SWT.Modify, new Event());
+		
+		//check if tree viewers are loaded properly
+		Assert.assertEquals(view.unstagedTreeViewer.getTree().getItemCount(), 1);
+		Assert.assertEquals(view.stagedTreeViewer.getTree().getItemCount(), 0);
+		
+		Assert.assertEquals(((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(0).getData()).getType(), "package");
+		Assert.assertEquals(((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(0).getData()).getValue(), "PACKAGE2");
+		Assert.assertEquals(((IAbapGitObject)((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(0).getData()).getAbapgitobjects().get(0)), testUtil.getInterfaceMock());
+		
+		
+		view.filterText.setText("CL_DUMMY_CLAS");
+		view.filterText.notifyListeners(SWT.Modify, new Event());
+		
+		//check if tree viewers are loaded properly
+		Assert.assertEquals(view.unstagedTreeViewer.getTree().getItemCount(), 0);
+		Assert.assertEquals(view.stagedTreeViewer.getTree().getItemCount(), 1);
+
+		Assert.assertEquals(((IAbapGitStagingGroupNode)view.stagedTreeViewer.getTree().getItem(0).getData()).getType(), "package");
+		Assert.assertEquals(((IAbapGitStagingGroupNode)view.stagedTreeViewer.getTree().getItem(0).getData()).getValue(), "PACKAGE2");
+		Assert.assertEquals(((IAbapGitObject)((IAbapGitStagingGroupNode)view.stagedTreeViewer.getTree().getItem(0).getData()).getAbapgitobjects().get(0)), testUtil.getClassMock());
+		
+		view.filterText.setText("");
+		view.filterText.notifyListeners(SWT.Modify, new Event());
+		
+		//check if tree viewers are loaded properly
+		Assert.assertEquals(view.unstagedTreeViewer.getTree().getItemCount(), 3);
+		Assert.assertEquals(view.stagedTreeViewer.getTree().getItemCount(), 1);
+		
+
+		view.filterText.setText("PACKAGE2");
+		view.filterText.notifyListeners(SWT.Modify, new Event());
+
+		//check if tree viewers are loaded properly
+		Assert.assertEquals(view.unstagedTreeViewer.getTree().getItemCount(), 1);
+		Assert.assertEquals(view.stagedTreeViewer.getTree().getItemCount(), 1);
+
+		Assert.assertEquals(((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(0).getData()).getType(), "package");
+		Assert.assertEquals(((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(0).getData()).getValue(), "PACKAGE2");
+		Assert.assertEquals(((IAbapGitObject)((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(0).getData()).getAbapgitobjects().get(0)), testUtil.getInterfaceMock());
+
+		Assert.assertEquals(((IAbapGitStagingGroupNode)view.stagedTreeViewer.getTree().getItem(0).getData()).getType(), "package");
+		Assert.assertEquals(((IAbapGitStagingGroupNode)view.stagedTreeViewer.getTree().getItem(0).getData()).getValue(), "PACKAGE2");
+		Assert.assertEquals(((IAbapGitObject)((IAbapGitStagingGroupNode)view.stagedTreeViewer.getTree().getItem(0).getData()).getAbapgitobjects().get(0)), testUtil.getClassMock());
+
+	}
+
 	private void refresh(IRepositoryService repositoryService) {
 		//check if refresh action updates the changes in the UI, if there are any
 		repositoryService = createNiceMock(IRepositoryService.class);
