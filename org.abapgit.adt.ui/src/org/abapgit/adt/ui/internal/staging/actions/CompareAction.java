@@ -77,6 +77,24 @@ public class CompareAction extends BaseSelectionListenerAction {
 	}
 
 	@Override
+	protected boolean updateSelection(IStructuredSelection selection) {
+		//compare action should not be enabled for AbapGitStagingNode
+
+//		selection.toList();
+//
+//		if (selection.size() == 1) {
+//			if (selection.getFirstElement() instanceof IAbapGitObject) {
+//				if (((IAbapGitObject) selection.getFirstElement()).getType() == null) {
+//					return false;
+//				}
+//			}
+//
+//		}
+
+		return true;
+	}
+
+	@Override
 	public void run() {
 		IRepository repo = this.view.getRepository();
 		Shell shell = ((AbapGitStagingView) this.view).getSite().getShell();

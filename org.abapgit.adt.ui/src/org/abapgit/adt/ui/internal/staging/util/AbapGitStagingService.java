@@ -8,6 +8,9 @@ import org.abapgit.adt.backend.FileServiceFactory;
 import org.abapgit.adt.backend.IFileService;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitFile;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject;
+import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitStaging;
+import org.abapgit.adt.backend.model.abapgitstaging.IStagedObjects;
+import org.abapgit.adt.backend.model.abapgitstaging.IUnstagedObjects;
 import org.abapgit.adt.backend.model.abapgitstagingobjectgrouping.IAbapGitStagingGroupNode;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.internal.i18n.Messages;
@@ -204,10 +207,10 @@ public class AbapGitStagingService extends AbapGitService implements IAbapGitSta
 			return false;
 		}
 
-		IAbapGitFile file;
+		IAbapGitFile file = null;
 		if (object instanceof IAbapGitFile) {
 			file = (IAbapGitFile) object;
-		} else {
+		} else if (object instanceof IAbapGitObject) {
 			file = ((IAbapGitObject) object).getFiles().get(0);
 		}
 		//Compare with remote feature is available from 2002 Abap in CP release
@@ -216,6 +219,33 @@ public class AbapGitStagingService extends AbapGitService implements IAbapGitSta
 		if (getHrfFromAtomLink(file, IFileService.RELATION_FILE_FETCH_LOCAL) != null) {
 			return true;
 		}
+		return false;
+	}
+
+	@Override
+	public boolean isGroupingObjectsSupported(IAbapGitStaging model) {
+
+		if (model == null) {
+			return false;
+		}
+
+		IStagedObjects stagedObjects = model.getStagedObjects();
+		IUnstagedObjects unstagedObjects = model.getUnstagedObjects();
+
+		for (IAbapGitObject object : stagedObjects.getAbapgitobject()) {
+			if ((object.getPackageName() != null && !object.getPackageName().isEmpty())
+					|| (object.getTransport() != null && object.getTransport().getNumber() != null)) {
+				return true;
+			}
+		}
+
+		for (IAbapGitObject object : unstagedObjects.getAbapgitobject()) {
+			if ((object.getPackageName() != null && !object.getPackageName().isEmpty())
+					|| (object.getTransport() != null && object.getTransport().getNumber() != null)) {
+				return true;
+			}
+		}
+
 		return false;
 	}
 }

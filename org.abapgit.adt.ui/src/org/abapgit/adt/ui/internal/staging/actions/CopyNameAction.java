@@ -2,6 +2,7 @@ package org.abapgit.adt.ui.internal.staging.actions;
 
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitFile;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject;
+import org.abapgit.adt.backend.model.abapgitstagingobjectgrouping.IAbapGitStagingGroupNode;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -40,6 +41,8 @@ public class CopyNameAction extends BaseSelectionListenerAction {
 			data.append(((IAbapGitObject) object).getName());
 		} else if (object instanceof IAbapGitFile) {
 			data.append(((IAbapGitFile) object).getName());
+		} else if (object instanceof IAbapGitStagingGroupNode) {
+			data.append(((IAbapGitStagingGroupNode) object).getValue());
 		}
 
 		final Clipboard clipboard = new Clipboard(Display.getDefault());

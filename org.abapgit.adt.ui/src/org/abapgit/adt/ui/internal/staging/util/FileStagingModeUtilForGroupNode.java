@@ -256,7 +256,7 @@ public class FileStagingModeUtilForGroupNode {
 					//add the file being staged to the staged changes
 					stagedObject.getFiles().add(file);
 					//remove the file from unstaged changes
-					abapObject.getFiles().remove(file);
+//					abapObject.getFiles().remove(file);
 					//remove the object from unstaged changes if the object contains no files after the operation
 					if (abapObject.getFiles().size() == 0) {
 
@@ -619,7 +619,7 @@ public class FileStagingModeUtilForGroupNode {
 					//add the file being unstaged to the unstaged changes
 					unstagedObject.getFiles().add(file);
 					//remove the file from staged changes
-					abapObject.getFiles().remove(file);
+//					abapObject.getFiles().remove(file);
 					//remove the object from staged changes if the object contains no files after the operation
 					if (abapObject.getFiles().size() == 0) {
 						for (IAbapGitStagingGroupNode stagedGroupNode : model.getStagedGroupObjects()) {

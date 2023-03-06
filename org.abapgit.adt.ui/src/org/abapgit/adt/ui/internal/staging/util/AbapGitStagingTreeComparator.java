@@ -1,6 +1,7 @@
 package org.abapgit.adt.ui.internal.staging.util;
 
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject;
+import org.abapgit.adt.backend.model.abapgitstagingobjectgrouping.IAbapGitStagingGroupNode;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
@@ -26,6 +27,20 @@ public class AbapGitStagingTreeComparator extends ViewerComparator {
 			}
 			int result = object1.getName().compareToIgnoreCase(object2.getName());
 			return treeViewer.getTree().getSortDirection() == SWT.UP ? result : -result;
+		}
+		else if (e1 instanceof IAbapGitStagingGroupNode && e2 instanceof IAbapGitStagingGroupNode) {
+			IAbapGitStagingGroupNode object1 = (IAbapGitStagingGroupNode) e1;
+			IAbapGitStagingGroupNode object2 = (IAbapGitStagingGroupNode) e2;
+			//set "non-code and meta files" as the first node
+			if (object1.getType() == null) {
+				return treeViewer.getTree().getSortDirection() == SWT.UP ? -1 : 1;
+			}
+			if (object2.getType() == null) {
+				return treeViewer.getTree().getSortDirection() == SWT.UP ? 1 : -1;
+			}
+			int result = object1.getValue().compareToIgnoreCase(object2.getValue());
+			return treeViewer.getTree().getSortDirection() == SWT.UP ? result : -result;
+
 		}
 		return 0;
 	}

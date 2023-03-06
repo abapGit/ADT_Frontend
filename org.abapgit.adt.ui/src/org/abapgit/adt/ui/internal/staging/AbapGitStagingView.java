@@ -482,8 +482,11 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 			public void menuAboutToShow(IMenuManager manager) {
 				MenuManager subMenu = new MenuManager(Messages.AbapGitStagingView_GroupByMenu, null);
 				subMenu.add(AbapGitStagingView.this.actionGroupByNone);
-				subMenu.add(AbapGitStagingView.this.actionGroupByPackage);
-				subMenu.add(AbapGitStagingView.this.actionGroupByTransport);
+
+				if (AbapGitStagingView.this.stagingUtil.isGroupingObjectsSupported(AbapGitStagingView.this.model)) {
+					subMenu.add(AbapGitStagingView.this.actionGroupByPackage);
+					subMenu.add(AbapGitStagingView.this.actionGroupByTransport);
+				}
 				manager.add(subMenu);
 			}
 		});
@@ -535,7 +538,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 				AbapGitStagingView.this.filterText = new Text(filterComposite, SWT.SEARCH | SWT.ICON_CANCEL | SWT.ICON_SEARCH);
 				AbapGitStagingView.this.filterText.setMessage(Messages.AbapGitStaging_object_filter_text);
 				GridData data = new GridData(SWT.LEFT, SWT.TOP, true, false);
-				data.minimumWidth = 150;
+				data.minimumWidth = 200;
 				AbapGitStagingView.this.filterText.setLayoutData(data);
 
 				AbapGitStagingView.this.filterText.addModifyListener(e -> applyFilter());
@@ -737,8 +740,9 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		}
 
 		//update the tree viewers
+		Object[] expandedElements = this.stagedTreeViewer.getExpandedElements();
 		refreshUI();
-		expandedNodes.addAll(Arrays.asList(this.stagedTreeViewer.getExpandedElements()));
+		expandedNodes.addAll(Arrays.asList(expandedElements));
 		this.stagedTreeViewer.setExpandedElements(expandedNodes.toArray());
 	}
 
@@ -777,8 +781,9 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 		}
 
 		//update the tree viewers
+		Object[] expandedElements = this.unstagedTreeViewer.getExpandedElements();
 		refreshUI();
-		expandedNodes.addAll(Arrays.asList(this.unstagedTreeViewer.getExpandedElements()));
+		expandedNodes.addAll(Arrays.asList(expandedElements));
 		this.unstagedTreeViewer.setExpandedElements(expandedNodes.toArray());
 	}
 
@@ -1002,6 +1007,12 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 
 		updateSectionHeaders();
 		updateButtonsState();
+
+		//Update the default grouping to NONE
+		this.groupingSelection = Messages.AbapGitStagingView_GroupByNoneAction;
+		this.actionGroupByPackage.setChecked(false);
+		this.actionGroupByTransport.setChecked(false);
+		this.actionGroupByNone.setChecked(true);
 	}
 
 	private void resetTreeFilter() {
@@ -1320,6 +1331,7 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 						AbapGitStagingView.this.commitMessageTextViewer.getTextWidget().setText(""); //$NON-NLS-1$
 						//clear staged changes
 						AbapGitStagingView.this.stagedTreeViewerInput.clear();
+						AbapGitStagingView.this.model.getStagedObjects().getAbapgitobject().clear();
 						AbapGitStagingView.this.stagedTreeViewer.refresh();
 						//update view
 						updateButtonsState();

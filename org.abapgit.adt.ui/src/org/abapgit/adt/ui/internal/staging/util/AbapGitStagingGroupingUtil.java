@@ -20,8 +20,8 @@ import com.sap.adt.tools.core.model.atom.IAtomLink;
 
 public class AbapGitStagingGroupingUtil {
 
-	private final static String packageGroupNodeForObjectsNotAssignedToAPackage = "Not assigned to a package"; //$NON-NLS-1$
-	private final static String transportGroupNodeForObjectsNotAssignedToATransport = "Not assigned to a transport"; //$NON-NLS-1$
+	public final static String packageGroupNodeForObjectsNotAssignedToAPackage = "Not assigned to a package"; //$NON-NLS-1$
+	public final static String transportGroupNodeForObjectsNotAssignedToATransport = "Not assigned to a transport"; //$NON-NLS-1$
 
 	public static IAbapGitStagingGrouping groupObjects(IAbapGitStaging model, String groupingSelection) {
 
@@ -85,19 +85,6 @@ public class AbapGitStagingGroupingUtil {
 		}
 
 
-//		Map<String, List<IAbapGitObject>> packageToObjectsHashMap = new HashMap<>();
-//
-//		if (packageToObjects.get(packageGroupNodeForObjectsNotAssignedToAPackage) != null) {
-//			packageToObjectsHashMap.put(packageGroupNodeForObjectsNotAssignedToAPackage,
-//					packageToObjects.get(packageGroupNodeForObjectsNotAssignedToAPackage));
-//		}
-//		packageToObjects.remove(packageGroupNodeForObjectsNotAssignedToAPackage);
-//		packageToObjectsHashMap.putAll(packageToObjects);
-//
-//		for (Entry<String, List<IAbapGitObject>> entry : packageToObjects.entrySet()) {
-//			packageToObjectsHashMap.put(entry.getKey(), entry.getValue());
-//		}
-
 		return packageToObjects;
 
 	}
@@ -160,16 +147,14 @@ public class AbapGitStagingGroupingUtil {
 			}
 			//Prepare a Group node for transport
 			IAbapGitStagingGroupNode groupNode = AbapgitstagingobjectgroupingFactoryImpl.eINSTANCE.createAbapGitStagingGroupNode();
-			groupNode.setType(Messages.AbapGitStagingView_TransportGroupNode);
+			if (!entry.getKey().equals(transportGroupNodeForObjectsNotAssignedToATransport)) {
+				groupNode.setType(Messages.AbapGitStagingView_TransportGroupNode);
+			}
 			groupNode.setValue(entry.getKey());
 			groupNode.setUri(transportURIStaged);
 			groupNode.getAbapgitobjects().addAll(EcoreUtil.copyAll(entry.getValue()));
 
-			if (entry.getKey().equals(transportGroupNodeForObjectsNotAssignedToATransport)) {
-				transportGroupNodes.add(0, groupNode);
-			} else {
-				transportGroupNodes.add(groupNode);
-			}
+			transportGroupNodes.add(groupNode);
 
 		}
 
@@ -194,16 +179,14 @@ public class AbapGitStagingGroupingUtil {
 			}
 			//Prepare a Group node for package
 			IAbapGitStagingGroupNode groupNode = AbapgitstagingobjectgroupingFactoryImpl.eINSTANCE.createAbapGitStagingGroupNode();
-			groupNode.setType(Messages.AbapGitStagingView_PackageGroupNode);
+			if (!entry.getKey().equals(packageGroupNodeForObjectsNotAssignedToAPackage)) {
+				groupNode.setType(Messages.AbapGitStagingView_PackageGroupNode);
+			}
 			groupNode.setValue(entry.getKey());
 			groupNode.setUri(packageURIStaged);
 			groupNode.getAbapgitobjects().addAll(EcoreUtil.copyAll(entry.getValue()));
 
-			if (entry.getKey().equals(packageGroupNodeForObjectsNotAssignedToAPackage)) {
-				packageGroupNodes.add(0, groupNode);
-			} else {
-				packageGroupNodes.add(groupNode);
-			}
+			packageGroupNodes.add(groupNode);
 
 		}
 

@@ -1,6 +1,7 @@
 package org.abapgit.adt.ui.internal.staging.actions;
 
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitObject;
+import org.abapgit.adt.backend.model.abapgitstagingobjectgrouping.IAbapGitStagingGroupNode;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.staging.IAbapGitStagingView;
 import org.abapgit.adt.ui.internal.util.AbapGitUIServiceFactory;
@@ -31,7 +32,15 @@ public class OpenObjectAction extends BaseSelectionListenerAction {
 					return false;
 				}
 			}
+			//open action should not be enabled for the node "Not assigned to any package or transport" while grouping is enabled
+			//in case only that node is selected by the user
+			if (selection.getFirstElement() instanceof IAbapGitStagingGroupNode) {
+				if (((IAbapGitStagingGroupNode) selection.getFirstElement()).getType() == null) {
+					return false;
+				}
+			}
 		}
+
 		return true;
 	}
 
