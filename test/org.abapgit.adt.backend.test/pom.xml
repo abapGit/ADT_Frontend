@@ -2,13 +2,13 @@
 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <artifactId>org.abapgit.adt.backend.test</artifactId>
-  <version>1.6.7</version>
+  <version>1.7.0</version>
   <name>org.abapgit.adt.backend.test</name>
   <packaging>eclipse-test-plugin</packaging>
   <parent>
     <groupId>org.abapgit.adt</groupId>
     <artifactId>tests</artifactId>
-    <version>1.6.7</version>
+    <version>1.7.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 </project>
