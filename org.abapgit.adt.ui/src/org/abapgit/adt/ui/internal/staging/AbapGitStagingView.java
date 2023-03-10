@@ -481,12 +481,11 @@ public class AbapGitStagingView extends ViewPart implements IAbapGitStagingView 
 			@Override
 			public void menuAboutToShow(IMenuManager manager) {
 				MenuManager subMenu = new MenuManager(Messages.AbapGitStagingView_GroupByMenu, null);
-				subMenu.add(AbapGitStagingView.this.actionGroupByNone);
-
 				if (AbapGitStagingView.this.stagingUtil.isGroupingObjectsSupported(AbapGitStagingView.this.model)) {
 					subMenu.add(AbapGitStagingView.this.actionGroupByPackage);
 					subMenu.add(AbapGitStagingView.this.actionGroupByTransport);
 				}
+				subMenu.add(AbapGitStagingView.this.actionGroupByNone);
 				manager.add(subMenu);
 			}
 		});
