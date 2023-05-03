@@ -1,6 +1,8 @@
 package org.abapgit.adt.ui.internal.util;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
@@ -59,7 +61,13 @@ public class RepositoryUtil {
 		IAbapGitPullModifiedObjects abapPullModifiedObjects = repoService.getModifiedObjects(new NullProgressMonitor(), repository,
 				cloneData.user, cloneData.pass);
 
+		//Client side adjustment to the overwrite objects, and remove any objects from the package warning objects.
+		//TODO Fix this in the backend.
+		adjust_overwrite_objects(abapPullModifiedObjects);
+
 		if (!abapPullModifiedObjects.getOverwriteObjects().getAbapgitobjects().isEmpty()) {
+
+
 			cloneData.repoToModifiedOverwriteObjects.add(new RepositoryModifiedObjects(repository.getUrl(),
 					new ArrayList<IAbapGitObject>(abapPullModifiedObjects.getOverwriteObjects().getAbapgitobjects())));
 		}
@@ -68,6 +76,32 @@ public class RepositoryUtil {
 			cloneData.repoToModifiedPackageWarningObjects.add(new RepositoryModifiedObjects(repository.getUrl(),
 					new ArrayList<IAbapGitObject>(abapPullModifiedObjects.getPackageWarningObjects().getAbapgitobjects())));
 		}
+
+	}
+
+	private static void adjust_overwrite_objects(IAbapGitPullModifiedObjects abapPullModifiedObjects) {
+
+		if (abapPullModifiedObjects.getOverwriteObjects() == null
+				|| abapPullModifiedObjects.getOverwriteObjects().getAbapgitobjects().isEmpty()) {
+			return;
+		}
+
+		if (abapPullModifiedObjects.getPackageWarningObjects() != null) {
+			List<IAbapGitObject> warningObjects = abapPullModifiedObjects.getPackageWarningObjects().getAbapgitobjects();
+
+			for (IAbapGitObject abapGitObject : warningObjects) {
+				Iterator<IAbapGitObject> iterator = abapPullModifiedObjects.getOverwriteObjects().getAbapgitobjects().iterator();
+				while (iterator.hasNext()) {
+					IAbapGitObject overwriteObject = iterator.next();
+					if (overwriteObject.getName().equals(abapGitObject.getName())
+							&& overwriteObject.getType().equals(abapGitObject.getType())) {
+						iterator.remove();
+						break;
+					}
+				}
+			}
+		}
+
 
 	}
 }
