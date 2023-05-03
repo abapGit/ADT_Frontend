@@ -109,6 +109,12 @@ public class GitCredentialsService {
 				if (httpStatus == 401 || httpStatus == 403 || httpStatus == 404) {
 					return true;
 				}
+			} else if (exception.getMessage().contains("401")) { //$NON-NLS-1$
+				//Temporary fix for handling authentication issue.
+				//We were sending the HTTP status code from backend, again checking the message.
+				//But the message in backend is changed and it no more sends the correct HTTP status code.
+				//TODO This has to be better handled in the backend.
+				return true;
 			}
 		}
 		return false;
