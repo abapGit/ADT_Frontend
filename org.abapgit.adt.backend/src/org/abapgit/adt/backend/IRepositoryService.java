@@ -30,7 +30,7 @@ public interface IRepositoryService {
 
 	IAbapObjects cloneRepository(String url, String branch, String targetPackage, String folderLogic, String transportRequest, String user,
 			String password,
-			IProgressMonitor monitor);
+			IProgressMonitor monitor) throws ResourceException;
 
 	void cloneRepositories(IRepositories repositories, IProgressMonitor monitor);
 
