@@ -1,6 +1,8 @@
 package org.abapgit.adt.ui.internal.wizards;
 
 import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -46,6 +48,7 @@ import org.eclipse.swt.widgets.Label;
 
 import com.sap.adt.communication.resources.ResourceException;
 import com.sap.adt.tools.core.model.adtcore.IAdtObjectReference;
+import com.sap.adt.tools.core.model.atom.IAtomLink;
 import com.sap.adt.tools.core.ui.packages.AdtPackageProposalProviderFactory;
 import com.sap.adt.tools.core.ui.packages.AdtPackageServiceUIFactory;
 import com.sap.adt.tools.core.ui.packages.IAdtPackageProposalProvider;
@@ -175,7 +178,7 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 			this.comboFolderLogic.setContentProvider(ArrayContentProvider.getInstance());
 			this.comboFolderLogic.setInput(IRepository.FolderLogic.values());
 			this.comboFolderLogic.setSelection(new StructuredSelection(IRepository.FolderLogic.FULL));
-			this.cloneData.folderLogic = IRepository.FolderLogic.FULL.name();
+//			this.cloneData.folderLogic = IRepository.FolderLogic.FULL.name();
 			this.comboFolderLogic.addSelectionChangedListener(
 					event -> this.cloneData.folderLogic = this.comboFolderLogic.getStructuredSelection().getFirstElement().toString());
 			this.comboFolderLogic.getCombo().addFocusListener(new FocusListener() {
@@ -335,23 +338,29 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 	}
 
 	private void setFolderLogicControlVisibility() {
-		if (this.cloneData.repositories != null) {
-			// read atom link from repositories and check for feature availability for folder logic support
-			if (!AbapGitUIServiceFactory.createAbapGitService().isFolderLogicSupportedWhileLink(this.cloneData.repositories)) {
-				if (this.lblFolderLogic != null) {
-					this.lblFolderLogic.setVisible(false);
-					this.comboFolderLogic.getCombo().setVisible(false);
-					((GridData) this.lblFolderLogic.getLayoutData()).exclude = true;
-					((GridData) this.comboFolderLogic.getCombo().getLayoutData()).exclude = true;
-					this.lblFolderLogic.getParent().layout();
-				}
-			} else {
-				if (!this.pullAction) {
-					setDescription(null);
-					setDescription(Messages.AbapGitWizardPageBranchAndPackageAndFolderLogic_description);
-				}
-			}
-		}
+		this.lblFolderLogic.setVisible(false);
+		this.comboFolderLogic.getCombo().setVisible(false);
+		((GridData) this.lblFolderLogic.getLayoutData()).exclude = true;
+		((GridData) this.comboFolderLogic.getCombo().getLayoutData()).exclude = true;
+		this.lblFolderLogic.getParent().layout();
+
+//		if (this.cloneData.repositories != null) {
+//			// read atom link from repositories and check for feature availability for folder logic support
+//			if (!AbapGitUIServiceFactory.createAbapGitService().isFolderLogicSupportedWhileLink(this.cloneData.repositories)) {
+//				if (this.lblFolderLogic != null) {
+//					this.lblFolderLogic.setVisible(false);
+//					this.comboFolderLogic.getCombo().setVisible(false);
+//					((GridData) this.lblFolderLogic.getLayoutData()).exclude = true;
+//					((GridData) this.comboFolderLogic.getCombo().getLayoutData()).exclude = true;
+//					this.lblFolderLogic.getParent().layout();
+//				}
+//			} else {
+//				if (!this.pullAction) {
+//					setDescription(null);
+//					setDescription(Messages.AbapGitWizardPageBranchAndPackageAndFolderLogic_description);
+//				}
+//			}
+//		}
 	}
 
 
@@ -377,6 +386,27 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 					setMessage(e.getMessage(), DialogPage.ERROR);
 					setPageComplete(false);
 					return null;
+				}
+			}
+		} else {
+			//Fetch the link for branch info if available
+			IAtomLink link = this.cloneData.externalRepoInfo.getBranches().stream().filter(p -> p.getName().equalsIgnoreCase(this.cloneData.branch) )
+					.findAny().get().getLinks().stream()
+					.filter(l -> l.getRel().equalsIgnoreCase("http://www.sap.com/adt/abapgit/relations/branchinfo"))
+					.findAny().get();
+
+			//Call the resource to fetch folder logic
+			if (link != null) {
+				try {
+					this.cloneData.folderLogic = RepositoryServiceFactory
+							.createExternalRepositoryInfoService(this.destination, new NullProgressMonitor())
+							.getFolderLogicFromBranchInfo(new URI(link.getHref()), this.cloneData.url, this.cloneData.user,
+									this.cloneData.pass, this.cloneData.branch, this.txtPackage.getTextWidget().getText());
+//					this.getWizard().getPage(AbapGitWizardPageFolderLogic.class.getName())
+//							.createControl(getWizard().getContainer().getShell());
+				} catch (URISyntaxException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 			}
 		}

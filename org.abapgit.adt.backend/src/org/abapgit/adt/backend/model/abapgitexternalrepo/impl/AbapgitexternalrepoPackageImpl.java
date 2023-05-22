@@ -112,11 +112,17 @@ public class AbapgitexternalrepoPackageImpl extends EPackageImpl implements IAba
 		// Initialize simple dependencies
 		XMLTypePackage.eINSTANCE.eClass();
 
+		// Obtain or create and register interdependencies
+		Object registeredPackage = EPackage.Registry.INSTANCE.getEPackage(com.sap.adt.tools.core.model.atom.IAtomPackage.eNS_URI);
+		com.sap.adt.tools.core.model.atom.impl.AtomPackageImpl theAtomPackage = (com.sap.adt.tools.core.model.atom.impl.AtomPackageImpl)(registeredPackage instanceof com.sap.adt.tools.core.model.atom.impl.AtomPackageImpl ? registeredPackage : com.sap.adt.tools.core.model.atom.IAtomPackage.eINSTANCE);
+
 		// Create package meta-data objects
 		theAbapgitexternalrepoPackage.createPackageContents();
+		theAtomPackage.createPackageContents();
 
 		// Initialize created meta-data
 		theAbapgitexternalrepoPackage.initializePackageContents();
+		theAtomPackage.initializePackageContents();
 
 		// Mark meta-data to indicate it can't be changed
 		theAbapgitexternalrepoPackage.freeze();
@@ -184,6 +190,26 @@ public class AbapgitexternalrepoPackageImpl extends EPackageImpl implements IAba
 	@Override
 	public EAttribute getBranch_DisplayName() {
 		return (EAttribute)branchEClass.getEStructuralFeatures().get(4);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public EReference getBranch_Links() {
+		return (EReference)branchEClass.getEStructuralFeatures().get(5);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public EAttribute getBranch_FolderLogic() {
+		return (EAttribute)branchEClass.getEStructuralFeatures().get(6);
 	}
 
 	/**
@@ -322,6 +348,26 @@ public class AbapgitexternalrepoPackageImpl extends EPackageImpl implements IAba
 	 * @generated
 	 */
 	@Override
+	public EAttribute getExternalRepositoryInfoRequest_Package() {
+		return (EAttribute)externalRepositoryInfoRequestEClass.getEStructuralFeatures().get(3);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public EAttribute getExternalRepositoryInfoRequest_Branch() {
+		return (EAttribute)externalRepositoryInfoRequestEClass.getEStructuralFeatures().get(4);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
 	public EEnum getAccessMode() {
 		return accessModeEEnum;
 	}
@@ -361,6 +407,8 @@ public class AbapgitexternalrepoPackageImpl extends EPackageImpl implements IAba
 		createEAttribute(branchEClass, BRANCH__IS_HEAD);
 		createEAttribute(branchEClass, BRANCH__TYPE);
 		createEAttribute(branchEClass, BRANCH__DISPLAY_NAME);
+		createEReference(branchEClass, BRANCH__LINKS);
+		createEAttribute(branchEClass, BRANCH__FOLDER_LOGIC);
 
 		externalRepositoryInfoEClass = createEClass(EXTERNAL_REPOSITORY_INFO);
 		createEReference(externalRepositoryInfoEClass, EXTERNAL_REPOSITORY_INFO__BRANCHES);
@@ -377,6 +425,8 @@ public class AbapgitexternalrepoPackageImpl extends EPackageImpl implements IAba
 		createEAttribute(externalRepositoryInfoRequestEClass, EXTERNAL_REPOSITORY_INFO_REQUEST__URL);
 		createEAttribute(externalRepositoryInfoRequestEClass, EXTERNAL_REPOSITORY_INFO_REQUEST__USER);
 		createEAttribute(externalRepositoryInfoRequestEClass, EXTERNAL_REPOSITORY_INFO_REQUEST__PASSWORD);
+		createEAttribute(externalRepositoryInfoRequestEClass, EXTERNAL_REPOSITORY_INFO_REQUEST__PACKAGE);
+		createEAttribute(externalRepositoryInfoRequestEClass, EXTERNAL_REPOSITORY_INFO_REQUEST__BRANCH);
 
 		// Create enums
 		accessModeEEnum = createEEnum(ACCESS_MODE);
@@ -407,6 +457,7 @@ public class AbapgitexternalrepoPackageImpl extends EPackageImpl implements IAba
 
 		// Obtain other dependent packages
 		XMLTypePackage theXMLTypePackage = (XMLTypePackage)EPackage.Registry.INSTANCE.getEPackage(XMLTypePackage.eNS_URI);
+		com.sap.adt.tools.core.model.atom.IAtomPackage theAtomPackage = (com.sap.adt.tools.core.model.atom.IAtomPackage)EPackage.Registry.INSTANCE.getEPackage(com.sap.adt.tools.core.model.atom.IAtomPackage.eNS_URI);
 
 		// Create type parameters
 
@@ -421,6 +472,8 @@ public class AbapgitexternalrepoPackageImpl extends EPackageImpl implements IAba
 		initEAttribute(getBranch_IsHead(), theXMLTypePackage.getString(), "isHead", null, 0, 1, IBranch.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getBranch_Type(), theXMLTypePackage.getString(), "type", null, 0, 1, IBranch.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getBranch_DisplayName(), theXMLTypePackage.getString(), "displayName", null, 0, 1, IBranch.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getBranch_Links(), theAtomPackage.getAtomLink(), null, "links", null, 0, -1, IBranch.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getBranch_FolderLogic(), theXMLTypePackage.getString(), "folderLogic", null, 0, 1, IBranch.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(externalRepositoryInfoEClass, IExternalRepositoryInfo.class, "ExternalRepositoryInfo", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getExternalRepositoryInfo_Branches(), this.getBranch(), null, "branches", null, 0, -1, IExternalRepositoryInfo.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -437,6 +490,8 @@ public class AbapgitexternalrepoPackageImpl extends EPackageImpl implements IAba
 		initEAttribute(getExternalRepositoryInfoRequest_Url(), theXMLTypePackage.getString(), "url", null, 0, 1, IExternalRepositoryInfoRequest.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getExternalRepositoryInfoRequest_User(), theXMLTypePackage.getString(), "user", null, 0, 1, IExternalRepositoryInfoRequest.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getExternalRepositoryInfoRequest_Password(), theXMLTypePackage.getString(), "password", null, 0, 1, IExternalRepositoryInfoRequest.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getExternalRepositoryInfoRequest_Package(), theXMLTypePackage.getString(), "package", null, 0, 1, IExternalRepositoryInfoRequest.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getExternalRepositoryInfoRequest_Branch(), theXMLTypePackage.getString(), "branch", null, 0, 1, IExternalRepositoryInfoRequest.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		// Initialize enums and add enum literals
 		initEEnum(accessModeEEnum, AccessMode.class, "AccessMode");
@@ -505,6 +560,22 @@ public class AbapgitexternalrepoPackageImpl extends EPackageImpl implements IAba
 			   "kind", "element",
 			   "namespace", "##targetNamespace",
 			   "name", "displayName"
+		   });
+		addAnnotation
+		  (getBranch_Links(),
+		   source,
+		   new String[] {
+			   "kind", "element",
+			   "name", "link",
+			   "namespace", "http://www.w3.org/2005/Atom"
+		   });
+		addAnnotation
+		  (getBranch_FolderLogic(),
+		   source,
+		   new String[] {
+			   "kind", "element",
+			   "namespace", "##targetNamespace",
+			   "name", "folderLogic"
 		   });
 		addAnnotation
 		  (externalRepositoryInfoEClass,
@@ -601,6 +672,20 @@ public class AbapgitexternalrepoPackageImpl extends EPackageImpl implements IAba
 		   });
 		addAnnotation
 		  (getExternalRepositoryInfoRequest_Password(),
+		   source,
+		   new String[] {
+			   "kind", "element",
+			   "namespace", "##targetNamespace"
+		   });
+		addAnnotation
+		  (getExternalRepositoryInfoRequest_Package(),
+		   source,
+		   new String[] {
+			   "kind", "element",
+			   "namespace", "##targetNamespace"
+		   });
+		addAnnotation
+		  (getExternalRepositoryInfoRequest_Branch(),
 		   source,
 		   new String[] {
 			   "kind", "element",

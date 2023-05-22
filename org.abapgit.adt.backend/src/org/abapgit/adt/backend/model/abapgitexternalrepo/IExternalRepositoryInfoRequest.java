@@ -16,6 +16,8 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfoRequest#getUrl <em>Url</em>}</li>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfoRequest#getUser <em>User</em>}</li>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfoRequest#getPassword <em>Password</em>}</li>
+ *   <li>{@link org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfoRequest#getPackage <em>Package</em>}</li>
+ *   <li>{@link org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfoRequest#getBranch <em>Branch</em>}</li>
  * </ul>
  *
  * @see org.abapgit.adt.backend.model.abapgitexternalrepo.IAbapgitexternalrepoPackage#getExternalRepositoryInfoRequest()
@@ -91,5 +93,51 @@ public interface IExternalRepositoryInfoRequest extends EObject {
 	 * @generated
 	 */
 	void setPassword(String value);
+
+	/**
+	 * Returns the value of the '<em><b>Package</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Package</em>' attribute.
+	 * @see #setPackage(String)
+	 * @see org.abapgit.adt.backend.model.abapgitexternalrepo.IAbapgitexternalrepoPackage#getExternalRepositoryInfoRequest_Package()
+	 * @model dataType="org.eclipse.emf.ecore.xml.type.String"
+	 *        extendedMetaData="kind='element' namespace='##targetNamespace'"
+	 * @generated
+	 */
+	String getPackage();
+
+	/**
+	 * Sets the value of the '{@link org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfoRequest#getPackage <em>Package</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Package</em>' attribute.
+	 * @see #getPackage()
+	 * @generated
+	 */
+	void setPackage(String value);
+
+	/**
+	 * Returns the value of the '<em><b>Branch</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Branch</em>' attribute.
+	 * @see #setBranch(String)
+	 * @see org.abapgit.adt.backend.model.abapgitexternalrepo.IAbapgitexternalrepoPackage#getExternalRepositoryInfoRequest_Branch()
+	 * @model dataType="org.eclipse.emf.ecore.xml.type.String"
+	 *        extendedMetaData="kind='element' namespace='##targetNamespace'"
+	 * @generated
+	 */
+	String getBranch();
+
+	/**
+	 * Sets the value of the '{@link org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfoRequest#getBranch <em>Branch</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Branch</em>' attribute.
+	 * @see #getBranch()
+	 * @generated
+	 */
+	void setBranch(String value);
 
 } // IExternalRepositoryInfoRequest
