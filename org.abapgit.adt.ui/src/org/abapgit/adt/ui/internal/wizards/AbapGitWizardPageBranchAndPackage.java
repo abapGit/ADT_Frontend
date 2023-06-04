@@ -9,6 +9,7 @@ import org.abapgit.adt.backend.ApackServiceFactory;
 import org.abapgit.adt.backend.IApackGitManifestService;
 import org.abapgit.adt.backend.IApackManifest;
 import org.abapgit.adt.backend.IApackManifest.IApackDependency;
+import org.abapgit.adt.backend.IExternalRepositoryInfoService;
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
 import org.abapgit.adt.backend.model.abapgitexternalrepo.AccessMode;
@@ -34,11 +35,8 @@ import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -65,8 +63,6 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 	private Boolean chboxLinkAndPull;
 	private TextViewer txtPackage;
 	private ComboViewer comboBranches;
-	private Label lblFolderLogic;
-	private ComboViewer comboFolderLogic;
 
 	private final Boolean pullAction;
 	private boolean backButtonEnabled = true;
@@ -81,7 +77,6 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 		this.pullAction = pullAction;
 		this.lastApackCall = new ApackParameters();
 		this.chboxLinkAndPull = false;
-
 
 		setTitle(Messages.AbapGitWizardPageBranchAndPackage_title);
 		setDescription(Messages.AbapGitWizardPageBranchAndPackage_description);
@@ -164,34 +159,6 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 
 		// if the page is added for repository link wizard
 		if (!this.pullAction) {
-			//read atom link for folder logic. if present create the controls
-			this.lblFolderLogic = new Label(container, SWT.NONE);
-			this.lblFolderLogic.setText(Messages.AbapGitWizardPageBranchAndPackage_label_folder_logic);
-			GridDataFactory.swtDefaults().applyTo(this.lblFolderLogic);
-
-			this.comboFolderLogic = new ComboViewer(container, SWT.BORDER | SWT.READ_ONLY);
-			GridDataFactory.swtDefaults().span(2, 0).align(SWT.FILL, SWT.CENTER).grab(true, false)
-					.applyTo(this.comboFolderLogic.getControl());
-			this.comboFolderLogic.setContentProvider(ArrayContentProvider.getInstance());
-			this.comboFolderLogic.setInput(IRepository.FolderLogic.values());
-			this.comboFolderLogic.setSelection(new StructuredSelection(IRepository.FolderLogic.FULL));
-			this.cloneData.folderLogic = IRepository.FolderLogic.FULL.name();
-			this.comboFolderLogic.addSelectionChangedListener(
-					event -> this.cloneData.folderLogic = this.comboFolderLogic.getStructuredSelection().getFirstElement().toString());
-			this.comboFolderLogic.getCombo().addFocusListener(new FocusListener() {
-				@Override
-				public void focusLost(FocusEvent e) {
-					setMessage(null);
-					setMessage(Messages.AbapGitWizardPageBranchAndPackageAndFolderLogic_description);
-				}
-
-				@Override
-				public void focusGained(FocusEvent e) {
-					setMessage(null);
-					setMessage(Messages.AbapGitWizardPageBranchAndPackage_folder_logic_info, INFORMATION);
-				}
-			});
-
 			// checkbox for executing pull after repository linking
 			this.checkbox_lnp = new Button(container, SWT.CHECK);
 			this.checkbox_lnp.setText(Messages.AbapGitWizardPageBranchAndPackage_chbox_activate);
@@ -328,32 +295,9 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 					this.comboBranches.setSelection(new StructuredSelection(selectedBranch));
 				}
 			}
-
-			setFolderLogicControlVisibility();
 			fetchApackManifest();
 		}
 	}
-
-	private void setFolderLogicControlVisibility() {
-		if (this.cloneData.repositories != null) {
-			// read atom link from repositories and check for feature availability for folder logic support
-			if (!AbapGitUIServiceFactory.createAbapGitService().isFolderLogicSupportedWhileLink(this.cloneData.repositories)) {
-				if (this.lblFolderLogic != null) {
-					this.lblFolderLogic.setVisible(false);
-					this.comboFolderLogic.getCombo().setVisible(false);
-					((GridData) this.lblFolderLogic.getLayoutData()).exclude = true;
-					((GridData) this.comboFolderLogic.getCombo().getLayoutData()).exclude = true;
-					this.lblFolderLogic.getParent().layout();
-				}
-			} else {
-				if (!this.pullAction) {
-					setDescription(null);
-					setDescription(Messages.AbapGitWizardPageBranchAndPackageAndFolderLogic_description);
-				}
-			}
-		}
-	}
-
 
 	@Override
 	public boolean canFlipToNextPage() {
@@ -379,6 +323,47 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 					return null;
 				}
 			}
+		} else {
+			if (validateAll()) {
+				IAbapGitService abapGitService = AbapGitUIServiceFactory.createAbapGitService();
+				IExternalRepositoryInfoService externalRepositoryInfoService = RepositoryServiceFactory
+						.createExternalRepositoryInfoService(this.destination, new NullProgressMonitor());
+
+				if (abapGitService.isBranchInfoSupported(this.cloneData.externalRepoInfo)) {
+					//Call the resource to fetch folder logic
+					try {
+						getContainer().run(true, true, new IRunnableWithProgress() {
+
+							@Override
+							public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+								monitor.beginTask(Messages.AbapGitWizardPageBranchAndPackage_task_fetching_branch_info_message,
+										IProgressMonitor.UNKNOWN);
+								IBranch branchInfo = externalRepositoryInfoService.getBranchInfo(
+										AbapGitWizardPageBranchAndPackage.this.cloneData.externalRepoInfo,
+										AbapGitWizardPageBranchAndPackage.this.cloneData.url,
+										AbapGitWizardPageBranchAndPackage.this.cloneData.user,
+										AbapGitWizardPageBranchAndPackage.this.cloneData.pass,
+										AbapGitWizardPageBranchAndPackage.this.cloneData.branch,
+										AbapGitWizardPageBranchAndPackage.this.cloneData.packageRef.getName());
+
+								AbapGitWizardPageBranchAndPackage.this.cloneData.folderLogic = branchInfo.getFolderLogic();
+								if (AbapGitWizardPageBranchAndPackage.this.cloneData.folderLogic != null
+										&& !AbapGitWizardPageBranchAndPackage.this.cloneData.folderLogic.isBlank()) {
+									AbapGitWizardPageBranchAndPackage.this.cloneData.folderLogicExistsInAbapGitFile = true;
+								}
+							}
+						});
+					} catch (InvocationTargetException e) {
+						setMessage(e.getTargetException().getMessage(), DialogPage.ERROR);
+						e.printStackTrace();
+					} catch (InterruptedException e) {
+						setMessage(e.getMessage(), DialogPage.ERROR);
+						e.printStackTrace();
+					}
+				}
+
+			}
+
 		}
 		return super.getNextPage();
 	}

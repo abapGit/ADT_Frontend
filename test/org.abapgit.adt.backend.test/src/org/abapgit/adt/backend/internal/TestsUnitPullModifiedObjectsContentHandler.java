@@ -14,7 +14,7 @@ import org.junit.Test;
 
 import com.sap.adt.tools.core.model.adtcore.IAdtCoreFactory;
 
-public class TestsPullModifiedObjectsContentHandler {
+public class TestsUnitPullModifiedObjectsContentHandler {
 	
 	@Test
 	public void TestLoadEMFFromResource() {

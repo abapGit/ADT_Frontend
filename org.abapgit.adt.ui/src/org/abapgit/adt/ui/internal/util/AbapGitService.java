@@ -2,8 +2,11 @@ package org.abapgit.adt.ui.internal.util;
 
 import java.util.List;
 
+import org.abapgit.adt.backend.IExternalRepositoryInfoService;
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.IBranch;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfo;
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepositories;
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitFile;
@@ -98,4 +101,20 @@ public class AbapGitService implements IAbapGitService {
 		return false;
 	}
 
+	@Override
+	public boolean isBranchInfoSupported(IExternalRepositoryInfo externalRepoInfo) {
+
+		if (externalRepoInfo.getBranches() != null) {
+			for (IBranch branch : externalRepoInfo.getBranches()) {
+				if (branch.getLinks() != null & !branch.getLinks().isEmpty()) {
+					IAtomLink link = branch.getLinks().stream()
+							.filter(l -> l.getRel().equalsIgnoreCase(IExternalRepositoryInfoService.RELATION_BRANCH_INFO)).findAny().get();
+					if (link != null) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
 }

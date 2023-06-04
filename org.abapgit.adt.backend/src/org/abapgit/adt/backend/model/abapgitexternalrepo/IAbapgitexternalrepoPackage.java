@@ -205,13 +205,31 @@ public interface IAbapgitexternalrepoPackage extends EPackage {
 	int BRANCH__DISPLAY_NAME = 4;
 
 	/**
+	 * The feature id for the '<em><b>Links</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int BRANCH__LINKS = 5;
+
+	/**
+	 * The feature id for the '<em><b>Folder Logic</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int BRANCH__FOLDER_LOGIC = 6;
+
+	/**
 	 * The number of structural features of the '<em>Branch</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int BRANCH_FEATURE_COUNT = 5;
+	int BRANCH_FEATURE_COUNT = 7;
 
 	/**
 	 * The number of operations of the '<em>Branch</em>' class.
@@ -379,13 +397,31 @@ public interface IAbapgitexternalrepoPackage extends EPackage {
 	int EXTERNAL_REPOSITORY_INFO_REQUEST__PASSWORD = 2;
 
 	/**
+	 * The feature id for the '<em><b>Package</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int EXTERNAL_REPOSITORY_INFO_REQUEST__PACKAGE = 3;
+
+	/**
+	 * The feature id for the '<em><b>Branch</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int EXTERNAL_REPOSITORY_INFO_REQUEST__BRANCH = 4;
+
+	/**
 	 * The number of structural features of the '<em>External Repository Info Request</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int EXTERNAL_REPOSITORY_INFO_REQUEST_FEATURE_COUNT = 3;
+	int EXTERNAL_REPOSITORY_INFO_REQUEST_FEATURE_COUNT = 5;
 
 	/**
 	 * The number of operations of the '<em>External Repository Info Request</em>' class.
@@ -471,6 +507,28 @@ public interface IAbapgitexternalrepoPackage extends EPackage {
 	 * @generated
 	 */
 	EAttribute getBranch_DisplayName();
+
+	/**
+	 * Returns the meta object for the containment reference list '{@link org.abapgit.adt.backend.model.abapgitexternalrepo.IBranch#getLinks <em>Links</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Links</em>'.
+	 * @see org.abapgit.adt.backend.model.abapgitexternalrepo.IBranch#getLinks()
+	 * @see #getBranch()
+	 * @generated
+	 */
+	EReference getBranch_Links();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.abapgit.adt.backend.model.abapgitexternalrepo.IBranch#getFolderLogic <em>Folder Logic</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Folder Logic</em>'.
+	 * @see org.abapgit.adt.backend.model.abapgitexternalrepo.IBranch#getFolderLogic()
+	 * @see #getBranch()
+	 * @generated
+	 */
+	EAttribute getBranch_FolderLogic();
 
 	/**
 	 * Returns the meta object for class '{@link org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfo <em>External Repository Info</em>}'.
@@ -613,6 +671,28 @@ public interface IAbapgitexternalrepoPackage extends EPackage {
 	EAttribute getExternalRepositoryInfoRequest_Password();
 
 	/**
+	 * Returns the meta object for the attribute '{@link org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfoRequest#getPackage <em>Package</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Package</em>'.
+	 * @see org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfoRequest#getPackage()
+	 * @see #getExternalRepositoryInfoRequest()
+	 * @generated
+	 */
+	EAttribute getExternalRepositoryInfoRequest_Package();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfoRequest#getBranch <em>Branch</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Branch</em>'.
+	 * @see org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfoRequest#getBranch()
+	 * @see #getExternalRepositoryInfoRequest()
+	 * @generated
+	 */
+	EAttribute getExternalRepositoryInfoRequest_Branch();
+
+	/**
 	 * Returns the meta object for enum '{@link org.abapgit.adt.backend.model.abapgitexternalrepo.AccessMode <em>Access Mode</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -694,6 +774,22 @@ public interface IAbapgitexternalrepoPackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute BRANCH__DISPLAY_NAME = eINSTANCE.getBranch_DisplayName();
+
+		/**
+		 * The meta object literal for the '<em><b>Links</b></em>' containment reference list feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference BRANCH__LINKS = eINSTANCE.getBranch_Links();
+
+		/**
+		 * The meta object literal for the '<em><b>Folder Logic</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute BRANCH__FOLDER_LOGIC = eINSTANCE.getBranch_FolderLogic();
 
 		/**
 		 * The meta object literal for the '{@link org.abapgit.adt.backend.model.abapgitexternalrepo.impl.ExternalRepositoryInfoImpl <em>External Repository Info</em>}' class.
@@ -804,6 +900,22 @@ public interface IAbapgitexternalrepoPackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute EXTERNAL_REPOSITORY_INFO_REQUEST__PASSWORD = eINSTANCE.getExternalRepositoryInfoRequest_Password();
+
+		/**
+		 * The meta object literal for the '<em><b>Package</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute EXTERNAL_REPOSITORY_INFO_REQUEST__PACKAGE = eINSTANCE.getExternalRepositoryInfoRequest_Package();
+
+		/**
+		 * The meta object literal for the '<em><b>Branch</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute EXTERNAL_REPOSITORY_INFO_REQUEST__BRANCH = eINSTANCE.getExternalRepositoryInfoRequest_Branch();
 
 		/**
 		 * The meta object literal for the '{@link org.abapgit.adt.backend.model.abapgitexternalrepo.AccessMode <em>Access Mode</em>}' enum.

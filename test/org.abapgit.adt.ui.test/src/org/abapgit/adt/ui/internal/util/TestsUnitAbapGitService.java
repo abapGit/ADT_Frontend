@@ -1,6 +1,11 @@
 package org.abapgit.adt.ui.internal.util;
 
+import org.abapgit.adt.backend.IExternalRepositoryInfoService;
 import org.abapgit.adt.backend.IRepositoryService;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.AccessMode;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.IAbapgitexternalrepoFactory;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.IBranch;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfo;
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.abapgit.adt.backend.model.abapgitrepositories.impl.AbapgitrepositoriesFactoryImpl;
 import org.junit.Assert;
@@ -42,10 +47,45 @@ public class TestsUnitAbapGitService {
 		// Execute code under test.
 		IAbapGitService abapGitService = AbapGitUIServiceFactory.createAbapGitService();
 		
-//      Assert statement commented as selective pull is disabled temporarily
-//      TODO: enable the test back once the feature is enabled back again
-//		Assert.assertEquals(true, abapGitService.isSelectivePullSupported(repositoryWithModifiedObjectsLink));
-		
+		Assert.assertEquals(true, abapGitService.isSelectivePullSupported(repositoryWithModifiedObjectsLink));		
 		Assert.assertEquals(false, abapGitService.isSelectivePullSupported(repositoryWithOutModifiedObjectsLink));
+	}
+	
+	@Test
+	public void isBranchInfoSupported() {
+
+		IExternalRepositoryInfo externalRepositoryInfoWithBranchInfo = IAbapgitexternalrepoFactory.eINSTANCE.createExternalRepositoryInfo();
+		externalRepositoryInfoWithBranchInfo.setAccessMode(AccessMode.PUBLIC);
+		
+		IBranch branch = IAbapgitexternalrepoFactory.eINSTANCE.createBranch();
+		branch.setDisplayName("master");
+		branch.setName("refs/head/master");
+		branch.setType("HD");
+		branch.setIsHead("X");
+		
+		IAtomLink branchInfoLink = 	IAtomFactory.eINSTANCE.createAtomLink();
+		branchInfoLink.setRel(IExternalRepositoryInfoService.RELATION_BRANCH_INFO);
+		branchInfoLink.setHref("/sap/bc/adt/abapgit/externalrepoinfo/branchinfo");
+		branch.getLinks().add(branchInfoLink);
+		
+		externalRepositoryInfoWithBranchInfo.getBranches().add(branch);
+
+		IExternalRepositoryInfo externalRepositoryInfoWithOutBranchInfo = IAbapgitexternalrepoFactory.eINSTANCE.createExternalRepositoryInfo();
+		externalRepositoryInfoWithOutBranchInfo.setAccessMode(AccessMode.PUBLIC);
+		
+		IBranch branch2 = IAbapgitexternalrepoFactory.eINSTANCE.createBranch();
+		branch2.setDisplayName("master");
+		branch2.setName("refs/head/master");
+		branch2.setType("HD");
+		branch2.setIsHead("X");
+		
+		externalRepositoryInfoWithOutBranchInfo.getBranches().add(branch2);
+
+		// Execute code under test.
+		IAbapGitService abapGitService = AbapGitUIServiceFactory.createAbapGitService();
+
+		Assert.assertEquals(true, abapGitService.isBranchInfoSupported(externalRepositoryInfoWithBranchInfo));		
+		Assert.assertEquals(false, abapGitService.isBranchInfoSupported(externalRepositoryInfoWithOutBranchInfo));
+
 	}
 }

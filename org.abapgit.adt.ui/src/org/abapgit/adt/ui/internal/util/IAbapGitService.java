@@ -3,6 +3,7 @@ package org.abapgit.adt.ui.internal.util;
 import java.util.List;
 
 import org.abapgit.adt.backend.IRepositoryService;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfo;
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepositories;
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.eclipse.core.resources.IProject;
@@ -67,5 +68,10 @@ public interface IAbapGitService {
 	 * Checks whether the folder logic is sent from back-end.
 	 */
 	boolean isFolderLogicAvailable(List<IRepository> repositories);
+
+	/**
+	 * Checks whether the URI to fetch branch info is supported.
+	 */
+	boolean isBranchInfoSupported(IExternalRepositoryInfo externalRepoInfo);
 
 }

@@ -58,6 +58,7 @@ public class AbapGitWizard extends Wizard {
 
 	private AbapGitWizardPageRepositoryAndCredentials pageRepo;
 	private AbapGitWizardPageBranchAndPackage pageBranchAndPackage;
+	private AbapGitWizardPageFolderLogic pageFolderlogic;
 	private AbapGitWizardPageApack pageApack;
 	private IAdtTransportService transportService;
 	private IAdtTransportSelectionWizardPage transportPage;
@@ -82,11 +83,13 @@ public class AbapGitWizard extends Wizard {
 		this.pageRepo = new AbapGitWizardPageRepositoryAndCredentials(this.project, this.destination, this.cloneData, false);
 		this.pageBranchAndPackage = new AbapGitWizardPageBranchAndPackage(this.project, this.destination, this.cloneData,
 				false);
+		this.pageFolderlogic = new AbapGitWizardPageFolderLogic(this.project, this.destination, this.cloneData);
 		this.transportService = AdtTransportServiceFactory.createTransportService(this.destination);
 		this.pageApack = new AbapGitWizardPageApack(this.destination, this.cloneData, this.transportService, false);
 		this.transportPage = AdtTransportSelectionWizardPageFactory.createTransportSelectionPage(this.transportService);
 		addPage(this.pageRepo);
 		addPage(this.pageBranchAndPackage);
+		addPage(this.pageFolderlogic);
 		addPage(this.pageApack);
 		addPage(this.transportPage);
 	}
@@ -289,12 +292,22 @@ public class AbapGitWizard extends Wizard {
 
 	@Override
 	public IWizardPage getNextPage(IWizardPage page) {
-		if (page.equals(this.pageBranchAndPackage) && !this.cloneData.hasDependencies()) {
-			// If we don't have APACK dependencies, we can skip the APACK-related page
-			return this.transportPage;
-		} else {
-			return super.getNextPage(page);
+
+		if (page.equals(this.pageBranchAndPackage)) {
+			if(!AbapGitUIServiceFactory.createAbapGitService().isFolderLogicSupportedWhileLink(this.cloneData.repositories)) {
+				if (this.cloneData.hasDependencies()) {
+					return this.pageApack;
+				} else {
+					return this.transportPage;
+				}
+			}
 		}
+
+		if (page.equals(this.pageFolderlogic) && !this.cloneData.hasDependencies()) {
+				// If we don't have APACK dependencies, we can skip the APACK-related page
+				return this.transportPage;
+		}
+	return super.getNextPage(page);
 
 	}
 
@@ -323,6 +336,7 @@ public class AbapGitWizard extends Wizard {
 		public IExternalRepositoryInfo externalRepoInfo;
 		public IAdtObjectReference packageRef;
 		public String folderLogic;
+		public boolean folderLogicExistsInAbapGitFile = false;
 		public String branch;
 		public String url;
 		public String user;

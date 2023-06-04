@@ -1,9 +1,16 @@
 package org.abapgit.adt.ui.internal.repositories;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+
 import org.abapgit.adt.backend.IExternalRepositoryInfoService;
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
+import org.abapgit.adt.backend.model.abapObjects.IAbapObjects;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.AccessMode;
 import org.abapgit.adt.backend.model.abapgitexternalrepo.IAbapgitexternalrepoFactory;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.IBranch;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfo;
 import org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfoRequest;
 import org.abapgit.adt.backend.model.abapgitrepositories.IAbapgitrepositoriesFactory;
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepositories;
@@ -61,6 +68,27 @@ public class TestsIntegrationRepositoriesView {
 		return credentials;
 	}
 
+	private static IExternalRepositoryInfo getExternalRepoInfoObject() {
+		IExternalRepositoryInfo externalRepositoryInfo = IAbapgitexternalrepoFactory.eINSTANCE.createExternalRepositoryInfo();
+		externalRepositoryInfo.setAccessMode(AccessMode.PUBLIC);
+		
+		IBranch branch = IAbapgitexternalrepoFactory.eINSTANCE.createBranch();
+		branch.setDisplayName("master");
+		branch.setName("refs/head/master");
+		branch.setType("HD");
+		branch.setIsHead("X");
+		
+		IAtomLink branchInfoLink = 	IAtomFactory.eINSTANCE.createAtomLink();
+		branchInfoLink.setRel(IExternalRepositoryInfoService.RELATION_BRANCH_INFO);
+		branchInfoLink.setHref("/sap/bc/adt/abapgit/externalrepoinfo/branchinfo");
+		branch.getLinks().add(branchInfoLink);
+		
+		externalRepositoryInfo.getBranches().add(branch);
+		
+		return externalRepositoryInfo;
+	
+	}
+
 	private static IRepository createRepoWithInvalidDetails() {
 		IRepository repo = IAbapgitrepositoriesFactory.eINSTANCE.createRepository();
 		
@@ -68,7 +96,7 @@ public class TestsIntegrationRepositoriesView {
 		repo.setKey("xyz");
 		repo.setRemoteUser("A2ETest");
 		repo.setRemotePassword("Password");
-		repo.setBranchName("main");
+		repo.setBranchName("refs/head/master");
 		repo.setPackage("ZABAPGIT_INTEGRATION_TESTS");
 		repo.setFolderLogic("FULL");
 		repo.setTransportRequest("SKS12345");
@@ -127,6 +155,7 @@ public class TestsIntegrationRepositoriesView {
 		if(repoService != null) {
 			try {
 				repoService.cloneRepository(repoWithInvalidDetails.getUrl(), repoWithInvalidDetails.getBranchName(), repoWithInvalidDetails.getPackage(),repoWithInvalidDetails.getFolderLogic(),repoWithInvalidDetails.getTransportRequest(), repoWithInvalidDetails.getRemoteUser(), repoWithInvalidDetails.getRemotePassword(), new NullProgressMonitor());						
+				assertFalse("Malformed URL exception expected", true);
 			}  catch (ResourceException e) {
 				assertResponseForInvalidURL(e);
 			}
@@ -135,13 +164,27 @@ public class TestsIntegrationRepositoriesView {
 
 	@Test
 	public void smokeTestExternalRepoInfoURI() {
-		if(repoService != null) {
+		if(externalRepoService != null) {
 			try {
 				externalRepoService.getExternalRepositoryInfo(repoWithInvalidDetails.getUrl(), repoWithInvalidDetails.getRemoteUser(), repoWithInvalidDetails.getRemotePassword(), new NullProgressMonitor());						
+				assertFalse("Malformed URL exception expected", true);
 			}  catch (ResourceException e) {
 				assertResponseForInvalidURL(e);
 			}
 		}
+	}
+	
+	@Test
+	public void smokeTestBranchInfo() {
+//		if(externalRepoService != null) {
+//			try {
+//				IRepository repo = createRepoWithInvalidDetails();
+//				externalRepoService.getBranchInfo(getExternalRepoInfoObject(), repo.getUrl(), repo.getRemoteUser(), repo.getRemotePassword(), repo.getBranchName(), repo.getPackage());
+//				assertFalse("Malformed URL exception expected", true);
+//			}  catch (ResourceException e) {
+//				assertResponseForInvalidURL(e);
+//			}
+//		}
 	}
 
 	@Test
@@ -150,6 +193,7 @@ public class TestsIntegrationRepositoriesView {
 			try {
 				IAbapGitPullModifiedObjects pullModifiedObjects = IAgitpullmodifiedobjectsFactory.eINSTANCE.createAbapGitPullModifiedObjects();
 				repoService.pullRepository(repoWithInvalidDetails, repoWithInvalidDetails.getBranchName(), repoWithInvalidDetails.getTransportRequest(), repoWithInvalidDetails.getRemoteUser(), repoWithInvalidDetails.getRemotePassword(), pullModifiedObjects, new NullProgressMonitor());
+				assertFalse("Repo not found exception expected", true);
 			}  catch (ResourceException e) {
 				assertResponseForInvalidRepoKey(e);
 			}			
@@ -161,6 +205,7 @@ public class TestsIntegrationRepositoriesView {
 		if(repoService != null) {
 			try {
 				repoService.getModifiedObjects(new NullProgressMonitor(), repoWithInvalidDetails, repoWithInvalidDetails.getRemoteUser(), repoWithInvalidDetails.getRemotePassword());
+				assertFalse("Repo not found exception expected", true);
 			}  catch (ResourceException e) {
 				assertResponseForInvalidRepoKey(e);
 			}
@@ -173,6 +218,7 @@ public class TestsIntegrationRepositoriesView {
 		if(repoService != null) {
 			try {
 				repoService.repositoryChecks(new NullProgressMonitor(), credentials, repoWithInvalidDetails);
+				assertFalse("Repo not found exception expected", true);
 			}  catch (ResourceException e) {
 				assertResponseForInvalidRepoKey(e);
 			}
@@ -183,11 +229,8 @@ public class TestsIntegrationRepositoriesView {
 	public void smokeTestObjectsLogURI() {
 
 		if(repoService != null) {
-			try {
-				repoService.getRepoObjLog(new NullProgressMonitor(), repoWithInvalidDetails);
-			}  catch (ResourceException e) {
-				assertResponseForInvalidRepoKey(e);
-			}
+				IAbapObjects abapGitObjects = repoService.getRepoObjLog(new NullProgressMonitor(), repoWithInvalidDetails);
+				assertNotNull(abapGitObjects);
 		}
 
 	}
