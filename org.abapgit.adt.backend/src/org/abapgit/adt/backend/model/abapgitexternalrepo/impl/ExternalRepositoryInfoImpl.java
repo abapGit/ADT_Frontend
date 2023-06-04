@@ -89,10 +89,10 @@ public class ExternalRepositoryInfoImpl extends MinimalEObjectImpl.Container imp
 	 */
 	@Override
 	public EList<IBranch> getBranches() {
-		if (this.branches == null) {
-			this.branches = new EObjectContainmentEList<IBranch>(IBranch.class, this, IAbapgitexternalrepoPackage.EXTERNAL_REPOSITORY_INFO__BRANCHES);
+		if (branches == null) {
+			branches = new EObjectContainmentEList<IBranch>(IBranch.class, this, IAbapgitexternalrepoPackage.EXTERNAL_REPOSITORY_INFO__BRANCHES);
 		}
-		return this.branches;
+		return branches;
 	}
 
 	/**
@@ -102,7 +102,7 @@ public class ExternalRepositoryInfoImpl extends MinimalEObjectImpl.Container imp
 	 */
 	@Override
 	public AccessMode getAccessMode() {
-		return this.accessMode;
+		return accessMode;
 	}
 
 	/**
@@ -112,11 +112,10 @@ public class ExternalRepositoryInfoImpl extends MinimalEObjectImpl.Container imp
 	 */
 	@Override
 	public void setAccessMode(AccessMode newAccessMode) {
-		AccessMode oldAccessMode = this.accessMode;
-		this.accessMode = newAccessMode == null ? ACCESS_MODE_EDEFAULT : newAccessMode;
-		if (eNotificationRequired()) {
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitexternalrepoPackage.EXTERNAL_REPOSITORY_INFO__ACCESS_MODE, oldAccessMode, this.accessMode));
-		}
+		AccessMode oldAccessMode = accessMode;
+		accessMode = newAccessMode == null ? ACCESS_MODE_EDEFAULT : newAccessMode;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitexternalrepoPackage.EXTERNAL_REPOSITORY_INFO__ACCESS_MODE, oldAccessMode, accessMode));
 	}
 
 	/**
@@ -196,9 +195,9 @@ public class ExternalRepositoryInfoImpl extends MinimalEObjectImpl.Container imp
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
 			case IAbapgitexternalrepoPackage.EXTERNAL_REPOSITORY_INFO__BRANCHES:
-				return this.branches != null && !this.branches.isEmpty();
+				return branches != null && !branches.isEmpty();
 			case IAbapgitexternalrepoPackage.EXTERNAL_REPOSITORY_INFO__ACCESS_MODE:
-				return this.accessMode != ACCESS_MODE_EDEFAULT;
+				return accessMode != ACCESS_MODE_EDEFAULT;
 		}
 		return super.eIsSet(featureID);
 	}
@@ -210,13 +209,11 @@ public class ExternalRepositoryInfoImpl extends MinimalEObjectImpl.Container imp
 	 */
 	@Override
 	public String toString() {
-		if (eIsProxy()) {
-			return super.toString();
-		}
+		if (eIsProxy()) return super.toString();
 
 		StringBuilder result = new StringBuilder(super.toString());
 		result.append(" (accessMode: ");
-		result.append(this.accessMode);
+		result.append(accessMode);
 		result.append(')');
 		return result.toString();
 	}

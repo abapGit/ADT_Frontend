@@ -2,12 +2,18 @@
  */
 package org.abapgit.adt.backend.model.abapgitexternalrepo.impl;
 
+import java.util.Collection;
 import org.abapgit.adt.backend.model.abapgitexternalrepo.IAbapgitexternalrepoPackage;
 import org.abapgit.adt.backend.model.abapgitexternalrepo.IBranch;
 import org.eclipse.emf.common.notify.Notification;
+import org.eclipse.emf.common.notify.NotificationChain;
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
+import org.eclipse.emf.ecore.util.EObjectContainmentEList;
+import org.eclipse.emf.ecore.util.InternalEList;
 
 /**
  * <!-- begin-user-doc -->
@@ -22,6 +28,8 @@ import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
  *   <li>{@link org.abapgit.adt.backend.model.abapgitexternalrepo.impl.BranchImpl#getIsHead <em>Is Head</em>}</li>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitexternalrepo.impl.BranchImpl#getType <em>Type</em>}</li>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitexternalrepo.impl.BranchImpl#getDisplayName <em>Display Name</em>}</li>
+ *   <li>{@link org.abapgit.adt.backend.model.abapgitexternalrepo.impl.BranchImpl#getLinks <em>Links</em>}</li>
+ *   <li>{@link org.abapgit.adt.backend.model.abapgitexternalrepo.impl.BranchImpl#getFolderLogic <em>Folder Logic</em>}</li>
  * </ul>
  *
  * @generated
@@ -128,6 +136,36 @@ public class BranchImpl extends MinimalEObjectImpl.Container implements IBranch 
 	protected String displayName = DISPLAY_NAME_EDEFAULT;
 
 	/**
+	 * The cached value of the '{@link #getLinks() <em>Links</em>}' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getLinks()
+	 * @generated
+	 * @ordered
+	 */
+	protected EList<com.sap.adt.tools.core.model.atom.IAtomLink> links;
+
+	/**
+	 * The default value of the '{@link #getFolderLogic() <em>Folder Logic</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getFolderLogic()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String FOLDER_LOGIC_EDEFAULT = null;
+
+	/**
+	 * The cached value of the '{@link #getFolderLogic() <em>Folder Logic</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getFolderLogic()
+	 * @generated
+	 * @ordered
+	 */
+	protected String folderLogic = FOLDER_LOGIC_EDEFAULT;
+
+	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
@@ -153,7 +191,7 @@ public class BranchImpl extends MinimalEObjectImpl.Container implements IBranch 
 	 */
 	@Override
 	public String getSha1() {
-		return this.sha1;
+		return sha1;
 	}
 
 	/**
@@ -163,11 +201,10 @@ public class BranchImpl extends MinimalEObjectImpl.Container implements IBranch 
 	 */
 	@Override
 	public void setSha1(String newSha1) {
-		String oldSha1 = this.sha1;
-		this.sha1 = newSha1;
-		if (eNotificationRequired()) {
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitexternalrepoPackage.BRANCH__SHA1, oldSha1, this.sha1));
-		}
+		String oldSha1 = sha1;
+		sha1 = newSha1;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitexternalrepoPackage.BRANCH__SHA1, oldSha1, sha1));
 	}
 
 	/**
@@ -177,7 +214,7 @@ public class BranchImpl extends MinimalEObjectImpl.Container implements IBranch 
 	 */
 	@Override
 	public String getName() {
-		return this.name;
+		return name;
 	}
 
 	/**
@@ -187,11 +224,10 @@ public class BranchImpl extends MinimalEObjectImpl.Container implements IBranch 
 	 */
 	@Override
 	public void setName(String newName) {
-		String oldName = this.name;
-		this.name = newName;
-		if (eNotificationRequired()) {
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitexternalrepoPackage.BRANCH__NAME, oldName, this.name));
-		}
+		String oldName = name;
+		name = newName;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitexternalrepoPackage.BRANCH__NAME, oldName, name));
 	}
 
 	/**
@@ -201,7 +237,7 @@ public class BranchImpl extends MinimalEObjectImpl.Container implements IBranch 
 	 */
 	@Override
 	public String getIsHead() {
-		return this.isHead;
+		return isHead;
 	}
 
 	/**
@@ -211,11 +247,10 @@ public class BranchImpl extends MinimalEObjectImpl.Container implements IBranch 
 	 */
 	@Override
 	public void setIsHead(String newIsHead) {
-		String oldIsHead = this.isHead;
-		this.isHead = newIsHead;
-		if (eNotificationRequired()) {
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitexternalrepoPackage.BRANCH__IS_HEAD, oldIsHead, this.isHead));
-		}
+		String oldIsHead = isHead;
+		isHead = newIsHead;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitexternalrepoPackage.BRANCH__IS_HEAD, oldIsHead, isHead));
 	}
 
 	/**
@@ -225,7 +260,7 @@ public class BranchImpl extends MinimalEObjectImpl.Container implements IBranch 
 	 */
 	@Override
 	public String getType() {
-		return this.type;
+		return type;
 	}
 
 	/**
@@ -235,11 +270,10 @@ public class BranchImpl extends MinimalEObjectImpl.Container implements IBranch 
 	 */
 	@Override
 	public void setType(String newType) {
-		String oldType = this.type;
-		this.type = newType;
-		if (eNotificationRequired()) {
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitexternalrepoPackage.BRANCH__TYPE, oldType, this.type));
-		}
+		String oldType = type;
+		type = newType;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitexternalrepoPackage.BRANCH__TYPE, oldType, type));
 	}
 
 	/**
@@ -249,7 +283,7 @@ public class BranchImpl extends MinimalEObjectImpl.Container implements IBranch 
 	 */
 	@Override
 	public String getDisplayName() {
-		return this.displayName;
+		return displayName;
 	}
 
 	/**
@@ -259,11 +293,60 @@ public class BranchImpl extends MinimalEObjectImpl.Container implements IBranch 
 	 */
 	@Override
 	public void setDisplayName(String newDisplayName) {
-		String oldDisplayName = this.displayName;
-		this.displayName = newDisplayName;
-		if (eNotificationRequired()) {
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitexternalrepoPackage.BRANCH__DISPLAY_NAME, oldDisplayName, this.displayName));
+		String oldDisplayName = displayName;
+		displayName = newDisplayName;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitexternalrepoPackage.BRANCH__DISPLAY_NAME, oldDisplayName, displayName));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public EList<com.sap.adt.tools.core.model.atom.IAtomLink> getLinks() {
+		if (links == null) {
+			links = new EObjectContainmentEList<com.sap.adt.tools.core.model.atom.IAtomLink>(com.sap.adt.tools.core.model.atom.IAtomLink.class, this, IAbapgitexternalrepoPackage.BRANCH__LINKS);
 		}
+		return links;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public String getFolderLogic() {
+		return folderLogic;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public void setFolderLogic(String newFolderLogic) {
+		String oldFolderLogic = folderLogic;
+		folderLogic = newFolderLogic;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitexternalrepoPackage.BRANCH__FOLDER_LOGIC, oldFolderLogic, folderLogic));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
+		switch (featureID) {
+			case IAbapgitexternalrepoPackage.BRANCH__LINKS:
+				return ((InternalEList<?>)getLinks()).basicRemove(otherEnd, msgs);
+		}
+		return super.eInverseRemove(otherEnd, featureID, msgs);
 	}
 
 	/**
@@ -284,6 +367,10 @@ public class BranchImpl extends MinimalEObjectImpl.Container implements IBranch 
 				return getType();
 			case IAbapgitexternalrepoPackage.BRANCH__DISPLAY_NAME:
 				return getDisplayName();
+			case IAbapgitexternalrepoPackage.BRANCH__LINKS:
+				return getLinks();
+			case IAbapgitexternalrepoPackage.BRANCH__FOLDER_LOGIC:
+				return getFolderLogic();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -293,6 +380,7 @@ public class BranchImpl extends MinimalEObjectImpl.Container implements IBranch 
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
@@ -310,6 +398,13 @@ public class BranchImpl extends MinimalEObjectImpl.Container implements IBranch 
 				return;
 			case IAbapgitexternalrepoPackage.BRANCH__DISPLAY_NAME:
 				setDisplayName((String)newValue);
+				return;
+			case IAbapgitexternalrepoPackage.BRANCH__LINKS:
+				getLinks().clear();
+				getLinks().addAll((Collection<? extends com.sap.adt.tools.core.model.atom.IAtomLink>)newValue);
+				return;
+			case IAbapgitexternalrepoPackage.BRANCH__FOLDER_LOGIC:
+				setFolderLogic((String)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -338,6 +433,12 @@ public class BranchImpl extends MinimalEObjectImpl.Container implements IBranch 
 			case IAbapgitexternalrepoPackage.BRANCH__DISPLAY_NAME:
 				setDisplayName(DISPLAY_NAME_EDEFAULT);
 				return;
+			case IAbapgitexternalrepoPackage.BRANCH__LINKS:
+				getLinks().clear();
+				return;
+			case IAbapgitexternalrepoPackage.BRANCH__FOLDER_LOGIC:
+				setFolderLogic(FOLDER_LOGIC_EDEFAULT);
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -351,15 +452,19 @@ public class BranchImpl extends MinimalEObjectImpl.Container implements IBranch 
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
 			case IAbapgitexternalrepoPackage.BRANCH__SHA1:
-				return SHA1_EDEFAULT == null ? this.sha1 != null : !SHA1_EDEFAULT.equals(this.sha1);
+				return SHA1_EDEFAULT == null ? sha1 != null : !SHA1_EDEFAULT.equals(sha1);
 			case IAbapgitexternalrepoPackage.BRANCH__NAME:
-				return NAME_EDEFAULT == null ? this.name != null : !NAME_EDEFAULT.equals(this.name);
+				return NAME_EDEFAULT == null ? name != null : !NAME_EDEFAULT.equals(name);
 			case IAbapgitexternalrepoPackage.BRANCH__IS_HEAD:
-				return IS_HEAD_EDEFAULT == null ? this.isHead != null : !IS_HEAD_EDEFAULT.equals(this.isHead);
+				return IS_HEAD_EDEFAULT == null ? isHead != null : !IS_HEAD_EDEFAULT.equals(isHead);
 			case IAbapgitexternalrepoPackage.BRANCH__TYPE:
-				return TYPE_EDEFAULT == null ? this.type != null : !TYPE_EDEFAULT.equals(this.type);
+				return TYPE_EDEFAULT == null ? type != null : !TYPE_EDEFAULT.equals(type);
 			case IAbapgitexternalrepoPackage.BRANCH__DISPLAY_NAME:
-				return DISPLAY_NAME_EDEFAULT == null ? this.displayName != null : !DISPLAY_NAME_EDEFAULT.equals(this.displayName);
+				return DISPLAY_NAME_EDEFAULT == null ? displayName != null : !DISPLAY_NAME_EDEFAULT.equals(displayName);
+			case IAbapgitexternalrepoPackage.BRANCH__LINKS:
+				return links != null && !links.isEmpty();
+			case IAbapgitexternalrepoPackage.BRANCH__FOLDER_LOGIC:
+				return FOLDER_LOGIC_EDEFAULT == null ? folderLogic != null : !FOLDER_LOGIC_EDEFAULT.equals(folderLogic);
 		}
 		return super.eIsSet(featureID);
 	}
@@ -371,21 +476,21 @@ public class BranchImpl extends MinimalEObjectImpl.Container implements IBranch 
 	 */
 	@Override
 	public String toString() {
-		if (eIsProxy()) {
-			return super.toString();
-		}
+		if (eIsProxy()) return super.toString();
 
 		StringBuilder result = new StringBuilder(super.toString());
 		result.append(" (sha1: ");
-		result.append(this.sha1);
+		result.append(sha1);
 		result.append(", name: ");
-		result.append(this.name);
+		result.append(name);
 		result.append(", isHead: ");
-		result.append(this.isHead);
+		result.append(isHead);
 		result.append(", type: ");
-		result.append(this.type);
+		result.append(type);
 		result.append(", displayName: ");
-		result.append(this.displayName);
+		result.append(displayName);
+		result.append(", folderLogic: ");
+		result.append(folderLogic);
 		result.append(')');
 		return result.toString();
 	}

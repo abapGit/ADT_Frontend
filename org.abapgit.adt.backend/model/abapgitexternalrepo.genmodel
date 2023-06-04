@@ -17,6 +17,8 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitexternalrepo.ecore#//Branch/isHead"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitexternalrepo.ecore#//Branch/type"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitexternalrepo.ecore#//Branch/displayName"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitexternalrepo.ecore#//Branch/links"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitexternalrepo.ecore#//Branch/folderLogic"/>
     </genClasses>
     <genClasses ecoreClass="abapgitexternalrepo.ecore#//ExternalRepositoryInfo">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference abapgitexternalrepo.ecore#//ExternalRepositoryInfo/branches"/>
@@ -33,6 +35,33 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitexternalrepo.ecore#//ExternalRepositoryInfoRequest/url"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitexternalrepo.ecore#//ExternalRepositoryInfoRequest/user"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitexternalrepo.ecore#//ExternalRepositoryInfoRequest/password"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitexternalrepo.ecore#//ExternalRepositoryInfoRequest/package"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute abapgitexternalrepo.ecore#//ExternalRepositoryInfoRequest/branch"/>
+    </genClasses>
+  </genPackages>
+  <genPackages prefix="Atom" basePackage="com.sap.adt.tools.core.model" resource="XML"
+      disposableProviderFactory="true" ecorePackage="../../com.sap.adt.tools.core.base/model/atom.ecore#/">
+    <genDataTypes ecoreDataType="../../com.sap.adt.tools.core.base/model/atom.ecore#//Uri"/>
+    <genClasses ecoreClass="../../com.sap.adt.tools.core.base/model/atom.ecore#//AtomLink">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute ../../com.sap.adt.tools.core.base/model/atom.ecore#//AtomLink/mixed"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute ../../com.sap.adt.tools.core.base/model/atom.ecore#//AtomLink/base"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute ../../com.sap.adt.tools.core.base/model/atom.ecore#//AtomLink/etag"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute ../../com.sap.adt.tools.core.base/model/atom.ecore#//AtomLink/href"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute ../../com.sap.adt.tools.core.base/model/atom.ecore#//AtomLink/hreflang"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute ../../com.sap.adt.tools.core.base/model/atom.ecore#//AtomLink/lang"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute ../../com.sap.adt.tools.core.base/model/atom.ecore#//AtomLink/length"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute ../../com.sap.adt.tools.core.base/model/atom.ecore#//AtomLink/rel"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute ../../com.sap.adt.tools.core.base/model/atom.ecore#//AtomLink/title"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute ../../com.sap.adt.tools.core.base/model/atom.ecore#//AtomLink/type"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute ../../com.sap.adt.tools.core.base/model/atom.ecore#//AtomLink/anyAttribute"/>
+      <genOperations ecoreOperation="../../com.sap.adt.tools.core.base/model/atom.ecore#//AtomLink/getHrefAsUri"
+          body="return java.util.Optional.ofNullable(getHref()).map(URI::create).orElse(null);"/>
+    </genClasses>
+    <genClasses ecoreClass="../../com.sap.adt.tools.core.base/model/atom.ecore#//DocumentRoot">
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EAttribute ../../com.sap.adt.tools.core.base/model/atom.ecore#//DocumentRoot/mixed"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference ../../com.sap.adt.tools.core.base/model/atom.ecore#//DocumentRoot/xMLNSPrefixMap"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference ../../com.sap.adt.tools.core.base/model/atom.ecore#//DocumentRoot/xSISchemaLocation"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference ../../com.sap.adt.tools.core.base/model/atom.ecore#//DocumentRoot/link"/>
     </genClasses>
   </genPackages>
 </genmodel:GenModel>

@@ -49,6 +49,22 @@
             type="abapgitexternalrepo"
             class="org.abapgit.adt.backend.model.abapgitexternalrepo.util.AbapgitexternalrepoResourceFactoryImpl"/>
    </extension>
+
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated abapgitexternalrepo -->
+      <package
+            uri="http://www.w3.org/2005/Atom"
+            class="com.sap.adt.tools.core.model.atom.IAtomPackage"
+            genModel="model/abapgitexternalrepo.genmodel"/>
+   </extension>
+
+   <extension point="org.eclipse.emf.ecore.extension_parser">
+      <!-- @generated abapgitexternalrepo -->
+      <parser
+            type="atom"
+            class="com.sap.adt.tools.core.model.atom.util.AtomResourceFactoryImpl"/>
+   </extension>
+
    <extension point="org.eclipse.emf.ecore.generated_package">
       <!-- @generated abapgitabapobject -->
       <package

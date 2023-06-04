@@ -80,6 +80,9 @@ public class Messages extends NLS {
 	public static String AbapGitWizardPageBranchAndPackage_combobox_branch_message;
 	public static String AbapGitWizardPageBranchAndPackage_description;
 	public static String AbapGitWizardPageBranchAndPackageAndFolderLogic_description;
+	public static String AbapGitWizardPageFolderLogic_AlreadyExists_Full;
+	public static String AbapGitWizardPageFolderLogic_AlreadyExists_Prefix;
+	public static String AbapGitWizardPageFolderLogic_description;
 	public static String AbapGitWizardPageBranchAndPackage_label_branch;
 	public static String AbapGitWizardPageBranchAndPackage_label_package;
 	public static String AbapGitWizardPageBranchAndPackage_label_folder_logic;
@@ -87,6 +90,7 @@ public class Messages extends NLS {
 	public static String AbapGitWizardPageBranchAndPackage_task_apack_manifest_message;
 	public static String AbapGitWizardPageBranchAndPackage_task_package_validation_error_message;
 	public static String AbapGitWizardPageBranchAndPackage_task_package_validation_message;
+	public static String AbapGitWizardPageBranchAndPackage_task_fetching_branch_info_message;
 	public static String AbapGitWizardPageBranchAndPackage_text_package_message;
 	public static String AbapGitDialogPageObjLog_title;
 	public static String AbapGitDialogPageObjLog_description;
@@ -101,6 +105,7 @@ public class Messages extends NLS {
 	public static String AbapGitDialogPageObjLog_filter_error_tooltip;
 	public static String AbapGitDialogPageObjLog_filter_all_tooltip;
 	public static String AbapGitWizardPageBranchAndPackage_title;
+	public static String AbapGitWizardPageFolderLogic_title;
 	public static String AbapGitWizardPageObjectsSelectionForPull_Title;
 	public static String AbapGitWizardPageRepositoryAndCredentials_credentials_manager_popup_title;
 	public static String AbapGitWizardPageRepositoryAndCredentials_description;

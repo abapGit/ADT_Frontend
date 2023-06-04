@@ -1,5 +1,7 @@
 package org.abapgit.adt.ui.internal.staging;
 
+import static org.junit.Assert.assertFalse;
+
 import java.io.IOException;
 
 import org.abapgit.adt.backend.FileServiceFactory;
@@ -179,6 +181,7 @@ public class TestsIntegrationStagingView {
 		if(repoService != null) {
 			try {
 				externalRepoService.getExternalRepositoryInfo(repoWithInvalidDetails.getUrl(), repoWithInvalidDetails.getRemoteUser(), repoWithInvalidDetails.getRemotePassword(), new NullProgressMonitor());						
+				assertFalse("Malformed URL exception expected", true);
 			}  catch (ResourceException e) {
 				assertResponseForInvalidURL(e);
 			}
@@ -191,6 +194,7 @@ public class TestsIntegrationStagingView {
 		if(repoService != null) {
 			try {
 				repoService.repositoryChecks(new NullProgressMonitor(), credentials, repoWithInvalidDetails);
+				assertFalse("Repo not found exception expected", true);
 			}  catch (ResourceException e) {
 				assertResponseForInvalidRepoKey(e);
 			}
@@ -210,12 +214,13 @@ public class TestsIntegrationStagingView {
 				abapGitFile.setName("Dummy File");
 				abapGitFile.getLinks().add(filesLink);
 				
-				try {
-					fileService.readLocalFileContents(abapGitFile,
-							destinationId);
+				fileService.readLocalFileContents(abapGitFile,
+						destinationId);
+
+				assertFalse("Repo not found exception expected", true);
+
 				} catch (IOException e) {
 					e.printStackTrace();
-				}
 
 			}  catch (ResourceException e) {
 				assertResponseForInvalidRepoKey(e);
@@ -229,6 +234,7 @@ public class TestsIntegrationStagingView {
 		if(repoService != null) {
 			try {
 				repoService.stage(repoWithInvalidDetails, credentials, new NullProgressMonitor());
+				assertFalse("Repo not found exception expected", true);
 			}  catch (ResourceException e) {
 				assertResponseForInvalidRepoKey(e);
 			}
@@ -240,6 +246,7 @@ public class TestsIntegrationStagingView {
 		if(repoService != null) {
 			try {
 				repoService.push(new NullProgressMonitor(), staging , credentials, repoWithInvalidDetails);
+				assertFalse("Repo not found exception expected", true);
 			}  catch (ResourceException e) {
 				assertResponseForInvalidRepoKey(e);
 			}			

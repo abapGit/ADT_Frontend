@@ -20,6 +20,8 @@ import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
  *   <li>{@link org.abapgit.adt.backend.model.abapgitexternalrepo.impl.ExternalRepositoryInfoRequestImpl#getUrl <em>Url</em>}</li>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitexternalrepo.impl.ExternalRepositoryInfoRequestImpl#getUser <em>User</em>}</li>
  *   <li>{@link org.abapgit.adt.backend.model.abapgitexternalrepo.impl.ExternalRepositoryInfoRequestImpl#getPassword <em>Password</em>}</li>
+ *   <li>{@link org.abapgit.adt.backend.model.abapgitexternalrepo.impl.ExternalRepositoryInfoRequestImpl#getPackage <em>Package</em>}</li>
+ *   <li>{@link org.abapgit.adt.backend.model.abapgitexternalrepo.impl.ExternalRepositoryInfoRequestImpl#getBranch <em>Branch</em>}</li>
  * </ul>
  *
  * @generated
@@ -86,6 +88,46 @@ public class ExternalRepositoryInfoRequestImpl extends MinimalEObjectImpl.Contai
 	protected String password = PASSWORD_EDEFAULT;
 
 	/**
+	 * The default value of the '{@link #getPackage() <em>Package</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getPackage()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String PACKAGE_EDEFAULT = null;
+
+	/**
+	 * The cached value of the '{@link #getPackage() <em>Package</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getPackage()
+	 * @generated
+	 * @ordered
+	 */
+	protected String package_ = PACKAGE_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getBranch() <em>Branch</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getBranch()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String BRANCH_EDEFAULT = null;
+
+	/**
+	 * The cached value of the '{@link #getBranch() <em>Branch</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getBranch()
+	 * @generated
+	 * @ordered
+	 */
+	protected String branch = BRANCH_EDEFAULT;
+
+	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
@@ -111,7 +153,7 @@ public class ExternalRepositoryInfoRequestImpl extends MinimalEObjectImpl.Contai
 	 */
 	@Override
 	public String getUrl() {
-		return this.url;
+		return url;
 	}
 
 	/**
@@ -121,11 +163,10 @@ public class ExternalRepositoryInfoRequestImpl extends MinimalEObjectImpl.Contai
 	 */
 	@Override
 	public void setUrl(String newUrl) {
-		String oldUrl = this.url;
-		this.url = newUrl;
-		if (eNotificationRequired()) {
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitexternalrepoPackage.EXTERNAL_REPOSITORY_INFO_REQUEST__URL, oldUrl, this.url));
-		}
+		String oldUrl = url;
+		url = newUrl;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitexternalrepoPackage.EXTERNAL_REPOSITORY_INFO_REQUEST__URL, oldUrl, url));
 	}
 
 	/**
@@ -135,7 +176,7 @@ public class ExternalRepositoryInfoRequestImpl extends MinimalEObjectImpl.Contai
 	 */
 	@Override
 	public String getUser() {
-		return this.user;
+		return user;
 	}
 
 	/**
@@ -145,11 +186,10 @@ public class ExternalRepositoryInfoRequestImpl extends MinimalEObjectImpl.Contai
 	 */
 	@Override
 	public void setUser(String newUser) {
-		String oldUser = this.user;
-		this.user = newUser;
-		if (eNotificationRequired()) {
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitexternalrepoPackage.EXTERNAL_REPOSITORY_INFO_REQUEST__USER, oldUser, this.user));
-		}
+		String oldUser = user;
+		user = newUser;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitexternalrepoPackage.EXTERNAL_REPOSITORY_INFO_REQUEST__USER, oldUser, user));
 	}
 
 	/**
@@ -159,7 +199,7 @@ public class ExternalRepositoryInfoRequestImpl extends MinimalEObjectImpl.Contai
 	 */
 	@Override
 	public String getPassword() {
-		return this.password;
+		return password;
 	}
 
 	/**
@@ -169,11 +209,56 @@ public class ExternalRepositoryInfoRequestImpl extends MinimalEObjectImpl.Contai
 	 */
 	@Override
 	public void setPassword(String newPassword) {
-		String oldPassword = this.password;
-		this.password = newPassword;
-		if (eNotificationRequired()) {
-			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitexternalrepoPackage.EXTERNAL_REPOSITORY_INFO_REQUEST__PASSWORD, oldPassword, this.password));
-		}
+		String oldPassword = password;
+		password = newPassword;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitexternalrepoPackage.EXTERNAL_REPOSITORY_INFO_REQUEST__PASSWORD, oldPassword, password));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public String getPackage() {
+		return package_;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public void setPackage(String newPackage) {
+		String oldPackage = package_;
+		package_ = newPackage;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitexternalrepoPackage.EXTERNAL_REPOSITORY_INFO_REQUEST__PACKAGE, oldPackage, package_));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public String getBranch() {
+		return branch;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public void setBranch(String newBranch) {
+		String oldBranch = branch;
+		branch = newBranch;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, IAbapgitexternalrepoPackage.EXTERNAL_REPOSITORY_INFO_REQUEST__BRANCH, oldBranch, branch));
 	}
 
 	/**
@@ -190,6 +275,10 @@ public class ExternalRepositoryInfoRequestImpl extends MinimalEObjectImpl.Contai
 				return getUser();
 			case IAbapgitexternalrepoPackage.EXTERNAL_REPOSITORY_INFO_REQUEST__PASSWORD:
 				return getPassword();
+			case IAbapgitexternalrepoPackage.EXTERNAL_REPOSITORY_INFO_REQUEST__PACKAGE:
+				return getPackage();
+			case IAbapgitexternalrepoPackage.EXTERNAL_REPOSITORY_INFO_REQUEST__BRANCH:
+				return getBranch();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -210,6 +299,12 @@ public class ExternalRepositoryInfoRequestImpl extends MinimalEObjectImpl.Contai
 				return;
 			case IAbapgitexternalrepoPackage.EXTERNAL_REPOSITORY_INFO_REQUEST__PASSWORD:
 				setPassword((String)newValue);
+				return;
+			case IAbapgitexternalrepoPackage.EXTERNAL_REPOSITORY_INFO_REQUEST__PACKAGE:
+				setPackage((String)newValue);
+				return;
+			case IAbapgitexternalrepoPackage.EXTERNAL_REPOSITORY_INFO_REQUEST__BRANCH:
+				setBranch((String)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -232,6 +327,12 @@ public class ExternalRepositoryInfoRequestImpl extends MinimalEObjectImpl.Contai
 			case IAbapgitexternalrepoPackage.EXTERNAL_REPOSITORY_INFO_REQUEST__PASSWORD:
 				setPassword(PASSWORD_EDEFAULT);
 				return;
+			case IAbapgitexternalrepoPackage.EXTERNAL_REPOSITORY_INFO_REQUEST__PACKAGE:
+				setPackage(PACKAGE_EDEFAULT);
+				return;
+			case IAbapgitexternalrepoPackage.EXTERNAL_REPOSITORY_INFO_REQUEST__BRANCH:
+				setBranch(BRANCH_EDEFAULT);
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -245,11 +346,15 @@ public class ExternalRepositoryInfoRequestImpl extends MinimalEObjectImpl.Contai
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
 			case IAbapgitexternalrepoPackage.EXTERNAL_REPOSITORY_INFO_REQUEST__URL:
-				return URL_EDEFAULT == null ? this.url != null : !URL_EDEFAULT.equals(this.url);
+				return URL_EDEFAULT == null ? url != null : !URL_EDEFAULT.equals(url);
 			case IAbapgitexternalrepoPackage.EXTERNAL_REPOSITORY_INFO_REQUEST__USER:
-				return USER_EDEFAULT == null ? this.user != null : !USER_EDEFAULT.equals(this.user);
+				return USER_EDEFAULT == null ? user != null : !USER_EDEFAULT.equals(user);
 			case IAbapgitexternalrepoPackage.EXTERNAL_REPOSITORY_INFO_REQUEST__PASSWORD:
-				return PASSWORD_EDEFAULT == null ? this.password != null : !PASSWORD_EDEFAULT.equals(this.password);
+				return PASSWORD_EDEFAULT == null ? password != null : !PASSWORD_EDEFAULT.equals(password);
+			case IAbapgitexternalrepoPackage.EXTERNAL_REPOSITORY_INFO_REQUEST__PACKAGE:
+				return PACKAGE_EDEFAULT == null ? package_ != null : !PACKAGE_EDEFAULT.equals(package_);
+			case IAbapgitexternalrepoPackage.EXTERNAL_REPOSITORY_INFO_REQUEST__BRANCH:
+				return BRANCH_EDEFAULT == null ? branch != null : !BRANCH_EDEFAULT.equals(branch);
 		}
 		return super.eIsSet(featureID);
 	}
@@ -261,17 +366,19 @@ public class ExternalRepositoryInfoRequestImpl extends MinimalEObjectImpl.Contai
 	 */
 	@Override
 	public String toString() {
-		if (eIsProxy()) {
-			return super.toString();
-		}
+		if (eIsProxy()) return super.toString();
 
 		StringBuilder result = new StringBuilder(super.toString());
 		result.append(" (url: ");
-		result.append(this.url);
+		result.append(url);
 		result.append(", user: ");
-		result.append(this.user);
+		result.append(user);
 		result.append(", password: ");
-		result.append(this.password);
+		result.append(password);
+		result.append(", package: ");
+		result.append(package_);
+		result.append(", branch: ");
+		result.append(branch);
 		result.append(')');
 		return result.toString();
 	}
