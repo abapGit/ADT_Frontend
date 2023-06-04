@@ -32,6 +32,7 @@ import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
+import com.sap.adt.communication.resources.ResourceException;
 import com.sap.adt.tools.core.model.adtcore.IAdtCoreFactory;
 import com.sap.adt.tools.core.model.adtcore.IAdtObjectReference;
 import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
@@ -204,6 +205,10 @@ public class AbapGitWizardPullV2 extends Wizard {
 		} catch (InvocationTargetException e) {
 			((WizardPage) getContainer().getCurrentPage()).setPageComplete(false);
 			((WizardPage) getContainer().getCurrentPage()).setMessage(e.getTargetException().getMessage(), DialogPage.ERROR);
+			return false;
+		} catch (ResourceException e) {
+			((WizardPage) getContainer().getCurrentPage()).setPageComplete(false);
+			((WizardPage) getContainer().getCurrentPage()).setMessage(e.getMessage(), DialogPage.ERROR);
 			return false;
 		}
 	}
