@@ -23,19 +23,17 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import com.sap.adt.communication.resources.ResourceException;
-import com.sap.adt.test.services.destinations.DestinationTestUtil;
-import com.sap.adt.test.services.suites.AdtIntegrationTest;
-import com.sap.adt.test.services.suites.RunWithDestination;
+//import com.sap.adt.test.services.destinations.DestinationTestUtil;
+//import com.sap.adt.test.services.suites.AdtIntegrationTest;
+//import com.sap.adt.test.services.suites.RunWithDestination;
 import com.sap.adt.tools.core.model.atom.IAtomFactory;
 import com.sap.adt.tools.core.model.atom.IAtomLink;
 import com.sap.adt.tools.core.project.IAbapProject;
 import com.sap.adt.tools.core.test.services.AdtIntegrationTestProjectUtil;
 
-@RunWith(AdtIntegrationTest.class)
-@RunWithDestination(DestinationTestUtil.HTTP_SKS)
+//@RunWith(AdtIntegrationTest.class)
+//@RunWithDestination(DestinationTestUtil.HTTP_SKS)
 public class TestsIntegrationRepositoriesView {
 	private static String   destinationId;
 	private static IProject testProject;
@@ -176,15 +174,15 @@ public class TestsIntegrationRepositoriesView {
 	
 	@Test
 	public void smokeTestBranchInfo() {
-//		if(externalRepoService != null) {
-//			try {
-//				IRepository repo = createRepoWithInvalidDetails();
-//				externalRepoService.getBranchInfo(getExternalRepoInfoObject(), repo.getUrl(), repo.getRemoteUser(), repo.getRemotePassword(), repo.getBranchName(), repo.getPackage());
-//				assertFalse("Malformed URL exception expected", true);
-//			}  catch (ResourceException e) {
-//				assertResponseForInvalidURL(e);
-//			}
-//		}
+		if(externalRepoService != null) {
+			try {
+				IRepository repo = createRepoWithInvalidDetails();
+				externalRepoService.getBranchInfo(getExternalRepoInfoObject(), repo.getUrl(), repo.getRemoteUser(), repo.getRemotePassword(), repo.getBranchName(), repo.getPackage());
+				assertFalse("Malformed URL exception expected", true);
+			}  catch (ResourceException e) {
+				assertResponseForInvalidURL(e);
+			}
+		}
 	}
 
 	@Test
