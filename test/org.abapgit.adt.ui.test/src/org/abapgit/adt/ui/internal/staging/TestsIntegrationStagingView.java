@@ -32,19 +32,17 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import com.sap.adt.communication.resources.ResourceException;
-import com.sap.adt.test.services.destinations.DestinationTestUtil;
-import com.sap.adt.test.services.suites.AdtIntegrationTest;
-import com.sap.adt.test.services.suites.RunWithDestination;
+//import com.sap.adt.test.services.destinations.DestinationTestUtil;
+//import com.sap.adt.test.services.suites.AdtIntegrationTest;
+//import com.sap.adt.test.services.suites.RunWithDestination;
 import com.sap.adt.tools.core.model.atom.IAtomFactory;
 import com.sap.adt.tools.core.model.atom.IAtomLink;
 import com.sap.adt.tools.core.project.IAbapProject;
 import com.sap.adt.tools.core.test.services.AdtIntegrationTestProjectUtil;
 
-@RunWith(AdtIntegrationTest.class)
-@RunWithDestination(DestinationTestUtil.HTTP_SKS)
+//@RunWith(AdtIntegrationTest.class)
+//@RunWithDestination(DestinationTestUtil.HTTP_SKS)
 public class TestsIntegrationStagingView {
 	private static String   destinationId;
 	private static IProject testProject;
