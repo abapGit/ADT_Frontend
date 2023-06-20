@@ -12,7 +12,6 @@ import org.abapgit.adt.backend.IApackManifest.IApackDependency;
 import org.abapgit.adt.backend.IExternalRepositoryInfoService;
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
-import org.abapgit.adt.backend.model.abapObjects.IAbapObject;
 import org.abapgit.adt.backend.model.abapgitexternalrepo.AccessMode;
 import org.abapgit.adt.backend.model.abapgitexternalrepo.IBranch;
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
@@ -360,10 +359,6 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 						//TODO remove this fallback after 2311 upgrade by users.
 						deleteRepo(this.cloneData.url);
 						this.cloneData.folderLogic = getFolderLogicFromRemoteDotAbapGIT();
-
-						if (this.cloneData.folderLogic == null) {
-							return null;
-						}
 					} catch (InterruptedException e) {
 						setMessage(e.getMessage(), DialogPage.ERROR);
 						e.printStackTrace();
@@ -431,9 +426,8 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 
 			});
 		} catch (InvocationTargetException e) {
-			setMessage(e.getTargetException().getMessage(), DialogPage.ERROR);
-			setPageComplete(false);
 			e.printStackTrace();
+			deleteRepo(AbapGitWizardPageBranchAndPackage.this.cloneData.url);
 			return null;
 		} catch (InterruptedException e) {
 			setPageComplete(false);
