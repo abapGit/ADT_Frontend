@@ -12,9 +12,11 @@ import org.abapgit.adt.backend.IApackManifest.IApackDependency;
 import org.abapgit.adt.backend.IExternalRepositoryInfoService;
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
+import org.abapgit.adt.backend.model.abapObjects.IAbapObject;
 import org.abapgit.adt.backend.model.abapgitexternalrepo.AccessMode;
 import org.abapgit.adt.backend.model.abapgitexternalrepo.IBranch;
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
+import org.abapgit.adt.backend.model.abapgitrepositories.IRepository.FolderLogic;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.util.AbapGitUIServiceFactory;
 import org.abapgit.adt.ui.internal.util.IAbapGitService;
@@ -354,42 +356,18 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 							}
 						});
 					} catch (InvocationTargetException e) {
-						setMessage(e.getTargetException().getMessage(), DialogPage.ERROR);
-						setPageComplete(false);
-						IRepositoryService repoService = RepositoryServiceFactory.createRepositoryService(this.destination,
-								new NullProgressMonitor());
-						
-						//Unlink the repository if linked.
+						//Fallback to link-fetch folder logic-delete, from client
+						//TODO remove this fallback after 2311 upgrade by users.
+						deleteRepo(this.cloneData.url);
+						this.cloneData.folderLogic = getFolderLogicFromRemoteDotAbapGIT();
 
-						try {
-							getContainer().run(true, true, new IRunnableWithProgress() {
-
-								@Override
-								public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-
-									AbapGitWizardPageBranchAndPackage.this.cloneData.repositories = repoService
-											.getRepositories(new NullProgressMonitor());
-
-									IRepository repository = repoService.getRepositoryByURL(
-											AbapGitWizardPageBranchAndPackage.this.cloneData.repositories,
-											AbapGitWizardPageBranchAndPackage.this.cloneData.url);
-
-									if (repository != null && !repository.getUrl().isBlank()) {
-										repoService.unlinkRepository(repository.getKey(), monitor);
-									}
-
-								}
-
-							});
-						} catch (InvocationTargetException | InterruptedException e1) {
-							e1.printStackTrace();
+						if (this.cloneData.folderLogic == null) {
+							return null;
 						}
-
-						return null;
 					} catch (InterruptedException e) {
 						setMessage(e.getMessage(), DialogPage.ERROR);
 						e.printStackTrace();
-						return null;						
+						return null;
 					}
 				}
 
@@ -397,6 +375,139 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 
 		}
 		return super.getNextPage();
+	}
+
+	private void deleteRepo(String url) {
+		IRepositoryService repoService = RepositoryServiceFactory
+				.createRepositoryService(AbapGitWizardPageBranchAndPackage.this.destination, new NullProgressMonitor());
+
+		try {
+			getContainer().run(true, true, new IRunnableWithProgress() {
+
+				@Override
+				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+					monitor.beginTask("Fetching repositories", IProgressMonitor.UNKNOWN); //$NON-NLS-1$
+					AbapGitWizardPageBranchAndPackage.this.cloneData.repositories = repoService.getRepositories(monitor);
+
+					IRepository repo = repoService.getRepositoryByURL(AbapGitWizardPageBranchAndPackage.this.cloneData.repositories,
+							AbapGitWizardPageBranchAndPackage.this.cloneData.url);
+
+					if (repo != null) {
+						repoService.unlinkRepository(repo.getKey(), monitor);
+					}
+				}
+
+			});
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private IRepository linkRepo(String folderLogic) {
+
+		IRepositoryService repoService = RepositoryServiceFactory
+				.createRepositoryService(AbapGitWizardPageBranchAndPackage.this.destination, new NullProgressMonitor());
+
+		try {
+			getContainer().run(true, true, new IRunnableWithProgress() {
+
+				@Override
+				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+
+					monitor.beginTask("Fetching remote folder logic", IProgressMonitor.UNKNOWN); //$NON-NLS-1$
+
+					repoService.cloneRepository(AbapGitWizardPageBranchAndPackage.this.cloneData.url,
+							AbapGitWizardPageBranchAndPackage.this.cloneData.branch,
+							AbapGitWizardPageBranchAndPackage.this.cloneData.packageRef.getName(),
+							folderLogic, null,
+							AbapGitWizardPageBranchAndPackage.this.cloneData.user, AbapGitWizardPageBranchAndPackage.this.cloneData.pass,
+							monitor).getAbapObjects();
+
+					AbapGitWizardPageBranchAndPackage.this.cloneData.repositories = repoService.getRepositories(monitor);
+
+				}
+
+			});
+		} catch (InvocationTargetException e) {
+			setMessage(e.getTargetException().getMessage(), DialogPage.ERROR);
+			setPageComplete(false);
+			e.printStackTrace();
+			return null;
+		} catch (InterruptedException e) {
+			setPageComplete(false);
+			e.printStackTrace();
+			return null;
+		}
+		return repoService.getRepositoryByURL(AbapGitWizardPageBranchAndPackage.this.cloneData.repositories,
+				AbapGitWizardPageBranchAndPackage.this.cloneData.url);
+
+	}
+
+	private void deleteRepo(IRepository repository) {
+
+		try {
+			getContainer().run(true, true, new IRunnableWithProgress() {
+
+				@Override
+				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+
+					IRepositoryService repoService = RepositoryServiceFactory
+							.createRepositoryService(AbapGitWizardPageBranchAndPackage.this.destination, new NullProgressMonitor());
+
+					if (repository != null && !repository.getUrl().isBlank()) {
+						repoService.unlinkRepository(repository.getKey(), monitor);
+					}
+
+				}
+
+			});
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	private String getFolderLogicFromRemoteDotAbapGIT() {
+		String folderLogicFromRemoteDotAbapGIT;
+
+		//Link repo with FULL folder logic
+		IRepository repo = linkRepo(FolderLogic.FULL.toString());
+
+		if (repo == null) {
+			return null;
+		}
+
+		//Check the folder logic
+		folderLogicFromRemoteDotAbapGIT = repo.getFolderLogic();
+		//Delete the repo
+		deleteRepo(repo);
+		//If retrieved folder logic not the same as FULL, set this.clonedata.folderLogicExistsInAbapGITFile and  return
+		if (!folderLogicFromRemoteDotAbapGIT.equalsIgnoreCase(FolderLogic.FULL.toString())) {
+			this.cloneData.folderLogicExistsInAbapGitFile = true;
+			return folderLogicFromRemoteDotAbapGIT;
+		}
+
+		//Link repo with PREFIX folder logic
+		repo = linkRepo(FolderLogic.PREFIX.toString());
+		if (repo == null) {
+			return null;
+		}
+
+		//Check the folder logic
+		folderLogicFromRemoteDotAbapGIT = repo.getFolderLogic();
+		//Delete the repo
+		deleteRepo(repo);
+
+		if (!folderLogicFromRemoteDotAbapGIT.equalsIgnoreCase(FolderLogic.PREFIX.toString())) {
+			this.cloneData.folderLogicExistsInAbapGitFile = true;
+			return folderLogicFromRemoteDotAbapGIT;
+		}
+
+		return ""; //$NON-NLS-1$
 	}
 
 	private void fetchApackManifest() {
