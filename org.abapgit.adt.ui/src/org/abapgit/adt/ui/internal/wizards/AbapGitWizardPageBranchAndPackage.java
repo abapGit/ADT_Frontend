@@ -355,10 +355,41 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 						});
 					} catch (InvocationTargetException e) {
 						setMessage(e.getTargetException().getMessage(), DialogPage.ERROR);
-						e.printStackTrace();
+						setPageComplete(false);
+						IRepositoryService repoService = RepositoryServiceFactory.createRepositoryService(this.destination,
+								new NullProgressMonitor());
+						
+						//Unlink the repository if linked.
+
+						try {
+							getContainer().run(true, true, new IRunnableWithProgress() {
+
+								@Override
+								public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+
+									AbapGitWizardPageBranchAndPackage.this.cloneData.repositories = repoService
+											.getRepositories(new NullProgressMonitor());
+
+									IRepository repository = repoService.getRepositoryByURL(
+											AbapGitWizardPageBranchAndPackage.this.cloneData.repositories,
+											AbapGitWizardPageBranchAndPackage.this.cloneData.url);
+
+									if (repository != null && !repository.getUrl().isBlank()) {
+										repoService.unlinkRepository(repository.getKey(), monitor);
+									}
+
+								}
+
+							});
+						} catch (InvocationTargetException | InterruptedException e1) {
+							e1.printStackTrace();
+						}
+
+						return null;
 					} catch (InterruptedException e) {
 						setMessage(e.getMessage(), DialogPage.ERROR);
 						e.printStackTrace();
+						return null;						
 					}
 				}
 

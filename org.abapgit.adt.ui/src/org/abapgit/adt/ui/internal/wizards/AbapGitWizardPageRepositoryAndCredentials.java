@@ -238,12 +238,11 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 			return false;
 		}
 
+		fetchRepositories();
 		if (this.cloneData.repositories == null) {
-			fetchRepositories();
-			if (this.cloneData.repositories == null) {
-				return false;
-			}
+			return false;
 		}
+
 		if (this.cloneData.repositories.getRepositories().stream()
 				.anyMatch(r -> r.getUrl().toString().equals(this.txtURL.getText())) && !this.pullAction) {
 			setPageComplete(false);
