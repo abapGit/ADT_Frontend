@@ -32,7 +32,6 @@
       </activation>
       <properties>
         <spotbugs.failOnError>false</spotbugs.failOnError>
-        <spotbugs.failOnViolation>false</spotbugs.failOnViolation>
       </properties>
     </profile>
     <profile>
@@ -46,7 +45,6 @@
       </activation>
       <properties>
         <spotbugs.failOnError>true</spotbugs.failOnError>
-        <spotbugs.failOnViolation>true</spotbugs.failOnViolation>
       </properties>
     </profile>
   </profiles>
@@ -106,14 +104,7 @@
       <plugin>
         <groupId>com.github.spotbugs</groupId>
         <artifactId>spotbugs-maven-plugin</artifactId>
-        <version>3.1.11</version>
-        <dependencies>
-          <dependency>
-            <groupId>com.github.spotbugs</groupId>
-            <artifactId>spotbugs</artifactId>
-            <version>3.1.12</version>
-          </dependency>
-        </dependencies>
+        <version>4.7.3.5</version>
         <configuration>
             <includeFilterFile>spotbugs-exclude.xml</includeFilterFile>
         </configuration>
@@ -123,7 +114,6 @@
             <phase>test</phase>
             <configuration>
               <failOnError>${spotbugs.failOnError}</failOnError>
-              <failOnViolation>${spotbugs.failOnError}</failOnViolation>
             </configuration>
             <goals>
               <goal>check</goal>
