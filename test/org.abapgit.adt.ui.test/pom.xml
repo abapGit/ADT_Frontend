@@ -14,7 +14,6 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
   </parent>
   
   <properties>
-    <tycho-version>1.4.0</tycho-version>
     <testPatternUnit>**/test/suite/AllUnitTests*</testPatternUnit>
     <testPatternPde>**/test/suite/AllPdeTests*</testPatternPde>
     <testPatternIntegration>**/test/suite/AllIntegrationTests*</testPatternIntegration>

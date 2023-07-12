@@ -32,7 +32,6 @@
       </activation>
       <properties>
         <spotbugs.failOnError>false</spotbugs.failOnError>
-        <spotbugs.failOnViolation>false</spotbugs.failOnViolation>
       </properties>
     </profile>
     <profile>
@@ -46,12 +45,12 @@
       </activation>
       <properties>
         <spotbugs.failOnError>true</spotbugs.failOnError>
-        <spotbugs.failOnViolation>true</spotbugs.failOnViolation>
       </properties>
     </profile>
   </profiles>
   <properties>
-    <tycho-version>1.4.0</tycho-version>
+    <tycho-version>4.0.0</tycho-version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
   <build>
     <pluginManagement>
@@ -99,20 +98,18 @@
               <ws>cocoa</ws>
               <arch>x86_64</arch>
             </environment>
+            <environment>
+              <os>macosx</os>
+              <ws>cocoa</ws>
+              <arch>aarch64</arch>
+            </environment>
           </environments>
         </configuration>
       </plugin>
       <plugin>
         <groupId>com.github.spotbugs</groupId>
         <artifactId>spotbugs-maven-plugin</artifactId>
-        <version>3.1.11</version>
-        <dependencies>
-          <dependency>
-            <groupId>com.github.spotbugs</groupId>
-            <artifactId>spotbugs</artifactId>
-            <version>3.1.12</version>
-          </dependency>
-        </dependencies>
+        <version>4.7.3.5</version>
         <configuration>
             <includeFilterFile>spotbugs-exclude.xml</includeFilterFile>
         </configuration>
@@ -122,7 +119,6 @@
             <phase>test</phase>
             <configuration>
               <failOnError>${spotbugs.failOnError}</failOnError>
-              <failOnViolation>${spotbugs.failOnError}</failOnViolation>
             </configuration>
             <goals>
               <goal>check</goal>
@@ -142,13 +138,13 @@
   </build>
   <repositories>
     <repository>
-      <id>eclipse-2019-12</id>
-      <url>http://download.eclipse.org/releases/2019-12</url>
+      <id>eclipse-2022-12</id>
+      <url>http://download.eclipse.org/releases/2022-12</url>
       <layout>p2</layout>
     </repository>
     <repository>
-      <id>adt-2019-12</id>
-      <url>https://tools.hana.ondemand.com/2019-12</url>
+      <id>adt-2022-12</id>
+      <url>https://tools.hana.ondemand.com/2022-12</url>
       <layout>p2</layout>
     </repository>
   </repositories>
