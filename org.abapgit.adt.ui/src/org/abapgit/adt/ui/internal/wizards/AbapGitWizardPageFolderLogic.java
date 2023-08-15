@@ -143,6 +143,13 @@ public class AbapGitWizardPageFolderLogic extends WizardPage {
 
 	@Override
 	public boolean canFlipToNextPage() {
+		AbapGitWizard wizard = (AbapGitWizard) getWizard();
+		AbapGitWizardPageBranchAndPackage branchAndPackagePage = (AbapGitWizardPageBranchAndPackage) wizard
+				.getPage(AbapGitWizardPageBranchAndPackage.class.getName());
+
+		if (!branchAndPackagePage.getLnpSequence() && !this.cloneData.hasDependencies()) {
+			return false;
+		}
 		return true;
 	}
 
