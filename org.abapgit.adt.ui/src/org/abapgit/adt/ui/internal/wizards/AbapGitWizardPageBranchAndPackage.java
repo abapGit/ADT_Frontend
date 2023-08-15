@@ -253,7 +253,8 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 						if (packageServiceUI.packageExists(AbapGitWizardPageBranchAndPackage.this.destination, packageName, monitor)) {
 							List<IAdtObjectReference> packageRefs = packageServiceUI
 									.find(AbapGitWizardPageBranchAndPackage.this.destination, packageName, monitor);
-							AbapGitWizardPageBranchAndPackage.this.cloneData.packageRef = packageRefs.stream().findFirst().orElse(null);
+							AbapGitWizardPageBranchAndPackage.this.cloneData.packageRef = packageRefs.stream()
+									.filter((p) -> p.getName().equalsIgnoreCase(packageName)).findFirst().orElse(null);
 						}
 					}
 				});
