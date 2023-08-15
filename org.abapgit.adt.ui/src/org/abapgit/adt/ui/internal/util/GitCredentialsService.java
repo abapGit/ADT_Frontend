@@ -20,6 +20,7 @@ import org.eclipse.equinox.security.storage.StorageException;
 import org.eclipse.equinox.security.storage.provider.IProviderHints;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
@@ -67,7 +68,7 @@ public class GitCredentialsService {
 
 					if (((AbapGitStagingCredentialsDialog) userCredentialsDialog).storeInSecureStorage()) {
 						//store the credentials in secure storage
-						storeCredentialsInSecureStorage(repositoryCredentials, repositoryURL);
+						storeCredentialsInSecureStorage(repositoryCredentials, repositoryURL, shell);
 					} else {
 						deleteCredentialsFromSecureStorage(repositoryURL);
 					}
@@ -127,7 +128,7 @@ public class GitCredentialsService {
 	 *            store repositoryCredentials in Secure Store for the given
 	 *            repositoryURL
 	 */
-	public static void storeCredentialsInSecureStorage(IExternalRepositoryInfoRequest repositoryCredentials, String repositoryURL) {
+	public static void storeCredentialsInSecureStorage(IExternalRepositoryInfoRequest repositoryCredentials, String repositoryURL, Shell shell) {
 		if (repositoryCredentials != null && repositoryURL != null) {
 			String hashedURL = getUrlForNodePath(repositoryURL);
 
@@ -146,7 +147,7 @@ public class GitCredentialsService {
 				}
 			} catch (IOException | StorageException e) {
 				AbapGitUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getMessage(), e));
-
+				MessageDialog.openWarning(shell, "Eclipse secure storage error", getErrorMessage(e)); //$NON-NLS-1$
 				GitCredentialsService.deleteCredentialsFromSecureStorage(repositoryURL); // if anything stored in the secure storage
 
 			}
@@ -154,6 +155,12 @@ public class GitCredentialsService {
 
 	}
 
+	private static String getErrorMessage(Exception e) {
+		if (e.getMessage().equalsIgnoreCase("No password provided.")) { //$NON-NLS-1$
+			return "Secure storage was unable to retrieve the master password. Try deleting and re-creating secure storage in eclipse preferences.\nOperation will continue without storing credentials."; //$NON-NLS-1$
+		}
+		return e.getMessage();
+	}
 	/**
 	 *
 	 * @param repositoryURL
@@ -204,7 +211,7 @@ public class GitCredentialsService {
 			credentials.setUser(user);
 			credentials.setPassword(pass);
 			credentials.setUrl(url);
-			GitCredentialsService.storeCredentialsInSecureStorage(credentials, url);
+			GitCredentialsService.storeCredentialsInSecureStorage(credentials, url, shell);
 		} else {
 
 			//delete credentials from secure store
