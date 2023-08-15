@@ -363,6 +363,13 @@ public class AbapGitWizardPageApack extends WizardPage {
 
 	@Override
 	public boolean canFlipToNextPage() {
+		AbapGitWizard wizard = (AbapGitWizard) getWizard();
+		AbapGitWizardPageBranchAndPackage branchAndPackagePage = (AbapGitWizardPageBranchAndPackage) wizard
+				.getPage(AbapGitWizardPageBranchAndPackage.class.getName());
+
+		if (!branchAndPackagePage.getLnpSequence()) {
+			return false;
+		}
 		return true;
 	}
 

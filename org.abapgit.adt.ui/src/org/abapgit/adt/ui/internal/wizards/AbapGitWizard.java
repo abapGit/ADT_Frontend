@@ -97,6 +97,10 @@ public class AbapGitWizard extends Wizard {
 	@Override
 	public boolean performFinish() {
 
+		//Validate the APACK page (As it could be the last page)
+		if (AbapGitWizard.this.cloneData.hasDependencies() && !this.pageApack.validateAll()) {
+			return false;
+		}
 		List<IAbapObject> cloneObjects = new LinkedList<>();
 
 		try {
@@ -262,6 +266,25 @@ public class AbapGitWizard extends Wizard {
 					&& !AbapGitWizard.this.pageBranchAndPackage.validateAll()) {
 				event.doit = false;
 				return;
+			}
+
+			//-> Any Page -> Folder Logic page 
+			//(If only linking a repository and no APACK dependencies, no need to show transport page and finish wizard )
+			if (event.getTargetPage() == AbapGitWizard.this.pageFolderlogic && !AbapGitWizard.this.pageBranchAndPackage.getLnpSequence() && !AbapGitWizard.this.cloneData.hasDependencies() ) {
+					AbapGitWizard.this.transportPage.setPageComplete(true);
+					AbapGitWizard.this.pageFolderlogic.setPageComplete(true);
+				}
+			
+			// -> Folder Logic page -> Branch & Package page
+			if (event.getCurrentPage() == AbapGitWizard.this.pageFolderlogic
+					&& event.getTargetPage() == AbapGitWizard.this.pageBranchAndPackage) {
+				AbapGitWizard.this.transportPage.setPageComplete(false);
+			}
+
+			//-> Any Page -> APACK page 
+			//(If only linking a repository, no need to show transport page and finish wizard)
+			if (event.getTargetPage() == AbapGitWizard.this.pageApack && !AbapGitWizard.this.pageBranchAndPackage.getLnpSequence()) {
+				AbapGitWizard.this.transportPage.setPageComplete(true);
 			}
 
 			//-> Prepare transport page
