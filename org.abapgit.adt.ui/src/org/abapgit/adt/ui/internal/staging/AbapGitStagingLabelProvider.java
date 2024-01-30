@@ -21,11 +21,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.TextStyle;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.forms.IFormColors;
-import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.internal.util.BundleUtility;
 import org.osgi.framework.Bundle;
 
@@ -157,7 +154,6 @@ public class AbapGitStagingLabelProvider extends StyledCellLabelProvider {
 
 	public static final class CustomStyler extends ColorStyler {
 		public void applyStyles(TextStyle textStyle) {
-			textStyle.foreground = new FormToolkit(Display.getDefault()).getColors().getColor(IFormColors.TB_TOGGLE);
 			if (textStyle instanceof StyleRange) {
 				((StyleRange) textStyle).fontStyle = SWT.ITALIC;
 			}
