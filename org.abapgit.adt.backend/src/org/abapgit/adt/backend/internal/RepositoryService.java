@@ -215,7 +215,7 @@ public class RepositoryService implements IRepositoryService {
 		IHeaders headers = HeadersFactory.newHeaders();
 		IHeaders.IField userField = HeadersFactory.newField("Username", username); //$NON-NLS-1$
 		headers.addField(userField);
-		Base64.Encoder encoder = Base64.getMimeEncoder();
+		Base64.Encoder encoder = Base64.getEncoder();
 		IHeaders.IField passwordField = HeadersFactory.newField("Password", //$NON-NLS-1$
 				encoder.encodeToString(password.getBytes(StandardCharsets.UTF_8)));
 		headers.addField(passwordField);
