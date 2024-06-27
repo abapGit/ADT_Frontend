@@ -33,6 +33,8 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
@@ -69,6 +71,7 @@ public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceCha
 	private final Image successImage;
 	private final Image infoImage;
 	private Action actionCopy;
+	private Action actionCopyObjName;
 	private final static String ERROR_FLAG = "E"; //$NON-NLS-1$
 	private final static String WARNING_FLAG = "W"; //$NON-NLS-1$
 	private final static String INFO_FLAG = "I"; //$NON-NLS-1$
@@ -348,6 +351,15 @@ public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceCha
 
 		hookContextMenu(this.abapObjTable);
 
+		this.abapObjTable.getTree().addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent event) {
+				if ((event.stateMask & SWT.CTRL) != 0 && (event.keyCode == 'c' || event.keyCode == 'C')) {
+					copy();
+				}
+			}
+		});
+
 		createTableViewerColumn(Messages.AbapGitDialogImport_column_msg_type, 150).setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -481,12 +493,14 @@ public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceCha
 					return;
 				}
 				menuManager.add(AbapGitDialogObjLog.this.actionCopy);
+				menuManager.add(AbapGitDialogObjLog.this.actionCopyObjName);
 			}
 		});
 
 	}
 
 	private void makeActions() {
+		//Generic action to copy row
 		this.actionCopy = new Action() {
 			public void run() {
 				copy();
@@ -496,6 +510,20 @@ public class AbapGitDialogObjLog extends TitleAreaDialog implements IResourceCha
 		this.actionCopy.setToolTipText(Messages.AbapGitView_action_copy);
 		this.actionCopy.setActionDefinitionId(ActionFactory.COPY.getCommandId());
 		this.actionCopy.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_COPY));
+
+		//Action to copy object name
+		this.actionCopyObjName = new Action() {
+			public void run() {
+				Object firstElement = AbapGitDialogObjLog.this.tree.getViewer().getStructuredSelection().getFirstElement();
+				IAbapObject selectedAbapObj = (IAbapObject) firstElement;
+
+				final Clipboard clipboard = new Clipboard(AbapGitDialogObjLog.this.tree.getViewer().getControl().getDisplay());
+				clipboard.setContents(new String[] { selectedAbapObj.getName() }, new TextTransfer[] { TextTransfer.getInstance() });
+				clipboard.dispose();
+			}
+		};
+		this.actionCopyObjName.setText(Messages.AbapGitView_action_copy_obj_name);
+		this.actionCopyObjName.setToolTipText(Messages.AbapGitView_action_copy_obj_name);
 	}
 
 	@Override

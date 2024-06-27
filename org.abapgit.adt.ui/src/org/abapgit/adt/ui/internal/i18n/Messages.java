@@ -8,6 +8,7 @@ public class Messages extends NLS {
 	public static String AbapGitView_action_clone;
 	public static String AbapGitView_action_refresh;
 	public static String AbapGitView_action_copy;
+	public static String AbapGitView_action_copy_obj_name;
 	public static String AbapGitView_action_showMyRepos;
 	public static String AbapGitView_action_open;
 	public static String AbapGitView_action_open_repo;
