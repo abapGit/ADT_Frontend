@@ -22,6 +22,7 @@ import com.sap.adt.communication.message.IHeaders;
 import com.sap.adt.communication.resources.AdtRestResourceFactory;
 import com.sap.adt.communication.resources.IRestResource;
 import com.sap.adt.communication.resources.UriBuilder;
+import com.sap.adt.compatibility.exceptions.OutDatedClientException;
 import com.sap.adt.compatibility.filter.AdtCompatibleRestResourceFilterFactory;
 import com.sap.adt.compatibility.filter.IAdtCompatibleRestResourceFilter;
 import com.sap.adt.tools.core.model.atom.IAtomLink;
@@ -265,7 +266,7 @@ public class RepositoryService implements IRepositoryService {
 
 	@Override
 	public IAbapGitPullModifiedObjects getModifiedObjects(IProgressMonitor monitor, IRepository currRepository,
-			String user, String password) {
+			String user, String password) throws OutDatedClientException {
 		URI uriToModifiedObjects = getURIFromAtomLink(currRepository, IRepositoryService.RELATION_MODIFIED_OBJECTS);
 
 		IHeaders headers = null;

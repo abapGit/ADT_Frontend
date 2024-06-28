@@ -2,7 +2,7 @@ package org.abapgit.adt.ui.internal.repositories;
 
 import java.util.List;
 
-import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAbapGitObject;
+import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IOverwriteObject;
 
 /**
  * Implements IRepositoryModifiedObjects
@@ -41,9 +41,9 @@ public class RepositoryModifiedObjects implements IRepositoryModifiedObjects {
 	}
 
 	private final String repositoryURL;
-	private final List<IAbapGitObject> modifiedObjects;
+	private final List<IOverwriteObject> modifiedObjects;
 
-	public RepositoryModifiedObjects(String repositoryURL, List<IAbapGitObject> modifiedObjects) {
+	public RepositoryModifiedObjects(String repositoryURL, List<IOverwriteObject> modifiedObjects) {
 		this.repositoryURL = repositoryURL;
 		this.modifiedObjects = modifiedObjects;
 	}
@@ -54,7 +54,7 @@ public class RepositoryModifiedObjects implements IRepositoryModifiedObjects {
 	}
 
 	@Override
-	public List<IAbapGitObject> getModifiedObjects() {
+	public List<IOverwriteObject> getModifiedObjects() {
 		return this.modifiedObjects;
 	}
 

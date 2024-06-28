@@ -44,7 +44,6 @@ public class AgitpullmodifiedobjectsResourceFactoryImpl extends ResourceFactoryI
 
 		result.getDefaultLoadOptions().put(XMLResource.OPTION_USE_LEXICAL_HANDLER, Boolean.TRUE);
 		result.getDefaultLoadOptions().put(XMLResource.OPTION_RECORD_UNKNOWN_FEATURE, Boolean.TRUE);
-
 		return result;
 	}
 

@@ -22,81 +22,81 @@ import com.sap.adt.tools.core.model.adtcore.IAdtCorePackage;
  * </ul>
  * <!-- end-user-doc -->
  * <!-- begin-model-doc -->
- * 
+ *
  * 			Schema definition for
  * 			ABAP Development Tools core types
- * 
+ *
  * 			Author: SAP AG
  * 			Copyright (c) 2009 by
  * 			SAP AG
- * 		
- * 
+ *
+ *
  * 			Schema definition for
  * 			ATOM links
- * 
+ *
  * 			Author: SAP AG
  * 			Copyright (c) 2011 by
  * 			SAP AG
- * 		
- * 
+ *
+ *
  *    See http://www.w3.org/XML/1998/namespace.html and
  *    http://www.w3.org/TR/REC-xml for information about this namespace.
- * 
+ *
  *     This schema document describes the XML namespace, in a form
- *     suitable for import by other schema documents.  
- * 
+ *     suitable for import by other schema documents.
+ *
  *     Note that local names in this namespace are intended to be defined
  *     only by the World Wide Web Consortium or its subgroups.  The
  *     following names are currently defined in this namespace and should
  *     not be used with conflicting semantics by any Working Group,
  *     specification, or document instance:
- * 
+ *
  *     base (as an attribute name): denotes an attribute whose value
  *          provides a URI to be used as the base for interpreting any
  *          relative URIs in the scope of the element on which it
  *          appears; its value is inherited.  This name is reserved
  *          by virtue of its definition in the XML Base specification.
- * 
+ *
  *     lang (as an attribute name): denotes an attribute whose value
  *          is a language code for the natural language of the content of
  *          any element; its value is inherited.  This name is reserved
  *          by virtue of its definition in the XML specification.
- *   
+ *
  *     space (as an attribute name): denotes an attribute whose
  *          value is a keyword indicating what whitespace processing
  *          discipline is intended for the content of the element; its
  *          value is inherited.  This name is reserved by virtue of its
  *          definition in the XML specification.
- * 
- *     Father (in any context at all): denotes Jon Bosak, the chair of 
- *          the original XML Working Group.  This name is reserved by 
- *          the following decision of the W3C XML Plenary and 
+ *
+ *     Father (in any context at all): denotes Jon Bosak, the chair of
+ *          the original XML Working Group.  This name is reserved by
+ *          the following decision of the W3C XML Plenary and
  *          XML Coordination groups:
- * 
+ *
  *              In appreciation for his vision, leadership and dedication
  *              the W3C XML Plenary on this 10th day of February, 2000
  *              reserves for Jon Bosak in perpetuity the XML name
  *              xml:Father
- *   
+ *
  * This schema defines attributes and an attribute group
  *         suitable for use by
  *         schemas wishing to allow xml:base, xml:lang or xml:space attributes
  *         on elements they define.
- * 
+ *
  *         To enable this, such a schema must import this schema
  *         for the XML namespace, e.g. as follows:
  *         <schema . . .>
  *          . . .
  *          <import namespace="http://www.w3.org/XML/1998/namespace"
  *                     schemaLocation="http://www.w3.org/2001/03/xml.xsd"/>
- * 
+ *
  *         Subsequently, qualified reference to any of the attributes
  *         or the group defined below will have the desired effect, e.g.
- * 
+ *
  *         <type . . .>
  *          . . .
  *          <attributeGroup ref="xml:specialAttrs"/>
- *  
+ *
  *          will define a type which will schema-validate an instance
  *          element with any of those attributes
  * In keeping with the XML Schema WG's standard versioning
@@ -111,7 +111,7 @@ import com.sap.adt.tools.core.model.adtcore.IAdtCorePackage;
  *    http://www.w3.org/2001/xml.xsd will change
  *    accordingly; the version at
  *    http://www.w3.org/2001/03/xml.xsd will not change.
- *   
+ *
  * <!-- end-model-doc -->
  * @see org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAgitpullmodifiedobjectsFactory
  * @model kind="package"
@@ -334,16 +334,15 @@ public interface IAgitpullmodifiedobjectsPackage extends EPackage {
 	 */
 	int PACKAGE_WARNING_OBJECTS_OPERATION_COUNT = 0;
 
-
 	/**
-	 * The meta object id for the '{@link org.abapgit.adt.backend.model.agitpullmodifiedobjects.impl.AbapGitObjectImpl <em>Abap Git Object</em>}' class.
+	 * The meta object id for the '{@link org.abapgit.adt.backend.model.agitpullmodifiedobjects.impl.OverwriteObjectImpl <em>Overwrite Object</em>}' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see org.abapgit.adt.backend.model.agitpullmodifiedobjects.impl.AbapGitObjectImpl
-	 * @see org.abapgit.adt.backend.model.agitpullmodifiedobjects.impl.AgitpullmodifiedobjectsPackageImpl#getAbapGitObject()
+	 * @see org.abapgit.adt.backend.model.agitpullmodifiedobjects.impl.OverwriteObjectImpl
+	 * @see org.abapgit.adt.backend.model.agitpullmodifiedobjects.impl.AgitpullmodifiedobjectsPackageImpl#getOverwriteObject()
 	 * @generated
 	 */
-	int ABAP_GIT_OBJECT = 4;
+	int OVERWRITE_OBJECT = 4;
 
 	/**
 	 * The feature id for the '<em><b>Extension</b></em>' containment reference.
@@ -352,7 +351,7 @@ public interface IAgitpullmodifiedobjectsPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int ABAP_GIT_OBJECT__EXTENSION = IAdtCorePackage.ADT_OBJECT_REFERENCE__EXTENSION;
+	int OVERWRITE_OBJECT__EXTENSION = IAdtCorePackage.ADT_OBJECT_REFERENCE__EXTENSION;
 
 	/**
 	 * The feature id for the '<em><b>Description</b></em>' attribute.
@@ -361,7 +360,7 @@ public interface IAgitpullmodifiedobjectsPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int ABAP_GIT_OBJECT__DESCRIPTION = IAdtCorePackage.ADT_OBJECT_REFERENCE__DESCRIPTION;
+	int OVERWRITE_OBJECT__DESCRIPTION = IAdtCorePackage.ADT_OBJECT_REFERENCE__DESCRIPTION;
 
 	/**
 	 * The feature id for the '<em><b>Name</b></em>' attribute.
@@ -370,7 +369,7 @@ public interface IAgitpullmodifiedobjectsPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int ABAP_GIT_OBJECT__NAME = IAdtCorePackage.ADT_OBJECT_REFERENCE__NAME;
+	int OVERWRITE_OBJECT__NAME = IAdtCorePackage.ADT_OBJECT_REFERENCE__NAME;
 
 	/**
 	 * The feature id for the '<em><b>Package Name</b></em>' attribute.
@@ -379,7 +378,7 @@ public interface IAgitpullmodifiedobjectsPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int ABAP_GIT_OBJECT__PACKAGE_NAME = IAdtCorePackage.ADT_OBJECT_REFERENCE__PACKAGE_NAME;
+	int OVERWRITE_OBJECT__PACKAGE_NAME = IAdtCorePackage.ADT_OBJECT_REFERENCE__PACKAGE_NAME;
 
 	/**
 	 * The feature id for the '<em><b>Parent Uri</b></em>' attribute.
@@ -388,7 +387,7 @@ public interface IAgitpullmodifiedobjectsPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int ABAP_GIT_OBJECT__PARENT_URI = IAdtCorePackage.ADT_OBJECT_REFERENCE__PARENT_URI;
+	int OVERWRITE_OBJECT__PARENT_URI = IAdtCorePackage.ADT_OBJECT_REFERENCE__PARENT_URI;
 
 	/**
 	 * The feature id for the '<em><b>Type</b></em>' attribute.
@@ -397,7 +396,7 @@ public interface IAgitpullmodifiedobjectsPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int ABAP_GIT_OBJECT__TYPE = IAdtCorePackage.ADT_OBJECT_REFERENCE__TYPE;
+	int OVERWRITE_OBJECT__TYPE = IAdtCorePackage.ADT_OBJECT_REFERENCE__TYPE;
 
 	/**
 	 * The feature id for the '<em><b>Uri</b></em>' attribute.
@@ -406,16 +405,43 @@ public interface IAgitpullmodifiedobjectsPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int ABAP_GIT_OBJECT__URI = IAdtCorePackage.ADT_OBJECT_REFERENCE__URI;
+	int OVERWRITE_OBJECT__URI = IAdtCorePackage.ADT_OBJECT_REFERENCE__URI;
 
 	/**
-	 * The number of structural features of the '<em>Abap Git Object</em>' class.
+	 * The feature id for the '<em><b>Action</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int ABAP_GIT_OBJECT_FEATURE_COUNT = IAdtCorePackage.ADT_OBJECT_REFERENCE_FEATURE_COUNT + 0;
+	int OVERWRITE_OBJECT__ACTION = IAdtCorePackage.ADT_OBJECT_REFERENCE_FEATURE_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Action Description</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int OVERWRITE_OBJECT__ACTION_DESCRIPTION = IAdtCorePackage.ADT_OBJECT_REFERENCE_FEATURE_COUNT + 1;
+
+	/**
+	 * The number of structural features of the '<em>Overwrite Object</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int OVERWRITE_OBJECT_FEATURE_COUNT = IAdtCorePackage.ADT_OBJECT_REFERENCE_FEATURE_COUNT + 2;
+
+	/**
+	 * The number of operations of the '<em>Overwrite Object</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int OVERWRITE_OBJECT_OPERATION_COUNT = 0;
 
 
 	/**
@@ -547,14 +573,36 @@ public interface IAgitpullmodifiedobjectsPackage extends EPackage {
 	EReference getPackageWarningObjects_Abapgitobjects();
 
 	/**
-	 * Returns the meta object for class '{@link org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAbapGitObject <em>Abap Git Object</em>}'.
+	 * Returns the meta object for class '{@link org.abapgit.adt.backend.model.agitpullmodifiedobjects.IOverwriteObject <em>Overwrite Object</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for class '<em>Abap Git Object</em>'.
-	 * @see org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAbapGitObject
+	 * @return the meta object for class '<em>Overwrite Object</em>'.
+	 * @see org.abapgit.adt.backend.model.agitpullmodifiedobjects.IOverwriteObject
 	 * @generated
 	 */
-	EClass getAbapGitObject();
+	EClass getOverwriteObject();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.abapgit.adt.backend.model.agitpullmodifiedobjects.IOverwriteObject#getAction <em>Action</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Action</em>'.
+	 * @see org.abapgit.adt.backend.model.agitpullmodifiedobjects.IOverwriteObject#getAction()
+	 * @see #getOverwriteObject()
+	 * @generated
+	 */
+	EAttribute getOverwriteObject_Action();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.abapgit.adt.backend.model.agitpullmodifiedobjects.IOverwriteObject#getActionDescription <em>Action Description</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Action Description</em>'.
+	 * @see org.abapgit.adt.backend.model.agitpullmodifiedobjects.IOverwriteObject#getActionDescription()
+	 * @see #getOverwriteObject()
+	 * @generated
+	 */
+	EAttribute getOverwriteObject_ActionDescription();
 
 	/**
 	 * Returns the factory that creates the instances of the model.
@@ -684,14 +732,30 @@ public interface IAgitpullmodifiedobjectsPackage extends EPackage {
 		EReference PACKAGE_WARNING_OBJECTS__ABAPGITOBJECTS = eINSTANCE.getPackageWarningObjects_Abapgitobjects();
 
 		/**
-		 * The meta object literal for the '{@link org.abapgit.adt.backend.model.agitpullmodifiedobjects.impl.AbapGitObjectImpl <em>Abap Git Object</em>}' class.
+		 * The meta object literal for the '{@link org.abapgit.adt.backend.model.agitpullmodifiedobjects.impl.OverwriteObjectImpl <em>Overwrite Object</em>}' class.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
-		 * @see org.abapgit.adt.backend.model.agitpullmodifiedobjects.impl.AbapGitObjectImpl
-		 * @see org.abapgit.adt.backend.model.agitpullmodifiedobjects.impl.AgitpullmodifiedobjectsPackageImpl#getAbapGitObject()
+		 * @see org.abapgit.adt.backend.model.agitpullmodifiedobjects.impl.OverwriteObjectImpl
+		 * @see org.abapgit.adt.backend.model.agitpullmodifiedobjects.impl.AgitpullmodifiedobjectsPackageImpl#getOverwriteObject()
 		 * @generated
 		 */
-		EClass ABAP_GIT_OBJECT = eINSTANCE.getAbapGitObject();
+		EClass OVERWRITE_OBJECT = eINSTANCE.getOverwriteObject();
+
+		/**
+		 * The meta object literal for the '<em><b>Action</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute OVERWRITE_OBJECT__ACTION = eINSTANCE.getOverwriteObject_Action();
+
+		/**
+		 * The meta object literal for the '<em><b>Action Description</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute OVERWRITE_OBJECT__ACTION_DESCRIPTION = eINSTANCE.getOverwriteObject_ActionDescription();
 
 	}
 

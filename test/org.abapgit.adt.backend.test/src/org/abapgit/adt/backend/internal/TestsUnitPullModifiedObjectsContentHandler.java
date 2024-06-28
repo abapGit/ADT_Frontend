@@ -2,17 +2,15 @@ package org.abapgit.adt.backend.internal;
 
 import static org.junit.Assert.assertEquals;
 
-import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAbapGitObject;
 import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAbapGitPullModifiedObjects;
 import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAgitpullmodifiedobjectsFactory;
 import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IDocumentRoot;
+import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IOverwriteObject;
 import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IOverwriteObjects;
 import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IPackageWarningObjects;
 import org.abapgit.adt.backend.model.agitpullmodifiedobjects.util.AgitpullmodifiedobjectsResourceFactoryImpl;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.junit.Test;
-
-import com.sap.adt.tools.core.model.adtcore.IAdtCoreFactory;
 
 public class TestsUnitPullModifiedObjectsContentHandler {
 	
@@ -28,10 +26,10 @@ public class TestsUnitPullModifiedObjectsContentHandler {
 		IOverwriteObjects overwriteObjects = IAgitpullmodifiedobjectsFactory.eINSTANCE.createOverwriteObjects();
 		IPackageWarningObjects packageWarningObjects = IAgitpullmodifiedobjectsFactory.eINSTANCE.createPackageWarningObjects();
 		
-		IAbapGitObject packageWarningObject1 = IAgitpullmodifiedobjectsFactory.eINSTANCE.createAbapGitObject();
+		IOverwriteObject packageWarningObject1 = IAgitpullmodifiedobjectsFactory.eINSTANCE.createOverwriteObject();
 		packageWarningObject1.setName("PackageWarningObject1");
 
-		IAbapGitObject overwriteObject1 = IAgitpullmodifiedobjectsFactory.eINSTANCE.createAbapGitObject();
+		IOverwriteObject overwriteObject1 = IAgitpullmodifiedobjectsFactory.eINSTANCE.createOverwriteObject();
 		overwriteObject1.setName("OverwriteObject1");
 		
 		overwriteObjects.getAbapgitobjects().add(overwriteObject1);

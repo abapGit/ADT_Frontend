@@ -72,7 +72,7 @@
       <details key="name" value="overwriteObjects"/>
     </eAnnotations>
     <eStructuralFeatures xsi:type="ecore:EReference" name="abapgitobjects" upperBound="-1"
-        eType="#//AbapGitObject" containment="true" resolveProxies="false">
+        eType="#//OverwriteObject" containment="true" resolveProxies="false">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="element"/>
         <details key="namespace" value="##targetNamespace"/>
@@ -86,7 +86,7 @@
       <details key="name" value="packageWarningObjects"/>
     </eAnnotations>
     <eStructuralFeatures xsi:type="ecore:EReference" name="abapgitobjects" upperBound="-1"
-        eType="#//AbapGitObject" containment="true" resolveProxies="false">
+        eType="#//OverwriteObject" containment="true" resolveProxies="false">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="element"/>
         <details key="namespace" value="##targetNamespace"/>
@@ -94,5 +94,22 @@
       </eAnnotations>
     </eStructuralFeatures>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="AbapGitObject" eSuperTypes="../../com.sap.adt.tools.core.base/model/adtcore.ecore#//AdtObjectReference"/>
+  <eClassifiers xsi:type="ecore:EClass" name="OverwriteObject" eSuperTypes="../../com.sap.adt.tools.core.base/model/adtcore.ecore#//AdtObjectReference">
+    <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+      <details key="kind" value="elementOnly"/>
+      <details key="name" value="overwriteObject"/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="action" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+        <details key="kind" value="attribute"/>
+        <details key="namespace" value="##targetNamespace"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="actionDescription" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString">
+      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+        <details key="kind" value="attribute"/>
+        <details key="namespace" value="##targetNamespace"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+  </eClassifiers>
 </ecore:EPackage>

@@ -25,7 +25,7 @@ import org.eclipse.emf.ecore.EObject;
 public interface IOverwriteObjects extends EObject {
 	/**
 	 * Returns the value of the '<em><b>Abapgitobjects</b></em>' containment reference list.
-	 * The list contents are of type {@link org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAbapGitObject}.
+	 * The list contents are of type {@link org.abapgit.adt.backend.model.agitpullmodifiedobjects.IOverwriteObject}.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Abapgitobjects</em>' containment reference list.
@@ -34,6 +34,6 @@ public interface IOverwriteObjects extends EObject {
 	 *        extendedMetaData="kind='element' namespace='##targetNamespace' name='abapgitobjects'"
 	 * @generated
 	 */
-	EList<IAbapGitObject> getAbapgitobjects();
+	EList<IOverwriteObject> getAbapgitobjects();
 
 } // IOverwriteObjects

@@ -3,6 +3,7 @@
 package org.abapgit.adt.backend.model.agitpullmodifiedobjects.util;
 
 import com.sap.adt.tools.core.model.adtcore.IAdtObjectReference;
+
 import org.abapgit.adt.backend.model.agitpullmodifiedobjects.*;
 
 import org.eclipse.emf.common.notify.Adapter;
@@ -85,8 +86,8 @@ public class AgitpullmodifiedobjectsAdapterFactory extends AdapterFactoryImpl {
 				return createPackageWarningObjectsAdapter();
 			}
 			@Override
-			public Adapter caseAbapGitObject(IAbapGitObject object) {
-				return createAbapGitObjectAdapter();
+			public Adapter caseOverwriteObject(IOverwriteObject object) {
+				return createOverwriteObjectAdapter();
 			}
 			@Override
 			public Adapter caseAdtObjectReference(IAdtObjectReference object) {
@@ -169,16 +170,16 @@ public class AgitpullmodifiedobjectsAdapterFactory extends AdapterFactoryImpl {
 	}
 
 	/**
-	 * Creates a new adapter for an object of class '{@link org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAbapGitObject <em>Abap Git Object</em>}'.
+	 * Creates a new adapter for an object of class '{@link org.abapgit.adt.backend.model.agitpullmodifiedobjects.IOverwriteObject <em>Overwrite Object</em>}'.
 	 * <!-- begin-user-doc -->
 	 * This default implementation returns null so that we can easily ignore cases;
 	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
 	 * <!-- end-user-doc -->
 	 * @return the new adapter.
-	 * @see org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAbapGitObject
+	 * @see org.abapgit.adt.backend.model.agitpullmodifiedobjects.IOverwriteObject
 	 * @generated
 	 */
-	public Adapter createAbapGitObjectAdapter() {
+	public Adapter createOverwriteObjectAdapter() {
 		return null;
 	}
 

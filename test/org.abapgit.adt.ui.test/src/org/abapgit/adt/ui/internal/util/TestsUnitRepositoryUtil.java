@@ -5,22 +5,16 @@ import static org.easymock.EasyMock.createNiceMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.model.abapgitrepositories.IAbapgitrepositoriesFactory;
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
-import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAbapGitObject;
 import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAbapGitPullModifiedObjects;
 import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAgitpullmodifiedobjectsFactory;
+import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IOverwriteObject;
 import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IOverwriteObjects;
 import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IPackageWarningObjects;
 import org.abapgit.adt.ui.internal.repositories.IRepositoryModifiedObjects;
-import org.abapgit.adt.ui.internal.repositories.RepositoryModifiedObjects;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard.CloneData;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -59,10 +53,10 @@ public class TestsUnitRepositoryUtil {
 		IOverwriteObjects overwriteObjects = IAgitpullmodifiedobjectsFactory.eINSTANCE.createOverwriteObjects();
 		IPackageWarningObjects packageWarningObjects = IAgitpullmodifiedobjectsFactory.eINSTANCE.createPackageWarningObjects();
 		
-		IAbapGitObject packageWarningObject1 = IAgitpullmodifiedobjectsFactory.eINSTANCE.createAbapGitObject();
+		IOverwriteObject packageWarningObject1 = IAgitpullmodifiedobjectsFactory.eINSTANCE.createOverwriteObject();
 		packageWarningObject1.setName("PackageWarningObject1");
 
-		IAbapGitObject overwriteObject1 = IAgitpullmodifiedobjectsFactory.eINSTANCE.createAbapGitObject();
+		IOverwriteObject overwriteObject1 = IAgitpullmodifiedobjectsFactory.eINSTANCE.createOverwriteObject();
 		overwriteObject1.setName("OverwriteObject1");
 		
 		overwriteObjects.getAbapgitobjects().add(overwriteObject1);

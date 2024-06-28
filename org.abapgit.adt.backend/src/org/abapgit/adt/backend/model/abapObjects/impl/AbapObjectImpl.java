@@ -14,20 +14,26 @@ import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
 import org.eclipse.emf.ecore.util.EObjectResolvingEList;
 
 /**
- * <!-- begin-user-doc -->
- * An implementation of the model object '<em><b>Abap Object</b></em>'.
- * <!-- end-user-doc -->
+ * <!-- begin-user-doc --> An implementation of the model object '<em><b>Abap
+ * Object</b></em>'. <!-- end-user-doc -->
  * <p>
  * The following features are implemented:
  * </p>
  * <ul>
- *   <li>{@link org.abapgit.adt.backend.model.abapObjects.impl.AbapObjectImpl#getType <em>Type</em>}</li>
- *   <li>{@link org.abapgit.adt.backend.model.abapObjects.impl.AbapObjectImpl#getPackage <em>Package</em>}</li>
- *   <li>{@link org.abapgit.adt.backend.model.abapObjects.impl.AbapObjectImpl#getName <em>Name</em>}</li>
- *   <li>{@link org.abapgit.adt.backend.model.abapObjects.impl.AbapObjectImpl#getMsgType <em>Msg Type</em>}</li>
- *   <li>{@link org.abapgit.adt.backend.model.abapObjects.impl.AbapObjectImpl#getMsgText <em>Msg Text</em>}</li>
- *   <li>{@link org.abapgit.adt.backend.model.abapObjects.impl.AbapObjectImpl#getStatus <em>Status</em>}</li>
- *   <li>{@link org.abapgit.adt.backend.model.abapObjects.impl.AbapObjectImpl#getAbapLogObjectChildren <em>Abap Log Object Children</em>}</li>
+ * <li>{@link org.abapgit.adt.backend.model.abapObjects.impl.AbapObjectImpl#getType
+ * <em>Type</em>}</li>
+ * <li>{@link org.abapgit.adt.backend.model.abapObjects.impl.AbapObjectImpl#getPackage
+ * <em>Package</em>}</li>
+ * <li>{@link org.abapgit.adt.backend.model.abapObjects.impl.AbapObjectImpl#getName
+ * <em>Name</em>}</li>
+ * <li>{@link org.abapgit.adt.backend.model.abapObjects.impl.AbapObjectImpl#getMsgType
+ * <em>Msg Type</em>}</li>
+ * <li>{@link org.abapgit.adt.backend.model.abapObjects.impl.AbapObjectImpl#getMsgText
+ * <em>Msg Text</em>}</li>
+ * <li>{@link org.abapgit.adt.backend.model.abapObjects.impl.AbapObjectImpl#getStatus
+ * <em>Status</em>}</li>
+ * <li>{@link org.abapgit.adt.backend.model.abapObjects.impl.AbapObjectImpl#getAbapLogObjectChildren
+ * <em>Abap Log Object Children</em>}</li>
  * </ul>
  *
  * @generated
@@ -35,8 +41,8 @@ import org.eclipse.emf.ecore.util.EObjectResolvingEList;
 public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAbapObject {
 	/**
 	 * The default value of the '{@link #getType() <em>Type</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 *
 	 * @see #getType()
 	 * @generated
 	 * @ordered
@@ -45,8 +51,8 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 
 	/**
 	 * The cached value of the '{@link #getType() <em>Type</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 *
 	 * @see #getType()
 	 * @generated
 	 * @ordered
@@ -54,9 +60,9 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	protected String type = TYPE_EDEFAULT;
 
 	/**
-	 * The default value of the '{@link #getPackage() <em>Package</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The default value of the '{@link #getPackage() <em>Package</em>}'
+	 * attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 *
 	 * @see #getPackage()
 	 * @generated
 	 * @ordered
@@ -64,9 +70,9 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	protected static final String PACKAGE_EDEFAULT = null;
 
 	/**
-	 * The cached value of the '{@link #getPackage() <em>Package</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The cached value of the '{@link #getPackage() <em>Package</em>}'
+	 * attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 *
 	 * @see #getPackage()
 	 * @generated
 	 * @ordered
@@ -75,8 +81,8 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 
 	/**
 	 * The default value of the '{@link #getName() <em>Name</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 *
 	 * @see #getName()
 	 * @generated
 	 * @ordered
@@ -85,8 +91,8 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 
 	/**
 	 * The cached value of the '{@link #getName() <em>Name</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 *
 	 * @see #getName()
 	 * @generated
 	 * @ordered
@@ -94,9 +100,9 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	protected String name = NAME_EDEFAULT;
 
 	/**
-	 * The default value of the '{@link #getMsgType() <em>Msg Type</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The default value of the '{@link #getMsgType() <em>Msg Type</em>}'
+	 * attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 *
 	 * @see #getMsgType()
 	 * @generated
 	 * @ordered
@@ -104,9 +110,9 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	protected static final String MSG_TYPE_EDEFAULT = null;
 
 	/**
-	 * The cached value of the '{@link #getMsgType() <em>Msg Type</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The cached value of the '{@link #getMsgType() <em>Msg Type</em>}'
+	 * attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 *
 	 * @see #getMsgType()
 	 * @generated
 	 * @ordered
@@ -114,9 +120,9 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	protected String msgType = MSG_TYPE_EDEFAULT;
 
 	/**
-	 * The default value of the '{@link #getMsgText() <em>Msg Text</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The default value of the '{@link #getMsgText() <em>Msg Text</em>}'
+	 * attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 *
 	 * @see #getMsgText()
 	 * @generated
 	 * @ordered
@@ -124,9 +130,9 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	protected static final String MSG_TEXT_EDEFAULT = null;
 
 	/**
-	 * The cached value of the '{@link #getMsgText() <em>Msg Text</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The cached value of the '{@link #getMsgText() <em>Msg Text</em>}'
+	 * attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 *
 	 * @see #getMsgText()
 	 * @generated
 	 * @ordered
@@ -134,9 +140,9 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	protected String msgText = MSG_TEXT_EDEFAULT;
 
 	/**
-	 * The default value of the '{@link #getStatus() <em>Status</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The default value of the '{@link #getStatus() <em>Status</em>}'
+	 * attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+	 *
 	 * @see #getStatus()
 	 * @generated
 	 * @ordered
@@ -145,8 +151,8 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 
 	/**
 	 * The cached value of the '{@link #getStatus() <em>Status</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 *
 	 * @see #getStatus()
 	 * @generated
 	 * @ordered
@@ -154,9 +160,10 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	protected String status = STATUS_EDEFAULT;
 
 	/**
-	 * The cached value of the '{@link #getAbapLogObjectChildren() <em>Abap Log Object Children</em>}' reference list.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * The cached value of the '{@link #getAbapLogObjectChildren() <em>Abap Log
+	 * Object Children</em>}' reference list. <!-- begin-user-doc --> <!--
+	 * end-user-doc -->
+	 *
 	 * @see #getAbapLogObjectChildren()
 	 * @generated
 	 * @ordered
@@ -164,8 +171,8 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	protected EList<IAbapObject> abapLogObjectChildren;
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 *
 	 * @generated
 	 */
 	protected AbapObjectImpl() {
@@ -173,8 +180,8 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 *
 	 * @generated
 	 */
 	@Override
@@ -183,8 +190,8 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 *
 	 * @generated
 	 */
 	@Override
@@ -193,8 +200,8 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 *
 	 * @generated
 	 */
 	@Override
@@ -207,8 +214,8 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 *
 	 * @generated
 	 */
 	@Override
@@ -217,8 +224,8 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 *
 	 * @generated
 	 */
 	@Override
@@ -231,8 +238,8 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 *
 	 * @generated
 	 */
 	@Override
@@ -241,8 +248,8 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 *
 	 * @generated
 	 */
 	@Override
@@ -255,8 +262,8 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 *
 	 * @generated
 	 */
 	@Override
@@ -265,8 +272,8 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 *
 	 * @generated
 	 */
 	@Override
@@ -279,8 +286,8 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 *
 	 * @generated
 	 */
 	@Override
@@ -289,8 +296,8 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 *
 	 * @generated
 	 */
 	@Override
@@ -303,8 +310,8 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 *
 	 * @generated
 	 */
 	@Override
@@ -313,8 +320,8 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 *
 	 * @generated
 	 */
 	@Override
@@ -327,141 +334,142 @@ public class AbapObjectImpl extends MinimalEObjectImpl.Container implements IAba
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 *
 	 * @generated
 	 */
 	@Override
 	public EList<IAbapObject> getAbapLogObjectChildren() {
 		if (this.abapLogObjectChildren == null) {
-			this.abapLogObjectChildren = new EObjectResolvingEList<IAbapObject>(IAbapObject.class, this, IAbapObjectsPackage.ABAP_OBJECT__ABAP_LOG_OBJECT_CHILDREN);
+			this.abapLogObjectChildren = new EObjectResolvingEList<IAbapObject>(IAbapObject.class, this,
+					IAbapObjectsPackage.ABAP_OBJECT__ABAP_LOG_OBJECT_CHILDREN);
 		}
 		return this.abapLogObjectChildren;
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 *
 	 * @generated
 	 */
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-			case IAbapObjectsPackage.ABAP_OBJECT__TYPE:
-				return getType();
-			case IAbapObjectsPackage.ABAP_OBJECT__PACKAGE:
-				return getPackage();
-			case IAbapObjectsPackage.ABAP_OBJECT__NAME:
-				return getName();
-			case IAbapObjectsPackage.ABAP_OBJECT__MSG_TYPE:
-				return getMsgType();
-			case IAbapObjectsPackage.ABAP_OBJECT__MSG_TEXT:
-				return getMsgText();
-			case IAbapObjectsPackage.ABAP_OBJECT__STATUS:
-				return getStatus();
-			case IAbapObjectsPackage.ABAP_OBJECT__ABAP_LOG_OBJECT_CHILDREN:
-				return getAbapLogObjectChildren();
+		case IAbapObjectsPackage.ABAP_OBJECT__TYPE:
+			return getType();
+		case IAbapObjectsPackage.ABAP_OBJECT__PACKAGE:
+			return getPackage();
+		case IAbapObjectsPackage.ABAP_OBJECT__NAME:
+			return getName();
+		case IAbapObjectsPackage.ABAP_OBJECT__MSG_TYPE:
+			return getMsgType();
+		case IAbapObjectsPackage.ABAP_OBJECT__MSG_TEXT:
+			return getMsgText();
+		case IAbapObjectsPackage.ABAP_OBJECT__STATUS:
+			return getStatus();
+		case IAbapObjectsPackage.ABAP_OBJECT__ABAP_LOG_OBJECT_CHILDREN:
+			return getAbapLogObjectChildren();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 *
 	 * @generated
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-			case IAbapObjectsPackage.ABAP_OBJECT__TYPE:
-				setType((String)newValue);
-				return;
-			case IAbapObjectsPackage.ABAP_OBJECT__PACKAGE:
-				setPackage((String)newValue);
-				return;
-			case IAbapObjectsPackage.ABAP_OBJECT__NAME:
-				setName((String)newValue);
-				return;
-			case IAbapObjectsPackage.ABAP_OBJECT__MSG_TYPE:
-				setMsgType((String)newValue);
-				return;
-			case IAbapObjectsPackage.ABAP_OBJECT__MSG_TEXT:
-				setMsgText((String)newValue);
-				return;
-			case IAbapObjectsPackage.ABAP_OBJECT__STATUS:
-				setStatus((String)newValue);
-				return;
-			case IAbapObjectsPackage.ABAP_OBJECT__ABAP_LOG_OBJECT_CHILDREN:
-				getAbapLogObjectChildren().clear();
-				getAbapLogObjectChildren().addAll((Collection<? extends IAbapObject>)newValue);
-				return;
+		case IAbapObjectsPackage.ABAP_OBJECT__TYPE:
+			setType((String) newValue);
+			return;
+		case IAbapObjectsPackage.ABAP_OBJECT__PACKAGE:
+			setPackage((String) newValue);
+			return;
+		case IAbapObjectsPackage.ABAP_OBJECT__NAME:
+			setName((String) newValue);
+			return;
+		case IAbapObjectsPackage.ABAP_OBJECT__MSG_TYPE:
+			setMsgType((String) newValue);
+			return;
+		case IAbapObjectsPackage.ABAP_OBJECT__MSG_TEXT:
+			setMsgText((String) newValue);
+			return;
+		case IAbapObjectsPackage.ABAP_OBJECT__STATUS:
+			setStatus((String) newValue);
+			return;
+		case IAbapObjectsPackage.ABAP_OBJECT__ABAP_LOG_OBJECT_CHILDREN:
+			getAbapLogObjectChildren().clear();
+			getAbapLogObjectChildren().addAll((Collection<? extends IAbapObject>) newValue);
+			return;
 		}
 		super.eSet(featureID, newValue);
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 *
 	 * @generated
 	 */
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
-			case IAbapObjectsPackage.ABAP_OBJECT__TYPE:
-				setType(TYPE_EDEFAULT);
-				return;
-			case IAbapObjectsPackage.ABAP_OBJECT__PACKAGE:
-				setPackage(PACKAGE_EDEFAULT);
-				return;
-			case IAbapObjectsPackage.ABAP_OBJECT__NAME:
-				setName(NAME_EDEFAULT);
-				return;
-			case IAbapObjectsPackage.ABAP_OBJECT__MSG_TYPE:
-				setMsgType(MSG_TYPE_EDEFAULT);
-				return;
-			case IAbapObjectsPackage.ABAP_OBJECT__MSG_TEXT:
-				setMsgText(MSG_TEXT_EDEFAULT);
-				return;
-			case IAbapObjectsPackage.ABAP_OBJECT__STATUS:
-				setStatus(STATUS_EDEFAULT);
-				return;
-			case IAbapObjectsPackage.ABAP_OBJECT__ABAP_LOG_OBJECT_CHILDREN:
-				getAbapLogObjectChildren().clear();
-				return;
+		case IAbapObjectsPackage.ABAP_OBJECT__TYPE:
+			setType(TYPE_EDEFAULT);
+			return;
+		case IAbapObjectsPackage.ABAP_OBJECT__PACKAGE:
+			setPackage(PACKAGE_EDEFAULT);
+			return;
+		case IAbapObjectsPackage.ABAP_OBJECT__NAME:
+			setName(NAME_EDEFAULT);
+			return;
+		case IAbapObjectsPackage.ABAP_OBJECT__MSG_TYPE:
+			setMsgType(MSG_TYPE_EDEFAULT);
+			return;
+		case IAbapObjectsPackage.ABAP_OBJECT__MSG_TEXT:
+			setMsgText(MSG_TEXT_EDEFAULT);
+			return;
+		case IAbapObjectsPackage.ABAP_OBJECT__STATUS:
+			setStatus(STATUS_EDEFAULT);
+			return;
+		case IAbapObjectsPackage.ABAP_OBJECT__ABAP_LOG_OBJECT_CHILDREN:
+			getAbapLogObjectChildren().clear();
+			return;
 		}
 		super.eUnset(featureID);
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 *
 	 * @generated
 	 */
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
-			case IAbapObjectsPackage.ABAP_OBJECT__TYPE:
-				return TYPE_EDEFAULT == null ? this.type != null : !TYPE_EDEFAULT.equals(this.type);
-			case IAbapObjectsPackage.ABAP_OBJECT__PACKAGE:
-				return PACKAGE_EDEFAULT == null ? this.package_ != null : !PACKAGE_EDEFAULT.equals(this.package_);
-			case IAbapObjectsPackage.ABAP_OBJECT__NAME:
-				return NAME_EDEFAULT == null ? this.name != null : !NAME_EDEFAULT.equals(this.name);
-			case IAbapObjectsPackage.ABAP_OBJECT__MSG_TYPE:
-				return MSG_TYPE_EDEFAULT == null ? this.msgType != null : !MSG_TYPE_EDEFAULT.equals(this.msgType);
-			case IAbapObjectsPackage.ABAP_OBJECT__MSG_TEXT:
-				return MSG_TEXT_EDEFAULT == null ? this.msgText != null : !MSG_TEXT_EDEFAULT.equals(this.msgText);
-			case IAbapObjectsPackage.ABAP_OBJECT__STATUS:
-				return STATUS_EDEFAULT == null ? this.status != null : !STATUS_EDEFAULT.equals(this.status);
-			case IAbapObjectsPackage.ABAP_OBJECT__ABAP_LOG_OBJECT_CHILDREN:
-				return this.abapLogObjectChildren != null && !this.abapLogObjectChildren.isEmpty();
+		case IAbapObjectsPackage.ABAP_OBJECT__TYPE:
+			return TYPE_EDEFAULT == null ? this.type != null : !TYPE_EDEFAULT.equals(this.type);
+		case IAbapObjectsPackage.ABAP_OBJECT__PACKAGE:
+			return PACKAGE_EDEFAULT == null ? this.package_ != null : !PACKAGE_EDEFAULT.equals(this.package_);
+		case IAbapObjectsPackage.ABAP_OBJECT__NAME:
+			return NAME_EDEFAULT == null ? this.name != null : !NAME_EDEFAULT.equals(this.name);
+		case IAbapObjectsPackage.ABAP_OBJECT__MSG_TYPE:
+			return MSG_TYPE_EDEFAULT == null ? this.msgType != null : !MSG_TYPE_EDEFAULT.equals(this.msgType);
+		case IAbapObjectsPackage.ABAP_OBJECT__MSG_TEXT:
+			return MSG_TEXT_EDEFAULT == null ? this.msgText != null : !MSG_TEXT_EDEFAULT.equals(this.msgText);
+		case IAbapObjectsPackage.ABAP_OBJECT__STATUS:
+			return STATUS_EDEFAULT == null ? this.status != null : !STATUS_EDEFAULT.equals(this.status);
+		case IAbapObjectsPackage.ABAP_OBJECT__ABAP_LOG_OBJECT_CHILDREN:
+			return this.abapLogObjectChildren != null && !this.abapLogObjectChildren.isEmpty();
 		}
 		return super.eIsSet(featureID);
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
+	 *
 	 * @generated
 	 */
 	@Override

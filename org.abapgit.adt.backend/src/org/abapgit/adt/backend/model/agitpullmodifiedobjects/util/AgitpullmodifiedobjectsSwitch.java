@@ -3,6 +3,7 @@
 package org.abapgit.adt.backend.model.agitpullmodifiedobjects.util;
 
 import com.sap.adt.tools.core.model.adtcore.IAdtObjectReference;
+
 import org.abapgit.adt.backend.model.agitpullmodifiedobjects.*;
 
 import org.eclipse.emf.ecore.EObject;
@@ -91,10 +92,10 @@ public class AgitpullmodifiedobjectsSwitch<T> extends Switch<T> {
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
-			case IAgitpullmodifiedobjectsPackage.ABAP_GIT_OBJECT: {
-				IAbapGitObject abapGitObject = (IAbapGitObject)theEObject;
-				T result = caseAbapGitObject(abapGitObject);
-				if (result == null) result = caseAdtObjectReference(abapGitObject);
+			case IAgitpullmodifiedobjectsPackage.OVERWRITE_OBJECT: {
+				IOverwriteObject overwriteObject = (IOverwriteObject)theEObject;
+				T result = caseOverwriteObject(overwriteObject);
+				if (result == null) result = caseAdtObjectReference(overwriteObject);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
@@ -163,17 +164,17 @@ public class AgitpullmodifiedobjectsSwitch<T> extends Switch<T> {
 	}
 
 	/**
-	 * Returns the result of interpreting the object as an instance of '<em>Abap Git Object</em>'.
+	 * Returns the result of interpreting the object as an instance of '<em>Overwrite Object</em>'.
 	 * <!-- begin-user-doc -->
 	 * This implementation returns null;
 	 * returning a non-null result will terminate the switch.
 	 * <!-- end-user-doc -->
 	 * @param object the target of the switch.
-	 * @return the result of interpreting the object as an instance of '<em>Abap Git Object</em>'.
+	 * @return the result of interpreting the object as an instance of '<em>Overwrite Object</em>'.
 	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
 	 * @generated
 	 */
-	public T caseAbapGitObject(IAbapGitObject object) {
+	public T caseOverwriteObject(IOverwriteObject object) {
 		return null;
 	}
 
