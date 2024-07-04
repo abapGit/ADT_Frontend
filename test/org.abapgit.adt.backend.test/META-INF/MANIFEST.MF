@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Unit Tests for abapGit ADT Backend components
 Bundle-SymbolicName: org.abapgit.adt.backend.test;singleton:=true
-Bundle-Version: 1.7.8
+Bundle-Version: 1.7.9
 Bundle-ClassPath: .
 Bundle-Vendor: abapGit
 Fragment-Host: org.abapgit.adt.backend
