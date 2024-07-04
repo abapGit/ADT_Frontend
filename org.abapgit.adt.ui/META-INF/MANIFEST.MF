@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %Bundle-Name
 Bundle-SymbolicName: org.abapgit.adt.ui;singleton:=true
-Bundle-Version: 1.7.8
+Bundle-Version: 1.7.9
 Bundle-Activator: org.abapgit.adt.ui.AbapGitUIPlugin
 Bundle-ClassPath: .
 Bundle-Localization: plugin
