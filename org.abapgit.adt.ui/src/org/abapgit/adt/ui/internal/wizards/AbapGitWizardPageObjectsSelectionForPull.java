@@ -5,19 +5,22 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAbapGitObject;
+import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IOverwriteObject;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.repositories.IRepositoryModifiedObjects;
 import org.abapgit.adt.ui.internal.repositories.RepositoryModifiedObjects;
 import org.abapgit.adt.ui.internal.util.RepositoryUtil;
 import org.eclipse.jface.layout.TreeColumnLayout;
+import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
 import org.eclipse.jface.viewers.CheckboxTreeViewer;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.ICheckStateListener;
+import org.eclipse.jface.viewers.ICheckStateProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.wizard.IWizardPage;
@@ -67,6 +70,7 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 		this.modifiedObjTreeViewer.getTree().setFocus();
 		this.modifiedObjTreeViewer.getTree().setHeaderVisible(true);
 		this.modifiedObjTreeViewer.getTree().setLinesVisible(true);
+		this.modifiedObjTreeViewer.setAutoExpandLevel(AbstractTreeViewer.ALL_LEVELS);
 
 		createColumns();
 
@@ -74,26 +78,9 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 
 		setControl(this.container);
 		setPageComplete(true);
+		this.modifiedObjTreeViewer.setAutoExpandLevel(AbstractTreeViewer.ALL_LEVELS);
 
-		// Check the sub tree if parent is checked
-		this.modifiedObjTreeViewer.addCheckStateListener(new ICheckStateListener() {
-
-			@Override
-			public void checkStateChanged(CheckStateChangedEvent event) {
-				if (event.getElement() instanceof IRepositoryModifiedObjects) {
-					if (event.getChecked()) {
-						AbapGitWizardPageObjectsSelectionForPull.this.modifiedObjTreeViewer.setSubtreeChecked(event.getElement(), true);
-
-					} else {
-						AbapGitWizardPageObjectsSelectionForPull.this.modifiedObjTreeViewer.setSubtreeChecked(event.getElement(), false);
-					}
-				}
-				AbapGitWizardPageObjectsSelectionForPull.this.selectedObjectsForRepository = AbapGitWizardPageObjectsSelectionForPull.this.modifiedObjTreeViewer
-						.getCheckedElements();
-
-			}
-		});
-
+		addListeners();
 	}
 
 	private void createColumns() {
@@ -107,8 +94,8 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 				if (element instanceof IRepositoryModifiedObjects) {
 					result = "Repository: " + RepositoryUtil.getRepoNameFromUrl(((IRepositoryModifiedObjects) element).getRepositoryURL()); //$NON-NLS-1$
 
-				} else if (element instanceof IAbapGitObject) {
-					result = ((IAbapGitObject) element).getName();
+				} else if (element instanceof IOverwriteObject) {
+					result = ((IOverwriteObject) element).getName();
 				}
 				return result;
 			}
@@ -119,8 +106,8 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 		createTreeViewerColumn("Package", 200).setLabelProvider(new ColumnLabelProvider() { //$NON-NLS-1$
 			@Override
 			public String getText(Object element) {
-				if (element instanceof IAbapGitObject) {
-					return ((IAbapGitObject) element).getPackageName();
+				if (element instanceof IOverwriteObject) {
+					return ((IOverwriteObject) element).getPackageName();
 				}
 				return ""; //$NON-NLS-1$
 
@@ -131,8 +118,26 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 		createTreeViewerColumn("Type", 20).setLabelProvider(new ColumnLabelProvider() { //$NON-NLS-1$
 			@Override
 			public String getText(Object element) {
-				if (element instanceof IAbapGitObject) {
-					return ((IAbapGitObject) element).getType();
+				if (element instanceof IOverwriteObject) {
+					return ((IOverwriteObject) element).getType();
+				}
+				return ""; //$NON-NLS-1$
+			}
+		});
+
+		/**
+		 * TODO: Change this column to Description and add another column with
+		 * Action and add an icon.
+		 */
+		createTreeViewerColumn("Action", 100).setLabelProvider(new ColumnLabelProvider() { //$NON-NLS-1$
+			@Override
+			public String getText(Object element) {
+				if (element instanceof IOverwriteObject) {
+					String actionDescription = ((IOverwriteObject) element).getActionDescription();
+					if (actionDescription == null || actionDescription.isBlank()) {
+						return "Modify object locally"; //$NON-NLS-1$
+					}
+					return actionDescription;
 				}
 				return ""; //$NON-NLS-1$
 			}
@@ -188,10 +193,10 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 
 		// Loop over the input for the checkboxTreeViewer (modifiedobjects)
 		for (IRepositoryModifiedObjects modifiedObjectsForRepository : input) {
-			List<IAbapGitObject> objects = new ArrayList<IAbapGitObject>();
+			List<IOverwriteObject> objects = new ArrayList<IOverwriteObject>();
 			String repositoryURL = modifiedObjectsForRepository.getRepositoryURL();
 
-			for (IAbapGitObject obj : modifiedObjectsForRepository.getModifiedObjects()) {
+			for (IOverwriteObject obj : modifiedObjectsForRepository.getModifiedObjects()) {
 				//If the object is in the list of checked/selected objects ,
 				// add it to the list of objects to pull and map it to the corresponding repo
 				if (Arrays.asList(this.selectedObjectsForRepository).contains(obj)) {
@@ -239,5 +244,59 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 
 	}
 
+	private void addListeners() {
+		// Check the sub tree if parent is checked
+		this.modifiedObjTreeViewer.addCheckStateListener(new ICheckStateListener() {
+
+			@Override
+			public void checkStateChanged(CheckStateChangedEvent event) {
+				if (event.getElement() instanceof IRepositoryModifiedObjects) {
+					if (event.getChecked()) {
+						AbapGitWizardPageObjectsSelectionForPull.this.modifiedObjTreeViewer.setSubtreeChecked(event.getElement(), true);
+					} else {
+						AbapGitWizardPageObjectsSelectionForPull.this.modifiedObjTreeViewer.setSubtreeChecked(event.getElement(), false);
+
+						//keep the objects to be added locally checked always
+						IRepositoryModifiedObjects modifiedObjects = (IRepositoryModifiedObjects) event.getElement();
+						List<IOverwriteObject> objectsToAddLocally = modifiedObjects.getModifiedObjects().stream()
+								.filter((obj) -> obj.getAction() != null && obj.getAction().equals("1")).collect(Collectors.toList()); //$NON-NLS-1$
+						AbapGitWizardPageObjectsSelectionForPull.this.modifiedObjTreeViewer
+								.setCheckedElements(objectsToAddLocally.toArray());
+					}
+				}
+
+				if (event.getElement() instanceof IOverwriteObject) {
+					IOverwriteObject modifiedObject = (IOverwriteObject) event.getElement();
+					if (modifiedObject.getAction() != null && modifiedObject.getAction().equals("1")) { //$NON-NLS-1$
+						AbapGitWizardPageObjectsSelectionForPull.this.modifiedObjTreeViewer.setChecked(modifiedObject, true);
+					}
+				}
+
+				AbapGitWizardPageObjectsSelectionForPull.this.selectedObjectsForRepository = AbapGitWizardPageObjectsSelectionForPull.this.modifiedObjTreeViewer
+						.getCheckedElements();
+
+			}
+		});
+
+		// Check elements which have action as 1 i.e. Objects to be added
+		this.modifiedObjTreeViewer.setCheckStateProvider(new ICheckStateProvider() {
+
+			@Override
+			public boolean isGrayed(Object element) {
+				return false;
+			}
+
+			@Override
+			public boolean isChecked(Object element) {
+				if (element instanceof IOverwriteObject) {
+					IOverwriteObject object = (IOverwriteObject) element;
+					if (object.getAction() != null && object.getAction().equals("1")) { //$NON-NLS-1$
+						return true;
+					}
+				}
+				return false;
+			}
+		});
+	}
 }
 

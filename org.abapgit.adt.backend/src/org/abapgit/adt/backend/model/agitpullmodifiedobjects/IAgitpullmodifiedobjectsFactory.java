@@ -58,13 +58,13 @@ public interface IAgitpullmodifiedobjectsFactory extends EFactory {
 	IPackageWarningObjects createPackageWarningObjects();
 
 	/**
-	 * Returns a new object of class '<em>Abap Git Object</em>'.
+	 * Returns a new object of class '<em>Overwrite Object</em>'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return a new object of class '<em>Abap Git Object</em>'.
+	 * @return a new object of class '<em>Overwrite Object</em>'.
 	 * @generated
 	 */
-	IAbapGitObject createAbapGitObject();
+	IOverwriteObject createOverwriteObject();
 
 	/**
 	 * Returns the package supported by this factory.

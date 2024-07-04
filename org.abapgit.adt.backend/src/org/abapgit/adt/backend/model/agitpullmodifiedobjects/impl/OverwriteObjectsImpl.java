@@ -4,8 +4,8 @@ package org.abapgit.adt.backend.model.agitpullmodifiedobjects.impl;
 
 import java.util.Collection;
 
-import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAbapGitObject;
 import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAgitpullmodifiedobjectsPackage;
+import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IOverwriteObject;
 import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IOverwriteObjects;
 
 import org.eclipse.emf.common.notify.NotificationChain;
@@ -42,7 +42,7 @@ public class OverwriteObjectsImpl extends MinimalEObjectImpl.Container implement
 	 * @generated
 	 * @ordered
 	 */
-	protected EList<IAbapGitObject> abapgitobjects;
+	protected EList<IOverwriteObject> abapgitobjects;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -69,9 +69,9 @@ public class OverwriteObjectsImpl extends MinimalEObjectImpl.Container implement
 	 * @generated
 	 */
 	@Override
-	public EList<IAbapGitObject> getAbapgitobjects() {
+	public EList<IOverwriteObject> getAbapgitobjects() {
 		if (abapgitobjects == null) {
-			abapgitobjects = new EObjectContainmentEList<IAbapGitObject>(IAbapGitObject.class, this, IAgitpullmodifiedobjectsPackage.OVERWRITE_OBJECTS__ABAPGITOBJECTS);
+			abapgitobjects = new EObjectContainmentEList<IOverwriteObject>(IOverwriteObject.class, this, IAgitpullmodifiedobjectsPackage.OVERWRITE_OBJECTS__ABAPGITOBJECTS);
 		}
 		return abapgitobjects;
 	}
@@ -115,7 +115,7 @@ public class OverwriteObjectsImpl extends MinimalEObjectImpl.Container implement
 		switch (featureID) {
 			case IAgitpullmodifiedobjectsPackage.OVERWRITE_OBJECTS__ABAPGITOBJECTS:
 				getAbapgitobjects().clear();
-				getAbapgitobjects().addAll((Collection<? extends IAbapGitObject>)newValue);
+				getAbapgitobjects().addAll((Collection<? extends IOverwriteObject>)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);

@@ -5,23 +5,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.abapgit.adt.backend.IRepositoryService;
-import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
-import org.abapgit.adt.backend.model.abapgitrepositories.impl.AbapgitrepositoriesFactoryImpl;
-import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAbapGitObject;
+import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IOverwriteObject;
 import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAbapGitPullModifiedObjects;
 import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAgitpullmodifiedobjectsFactory;
-import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IOverwriteObjects;
-import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IPackageWarningObjects;
 import org.abapgit.adt.ui.internal.repositories.IRepositoryModifiedObjects;
 import org.abapgit.adt.ui.internal.repositories.RepositoryModifiedObjects;
 import org.junit.Assert;
 import org.junit.Test;
-
-import com.sap.adt.tools.core.model.adtcore.IAdtCoreFactory;
-import com.sap.adt.tools.core.model.atom.IAtomFactory;
-import com.sap.adt.tools.core.model.atom.IAtomLink;
-
 
 public class TestsUnitAbapGitPullService {
 	
@@ -30,21 +20,21 @@ public class TestsUnitAbapGitPullService {
 
 	 //Prepare test data.	
 		//repo1 
-		IAbapGitObject repo1overwriteObject1 = IAgitpullmodifiedobjectsFactory.eINSTANCE.createAbapGitObject();
+		IOverwriteObject repo1overwriteObject1 = IAgitpullmodifiedobjectsFactory.eINSTANCE.createOverwriteObject();
 		repo1overwriteObject1.setName("repo1OverwriteObject1");
-		IAbapGitObject repo1overwriteObject2 = IAgitpullmodifiedobjectsFactory.eINSTANCE.createAbapGitObject();
+		IOverwriteObject repo1overwriteObject2 = IAgitpullmodifiedobjectsFactory.eINSTANCE.createOverwriteObject();
 		repo1overwriteObject2.setName("repo1OverwriteObject2");
 		
-		IAbapGitObject repo1packageWarningObject1 = IAgitpullmodifiedobjectsFactory.eINSTANCE.createAbapGitObject();
+		IOverwriteObject repo1packageWarningObject1 = IAgitpullmodifiedobjectsFactory.eINSTANCE.createOverwriteObject();
 		repo1packageWarningObject1.setName("repo1PackageWarningObject1");
 
 		//repo2 
-		IAbapGitObject repo2overwriteObject1 = IAgitpullmodifiedobjectsFactory.eINSTANCE.createAbapGitObject();
+		IOverwriteObject repo2overwriteObject1 = IAgitpullmodifiedobjectsFactory.eINSTANCE.createOverwriteObject();
 		repo2overwriteObject1.setName("repo2OverwriteObject1");
 
-		IAbapGitObject repo2packageWarningObject1 = IAgitpullmodifiedobjectsFactory.eINSTANCE.createAbapGitObject();
+		IOverwriteObject repo2packageWarningObject1 = IAgitpullmodifiedobjectsFactory.eINSTANCE.createOverwriteObject();
 		repo2packageWarningObject1.setName("repo2PackageWarningObject1");
-		IAbapGitObject repo2packageWarningObject2 = IAgitpullmodifiedobjectsFactory.eINSTANCE.createAbapGitObject();
+		IOverwriteObject repo2packageWarningObject2 = IAgitpullmodifiedobjectsFactory.eINSTANCE.createOverwriteObject();
 		repo2packageWarningObject2.setName("repo2PackageWarningObject2");
 
 		// parameters for getSelectedObjectsToPullForRepo

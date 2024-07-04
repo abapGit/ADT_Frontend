@@ -2,7 +2,7 @@ package org.abapgit.adt.ui.internal.repositories;
 
 import java.util.List;
 
-import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAbapGitObject;
+import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IOverwriteObject;
 
 /**
  * This interface helps to maintain the modified objects for each repository.
@@ -37,5 +37,5 @@ public interface IRepositoryModifiedObjects {
 	 * @return Modified Objects .
 	 *
 	 */
-	List<IAbapGitObject> getModifiedObjects();
+	List<IOverwriteObject> getModifiedObjects();
 }

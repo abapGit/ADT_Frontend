@@ -60,7 +60,7 @@ public class AgitpullmodifiedobjectsFactoryImpl extends EFactoryImpl implements 
 			case IAgitpullmodifiedobjectsPackage.DOCUMENT_ROOT: return createDocumentRoot();
 			case IAgitpullmodifiedobjectsPackage.OVERWRITE_OBJECTS: return createOverwriteObjects();
 			case IAgitpullmodifiedobjectsPackage.PACKAGE_WARNING_OBJECTS: return createPackageWarningObjects();
-			case IAgitpullmodifiedobjectsPackage.ABAP_GIT_OBJECT: return createAbapGitObject();
+			case IAgitpullmodifiedobjectsPackage.OVERWRITE_OBJECT: return createOverwriteObject();
 			default:
 				throw new IllegalArgumentException("The class '" + eClass.getName() + "' is not a valid classifier");
 		}
@@ -116,9 +116,9 @@ public class AgitpullmodifiedobjectsFactoryImpl extends EFactoryImpl implements 
 	 * @generated
 	 */
 	@Override
-	public IAbapGitObject createAbapGitObject() {
-		AbapGitObjectImpl abapGitObject = new AbapGitObjectImpl();
-		return abapGitObject;
+	public IOverwriteObject createOverwriteObject() {
+		OverwriteObjectImpl overwriteObject = new OverwriteObjectImpl();
+		return overwriteObject;
 	}
 
 	/**

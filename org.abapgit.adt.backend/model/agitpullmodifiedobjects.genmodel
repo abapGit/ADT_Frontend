@@ -24,6 +24,9 @@
     <genClasses ecoreClass="agitpullmodifiedobjects.ecore#//PackageWarningObjects">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference agitpullmodifiedobjects.ecore#//PackageWarningObjects/abapgitobjects"/>
     </genClasses>
-    <genClasses ecoreClass="agitpullmodifiedobjects.ecore#//AbapGitObject"/>
+    <genClasses ecoreClass="agitpullmodifiedobjects.ecore#//OverwriteObject">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute agitpullmodifiedobjects.ecore#//OverwriteObject/action"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute agitpullmodifiedobjects.ecore#//OverwriteObject/actionDescription"/>
+    </genClasses>
   </genPackages>
 </genmodel:GenModel>

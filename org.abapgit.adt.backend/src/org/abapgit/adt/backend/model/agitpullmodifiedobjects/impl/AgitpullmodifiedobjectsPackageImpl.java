@@ -5,13 +5,12 @@ package org.abapgit.adt.backend.model.agitpullmodifiedobjects.impl;
 import com.sap.adt.tools.core.model.adtcore.IAdtCorePackage;
 
 import com.sap.adt.tools.core.model.atom.IAtomPackage;
-import org.abapgit.adt.backend.model.abapgitpullrequest.IAbapgitpullrequestPackage;
-import org.abapgit.adt.backend.model.abapgitpullrequest.impl.AbapgitpullrequestPackageImpl;
-import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAbapGitObject;
+
 import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAbapGitPullModifiedObjects;
 import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAgitpullmodifiedobjectsFactory;
 import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAgitpullmodifiedobjectsPackage;
 import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IDocumentRoot;
+import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IOverwriteObject;
 import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IOverwriteObjects;
 import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IPackageWarningObjects;
 
@@ -62,7 +61,7 @@ public class AgitpullmodifiedobjectsPackageImpl extends EPackageImpl implements 
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	private EClass abapGitObjectEClass = null;
+	private EClass overwriteObjectEClass = null;
 
 	/**
 	 * Creates an instance of the model <b>Package</b>, registered with
@@ -82,7 +81,6 @@ public class AgitpullmodifiedobjectsPackageImpl extends EPackageImpl implements 
 	private AgitpullmodifiedobjectsPackageImpl() {
 		super(eNS_URI, IAgitpullmodifiedobjectsFactory.eINSTANCE);
 	}
-
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -115,17 +113,11 @@ public class AgitpullmodifiedobjectsPackageImpl extends EPackageImpl implements 
 		IAdtCorePackage.eINSTANCE.eClass();
 		IAtomPackage.eINSTANCE.eClass();
 
-		// Obtain or create and register interdependencies
-		Object registeredPackage = EPackage.Registry.INSTANCE.getEPackage(IAbapgitpullrequestPackage.eNS_URI);
-		AbapgitpullrequestPackageImpl theAbapgitpullrequestPackage = (AbapgitpullrequestPackageImpl)(registeredPackage instanceof AbapgitpullrequestPackageImpl ? registeredPackage : IAbapgitpullrequestPackage.eINSTANCE);
-
 		// Create package meta-data objects
 		theAgitpullmodifiedobjectsPackage.createPackageContents();
-		theAbapgitpullrequestPackage.createPackageContents();
 
 		// Initialize created meta-data
 		theAgitpullmodifiedobjectsPackage.initializePackageContents();
-		theAbapgitpullrequestPackage.initializePackageContents();
 
 		// Mark meta-data to indicate it can't be changed
 		theAgitpullmodifiedobjectsPackage.freeze();
@@ -261,8 +253,28 @@ public class AgitpullmodifiedobjectsPackageImpl extends EPackageImpl implements 
 	 * @generated
 	 */
 	@Override
-	public EClass getAbapGitObject() {
-		return abapGitObjectEClass;
+	public EClass getOverwriteObject() {
+		return overwriteObjectEClass;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public EAttribute getOverwriteObject_Action() {
+		return (EAttribute)overwriteObjectEClass.getEStructuralFeatures().get(0);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public EAttribute getOverwriteObject_ActionDescription() {
+		return (EAttribute)overwriteObjectEClass.getEStructuralFeatures().get(1);
 	}
 
 	/**
@@ -310,7 +322,9 @@ public class AgitpullmodifiedobjectsPackageImpl extends EPackageImpl implements 
 		packageWarningObjectsEClass = createEClass(PACKAGE_WARNING_OBJECTS);
 		createEReference(packageWarningObjectsEClass, PACKAGE_WARNING_OBJECTS__ABAPGITOBJECTS);
 
-		abapGitObjectEClass = createEClass(ABAP_GIT_OBJECT);
+		overwriteObjectEClass = createEClass(OVERWRITE_OBJECT);
+		createEAttribute(overwriteObjectEClass, OVERWRITE_OBJECT__ACTION);
+		createEAttribute(overwriteObjectEClass, OVERWRITE_OBJECT__ACTION_DESCRIPTION);
 	}
 
 	/**
@@ -344,7 +358,7 @@ public class AgitpullmodifiedobjectsPackageImpl extends EPackageImpl implements 
 		// Set bounds for type parameters
 
 		// Add supertypes to classes
-		abapGitObjectEClass.getESuperTypes().add(theAdtCorePackage.getAdtObjectReference());
+		overwriteObjectEClass.getESuperTypes().add(theAdtCorePackage.getAdtObjectReference());
 
 		// Initialize classes, features, and operations; add parameters
 		initEClass(abapGitPullModifiedObjectsEClass, IAbapGitPullModifiedObjects.class, "AbapGitPullModifiedObjects", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
@@ -358,12 +372,14 @@ public class AgitpullmodifiedobjectsPackageImpl extends EPackageImpl implements 
 		initEReference(getDocumentRoot_Abapgitpullmodifiedobjects(), this.getAbapGitPullModifiedObjects(), null, "abapgitpullmodifiedobjects", null, 0, 1, null, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
 
 		initEClass(overwriteObjectsEClass, IOverwriteObjects.class, "OverwriteObjects", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEReference(getOverwriteObjects_Abapgitobjects(), this.getAbapGitObject(), null, "abapgitobjects", null, 0, -1, IOverwriteObjects.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getOverwriteObjects_Abapgitobjects(), this.getOverwriteObject(), null, "abapgitobjects", null, 0, -1, IOverwriteObjects.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(packageWarningObjectsEClass, IPackageWarningObjects.class, "PackageWarningObjects", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEReference(getPackageWarningObjects_Abapgitobjects(), this.getAbapGitObject(), null, "abapgitobjects", null, 0, -1, IPackageWarningObjects.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getPackageWarningObjects_Abapgitobjects(), this.getOverwriteObject(), null, "abapgitobjects", null, 0, -1, IPackageWarningObjects.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
-		initEClass(abapGitObjectEClass, IAbapGitObject.class, "AbapGitObject", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
+		initEClass(overwriteObjectEClass, IOverwriteObject.class, "OverwriteObject", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
+		initEAttribute(getOverwriteObject_Action(), ecorePackage.getEString(), "action", null, 0, 1, IOverwriteObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getOverwriteObject_ActionDescription(), ecorePackage.getEString(), "actionDescription", null, 0, 1, IOverwriteObject.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		// Create resource
 		createResource(eNS_URI);
@@ -469,6 +485,27 @@ public class AgitpullmodifiedobjectsPackageImpl extends EPackageImpl implements 
 			   "kind", "element",
 			   "namespace", "##targetNamespace",
 			   "name", "abapgitobjects"
+		   });
+		addAnnotation
+		  (overwriteObjectEClass,
+		   source,
+		   new String[] {
+			   "kind", "elementOnly",
+			   "name", "overwriteObject"
+		   });
+		addAnnotation
+		  (getOverwriteObject_Action(),
+		   source,
+		   new String[] {
+			   "kind", "attribute",
+			   "namespace", "##targetNamespace"
+		   });
+		addAnnotation
+		  (getOverwriteObject_ActionDescription(),
+		   source,
+		   new String[] {
+			   "kind", "attribute",
+			   "namespace", "##targetNamespace"
 		   });
 	}
 
