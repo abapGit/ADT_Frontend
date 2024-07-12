@@ -21,7 +21,6 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.sap.adt.communication.resources.ResourceException;
 import com.sap.adt.tools.core.ui.AbapCoreUi;
-import com.sap.adt.tools.core.ui.BrowserUtil;
 import com.sap.adt.tools.core.ui.browsers.IHtmlUtil;
 import com.sap.adt.tools.core.ui.dialogs.ErrorDialogWithDetails;
 
@@ -57,7 +56,7 @@ public class ErrorHandlingService {
 							protected Control createContents(Composite parent) {
 								Composite root = new Composite(parent, SWT.NO_FOCUS);
 								GridLayoutFactory.fillDefaults().spacing(0, 0).applyTo(root);
-								Browser browser = BrowserUtil.createBrowserBasedOnPreferenceSettings(root);
+								final Browser browser = new Browser(root, SWT.NONE);
 								browser.setText(addStyleSheetTo(longtext));
 								int xHint = Dialog.convertHorizontalDLUsToPixels(fontMetrics, 200);
 								GridDataFactory.fillDefaults().grab(true, true).hint(xHint, SWT.DEFAULT).applyTo(browser);
