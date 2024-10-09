@@ -1,6 +1,5 @@
 package org.abapgit.adt.ui.internal.util;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,7 +15,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.security.storage.EncodingUtils;
 import org.eclipse.equinox.security.storage.ISecurePreferences;
 import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
-import org.eclipse.equinox.security.storage.StorageException;
 import org.eclipse.equinox.security.storage.provider.IProviderHints;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -145,7 +143,7 @@ public class GitCredentialsService {
 						node.put("password", repositoryCredentials.getPassword(), true); //$NON-NLS-1$
 					}
 				}
-			} catch (IOException | StorageException e) {
+			} catch (Exception e) {
 				AbapGitUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getMessage(), e));
 				MessageDialog.openWarning(shell, "Eclipse secure storage error", getErrorMessage(e)); //$NON-NLS-1$
 				GitCredentialsService.deleteCredentialsFromSecureStorage(repositoryURL); // if anything stored in the secure storage
