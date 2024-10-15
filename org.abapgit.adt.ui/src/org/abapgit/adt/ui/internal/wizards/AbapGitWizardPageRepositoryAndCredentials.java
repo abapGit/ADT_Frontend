@@ -21,7 +21,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.security.storage.ISecurePreferences;
 import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
-import org.eclipse.equinox.security.storage.StorageException;
 import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -367,7 +366,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 			try {
 				credentials.setUser(node.get("user", null)); //$NON-NLS-1$
 				credentials.setPassword(node.get("password", null)); //$NON-NLS-1$
-			} catch (StorageException e) {
+			} catch (Exception e) {
 				AbapGitUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getMessage(), e));
 				return null;
 			}
