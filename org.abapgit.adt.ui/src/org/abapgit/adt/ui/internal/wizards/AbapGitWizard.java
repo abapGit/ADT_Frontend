@@ -268,20 +268,20 @@ public class AbapGitWizard extends Wizard {
 				return;
 			}
 
-			//-> Any Page -> Folder Logic page 
+			//-> Any Page -> Folder Logic page
 			//(If only linking a repository and no APACK dependencies, no need to show transport page and finish wizard )
 			if (event.getTargetPage() == AbapGitWizard.this.pageFolderlogic && !AbapGitWizard.this.pageBranchAndPackage.getLnpSequence() && !AbapGitWizard.this.cloneData.hasDependencies() ) {
 					AbapGitWizard.this.transportPage.setPageComplete(true);
 					AbapGitWizard.this.pageFolderlogic.setPageComplete(true);
 				}
-			
+
 			// -> Folder Logic page -> Branch & Package page
 			if (event.getCurrentPage() == AbapGitWizard.this.pageFolderlogic
 					&& event.getTargetPage() == AbapGitWizard.this.pageBranchAndPackage) {
 				AbapGitWizard.this.transportPage.setPageComplete(false);
 			}
 
-			//-> Any Page -> APACK page 
+			//-> Any Page -> APACK page
 			//(If only linking a repository, no need to show transport page and finish wizard)
 			if (event.getTargetPage() == AbapGitWizard.this.pageApack && !AbapGitWizard.this.pageBranchAndPackage.getLnpSequence()) {
 				AbapGitWizard.this.transportPage.setPageComplete(true);
@@ -375,8 +375,8 @@ public class AbapGitWizard extends Wizard {
 
 	/**
 	 * Fetch the modified objects for the main repository and dependencies (if
-	 * any) Then maintain the overWrite objects and warning package objects,
-	 * separately in the clone data object
+	 * any). Then maintain the overWrite objects and warning package objects,
+	 * separately in the clone data object.
 	 *
 	 * Return true in case there are modified objects, otherwise return false.
 	 */
@@ -384,13 +384,38 @@ public class AbapGitWizard extends Wizard {
 
 		IRepositories repositories = repoService.getRepositories(new NullProgressMonitor());
 
-		RepositoryUtil.fetchAndExtractModifiedObjectsToPull(repository, repoService, this.cloneData);
+		try {
+			getContainer().run(true, true, new IRunnableWithProgress() {
+
+				@Override
+				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+					monitor.beginTask(Messages.AbapGitWizardPageBranchAndPackage_FetchingModifiedObjectsForPull, IProgressMonitor.UNKNOWN);
+					RepositoryUtil.fetchAndExtractModifiedObjectsToPull(repository, repoService, AbapGitWizard.this.cloneData);
+				}
+			});
+		} catch (InvocationTargetException | InterruptedException e) {
+			e.printStackTrace();
+		}
 
 		if (this.cloneData.hasDependencies()) {
 			for (IApackDependency apackDependency : this.cloneData.apackManifest.getDescriptor().getDependencies()) {
 				IRepository dependencyRepository = repoService.getRepositoryByURL(repositories, apackDependency.getGitUrl());
 				if (dependencyRepository != null) {
-					RepositoryUtil.fetchAndExtractModifiedObjectsToPull(dependencyRepository, repoService, this.cloneData);
+
+					try {
+						getContainer().run(true, true, new IRunnableWithProgress() {
+
+							@Override
+							public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+								monitor.beginTask(Messages.AbapGitWizardPageBranchAndPackage_FetchingModifiedObjectsForPull,
+										IProgressMonitor.UNKNOWN);
+								RepositoryUtil.fetchAndExtractModifiedObjectsToPull(dependencyRepository, repoService,
+										AbapGitWizard.this.cloneData);
+							}
+						});
+					} catch (InvocationTargetException | InterruptedException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		}
