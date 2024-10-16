@@ -43,7 +43,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-import com.sap.adt.communication.resources.ResourceException;
 import com.sap.adt.tools.core.model.adtcore.IAdtObjectReference;
 import com.sap.adt.tools.core.ui.packages.AdtPackageProposalProviderFactory;
 import com.sap.adt.tools.core.ui.packages.AdtPackageServiceUIFactory;
@@ -318,8 +317,16 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 			// If selectivePull is not supported, fetching modified objects is not required and all objects are to be pulled
 			if (abapGitService.isSelectivePullSupported(repository)) {
 				try {
-					RepositoryUtil.fetchAndExtractModifiedObjectsToPull(repository, repoService, this.cloneData);
-				} catch (ResourceException e) {
+					getContainer().run(true, true, new IRunnableWithProgress() {
+
+						@Override
+						public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+							monitor.beginTask(Messages.AbapGitWizardPageBranchAndPackage_FetchingModifiedObjectsForPull, IProgressMonitor.UNKNOWN);
+							RepositoryUtil.fetchAndExtractModifiedObjectsToPull(repository, repoService,
+									AbapGitWizardPageBranchAndPackage.this.cloneData);
+						}
+					});
+				} catch (InvocationTargetException | InterruptedException e) {
 					setMessage(e.getMessage(), DialogPage.ERROR);
 					setPageComplete(false);
 					return null;

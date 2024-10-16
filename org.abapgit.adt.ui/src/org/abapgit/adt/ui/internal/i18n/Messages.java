@@ -80,6 +80,7 @@ public class Messages extends NLS {
 	public static String AbapGitWizardPageBranchAndPackage_btn_browse;
 	public static String AbapGitWizardPageBranchAndPackage_combobox_branch_message;
 	public static String AbapGitWizardPageBranchAndPackage_description;
+	public static String AbapGitWizardPageBranchAndPackage_FetchingModifiedObjectsForPull;
 	public static String AbapGitWizardPageBranchAndPackageAndFolderLogic_description;
 	public static String AbapGitWizardPageFolderLogic_AlreadyExists_Full;
 	public static String AbapGitWizardPageFolderLogic_AlreadyExists_Prefix;
