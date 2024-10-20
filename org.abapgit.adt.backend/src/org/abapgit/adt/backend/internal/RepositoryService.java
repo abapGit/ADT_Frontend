@@ -16,12 +16,14 @@ import org.abapgit.adt.backend.model.abapgitstaging.IAbapGitStaging;
 import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAbapGitPullModifiedObjects;
 import org.eclipse.core.runtime.IProgressMonitor;
 
+import com.sap.adt.communication.background.AdtBackgroundRestResourceFactory;
 import com.sap.adt.communication.content.IContentHandler;
 import com.sap.adt.communication.message.HeadersFactory;
 import com.sap.adt.communication.message.IHeaders;
 import com.sap.adt.communication.resources.AdtRestResourceFactory;
 import com.sap.adt.communication.resources.IRestResource;
 import com.sap.adt.communication.resources.UriBuilder;
+import com.sap.adt.compatibility.background.AdtBackgroundRunUriDiscoveryFactory;
 import com.sap.adt.compatibility.exceptions.OutDatedClientException;
 import com.sap.adt.compatibility.filter.AdtCompatibleRestResourceFilterFactory;
 import com.sap.adt.compatibility.filter.IAdtCompatibleRestResourceFilter;
@@ -329,6 +331,50 @@ public class RepositoryService implements IRepositoryService {
 		restResource.addResponseFilter(responseCompatibilityFilter);
 
 		return restResource.post(monitor, IAbapObjects.class, abapGitPullReq);
+	}
+
+	@Override
+	public boolean isBackgroundJobSupported(IProgressMonitor monitor) {
+		// check whether background job framework is available and is accessible by the user.
+		// if not available or not authorized the uri would be null.
+		if (AdtBackgroundRunUriDiscoveryFactory.createBackgroundRunUriDiscovery(this.destinationId)
+				.getBackgroundRunUriIfAuthorized(monitor) != null) {
+			return true;
+		}
+		return false;
+	}
+
+	private IRestResource getBackgroundRestResource(String uri, String destinationId, IProgressMonitor monitor) {
+		URI backgroundUri = AdtBackgroundRunUriDiscoveryFactory.createBackgroundRunUriDiscovery(destinationId)
+				.getBackgroundRunUriIfAuthorized(monitor);
+		if (backgroundUri != null) {
+			return AdtBackgroundRestResourceFactory.createBackgroundRestResourceFactory().createResourceWithStatelessSession(backgroundUri,
+					URI.create(uri), destinationId);
+		}
+		return AdtRestResourceFactory.createRestResourceFactory().createResourceWithStatelessSession(URI.create(uri), destinationId);
+	}
+
+	@Override
+	public IAbapGitPullModifiedObjects getModifiedObjectsWithBackgroundJob(IProgressMonitor monitor, IRepository currRepository,
+			String user, String password) {
+		URI uriToModifiedObjects = getURIFromAtomLink(currRepository, IRepositoryService.RELATION_MODIFIED_OBJECTS);
+
+		IHeaders headers = null;
+		if (user != null && password != null) {
+			headers = getHttpHeadersForCredentials(user, password);
+		}
+
+		IRestResource restResource = getBackgroundRestResource(uriToModifiedObjects.getPath(), this.destinationId, monitor);
+
+		IContentHandler<IAbapGitPullModifiedObjects> responseContentHandlerV1 = new AbapGitPullModifiedObjectsContentHandlerV1();
+		restResource.addContentHandler(responseContentHandlerV1);
+
+		IAdtCompatibleRestResourceFilter compatibilityFilter = AdtCompatibleRestResourceFilterFactory
+				.createFilter(responseContentHandlerV1);
+		restResource.addRequestFilter(compatibilityFilter);
+		restResource.addResponseFilter(compatibilityFilter);
+
+		return restResource.get(monitor, headers, IAbapGitPullModifiedObjects.class);
 	}
 
 }

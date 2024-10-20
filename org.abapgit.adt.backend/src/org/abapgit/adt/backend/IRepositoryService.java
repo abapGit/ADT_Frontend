@@ -121,6 +121,22 @@ public interface IRepositoryService {
 	IAbapGitPullModifiedObjects getModifiedObjects(IProgressMonitor monitor, IRepository currRepository,
 			String user, String password);
 
+	/**
+	 * Returns the locally modified objects for the given repository via background job
+	 *
+	 * @param currRepository
+	 *            Repository for which the modified Objects are to be fetched
+	 * @param user
+	 *            User
+	 * @param password
+	 *            Repository Password
+	 * @param monitor
+	 *            Progress monitor
+	 * @return Modified Objects for the given repository
+	 */
+	IAbapGitPullModifiedObjects getModifiedObjectsWithBackgroundJob(IProgressMonitor monitor, IRepository currRepository, String user,
+			String password);
+
 	//Valid for older backend before 2105 where selective pull feature is not supported
 	/*
 	 * TODO: To be deleted after 2105 back end release with selective pull feature reaches all customers
@@ -169,4 +185,12 @@ public interface IRepositoryService {
 	IAbapObjects pullRepository(IRepository existingRepository, String branch, String transportRequest, String user, String password,
 			IAbapGitPullModifiedObjects selectedObjectsToPull, IProgressMonitor monitor);
 
+	/**
+	 * Check if background jobs is supported
+	 *
+	 * @param monitor
+	 *            Progress Monitor
+	 * @return If background job is possible or not.
+	 */
+	boolean isBackgroundJobSupported(IProgressMonitor monitor);
 }
