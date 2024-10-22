@@ -16,6 +16,7 @@ import org.abapgit.adt.backend.model.abapgitexternalrepo.AccessMode;
 import org.abapgit.adt.backend.model.abapgitexternalrepo.IBranch;
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepository.FolderLogic;
+import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.util.AbapGitUIServiceFactory;
 import org.abapgit.adt.ui.internal.util.IAbapGitService;
@@ -23,7 +24,11 @@ import org.abapgit.adt.ui.internal.util.RepositoryUtil;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard.CloneData;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -38,11 +43,16 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.ProgressBar;
 
+import com.sap.adt.communication.exceptions.CommunicationException;
+import com.sap.adt.communication.resources.ResourceException;
 import com.sap.adt.tools.core.model.adtcore.IAdtObjectReference;
 import com.sap.adt.tools.core.ui.packages.AdtPackageProposalProviderFactory;
 import com.sap.adt.tools.core.ui.packages.AdtPackageServiceUIFactory;
@@ -67,6 +77,10 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 	private final Boolean pullAction;
 	private boolean backButtonEnabled = true;
 	private final ApackParameters lastApackCall;
+
+	private ProgressBar progressBar;
+
+	private Label progressBarLabel;
 
 	public AbapGitWizardPageBranchAndPackage(IProject project, String destination, CloneData cloneData, Boolean pullAction) {
 		super(PAGE_NAME);
@@ -175,6 +189,8 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 			});
 		}
 
+		createProgressBarComposite(container);
+
 		setControl(container);
 
 		if (this.cloneData.url != null) {
@@ -194,6 +210,35 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 		setPageComplete(true);
 		if (!validateClientOnly()) {
 			setPageComplete(false);
+		}
+	}
+
+	private void createProgressBarComposite(Composite container) {
+		Composite progressBarComposite = new Composite(container, SWT.NONE);
+		progressBarComposite.setLayout(new GridLayout(1, false)); // 1 column layout
+
+		this.progressBarLabel = new Label(progressBarComposite, SWT.NONE);
+		this.progressBarLabel.setText(Messages.AbapGitWizardPageBranchAndPackage_FetchingModifiedObjectsForPull);
+		this.progressBarLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.END, true, false));
+
+		this.progressBar = new ProgressBar(progressBarComposite, SWT.INDETERMINATE);
+		GridData pBGD = new GridData(SWT.FILL, SWT.END, true, false);
+		this.progressBar.setLayoutData(pBGD);
+
+		GridData pbCompGD = new GridData(SWT.FILL, SWT.END, true, true);
+		pbCompGD.horizontalSpan = 3;
+		progressBarComposite.setLayoutData(pbCompGD);
+
+		setProgressVisible(false);
+	}
+
+	public void setProgressVisible(boolean visible) {
+		if (this.progressBar != null && !this.progressBar.isDisposed()) {
+			this.progressBar.setVisible(visible);
+		}
+
+		if (this.progressBarLabel != null && !this.progressBarLabel.isDisposed()) {
+			this.progressBarLabel.setVisible(visible);
 		}
 	}
 
@@ -302,7 +347,7 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 
 	@Override
 	public boolean canFlipToNextPage() {
-		return true;
+		return true && isPageComplete();
 	}
 
 	@Override
@@ -316,18 +361,51 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 			// This is valid only for back end versions from 2105 where selective pull is supported.
 			// If selectivePull is not supported, fetching modified objects is not required and all objects are to be pulled
 			if (abapGitService.isSelectivePullSupported(repository)) {
-				try {
-					getContainer().run(true, true, new IRunnableWithProgress() {
+				setPageComplete(false);
+				setProgressVisible(true);
 
-						@Override
-						public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-							monitor.beginTask(Messages.AbapGitWizardPageBranchAndPackage_FetchingModifiedObjectsForPull, IProgressMonitor.UNKNOWN);
+				Job myRequestJob = new Job(Messages.AbapGitWizardPageBranchAndPackage_FetchingModifiedObjectsForPull) {
+
+					@Override
+					protected IStatus run(IProgressMonitor monitor) {
+						try {
+							if (monitor.isCanceled()) {
+								return Status.CANCEL_STATUS;
+							}
 							RepositoryUtil.fetchAndExtractModifiedObjectsToPull(repository, repoService,
 									AbapGitWizardPageBranchAndPackage.this.cloneData);
+
+							if (monitor.isCanceled()) {
+								return Status.CANCEL_STATUS;
+							}
+						} catch (CommunicationException e) {
+							return new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getLocalizedMessage(), e);
+						} catch (ResourceException e) {
+							return new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getLocalizedMessage(), e);
+						} catch (OperationCanceledException e) {
+							return new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getLocalizedMessage(), e);
+						} finally {
+							monitor.done();
 						}
-					});
-				} catch (InvocationTargetException | InterruptedException e) {
-					setMessage(e.getMessage(), DialogPage.ERROR);
+						return Status.OK_STATUS;
+					}
+				};
+
+				myRequestJob.setUser(true);
+				myRequestJob.schedule();
+
+				// wait for the job to finish
+				Display display = Display.getDefault();
+				while (myRequestJob.getResult() == null) {
+					if (!display.readAndDispatch()) {
+						display.sleep();
+					}
+				}
+
+				setProgressVisible(false);
+
+				if (myRequestJob.getResult().getSeverity() != Status.OK && myRequestJob.getResult().getSeverity() != Status.INFO) {
+					setErrorMessage(myRequestJob.getResult().getMessage());
 					setPageComplete(false);
 					return null;
 				}

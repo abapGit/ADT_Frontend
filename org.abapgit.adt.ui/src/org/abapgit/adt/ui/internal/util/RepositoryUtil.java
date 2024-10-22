@@ -58,8 +58,14 @@ public class RepositoryUtil {
 	 */
 
 	public static void fetchAndExtractModifiedObjectsToPull(IRepository repository, IRepositoryService repoService, CloneData cloneData) {
-		IAbapGitPullModifiedObjects abapPullModifiedObjects = repoService.getModifiedObjects(new NullProgressMonitor(), repository,
-				cloneData.user, cloneData.pass);
+		IAbapGitPullModifiedObjects abapPullModifiedObjects;
+		if (repoService.isBackgroundJobSupported(new NullProgressMonitor())) {
+			abapPullModifiedObjects = repoService.getModifiedObjectsWithBackgroundJob(new NullProgressMonitor(), repository, cloneData.user,
+					cloneData.pass);
+		}else {
+			abapPullModifiedObjects = repoService.getModifiedObjects(new NullProgressMonitor(), repository,
+					cloneData.user, cloneData.pass);
+		}
 
 		//Client side adjustment to the overwrite objects, and remove any objects from the package warning objects.
 		//TODO Fix this in the backend.
