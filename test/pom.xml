@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.abapgit.adt</groupId>
   <artifactId>tests</artifactId>
-  <version>1.7.10</version>
+  <version>1.7.11</version>
   <name>Test Fragments</name>
   <packaging>pom</packaging>
   <description>Test Fragments</description>
@@ -12,7 +12,7 @@
   <parent>
     <groupId>org.abapgit.adt</groupId>
     <artifactId>org.abapgit.adt.parent</artifactId>
-    <version>1.7.10</version>
+    <version>1.7.11</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
