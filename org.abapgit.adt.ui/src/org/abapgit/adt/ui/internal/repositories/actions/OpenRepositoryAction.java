@@ -22,11 +22,12 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
  * Action to "Open repository in an external browser"
  */
 public class OpenRepositoryAction extends Action {
+	private static final String REFS_HEADS = "refs/heads/";
 	private final IViewPart view;
 	private static final String GITHUB_DOMAIN = "github.com"; //$NON-NLS-1$
 	private static final String GITLAB_DOMAIN = "gitlab.com"; //$NON-NLS-1$
-	private static final String GIT_WDF_SAP_DOMAIN = "github.wdf.sap.corp"; //$NON-NLS-1$
-	private static final String GITHUB_INFRA_DOMAIN = "github.infra.hana.ondemand.com"; //$NON-NLS-1$
+	private static final String GITHUB_WDF_SAP_DOMAIN = "github.wdf.sap.corp"; //$NON-NLS-1$
+	private static final String GITHUB_INFRA_HANA_DOMAIN = "github.infra.hana.ondemand.com"; //$NON-NLS-1$
 	private static final String GITHUB_TOOLS_DOMAIN = "github.tools.sap"; //$NON-NLS-1$
 	private static final String BIT_BUCKET_DOMAIN = "bitbucket.org"; //$NON-NLS-1$
 
@@ -58,33 +59,46 @@ public class OpenRepositoryAction extends Action {
 				AbapGitUIPlugin.getDefault().getLog()
 						.log(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, exception.getMessage(), exception));
 			} catch (URISyntaxException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				MessageDialog.openError(this.view.getViewSite().getShell(), Messages.AbapGitView_action_open_repo_error_dialog_title,
+						e.getMessage());
+				AbapGitUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getMessage(), e));
 			}
 		}
 	}
 
 	public String getLink(IRepository repository) {
+		// Get Connected branch
+		URI repoURI;
 		String repoLink = repository.getUrl();
-		repoLink = repoLink.replace(".git", ""); //$NON-NLS-1$ //$NON-NLS-2$
-		// Remove protocol (http:// or https://)
-		String domain = repoLink.replaceFirst("https?://", ""); //$NON-NLS-1$ //$NON-NLS-2$
-
-		// Extract domain by splitting with '/'
-		domain = domain.split("/")[0]; //$NON-NLS-1$
-		// Get connected branch
-		String branch = repository.getBranchName();
-		// handle domain based repoLink generation
-		if (domain.equals(GITHUB_DOMAIN) || domain.equals(GITLAB_DOMAIN) || domain.equals(GITHUB_TOOLS_DOMAIN)
-				|| domain.equals(GITHUB_INFRA_DOMAIN) || domain.equals(GIT_WDF_SAP_DOMAIN)) {
-			branch = branch.replace("refs/heads/", "/tree/"); //$NON-NLS-1$//$NON-NLS-2$
-		} else if (domain.endsWith(BIT_BUCKET_DOMAIN)) {
-			repoLink = repoLink.replaceAll("https://.*?@", "https://"); //$NON-NLS-1$ //$NON-NLS-2$
-			branch = branch.replace("refs/heads/", "/src/"); //$NON-NLS-1$ //$NON-NLS-2$
+		String branch;
+		try {
+			repoURI = new URI(repository.getUrl());
+			String domain = repoURI.getHost();
+			// Remove the username and `.git` suffix
+			String path = repoURI.getPath();
+			if (path.endsWith(".git")) { //$NON-NLS-1$
+				path = path.substring(0, path.length() - 4); // Remove ".git"
+			}
+			branch = repository.getBranchName();
+			if (domain.equals(GITHUB_DOMAIN) || domain.equals(GITLAB_DOMAIN) || domain.equals(GITHUB_TOOLS_DOMAIN)
+					|| domain.equals(GITHUB_INFRA_HANA_DOMAIN) || domain.equals(GITHUB_WDF_SAP_DOMAIN)) {
+				branch = branch.replace(REFS_HEADS, "/tree/"); //$NON-NLS-1$//$NON-NLS-2$
+				path += branch;
+				URI gitURI = new URI(repoURI.getScheme(), null, repoURI.getHost(), repoURI.getPort(), path, null, null);
+				repoLink = gitURI.toString();
+			} else if (domain.endsWith(BIT_BUCKET_DOMAIN)) {
+				branch = branch.replace(REFS_HEADS, "/src/"); //$NON-NLS-1$ //$NON-NLS-2$
+				path += branch;
+				URI bucketURI = new URI(repoURI.getScheme(), null, repoURI.getHost(), repoURI.getPort(), path, null, null); // not taking the username for the link
+				repoLink = bucketURI.toString();
+			}
+		} catch (URISyntaxException e) {
+			MessageDialog.openError(this.view.getViewSite().getShell(), Messages.AbapGitView_action_open_repo_error_dialog_title,
+					e.getMessage());
+			AbapGitUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getMessage(), e));
 		}
-
 		// return the concatenated link that redirects to the branch
-		return repoLink + branch;
+		return repoLink;
 	}
 
 	private IRepository getRepository() {
