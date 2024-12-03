@@ -13,6 +13,8 @@ public class Messages extends NLS {
 	public static String AbapGitView_action_open;
 	public static String AbapGitView_action_open_repo;
 	public static String AbapGitView_action_open_repo_tooltip;
+	public static String AbapGitView_action_select_branch;
+	public static String AbapGitView_action_select_branch_tooltip;
 	public static String AbapGitView_action_open_repo_error_dialog_title;
 	public static String AbapGitView_action_open_xtol;
 	public static String AbapGitView_column_branch;
@@ -114,6 +116,7 @@ public class Messages extends NLS {
 	public static String AbapGitWizardPageRepositoryAndCredentials_label_password;
 	public static String AbapGitWizardPageRepositoryAndCredentials_label_url;
 	public static String AbapGitWizardPageRepositoryAndCredentials_label_user;
+	public static String AbapGitWizardPageRepositoryAndCredentials_select_branch_title;
 	public static String AbapGitWizardPageRepositoryAndCredentials_repo_in_use_error;
 	public static String AbapGitWizardPageRepositoryAndCredentials_repo_user_pass;
 	public static String AbapGitWizardPageRepositoryAndCredentials_repo_is_private;

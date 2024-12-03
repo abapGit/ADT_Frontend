@@ -22,7 +22,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
  * Action to "Open repository in an external browser"
  */
 public class OpenRepositoryAction extends Action {
-	private static final String REFS_HEADS = "refs/heads/";
+	private static final String REFS_HEADS = "refs/heads/"; //$NON-NLS-1$
 	private final IViewPart view;
 	private static final String GITHUB_DOMAIN = "github.com"; //$NON-NLS-1$
 	private static final String GITLAB_DOMAIN = "gitlab.com"; //$NON-NLS-1$
@@ -82,12 +82,12 @@ public class OpenRepositoryAction extends Action {
 			branch = repository.getBranchName();
 			if (domain.equals(GITHUB_DOMAIN) || domain.equals(GITLAB_DOMAIN) || domain.equals(GITHUB_TOOLS_DOMAIN)
 					|| domain.equals(GITHUB_INFRA_HANA_DOMAIN) || domain.equals(GITHUB_WDF_SAP_DOMAIN)) {
-				branch = branch.replace(REFS_HEADS, "/tree/"); //$NON-NLS-1$//$NON-NLS-2$
+				branch = branch.replace(REFS_HEADS, "/tree/"); //$NON-NLS-1$
 				path += branch;
 				URI gitURI = new URI(repoURI.getScheme(), null, repoURI.getHost(), repoURI.getPort(), path, null, null);
 				repoLink = gitURI.toString();
 			} else if (domain.endsWith(BIT_BUCKET_DOMAIN)) {
-				branch = branch.replace(REFS_HEADS, "/src/"); //$NON-NLS-1$ //$NON-NLS-2$
+				branch = branch.replace(REFS_HEADS, "/src/"); //$NON-NLS-1$
 				path += branch;
 				URI bucketURI = new URI(repoURI.getScheme(), null, repoURI.getHost(), repoURI.getPort(), path, null, null); // not taking the username for the link
 				repoLink = bucketURI.toString();

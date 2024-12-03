@@ -43,8 +43,8 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 	private final String destination;
 	private final CloneData cloneData;
 
-	private Text txtURL;
-	private Text txtUser;
+	protected Text txtURL;
+	protected Text txtUser;
 	private Text txtPwd;
 	private Label lblUser;
 	private Label lblPwd;
@@ -64,8 +64,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 		this.pullAction = pullAction;
 		setTitle(Messages.AbapGitWizardPageRepositoryAndCredentials_title);
 		setDescription(Messages.AbapGitWizardPageRepositoryAndCredentials_description);
-
-		if (this.cloneData.url != null) {
+		if (this.pullAction) {
 			setTitle(Messages.AbapGitWizardPull_title);
 		}
 	}
@@ -157,6 +156,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 			return;
 		}
 
+
 		if (visible && !this.wasVisibleBefore) {
 
 			this.wasVisibleBefore = true;
@@ -189,7 +189,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 
 	}
 
-	private boolean validateClientOnly() {
+	protected boolean validateClientOnly() {
 		setMessage(null);
 		setPageComplete(true);
 
@@ -242,12 +242,13 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 			return false;
 		}
 
-		if (this.cloneData.repositories.getRepositories().stream()
-				.anyMatch(r -> r.getUrl().toString().equals(this.txtURL.getText())) && !this.pullAction) {
-			setPageComplete(false);
-			setMessage(Messages.AbapGitWizardPageRepositoryAndCredentials_repo_in_use_error, DialogPage.ERROR);
-			return false;
-		}
+		if (this.cloneData.repositories.getRepositories().stream().anyMatch(r -> r.getUrl().toString().equals(this.txtURL.getText()))
+				&& !this.pullAction) {
+				setPageComplete(false);
+				setMessage(Messages.AbapGitWizardPageRepositoryAndCredentials_repo_in_use_error, DialogPage.ERROR);
+				return false;
+			}
+
 
 		if (this.cloneData.externalRepoInfo == null) {
 			fetchExternalRepoInfo();
@@ -279,7 +280,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 		return true;
 	}
 
-	private void fetchRepositories() {
+	protected void fetchRepositories() {
 		try {
 			getContainer().run(true, true, new IRunnableWithProgress() {
 
@@ -300,7 +301,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 		}
 	}
 
-	private boolean fetchExternalRepoInfo() {
+	protected boolean fetchExternalRepoInfo() {
 		try {
 			getContainer().run(true, true, new IRunnableWithProgress() {
 
@@ -309,7 +310,8 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 					monitor.beginTask(Messages.AbapGitWizardPageRepositoryAndCredentials_task_fetch_repo_info, IProgressMonitor.UNKNOWN);
 					IExternalRepositoryInfoService externalRepoInfoService = RepositoryServiceFactory
 							.createExternalRepositoryInfoService(AbapGitWizardPageRepositoryAndCredentials.this.destination, monitor);
-					AbapGitWizardPageRepositoryAndCredentials.this.cloneData.externalRepoInfo = externalRepoInfoService.getExternalRepositoryInfo(AbapGitWizardPageRepositoryAndCredentials.this.cloneData.url,
+					AbapGitWizardPageRepositoryAndCredentials.this.cloneData.externalRepoInfo = externalRepoInfoService
+							.getExternalRepositoryInfo(AbapGitWizardPageRepositoryAndCredentials.this.cloneData.url,
 							AbapGitWizardPageRepositoryAndCredentials.this.cloneData.user, AbapGitWizardPageRepositoryAndCredentials.this.cloneData.pass, monitor);
 				}
 			});
@@ -337,7 +339,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 		}
 	}
 
-	private void setUserAndPassControlsVisible(boolean visible) {
+	protected void setUserAndPassControlsVisible(boolean visible) {
 		this.txtUser.setVisible(visible);
 		this.txtPwd.setVisible(visible);
 		this.lblUser.setVisible(visible);

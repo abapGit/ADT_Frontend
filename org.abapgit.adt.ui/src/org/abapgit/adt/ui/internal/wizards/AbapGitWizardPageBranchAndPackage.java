@@ -72,7 +72,7 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 	private Button checkbox_lnp;
 	private Boolean chboxLinkAndPull;
 	private TextViewer txtPackage;
-	private ComboViewer comboBranches;
+	protected ComboViewer comboBranches;
 
 	private final Boolean pullAction;
 	private boolean backButtonEnabled = true;
@@ -194,14 +194,13 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 		setControl(container);
 
 		if (this.cloneData.url != null) {
-
 			this.comboBranches.getCombo().setEnabled(false);
 			this.txtPackage.getTextWidget().setText(this.cloneData.packageRef.getName());
 			AdtSWTUtilFactory.getOrCreateSWTUtil().setEditable(this.txtPackage.getControl(), false);
 
 			btnPackage.setEnabled(false);
 
-			//-> Disable back navigation if repo is public and we're in pull wizard
+			//-> Disable back navigation if repo is public and we're in pull wizard or switch wizard
 			if (this.cloneData.externalRepoInfo != null && this.cloneData.externalRepoInfo.getAccessMode() == AccessMode.PUBLIC) {
 				setBackButtonEnabled(false);
 			}

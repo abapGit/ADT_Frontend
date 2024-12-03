@@ -1,5 +1,7 @@
 package org.abapgit.adt.ui.internal.repositories;
 
+import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
+import org.abapgit.adt.backend.model.abapgitrepositories.impl.AbapgitrepositoriesFactoryImpl;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRunnable;
@@ -42,7 +44,7 @@ public class TestsPdeAbapGitRepositoriesUtil {
 		return view;
 	}
 
-	protected IProject createDummyAbapProject() throws CoreException{
+	 protected IProject createDummyAbapProject() throws CoreException{
 		String projectName = "ABAPGIT_TEST_PROJECT";
 		String destinationId = "ABAPGIT_TEST_PROJECT";
 		
@@ -82,6 +84,17 @@ public class TestsPdeAbapGitRepositoriesUtil {
 			} catch (Exception e) {
 			}
 		}
+	}
+	
+	public IRepository createDummyRepository() {
+		IRepository dummy = AbapgitrepositoriesFactoryImpl.eINSTANCE.createRepository();
+		dummy.setUrl("https://github.com/dummy_url");
+		dummy.setPackage("$AP_GITHUB");
+		dummy.setCreatedEmail("dummy_user_one@email.com");
+		dummy.setBranchName("refs/heads/master");
+		dummy.setDeserializedAt("20200322180503");
+		dummy.setStatusText("dummy_status");
+		return dummy;
 	}
 
 }
