@@ -81,8 +81,7 @@ public class AbapGitWizard extends Wizard {
 	@Override
 	public void addPages() {
 		this.pageRepo = new AbapGitWizardPageRepositoryAndCredentials(this.project, this.destination, this.cloneData, false);
-		this.pageBranchAndPackage = new AbapGitWizardPageBranchAndPackage(this.project, this.destination, this.cloneData,
-				false);
+		this.pageBranchAndPackage = new AbapGitWizardPageBranchAndPackage(this.project, this.destination, this.cloneData, false);
 		this.pageFolderlogic = new AbapGitWizardPageFolderLogic(this.project, this.destination, this.cloneData);
 		this.transportService = AdtTransportServiceFactory.createTransportService(this.destination);
 		this.pageApack = new AbapGitWizardPageApack(this.destination, this.cloneData, this.transportService, false);
@@ -123,14 +122,14 @@ public class AbapGitWizard extends Wizard {
 						repositoriesToLink.getRepositories()
 								.add(createRepository(AbapGitWizard.this.cloneData.url, AbapGitWizard.this.cloneData.branch,
 										AbapGitWizard.this.cloneData.packageRef.getName(), AbapGitWizard.this.transportRequest,
-								AbapGitWizard.this.cloneData.user, AbapGitWizard.this.cloneData.pass));
+										AbapGitWizard.this.cloneData.user, AbapGitWizard.this.cloneData.pass));
 						for (IApackDependency apackDependency : AbapGitWizard.this.cloneData.apackManifest.getDescriptor()
 								.getDependencies()) {
 							if (apackDependency.requiresSynchronization()) {
 								repositoriesToLink.getRepositories()
 										.add(createRepository(apackDependency.getGitUrl(), IApackManifest.MASTER_BRANCH,
 												apackDependency.getTargetPackage().getName(), AbapGitWizard.this.transportRequest,
-										AbapGitWizard.this.cloneData.user, AbapGitWizard.this.cloneData.pass));
+												AbapGitWizard.this.cloneData.user, AbapGitWizard.this.cloneData.pass));
 							}
 						}
 						repoService.cloneRepositories(repositoriesToLink, monitor);
@@ -143,26 +142,15 @@ public class AbapGitWizard extends Wizard {
 								//if due to some reason the linkedRepo is not returned by the URL
 								throw new InterruptedException(AbapGitWizard.this.ErrorMessageRetrievingLinkedRepo);
 							}
-							//TODO: Remove
-							//This is valid only for back end versions before 2105 where selective pull is not supported.
-							//Required for Compatibility handling for Selective Pull
-							// If selectivePull is not supported pull all objects from the repositories.
-							// Otherwise a new wizard is opened to allow selective pulling of objects
-							if (abapGitService.isSelectivePullSupported(linkedRepo)
-									&& fillModifiedObjectsinCloneData(repoService, linkedRepo)) {
-								openSelectivePullWizard();
-							} else {
-								//Pull all objects for linked repositories
-								pullLinkedRepositories(monitor, repoService, repositoriesToLink);
-							}
+
+							fillModifiedObjectsinCloneData(repoService, linkedRepo);
+							openSelectivePullWizard();
 						}
 					} else {
 						List<IAbapObject> abapObjects = repoService.cloneRepository(AbapGitWizard.this.cloneData.url,
 								AbapGitWizard.this.cloneData.branch, AbapGitWizard.this.cloneData.packageRef.getName(),
-								AbapGitWizard.this.cloneData.folderLogic,
-								AbapGitWizard.this.transportRequest, AbapGitWizard.this.cloneData.user, AbapGitWizard.this.cloneData.pass,
-								monitor)
-								.getAbapObjects();
+								AbapGitWizard.this.cloneData.folderLogic, AbapGitWizard.this.transportRequest,
+								AbapGitWizard.this.cloneData.user, AbapGitWizard.this.cloneData.pass, monitor).getAbapObjects();
 						cloneObjects.addAll(abapObjects);
 
 						//-> Check if link and pull sequence is set
@@ -196,15 +184,16 @@ public class AbapGitWizard extends Wizard {
 					}
 				}
 
-				private void pullLinkedRepositories(IProgressMonitor monitor, IRepositoryService repoService, IRepositories repositoriesToLink) {
+				private void pullLinkedRepositories(IProgressMonitor monitor, IRepositoryService repoService,
+						IRepositories repositoriesToLink) {
 					// Need to retrieve linked repositories as only they contain the PULL link needed to continue...
 					IRepositories linkedRepositories = repoService.getRepositories(monitor);
 					for (IRepository repository : repositoriesToLink.getRepositories()) {
 						IRepository linkedRepository = repoService.getRepositoryByURL(linkedRepositories, repository.getUrl());
 						if (linkedRepository != null) {
 							repoService.pullRepository(linkedRepository, linkedRepository.getBranchName(),
-									AbapGitWizard.this.transportPage.getTransportRequestNumber(),
-									AbapGitWizard.this.cloneData.user, AbapGitWizard.this.cloneData.pass, monitor);
+									AbapGitWizard.this.transportPage.getTransportRequestNumber(), AbapGitWizard.this.cloneData.user,
+									AbapGitWizard.this.cloneData.pass, monitor);
 						}
 					}
 				}
@@ -270,10 +259,11 @@ public class AbapGitWizard extends Wizard {
 
 			//-> Any Page -> Folder Logic page
 			//(If only linking a repository and no APACK dependencies, no need to show transport page and finish wizard )
-			if (event.getTargetPage() == AbapGitWizard.this.pageFolderlogic && !AbapGitWizard.this.pageBranchAndPackage.getLnpSequence() && !AbapGitWizard.this.cloneData.hasDependencies() ) {
-					AbapGitWizard.this.transportPage.setPageComplete(true);
-					AbapGitWizard.this.pageFolderlogic.setPageComplete(true);
-				}
+			if (event.getTargetPage() == AbapGitWizard.this.pageFolderlogic && !AbapGitWizard.this.pageBranchAndPackage.getLnpSequence()
+					&& !AbapGitWizard.this.cloneData.hasDependencies()) {
+				AbapGitWizard.this.transportPage.setPageComplete(true);
+				AbapGitWizard.this.pageFolderlogic.setPageComplete(true);
+			}
 
 			// -> Folder Logic page -> Branch & Package page
 			if (event.getCurrentPage() == AbapGitWizard.this.pageFolderlogic
@@ -317,7 +307,7 @@ public class AbapGitWizard extends Wizard {
 	public IWizardPage getNextPage(IWizardPage page) {
 
 		if (page.equals(this.pageBranchAndPackage)) {
-			if(!AbapGitUIServiceFactory.createAbapGitService().isFolderLogicSupportedWhileLink(this.cloneData.repositories)) {
+			if (!AbapGitUIServiceFactory.createAbapGitService().isFolderLogicSupportedWhileLink(this.cloneData.repositories)) {
 				if (this.cloneData.hasDependencies()) {
 					return this.pageApack;
 				} else {
@@ -327,10 +317,10 @@ public class AbapGitWizard extends Wizard {
 		}
 
 		if (page.equals(this.pageFolderlogic) && !this.cloneData.hasDependencies()) {
-				// If we don't have APACK dependencies, we can skip the APACK-related page
-				return this.transportPage;
+			// If we don't have APACK dependencies, we can skip the APACK-related page
+			return this.transportPage;
 		}
-	return super.getNextPage(page);
+		return super.getNextPage(page);
 
 	}
 
@@ -355,6 +345,7 @@ public class AbapGitWizard extends Wizard {
 			this.repoToModifiedOverwriteObjects = new HashSet<IRepositoryModifiedObjects>();
 			this.repoToModifiedPackageWarningObjects = new HashSet<IRepositoryModifiedObjects>();
 		}
+
 		public IRepositories repositories;
 		public IExternalRepositoryInfo externalRepoInfo;
 		public IAdtObjectReference packageRef;
@@ -384,38 +375,13 @@ public class AbapGitWizard extends Wizard {
 
 		IRepositories repositories = repoService.getRepositories(new NullProgressMonitor());
 
-		try {
-			getContainer().run(true, true, new IRunnableWithProgress() {
-
-				@Override
-				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-					monitor.beginTask(Messages.AbapGitWizardPageBranchAndPackage_FetchingModifiedObjectsForPull, IProgressMonitor.UNKNOWN);
-					RepositoryUtil.fetchAndExtractModifiedObjectsToPull(repository, repoService, AbapGitWizard.this.cloneData);
-				}
-			});
-		} catch (InvocationTargetException | InterruptedException e) {
-			e.printStackTrace();
-		}
+		RepositoryUtil.fetchAndExtractModifiedObjectsToPull(repository, repoService, this.cloneData);
 
 		if (this.cloneData.hasDependencies()) {
 			for (IApackDependency apackDependency : this.cloneData.apackManifest.getDescriptor().getDependencies()) {
 				IRepository dependencyRepository = repoService.getRepositoryByURL(repositories, apackDependency.getGitUrl());
 				if (dependencyRepository != null) {
-
-					try {
-						getContainer().run(true, true, new IRunnableWithProgress() {
-
-							@Override
-							public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-								monitor.beginTask(Messages.AbapGitWizardPageBranchAndPackage_FetchingModifiedObjectsForPull,
-										IProgressMonitor.UNKNOWN);
-								RepositoryUtil.fetchAndExtractModifiedObjectsToPull(dependencyRepository, repoService,
-										AbapGitWizard.this.cloneData);
-							}
-						});
-					} catch (InvocationTargetException | InterruptedException e) {
-						e.printStackTrace();
-					}
+					RepositoryUtil.fetchAndExtractModifiedObjectsToPull(dependencyRepository, repoService, this.cloneData);
 				}
 			}
 		}
@@ -441,16 +407,16 @@ public class AbapGitWizard extends Wizard {
 
 		Display.getDefault().asyncExec(new Runnable() {
 
-				@Override
-				public void run() {
-					try {
+			@Override
+			public void run() {
+				try {
 					WizardDialog wizardDialog = new WizardDialog(Display.getDefault().getActiveShell(), selectivePullWizard);
 					wizardDialog.open();
 				} catch (ResourceException e) {
 					ErrorHandlingService.openErrorDialog(Messages.AbapGitView_context_pull_error, e.getMessage(), getShell(), true);
 				}
-				}
-			});
+			}
+		});
 
 	}
 
