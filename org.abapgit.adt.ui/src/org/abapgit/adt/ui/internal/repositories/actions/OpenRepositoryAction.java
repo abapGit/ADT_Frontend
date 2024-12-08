@@ -22,7 +22,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
  * Action to "Open repository in an external browser"
  */
 public class OpenRepositoryAction extends Action {
-	private static final String REFS_HEADS = "refs/heads/";
+	private static final String REFS_HEADS = "refs/heads/"; //$NON-NLS-1$
 	private final IViewPart view;
 	private static final String GITHUB_DOMAIN = "github.com"; //$NON-NLS-1$
 	private static final String GITLAB_DOMAIN = "gitlab.com"; //$NON-NLS-1$
@@ -51,54 +51,75 @@ public class OpenRepositoryAction extends Action {
 				// Get Repository link
 				String repoLink = getLink(repository);
 				// Open the link in default external browser
-				URI uri = new URI(repoLink);
-				PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(uri.toURL());
-			} catch (PartInitException | MalformedURLException exception) {
+				URI repositoryUri = new URI(repoLink);
+				PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(repositoryUri.toURL());
+			} catch (PartInitException | MalformedURLException | URISyntaxException exception) {
 				MessageDialog.openError(this.view.getViewSite().getShell(), Messages.AbapGitView_action_open_repo_error_dialog_title,
 						exception.getMessage());
 				AbapGitUIPlugin.getDefault().getLog()
 						.log(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, exception.getMessage(), exception));
-			} catch (URISyntaxException e) {
-				MessageDialog.openError(this.view.getViewSite().getShell(), Messages.AbapGitView_action_open_repo_error_dialog_title,
-						e.getMessage());
-				AbapGitUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getMessage(), e));
 			}
 		}
 	}
 
-	public String getLink(IRepository repository) {
+	public String getLink(IRepository repository) throws URISyntaxException {
 		// Get Connected branch
 		URI repoURI;
 		String repoLink = repository.getUrl();
 		String branch;
-		try {
-			repoURI = new URI(repository.getUrl());
-			String domain = repoURI.getHost();
-			// Remove the username and `.git` suffix
-			String path = repoURI.getPath();
-			if (path.endsWith(".git")) { //$NON-NLS-1$
-				path = path.substring(0, path.length() - 4); // Remove ".git"
-			}
-			branch = repository.getBranchName();
-			if (domain.equals(GITHUB_DOMAIN) || domain.equals(GITLAB_DOMAIN) || domain.equals(GITHUB_TOOLS_DOMAIN)
-					|| domain.equals(GITHUB_INFRA_HANA_DOMAIN) || domain.equals(GITHUB_WDF_SAP_DOMAIN)) {
-				branch = branch.replace(REFS_HEADS, "/tree/"); //$NON-NLS-1$//$NON-NLS-2$
-				path += branch;
-				URI gitURI = new URI(repoURI.getScheme(), null, repoURI.getHost(), repoURI.getPort(), path, null, null);
-				repoLink = gitURI.toString();
-			} else if (domain.endsWith(BIT_BUCKET_DOMAIN)) {
-				branch = branch.replace(REFS_HEADS, "/src/"); //$NON-NLS-1$ //$NON-NLS-2$
-				path += branch;
-				URI bucketURI = new URI(repoURI.getScheme(), null, repoURI.getHost(), repoURI.getPort(), path, null, null); // not taking the username for the link
-				repoLink = bucketURI.toString();
-			}
-		} catch (URISyntaxException e) {
-			MessageDialog.openError(this.view.getViewSite().getShell(), Messages.AbapGitView_action_open_repo_error_dialog_title,
-					e.getMessage());
-			AbapGitUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getMessage(), e));
+		repoURI = new URI(repository.getUrl());
+		String domain = repoURI.getHost();
+		// Remove the username and `.git` suffix
+		String path = getPath(repoURI);
+		branch = repository.getBranchName();
+		if (isGithubDomain(domain) || isGitlabDomain(domain)) {
+			branch = branch.replace(REFS_HEADS, "/tree/"); //$NON-NLS-1$
+			repoLink = constructRepoBranchURI(repoURI, path + branch);
+		} else if (isBitbucketDomain(domain)) {
+			branch = branch.replace(REFS_HEADS, "/src/"); //$NON-NLS-1$
+			repoLink = constructRepoBranchURI(repoURI, path + branch);
 		}
 		// return the concatenated link that redirects to the branch
 		return repoLink;
+	}
+
+	// method to construct URI from repository URI with new path and branch details
+	private String constructRepoBranchURI(URI repoURI, String path) throws URISyntaxException {
+		URI bucketURI = new URI(repoURI.getScheme(), null, repoURI.getHost(), repoURI.getPort(), path, null, null); // not taking the username for the link
+		return bucketURI.toString();
+	}
+
+	// method to check if the domain is a github domain
+	private boolean isGithubDomain(String domain) {
+		if (domain.equals(GITHUB_DOMAIN) || domain.equals(GITHUB_TOOLS_DOMAIN) || domain.equals(GITHUB_INFRA_HANA_DOMAIN)
+				|| domain.equals(GITHUB_WDF_SAP_DOMAIN)) {
+			return true;
+		}
+		return false;
+	}
+
+	// method to check if the domain is a gitlab domain
+	private boolean isGitlabDomain(String domain) {
+		if (domain.equals(GITLAB_DOMAIN)) {
+			return true;
+		}
+		return false;
+	}
+
+	// method to check if the domain is a bitbucket domain
+	private boolean isBitbucketDomain(String domain) {
+		if (domain.equals(BIT_BUCKET_DOMAIN)) {
+			return true;
+		}
+		return false;
+	}
+
+	private String getPath(URI repoURI) {
+		String path = repoURI.getPath();
+		if (path.endsWith(".git")) { //$NON-NLS-1$
+			path = path.substring(0, path.length() - 4); // Remove ".git"
+		}
+		return path;
 	}
 
 	private IRepository getRepository() {
