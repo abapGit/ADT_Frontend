@@ -202,6 +202,8 @@ public class Messages extends NLS {
 	public static String AbapGitStagingView_TransportWBKey;
 	public static String AbapGitStagingView_PackageRel;
 	public static String AbapGitStagingView_TransportRel;
+	public static String AbapGitWizardPageRepositoryAndCredentials_select_branch_title;
+	public static String AbapGitView_action_select_branch;
 
 	static {
 		// initialize resource bundle

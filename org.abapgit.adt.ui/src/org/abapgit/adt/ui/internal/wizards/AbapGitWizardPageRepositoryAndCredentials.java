@@ -44,7 +44,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 	private final CloneData cloneData;
 
 	private Text txtURL;
-	private Text txtUser;
+	protected Text txtUser;
 	private Text txtPwd;
 	private Label lblUser;
 	private Label lblPwd;
@@ -189,7 +189,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 
 	}
 
-	private boolean validateClientOnly() {
+	protected boolean validateClientOnly() {
 		setMessage(null);
 		setPageComplete(true);
 
@@ -279,7 +279,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 		return true;
 	}
 
-	private void fetchRepositories() {
+	protected void fetchRepositories() {
 		try {
 			getContainer().run(true, true, new IRunnableWithProgress() {
 
@@ -300,7 +300,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 		}
 	}
 
-	private boolean fetchExternalRepoInfo() {
+	protected boolean fetchExternalRepoInfo() {
 		try {
 			getContainer().run(true, true, new IRunnableWithProgress() {
 
@@ -337,7 +337,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 		}
 	}
 
-	private void setUserAndPassControlsVisible(boolean visible) {
+	protected void setUserAndPassControlsVisible(boolean visible) {
 		this.txtUser.setVisible(visible);
 		this.txtPwd.setVisible(visible);
 		this.lblUser.setVisible(visible);
