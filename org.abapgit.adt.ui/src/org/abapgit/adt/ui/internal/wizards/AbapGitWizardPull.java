@@ -1,7 +1,9 @@
 package org.abapgit.adt.ui.internal.wizards;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.abapgit.adt.backend.IApackManifest;
 import org.abapgit.adt.backend.IApackManifest.IApackDependency;
@@ -9,13 +11,16 @@ import org.abapgit.adt.backend.IExternalRepositoryInfoService;
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
+import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAbapGitPullModifiedObjects;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.internal.i18n.Messages;
+import org.abapgit.adt.ui.internal.util.AbapGitUIServiceFactory;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard.CloneData;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.DialogPage;
+import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.IPageChangingListener;
 import org.eclipse.jface.dialogs.PageChangingEvent;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -27,6 +32,7 @@ import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
+import com.sap.adt.communication.resources.ResourceException;
 import com.sap.adt.tools.core.model.adtcore.IAdtCoreFactory;
 import com.sap.adt.tools.core.model.adtcore.IAdtObjectReference;
 import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
@@ -39,15 +45,10 @@ import com.sap.adt.transport.ui.wizard.AdtTransportSelectionWizardPageFactory;
 import com.sap.adt.transport.ui.wizard.IAdtTransportSelectionWizardPage;
 
 /**
- * This wizard is valid for back end versions before 2105 where selective pull
- * is not supported.
- *
- * TODO:To be removed after 2105 release reaches all customers.
- *
- * @author I517012
+ * This is wizard that handles pull action on a repository. Includes selective
+ * pull.
  *
  */
-
 public class AbapGitWizardPull extends Wizard {
 
 	private final IProject project;
@@ -55,10 +56,12 @@ public class AbapGitWizardPull extends Wizard {
 	private final CloneData cloneData;
 	private PageChangeListener pageChangeListener;
 	private final Boolean pullAction = true;
-
+	Map<String, IAbapGitPullModifiedObjects> repoToSelectedObjects;
 	private AbapGitWizardPageRepositoryAndCredentials pageCredentials;
 	private AbapGitWizardPageBranchAndPackage pageBranchAndPackage;
 	private AbapGitWizardPageApack pageApack;
+	private AbapGitWizardPageObjectsSelectionForPull pageOverwriteObjectsSelection;
+	private AbapGitWizardPageObjectsSelectionForPull pagePackageWarningObjectsSelection;
 	public IAdtTransportService transportService;
 	public IAdtTransportSelectionWizardPage transportPage;
 	public IRepository selRepoData;
@@ -72,6 +75,7 @@ public class AbapGitWizardPull extends Wizard {
 		this.allRepositories = allRepositories;
 		this.cloneData.url = selRepo.getUrl();
 		this.cloneData.branch = selRepo.getBranchName();
+		this.repoToSelectedObjects = new HashMap<String, IAbapGitPullModifiedObjects>();
 
 		getPackageAndRepoType();
 
@@ -126,10 +130,17 @@ public class AbapGitWizardPull extends Wizard {
 		this.transportService = AdtTransportServiceFactory.createTransportService(this.destination);
 		this.pageApack = new AbapGitWizardPageApack(this.destination, this.cloneData, this.transportService, true);
 		this.transportPage = AdtTransportSelectionWizardPageFactory.createTransportSelectionPage(this.transportService);
+		this.pageOverwriteObjectsSelection = new AbapGitWizardPageObjectsSelectionForPull(this.cloneData.repoToModifiedOverwriteObjects,
+				Messages.AbapGitWizardPullSelectedObjects_OverwriteObjectsMessage, IMessageProvider.INFORMATION);
+		this.pagePackageWarningObjectsSelection = new AbapGitWizardPageObjectsSelectionForPull(
+				this.cloneData.repoToModifiedPackageWarningObjects, Messages.AbapGitWizardPullSelectedObjects_PackageWarningObjectsMessage,
+				IMessageProvider.WARNING);
 
 		addPage(this.pageCredentials);
 		addPage(this.pageBranchAndPackage);
 		addPage(this.pageApack);
+		addPage(this.pageOverwriteObjectsSelection);
+		addPage(this.pagePackageWarningObjectsSelection);
 		addPage(this.transportPage);
 
 	}
@@ -146,9 +157,16 @@ public class AbapGitWizardPull extends Wizard {
 					IRepositoryService repoService = RepositoryServiceFactory.createRepositoryService(AbapGitWizardPull.this.destination,
 							monitor);
 
+					//get the selected objects to be pulled
+					AbapGitWizardPull.this.repoToSelectedObjects = AbapGitUIServiceFactory.createAbapGitPullService()
+							.getSelectedObjectsToPullforRepo(AbapGitWizardPull.this.pageOverwriteObjectsSelection.getSelectedObjects(),
+									AbapGitWizardPull.this.pagePackageWarningObjectsSelection.getSelectedObjects());
+
+					//pull the selected objects
 					repoService.pullRepository(AbapGitWizardPull.this.selRepoData, AbapGitWizardPull.this.selRepoData.getBranchName(),
 							AbapGitWizardPull.this.transportPage.getTransportRequestNumber(), AbapGitWizardPull.this.cloneData.user,
-							AbapGitWizardPull.this.cloneData.pass, monitor);
+							AbapGitWizardPull.this.cloneData.pass,
+							AbapGitWizardPull.this.repoToSelectedObjects.get(AbapGitWizardPull.this.selRepoData.getUrl()), monitor);
 
 					if (AbapGitWizardPull.this.cloneData.hasDependencies()) {
 						pullDependencies(monitor, repoService);
@@ -159,11 +177,13 @@ public class AbapGitWizardPull extends Wizard {
 					for (IApackDependency apackDependency : AbapGitWizardPull.this.cloneData.apackManifest.getDescriptor()
 							.getDependencies()) {
 						if (apackDependency.requiresSynchronization()) {
-							IRepository dependencyRepository = getRepositoryForDependency(apackDependency);
+							IRepository dependencyRepository = repoService.getRepositoryByURL(AbapGitWizardPull.this.cloneData.repositories,
+									apackDependency.getGitUrl());
 							if (dependencyRepository != null) {
 								repoService.pullRepository(dependencyRepository, IApackManifest.MASTER_BRANCH,
 										AbapGitWizardPull.this.transportPage.getTransportRequestNumber(),
-										AbapGitWizardPull.this.cloneData.user, AbapGitWizardPull.this.cloneData.pass, monitor);
+										AbapGitWizardPull.this.cloneData.user, AbapGitWizardPull.this.cloneData.pass,
+										AbapGitWizardPull.this.repoToSelectedObjects.get(dependencyRepository.getUrl()), monitor);
 							}
 						}
 					}
@@ -177,6 +197,10 @@ public class AbapGitWizardPull extends Wizard {
 		} catch (InvocationTargetException e) {
 			((WizardPage) getContainer().getCurrentPage()).setPageComplete(false);
 			((WizardPage) getContainer().getCurrentPage()).setMessage(e.getTargetException().getMessage(), DialogPage.ERROR);
+			return false;
+		} catch (ResourceException e) {
+			((WizardPage) getContainer().getCurrentPage()).setPageComplete(false);
+			((WizardPage) getContainer().getCurrentPage()).setMessage(e.getMessage(), DialogPage.ERROR);
 			return false;
 		}
 	}
@@ -196,21 +220,46 @@ public class AbapGitWizardPull extends Wizard {
 
 	@Override
 	public IWizardPage getNextPage(IWizardPage page) {
-		if (page.equals(this.pageBranchAndPackage) && !this.cloneData.hasDependencies()) {
-			// If we don't have APACK dependencies, we can skip the APACK-related page
-			return this.transportPage;
+
+		if (page.equals(this.pageBranchAndPackage)) {
+			if (!this.cloneData.hasDependencies()) {
+				if (this.cloneData.repoToModifiedOverwriteObjects == null || this.cloneData.repoToModifiedOverwriteObjects.isEmpty()) {
+					if (this.cloneData.repoToModifiedPackageWarningObjects == null
+							|| this.cloneData.repoToModifiedPackageWarningObjects.isEmpty()) {
+						return this.transportPage;
+					} else {
+						return this.pagePackageWarningObjectsSelection;
+					}
+				} else {
+					return this.pageOverwriteObjectsSelection;
+				}
+			}
+			return super.getNextPage(page);
+		}
+
+		else if (page.equals(this.pageApack)) {
+			if (this.cloneData.repoToModifiedOverwriteObjects == null || this.cloneData.repoToModifiedOverwriteObjects.isEmpty()) {
+				if (this.cloneData.repoToModifiedPackageWarningObjects == null
+						|| this.cloneData.repoToModifiedPackageWarningObjects.isEmpty()) {
+					return this.transportPage;
+				} else {
+					return this.pagePackageWarningObjectsSelection;
+				}
+			} else {
+				return super.getNextPage(page);
+			}
+		}
+
+		else if (page.equals(this.pageOverwriteObjectsSelection)) {
+			if (this.cloneData.repoToModifiedPackageWarningObjects == null
+					|| this.cloneData.repoToModifiedPackageWarningObjects.isEmpty()) {
+				return this.transportPage;
+			} else {
+				return super.getNextPage(page);
+			}
 		} else {
 			return super.getNextPage(page);
 		}
-	}
-
-	private IRepository getRepositoryForDependency(IApackDependency dependency) {
-		for (IRepository currentRepository : this.allRepositories) {
-			if (dependency.getGitUrl().equals(currentRepository.getUrl())) {
-				return currentRepository;
-			}
-		}
-		return null;
 	}
 
 	private final class PageChangeListener implements IPageChangingListener {
@@ -235,6 +284,14 @@ public class AbapGitWizardPull extends Wizard {
 				}
 			}
 
+			//-> Branch & Package page -> Any page
+			if (event.getCurrentPage() == AbapGitWizardPull.this.pageBranchAndPackage) {
+				if (!AbapGitWizardPull.this.pageBranchAndPackage.validateAll()) {
+					event.doit = false;
+					return;
+				}
+			}
+
 			//-> Branch & Package page -> Transport page
 			if (event.getCurrentPage() == AbapGitWizardPull.this.pageBranchAndPackage
 					&& event.getTargetPage() == AbapGitWizardPull.this.transportPage) {
@@ -242,13 +299,6 @@ public class AbapGitWizardPull extends Wizard {
 					event.doit = false;
 					return;
 				}
-			}
-
-			//-> Branch & Package page -> Any page
-			if (event.getCurrentPage() == AbapGitWizardPull.this.pageBranchAndPackage
-					&& !AbapGitWizardPull.this.pageBranchAndPackage.validateAll()) {
-				event.doit = false;
-				return;
 			}
 
 			//-> Prepare transport page
@@ -270,12 +320,12 @@ public class AbapGitWizardPull extends Wizard {
 			}
 
 			//-> APACK page -> Any page
-			if (event.getCurrentPage() == AbapGitWizardPull.this.pageApack && !AbapGitWizardPull.this.pageApack.validateAll()) {
-				event.doit = false;
-				return;
+			if (event.getCurrentPage() == AbapGitWizardPull.this.pageApack) {
+				if (!AbapGitWizardPull.this.pageApack.validateAll()) {
+					event.doit = false;
+					return;
+				}
 			}
-
 		}
 	}
-
 }

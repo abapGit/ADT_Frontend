@@ -26,7 +26,6 @@ import org.abapgit.adt.ui.internal.util.GitCredentialsService;
 import org.abapgit.adt.ui.internal.util.IAbapGitService;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizardPull;
-import org.abapgit.adt.ui.internal.wizards.AbapGitWizardPullV2;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -551,33 +550,9 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 						allRepositories.addAll(viewerRepositories);
 					}
 
-					// AbapGitWizardPullV2 handles selective pulling
-					//The following compatibility handling is only valid from 2105 Release with selective pull feature
-					WizardDialog wizardDialog;
-					if (AbapGitView.this.abapGitService.isSelectivePullSupported(this.selRepo)) {
-						wizardDialog = new WizardDialog(AbapGitView.this.viewer.getControl().getShell(),
-								new AbapGitWizardPullV2(AbapGitView.this.lastProject, this.selRepo, allRepositories));
-						wizardDialog.open();
-
-					} else {
-						//TODO: Remove after all customers update back end versions which support selective pull feature
-						// AbapGitWizardPull handles backend versions before 2105 where selective pull feature is not supported
-
-						wizardDialog = new WizardDialog(AbapGitView.this.viewer.getControl().getShell(),
-								new AbapGitWizardPull(AbapGitView.this.lastProject, this.selRepo, allRepositories));
-
-						// customized MessageDialog with configured buttons
-						MessageDialog dialog = new MessageDialog(getSite().getShell(), Messages.AbapGitView_ConfDialog_title, null,
-								Messages.AbapGitView_ConfDialog_MsgText, MessageDialog.CONFIRM,
-								new String[] { Messages.AbapGitView_ConfDialog_Btn_confirm, Messages.AbapGitView_ConfDialog_Btn_cancel },
-								0);
-						int confirmResult = dialog.open();
-						if (confirmResult == 0) {
-							wizardDialog.open();
-						}
-
-					}
-
+					WizardDialog wizardDialog = new WizardDialog(AbapGitView.this.viewer.getControl().getShell(),
+							new AbapGitWizardPull(AbapGitView.this.lastProject, this.selRepo, allRepositories));
+					wizardDialog.open();
 				}
 
 				updateView(true);
