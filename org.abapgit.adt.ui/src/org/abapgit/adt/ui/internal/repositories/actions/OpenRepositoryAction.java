@@ -22,8 +22,8 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
  * Action to "Open repository in an external browser"
  */
 public class OpenRepositoryAction extends Action {
-	private static final String REFS_HEADS = "refs/heads/"; //$NON-NLS-1$
 	private final IViewPart view;
+	private static final String REFS_HEADS = "refs/heads/"; //$NON-NLS-1$
 	private static final String GITHUB_DOMAIN = "github.com"; //$NON-NLS-1$
 	private static final String GITLAB_DOMAIN = "gitlab.com"; //$NON-NLS-1$
 	private static final String GITHUB_WDF_SAP_DOMAIN = "github.wdf.sap.corp"; //$NON-NLS-1$
@@ -44,7 +44,6 @@ public class OpenRepositoryAction extends Action {
 
 	@Override
 	public void run() {
-
 		IRepository repository = getRepository();
 		if (repository != null) {
 			try {
@@ -64,14 +63,12 @@ public class OpenRepositoryAction extends Action {
 
 	public String getLink(IRepository repository) throws URISyntaxException {
 		// Get Connected branch
-		URI repoURI;
 		String repoLink = repository.getUrl();
-		String branch;
-		repoURI = new URI(repository.getUrl());
+		URI repoURI = new URI(repository.getUrl());
 		String domain = repoURI.getHost();
-		// Remove the username and `.git` suffix
 		String path = getPath(repoURI);
-		branch = repository.getBranchName();
+		String branch = repository.getBranchName();
+
 		if (isGithubDomain(domain) || isGitlabDomain(domain)) {
 			branch = branch.replace(REFS_HEADS, "/tree/"); //$NON-NLS-1$
 			repoLink = constructRepoBranchURI(repoURI, path + branch);
@@ -85,8 +82,8 @@ public class OpenRepositoryAction extends Action {
 
 	// method to construct URI from repository URI with new path and branch details
 	private String constructRepoBranchURI(URI repoURI, String path) throws URISyntaxException {
-		URI bucketURI = new URI(repoURI.getScheme(), null, repoURI.getHost(), repoURI.getPort(), path, null, null); // not taking the username for the link
-		return bucketURI.toString();
+		URI reconstructedRepoURI = new URI(repoURI.getScheme(), null, repoURI.getHost(), repoURI.getPort(), path, null, null); // not taking the username for the link
+		return reconstructedRepoURI.toString();
 	}
 
 	// method to check if the domain is a github domain
