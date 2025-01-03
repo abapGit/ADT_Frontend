@@ -19,6 +19,7 @@ import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.internal.dialogs.AbapGitDialogObjLog;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.repositories.actions.OpenRepositoryAction;
+import org.abapgit.adt.ui.internal.repositories.actions.SwitchbranchAction;
 import org.abapgit.adt.ui.internal.staging.AbapGitStagingView;
 import org.abapgit.adt.ui.internal.staging.IAbapGitStagingView;
 import org.abapgit.adt.ui.internal.util.AbapGitUIServiceFactory;
@@ -101,7 +102,8 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 	public static final String ID = "org.abapgit.adt.ui.views.AbapGitView"; //$NON-NLS-1$
 
 	protected TableViewer viewer;
-	protected Action actionRefresh, actionWizard, actionCopy, actionOpen, actionShowMyRepos, actionPullWizard, actionOpenRepository;
+	protected Action actionRefresh, actionWizard, actionCopy, actionOpen, actionShowMyRepos, actionPullWizard, actionOpenRepository,
+			actionSwitch;
 	private ISelection lastSelection;
 	protected IProject lastProject;
 	private ViewerFilter searchFilter;
@@ -112,6 +114,10 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 
 	//key binding for copy text
 	private static final KeyStroke KEY_STROKE_COPY = KeyStroke.getInstance(SWT.MOD1, 'C' | 'c');
+
+	public void refresh() {
+		updateView(true);
+	}
 
 	private final ISelectionListener selectionListener = new ISelectionListener() {
 		private boolean isUpdatingSelection = false;
@@ -403,6 +409,10 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 						}
 						//separator
 						manager.add(new Separator());
+						//switch Branch Action
+						manager.add(AbapGitView.this.actionSwitch);
+						//separator
+						manager.add(new Separator());
 						//copy to clip-board action
 						manager.add(AbapGitView.this.actionCopy);
 						//unlink action
@@ -564,6 +574,9 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 
 		//Open repository in external browser
 		this.actionOpenRepository = new OpenRepositoryAction(this);
+
+		//Switch Branches
+		this.actionSwitch = new SwitchbranchAction(this);
 	}
 
 	private List<IRepository> getRepositories(String destinationId, Boolean byCurrUser) {
