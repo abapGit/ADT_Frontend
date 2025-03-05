@@ -1,13 +1,15 @@
-package org.abapgit.adt.ui.internal.repositories.wizards;
+package org.abapgit.adt.ui.internal.wizards;
 
+import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard.CloneData;
-import org.abapgit.adt.ui.internal.wizards.AbapGitWizardPageBranchAndPackage;
 import org.eclipse.core.resources.IProject;
 
 public class AbapGitWizardPageBranchSelection extends AbapGitWizardPageBranchAndPackage {
 
 	public AbapGitWizardPageBranchSelection(IProject project, String destination, CloneData cloneData, Boolean pullAction) {
 		super(project, destination, cloneData, pullAction);
+		setTitle(Messages.AbapGitWizardPageSwitch_branch_selection_title);
+		setDescription(Messages.AbapGitWizardPageSwitch_select_branch_description);
 	}
 
 	@Override
@@ -16,6 +18,8 @@ public class AbapGitWizardPageBranchSelection extends AbapGitWizardPageBranchAnd
 
 		if (visible) {
 			this.comboBranches.getCombo().setEnabled(true);
+			// hiding the pull after link checkbox
+			this.checkbox_lnp.setVisible(false);
 		}
 	}
 

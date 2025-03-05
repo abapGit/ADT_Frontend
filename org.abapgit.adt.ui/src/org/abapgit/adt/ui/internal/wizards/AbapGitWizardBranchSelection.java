@@ -1,4 +1,4 @@
-package org.abapgit.adt.ui.internal.repositories.wizards;
+package org.abapgit.adt.ui.internal.wizards;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
@@ -12,7 +12,6 @@ import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.util.AbapGitUIServiceFactory;
 import org.abapgit.adt.ui.internal.util.IAbapGitService;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard.CloneData;
-import org.abapgit.adt.ui.internal.wizards.AbapGitWizardPageRepositoryAndCredentials;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -37,7 +36,7 @@ public class AbapGitWizardBranchSelection extends Wizard {
 	final CloneData cloneData;
 	public IRepository selRepoData;
 	private final String destination;
-	private IAbapGitService abapGitService;
+	private final IAbapGitService abapGitService;
 	private PageChangeListener pageChangeListener;
 	AbapGitWizardPageRepositoryAndCredentials pageCredentials;
 	AbapGitWizardPageBranchSelection pageBranchAndPackage;
@@ -49,23 +48,13 @@ public class AbapGitWizardBranchSelection extends Wizard {
 		this.selRepoData = selRepo;
 		this.cloneData.url = selRepo.getUrl();
 		this.cloneData.branch = selRepo.getBranchName();
-		if (this.abapGitService == null) {
-			this.abapGitService = AbapGitUIServiceFactory.createAbapGitService();
-		}
+		this.abapGitService = AbapGitUIServiceFactory.createAbapGitService();
 		getPackageAndRepoType();
 
-		setWindowTitle(Messages.AbapGitView_action_select_branch);
+		setWindowTitle(Messages.AbapGitWizardSwitch_branch_wizard_title);
 		setNeedsProgressMonitor(true);
 		setDefaultPageImageDescriptor(
 				AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID, "icons/wizban/abapGit_import_wizban.png")); //$NON-NLS-1$
-	}
-
-	public Object getProject() {
-		return this.project;
-	}
-
-	public Object getSelectedRepository() {
-		return this.selRepoData;
 	}
 
 	public boolean getPackageAndRepoType() {
@@ -150,8 +139,7 @@ public class AbapGitWizardBranchSelection extends Wizard {
 				}
 			});
 		} catch (InvocationTargetException | InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			((WizardPage) getContainer().getCurrentPage()).setMessage(e.getMessage(), DialogPage.ERROR);
 		}
 		return true;
 	}
@@ -163,16 +151,6 @@ public class AbapGitWizardBranchSelection extends Wizard {
 			if (event.getCurrentPage() == AbapGitWizardBranchSelection.this.pageCredentials
 					&& event.getTargetPage() == AbapGitWizardBranchSelection.this.pageBranchAndPackage) {
 				if (!AbapGitWizardBranchSelection.this.pageCredentials.validateAll()) {
-					event.doit = false;
-					return;
-				}
-
-			}
-
-			//-> Branch & Package page -> Credentials page
-			if (event.getCurrentPage() == AbapGitWizardBranchSelection.this.pageBranchAndPackage
-					&& event.getTargetPage() == AbapGitWizardBranchSelection.this.pageCredentials) {
-				if (AbapGitWizardBranchSelection.this.pageBranchAndPackage.validateAll()) {
 					event.doit = false;
 					return;
 				}

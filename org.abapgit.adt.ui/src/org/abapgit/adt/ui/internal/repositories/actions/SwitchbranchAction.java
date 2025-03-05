@@ -5,7 +5,7 @@ import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.repositories.AbapGitView;
 import org.abapgit.adt.ui.internal.repositories.IAbapGitRepositoriesView;
-import org.abapgit.adt.ui.internal.repositories.wizards.AbapGitWizardBranchSelection;
+import org.abapgit.adt.ui.internal.wizards.AbapGitWizardBranchSelection;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.wizard.WizardDialog;
@@ -21,9 +21,10 @@ public class SwitchbranchAction extends Action {
 	private IProject project;
 
 	public SwitchbranchAction(IViewPart view) {
-		super(Messages.AbapGitView_action_select_branch);
-		setToolTipText(Messages.AbapGitView_action_select_branch);
-		setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID, "icons/etool/compare_view.png")); //$NON-NLS-1$
+		super(Messages.AbapGitView_action_switch_branch);
+		setToolTipText(Messages.AbapGitView_action_switch_branch);
+		setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID,
+				"/icons/etool/switchToTree.png")); //$NON-NLS-1$
 		this.view = view;
 	}
 

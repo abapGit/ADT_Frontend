@@ -1,9 +1,8 @@
-package org.abapgit.adt.ui.internal.repositories.wizards;
+package org.abapgit.adt.ui.internal.wizards;
 
 import org.abapgit.adt.backend.model.abapgitexternalrepo.AccessMode;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard.CloneData;
-import org.abapgit.adt.ui.internal.wizards.AbapGitWizardPageRepositoryAndCredentials;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.dialogs.TrayDialog;
@@ -15,7 +14,21 @@ public class AbapGitWizardPageBranchSelectionCredentials extends AbapGitWizardPa
 	public AbapGitWizardPageBranchSelectionCredentials(IProject project, String destination, CloneData cloneData) {
 		super(project, destination, cloneData, false);
 		this.cloneData = cloneData;
-		setTitle(Messages.AbapGitWizardPageRepositoryAndCredentials_select_branch_title);
+		setTitle(Messages.AbapGitWizardPageSwitch_branch_credentials_title);
+		setDescription(Messages.AbapGitWizardPageSwitch_credentials_description);
+	}
+
+	@Override
+	public void setVisible(boolean visible) {
+		//Navigate to branch selection page if repo is public
+		if (this.cloneData.externalRepoInfo != null && this.cloneData.externalRepoInfo.getAccessMode() == AccessMode.PUBLIC) {
+			getContainer().showPage(getNextPage());
+			getContainer().getCurrentPage().setVisible(visible);
+			getContainer().getCurrentPage().setPreviousPage(getContainer().getCurrentPage());
+			return;
+		}
+
+		super.setVisible(visible);
 	}
 
 	@Override

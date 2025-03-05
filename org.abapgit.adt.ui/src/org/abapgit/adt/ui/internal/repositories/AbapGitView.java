@@ -103,7 +103,7 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 
 	protected TableViewer viewer;
 	protected Action actionRefresh, actionWizard, actionCopy, actionOpen, actionShowMyRepos, actionPullWizard, actionOpenRepository,
-			actionSwitch;
+			actionSwitchBranch;
 	private ISelection lastSelection;
 	protected IProject lastProject;
 	private ViewerFilter searchFilter;
@@ -410,7 +410,7 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 						//separator
 						manager.add(new Separator());
 						//switch Branch Action
-						manager.add(AbapGitView.this.actionSwitch);
+						manager.add(AbapGitView.this.actionSwitchBranch);
 						//separator
 						manager.add(new Separator());
 						//copy to clip-board action
@@ -576,7 +576,7 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 		this.actionOpenRepository = new OpenRepositoryAction(this);
 
 		//Switch Branches
-		this.actionSwitch = new SwitchbranchAction(this);
+		this.actionSwitchBranch = new SwitchbranchAction(this);
 	}
 
 	private List<IRepository> getRepositories(String destinationId, Boolean byCurrUser) {

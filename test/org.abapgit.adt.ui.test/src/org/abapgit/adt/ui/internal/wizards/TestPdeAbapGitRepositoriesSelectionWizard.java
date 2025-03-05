@@ -1,11 +1,11 @@
-package org.abapgit.adt.ui.internal.repositories.wizards;
+package org.abapgit.adt.ui.internal.wizards;
 
 import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
 
 
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
-
+import org.abapgit.adt.ui.internal.wizards.AbapGitWizardBranchSelection;
 import org.eclipse.core.resources.IProject;
 
 import org.junit.Before;
