@@ -23,8 +23,8 @@ public class SwitchbranchAction extends Action {
 	public SwitchbranchAction(IViewPart view) {
 		super(Messages.AbapGitView_action_switch_branch);
 		setToolTipText(Messages.AbapGitView_action_switch_branch);
-		setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID,
-				"/icons/etool/switchToTree.png")); //$NON-NLS-1$
+
+		setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID, "/icons/etool/branches_obj.png")); //$NON-NLS-1$
 		this.view = view;
 	}
 
