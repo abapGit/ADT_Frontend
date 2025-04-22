@@ -5,13 +5,12 @@ import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard.CloneData;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.dialogs.DialogPage;
-import org.eclipse.jface.dialogs.TrayDialog;
 
-public class AbapGitWizardPageBranchSelectionCredentials extends AbapGitWizardPageRepositoryAndCredentials {
+public class AbapGitWizardPageSwitchBranchCredentials extends AbapGitWizardPageRepositoryAndCredentials {
 
 	private final CloneData cloneData;
 
-	public AbapGitWizardPageBranchSelectionCredentials(IProject project, String destination, CloneData cloneData) {
+	public AbapGitWizardPageSwitchBranchCredentials(IProject project, String destination, CloneData cloneData) {
 		super(project, destination, cloneData, false);
 		this.cloneData = cloneData;
 		setTitle(Messages.AbapGitWizardPageSwitch_branch_credentials_title);
@@ -61,12 +60,6 @@ public class AbapGitWizardPageBranchSelectionCredentials extends AbapGitWizardPa
 					return false;
 				}
 			}
-		}
-		//Close the tray of the dialog if it was open
-		TrayDialog dialog = (TrayDialog) getContainer();
-
-		if (dialog.getTray() != null) {
-			dialog.closeTray();
 		}
 
 		return true;

@@ -279,7 +279,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 		return true;
 	}
 
-	public void fetchRepositories() {
+	protected void fetchRepositories() {
 		try {
 			getContainer().run(true, true, new IRunnableWithProgress() {
 

@@ -5,7 +5,7 @@ import static org.junit.Assert.*;
 
 
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
-import org.abapgit.adt.ui.internal.wizards.AbapGitWizardBranchSelection;
+import org.abapgit.adt.ui.internal.wizards.AbapGitWizardSwitchBranch;
 import org.eclipse.core.resources.IProject;
 
 import org.junit.Before;
@@ -16,7 +16,7 @@ import com.sap.adt.tools.core.project.IAbapProject;
 
 public class TestPdeAbapGitRepositoriesSelectionWizard {
 
-    private AbapGitWizardBranchSelection wizard;
+    private AbapGitWizardSwitchBranch wizard;
     private IProject mockProject;
     private IRepository mockRepo;
 
@@ -36,7 +36,7 @@ public class TestPdeAbapGitRepositoriesSelectionWizard {
         replay(mockRepo); 
         
         // Set up the wizard with the mocks
-        wizard = new AbapGitWizardBranchSelection(mockProject, mockRepo, "SYS_00_useren_000");
+        wizard = new AbapGitWizardSwitchBranch(mockProject, mockRepo, "SYS_00_useren_000");
     }
 
     @Test
@@ -45,7 +45,7 @@ public class TestPdeAbapGitRepositoriesSelectionWizard {
         assertNotNull("Wizard should not be null", wizard);
         assertEquals("Expected URL", "https://repo.url", wizard.cloneData.url);
         assertEquals("Expected branch", "main", wizard.cloneData.branch);
-
+        
     }
 
 }

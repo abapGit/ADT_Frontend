@@ -5,7 +5,7 @@ import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.repositories.AbapGitView;
 import org.abapgit.adt.ui.internal.repositories.IAbapGitRepositoriesView;
-import org.abapgit.adt.ui.internal.wizards.AbapGitWizardBranchSelection;
+import org.abapgit.adt.ui.internal.wizards.AbapGitWizardSwitchBranch;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.wizard.WizardDialog;
@@ -17,7 +17,7 @@ import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
 public class SwitchbranchAction extends Action {
 
 	private IRepository selRepo;
-	private final IViewPart view;
+	private final IViewPart AbapGitView;
 	private IProject project;
 
 	public SwitchbranchAction(IViewPart view) {
@@ -25,7 +25,7 @@ public class SwitchbranchAction extends Action {
 		setToolTipText(Messages.AbapGitView_action_switch_branch);
 
 		setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID, "/icons/etool/branches_obj.png")); //$NON-NLS-1$
-		this.view = view;
+		this.AbapGitView = view;
 	}
 
 	@Override
@@ -34,20 +34,20 @@ public class SwitchbranchAction extends Action {
 		this.selRepo = getRepository();
 		if (this.selRepo != null) {
 			String destination = AdtProjectServiceFactory.createProjectService().getDestinationId(this.project);
-			WizardDialog dialog = new WizardDialog(this.view.getViewSite().getShell(),
-					new AbapGitWizardBranchSelection(this.project, this.selRepo, destination));
+			WizardDialog dialog = new WizardDialog(this.AbapGitView.getViewSite().getShell(),
+					new AbapGitWizardSwitchBranch(this.project, this.selRepo, destination));
 			dialog.open();
 		}
 
-		((AbapGitView) this.view).refresh();
+		((AbapGitView) this.AbapGitView).refresh();
 
 	}
 
 	private IRepository getRepository() {
-		return ((IAbapGitRepositoriesView) this.view).getRepositorySelection();
+		return ((IAbapGitRepositoriesView) this.AbapGitView).getRepositorySelection();
 	}
 
 	private IProject getProject() {
-		return ((IAbapGitRepositoriesView) this.view).getProject();
+		return ((IAbapGitRepositoriesView) this.AbapGitView).getProject();
 	}
 }

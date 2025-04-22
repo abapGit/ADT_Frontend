@@ -9,20 +9,21 @@ import org.abapgit.adt.backend.RepositoryServiceFactory;
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.internal.i18n.Messages;
-import org.abapgit.adt.ui.internal.util.AbapGitUIServiceFactory;
-import org.abapgit.adt.ui.internal.util.IAbapGitService;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard.CloneData;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.dialogs.IPageChangingListener;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.PageChangingEvent;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.IWizardContainer;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.jface.wizard.WizardPage;
+import org.eclipse.osgi.util.NLS;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
@@ -30,26 +31,30 @@ import com.sap.adt.tools.core.model.adtcore.IAdtObjectReference;
 import com.sap.adt.tools.core.ui.packages.AdtPackageServiceUIFactory;
 import com.sap.adt.tools.core.ui.packages.IAdtPackageServiceUI;
 
-public class AbapGitWizardBranchSelection extends Wizard {
+public class AbapGitWizardSwitchBranch extends Wizard {
 
 	private final IProject project;
 	final CloneData cloneData;
 	public IRepository selRepoData;
 	private final String destination;
-	private final IAbapGitService abapGitService;
 	private PageChangeListener pageChangeListener;
 	AbapGitWizardPageRepositoryAndCredentials pageCredentials;
-	AbapGitWizardPageBranchSelection pageBranchAndPackage;
+	AbapGitWizardPageSwitchBranchAndPackage pageBranchAndPackage;
+	private boolean isPackageValid = true;
+	private String packageErrorMessage = null;
 
-	public AbapGitWizardBranchSelection(IProject project, IRepository selRepo, String destination) {
+	public AbapGitWizardSwitchBranch(IProject project, IRepository selRepo, String destination) {
 		this.project = project;
 		this.cloneData = new CloneData();
 		this.destination = destination;
 		this.selRepoData = selRepo;
 		this.cloneData.url = selRepo.getUrl();
 		this.cloneData.branch = selRepo.getBranchName();
-		this.abapGitService = AbapGitUIServiceFactory.createAbapGitService();
-		getPackageAndRepoType();
+		if (!getPackageAndRepoType()) {
+			this.isPackageValid = false;
+			this.packageErrorMessage = NLS.bind(Messages.AbapGitWizardSwitch_branch_package_ref_not_found_error,
+					this.selRepoData.getPackage());
+		}
 
 		setWindowTitle(Messages.AbapGitWizardSwitch_branch_wizard_title);
 		setNeedsProgressMonitor(true);
@@ -57,35 +62,43 @@ public class AbapGitWizardBranchSelection extends Wizard {
 				AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID, "icons/wizban/abapGit_import_wizban.png")); //$NON-NLS-1$
 	}
 
+	private void getRepositoryAccessMode() {
+		//Get external repo info for repository type (public / private)
+		IExternalRepositoryInfoService externalRepoInfoService = RepositoryServiceFactory
+				.createExternalRepositoryInfoService(AbapGitWizardSwitchBranch.this.destination, null);
+		AbapGitWizardSwitchBranch.this.cloneData.externalRepoInfo = externalRepoInfoService
+				.getExternalRepositoryInfo(AbapGitWizardSwitchBranch.this.selRepoData.getUrl(), "", "", null); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	private void getPackageRef(String packageName, IProgressMonitor monitor) {
+		IAdtPackageServiceUI packageServiceUI = AdtPackageServiceUIFactory.getOrCreateAdtPackageServiceUI();
+		if (packageServiceUI.packageExists(AbapGitWizardSwitchBranch.this.destination, packageName, monitor)) {
+			List<IAdtObjectReference> packageRefs = packageServiceUI.find(AbapGitWizardSwitchBranch.this.destination, packageName, monitor);
+			AbapGitWizardSwitchBranch.this.cloneData.packageRef = packageRefs.stream().findFirst().orElse(null);
+		}
+	}
+
 	public boolean getPackageAndRepoType() {
 
 		try {
-			String packageName = AbapGitWizardBranchSelection.this.selRepoData.getPackage();
+			String packageName = AbapGitWizardSwitchBranch.this.selRepoData.getPackage();
 			PlatformUI.getWorkbench().getProgressService().run(true, true, new IRunnableWithProgress() {
 
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 					monitor.beginTask(Messages.AbapGitWizardPageBranchAndPackage_task_package_validation_message, IProgressMonitor.UNKNOWN);
 
-					//Get repository type (public / private)
-					IExternalRepositoryInfoService externalRepoInfoService = RepositoryServiceFactory
-							.createExternalRepositoryInfoService(AbapGitWizardBranchSelection.this.destination, null);
-					AbapGitWizardBranchSelection.this.cloneData.externalRepoInfo = externalRepoInfoService
-							.getExternalRepositoryInfo(AbapGitWizardBranchSelection.this.selRepoData.getUrl(), "", "", null); //$NON-NLS-1$ //$NON-NLS-2$
+					// fetches wether the repository is PUBLIC or PRIVATE from external repo info
+					getRepositoryAccessMode();
 
-					IAdtPackageServiceUI packageServiceUI = AdtPackageServiceUIFactory.getOrCreateAdtPackageServiceUI();
-					if (packageServiceUI.packageExists(AbapGitWizardBranchSelection.this.destination, packageName, monitor)) {
-						List<IAdtObjectReference> packageRefs = packageServiceUI.find(AbapGitWizardBranchSelection.this.destination,
-								packageName, monitor);
-						AbapGitWizardBranchSelection.this.cloneData.packageRef = packageRefs.stream().findFirst().orElse(null);
-					}
+					// fetches associated package
+					getPackageRef(packageName, monitor);
 
 				}
 			});
-			return true;
-		} catch (InvocationTargetException e) {
-			return false;
-		} catch (InterruptedException e) {
+			// returns false in case of missing package reference
+			return this.cloneData.packageRef != null;
+		} catch (InterruptedException | InvocationTargetException e) {
 			((WizardPage) getContainer().getCurrentPage()).setPageComplete(false);
 			((WizardPage) getContainer().getCurrentPage()).setMessage(e.getMessage(), DialogPage.ERROR);
 			return false;
@@ -108,8 +121,21 @@ public class AbapGitWizardBranchSelection extends Wizard {
 
 	@Override
 	public void addPages() {
-		this.pageCredentials = new AbapGitWizardPageBranchSelectionCredentials(this.project, this.destination, this.cloneData);
-		this.pageBranchAndPackage = new AbapGitWizardPageBranchSelection(this.project, this.destination, this.cloneData, false);
+		// if the package does not exist or is not valid
+		if (!this.isPackageValid) {
+			// show error message
+			Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+			MessageDialog.openError(shell, "Error", this.packageErrorMessage != null ? this.packageErrorMessage : "Unknown error"); //$NON-NLS-1$ //$NON-NLS-2$
+
+			if (getContainer() instanceof WizardDialog) {
+				((WizardDialog) getContainer()).close();
+			}
+			return;
+		}
+
+		// else continue as usual
+		this.pageCredentials = new AbapGitWizardPageSwitchBranchCredentials(this.project, this.destination, this.cloneData);
+		this.pageBranchAndPackage = new AbapGitWizardPageSwitchBranchAndPackage(this.project, this.destination, this.cloneData, false);
 		addPage(this.pageCredentials);
 		addPage(this.pageBranchAndPackage);
 	}
@@ -121,19 +147,19 @@ public class AbapGitWizardBranchSelection extends Wizard {
 
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-					// Unlink
-					RepositoryServiceFactory
-							.createRepositoryService(AbapGitWizardBranchSelection.this.abapGitService
-									.getDestination(AbapGitWizardBranchSelection.this.project), monitor)
-							.unlinkRepository(AbapGitWizardBranchSelection.this.selRepoData.getKey(), monitor);
-					// Relink
+
 					IRepositoryService repoService = RepositoryServiceFactory
-							.createRepositoryService(AbapGitWizardBranchSelection.this.destination, monitor);
-					repoService.cloneRepository(AbapGitWizardBranchSelection.this.selRepoData.getUrl(),
-							AbapGitWizardBranchSelection.this.cloneData.branch, AbapGitWizardBranchSelection.this.selRepoData.getPackage(),
-							AbapGitWizardBranchSelection.this.selRepoData.getFolderLogic(),
-							AbapGitWizardBranchSelection.this.selRepoData.getTransportRequest(),
-							AbapGitWizardBranchSelection.this.cloneData.user, AbapGitWizardBranchSelection.this.cloneData.pass, monitor)
+							.createRepositoryService(AbapGitWizardSwitchBranch.this.destination, monitor);
+
+					// Unlink
+					repoService.unlinkRepository(AbapGitWizardSwitchBranch.this.selRepoData.getKey(), monitor);
+
+					// Relink
+					repoService.cloneRepository(AbapGitWizardSwitchBranch.this.selRepoData.getUrl(),
+							AbapGitWizardSwitchBranch.this.cloneData.branch, AbapGitWizardSwitchBranch.this.selRepoData.getPackage(),
+							AbapGitWizardSwitchBranch.this.selRepoData.getFolderLogic(),
+							AbapGitWizardSwitchBranch.this.selRepoData.getTransportRequest(),
+							AbapGitWizardSwitchBranch.this.cloneData.user, AbapGitWizardSwitchBranch.this.cloneData.pass, monitor)
 							.getAbapObjects();
 //
 				}
@@ -148,9 +174,9 @@ public class AbapGitWizardBranchSelection extends Wizard {
 		@Override
 		public void handlePageChanging(final PageChangingEvent event) {
 			//-> Credentials page -> Branch & Package page
-			if (event.getCurrentPage() == AbapGitWizardBranchSelection.this.pageCredentials
-					&& event.getTargetPage() == AbapGitWizardBranchSelection.this.pageBranchAndPackage) {
-				if (!AbapGitWizardBranchSelection.this.pageCredentials.validateAll()) {
+			if (event.getCurrentPage() == AbapGitWizardSwitchBranch.this.pageCredentials
+					&& event.getTargetPage() == AbapGitWizardSwitchBranch.this.pageBranchAndPackage) {
+				if (!AbapGitWizardSwitchBranch.this.pageCredentials.validateAll()) {
 					event.doit = false;
 					return;
 				}
