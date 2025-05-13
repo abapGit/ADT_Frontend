@@ -22,7 +22,6 @@ import org.eclipse.jface.wizard.IWizardContainer;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.jface.wizard.WizardPage;
-import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -40,8 +39,6 @@ public class AbapGitWizardSwitchBranch extends Wizard {
 	private PageChangeListener pageChangeListener;
 	AbapGitWizardPageRepositoryAndCredentials pageCredentials;
 	AbapGitWizardPageSwitchBranchAndPackage pageBranchAndPackage;
-	private boolean isPackageValid = true;
-	private String packageErrorMessage = null;
 
 	public AbapGitWizardSwitchBranch(IProject project, IRepository selRepo, String destination) {
 		this.project = project;
@@ -50,11 +47,7 @@ public class AbapGitWizardSwitchBranch extends Wizard {
 		this.selRepoData = selRepo;
 		this.cloneData.url = selRepo.getUrl();
 		this.cloneData.branch = selRepo.getBranchName();
-		if (!getPackageAndRepoType()) {
-			this.isPackageValid = false;
-			this.packageErrorMessage = NLS.bind(Messages.AbapGitWizardSwitch_branch_package_ref_not_found_error,
-					this.selRepoData.getPackage());
-		}
+		getPackageAndRepoType();
 
 		setWindowTitle(Messages.AbapGitWizardSwitch_branch_wizard_title);
 		setNeedsProgressMonitor(true);
@@ -99,8 +92,8 @@ public class AbapGitWizardSwitchBranch extends Wizard {
 			// returns false in case of missing package reference
 			return this.cloneData.packageRef != null;
 		} catch (InterruptedException | InvocationTargetException e) {
-			((WizardPage) getContainer().getCurrentPage()).setPageComplete(false);
-			((WizardPage) getContainer().getCurrentPage()).setMessage(e.getMessage(), DialogPage.ERROR);
+			Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+			MessageDialog.openError(shell, "Error", e.getMessage()); //$NON-NLS-1$
 			return false;
 		}
 
@@ -121,21 +114,8 @@ public class AbapGitWizardSwitchBranch extends Wizard {
 
 	@Override
 	public void addPages() {
-		// if the package does not exist or is not valid
-		if (!this.isPackageValid) {
-			// show error message
-			Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-			MessageDialog.openError(shell, "Error", this.packageErrorMessage != null ? this.packageErrorMessage : "Unknown error"); //$NON-NLS-1$ //$NON-NLS-2$
-
-			if (getContainer() instanceof WizardDialog) {
-				((WizardDialog) getContainer()).close();
-			}
-			return;
-		}
-
-		// else continue as usual
 		this.pageCredentials = new AbapGitWizardPageSwitchBranchCredentials(this.project, this.destination, this.cloneData);
-		this.pageBranchAndPackage = new AbapGitWizardPageSwitchBranchAndPackage(this.project, this.destination, this.cloneData, false);
+		this.pageBranchAndPackage = new AbapGitWizardPageSwitchBranchAndPackage(this.project, this.destination, this.cloneData);
 		addPage(this.pageCredentials);
 		addPage(this.pageBranchAndPackage);
 	}

@@ -6,8 +6,8 @@ import org.eclipse.core.resources.IProject;
 
 public class AbapGitWizardPageSwitchBranchAndPackage extends AbapGitWizardPageBranchAndPackage {
 
-	public AbapGitWizardPageSwitchBranchAndPackage(IProject project, String destination, CloneData cloneData, Boolean pullAction) {
-		super(project, destination, cloneData, pullAction);
+	public AbapGitWizardPageSwitchBranchAndPackage(IProject project, String destination, CloneData cloneData) {
+		super(project, destination, cloneData, false);
 		setTitle(Messages.AbapGitWizardPageSwitch_branch_selection_title);
 		setDescription(Messages.AbapGitWizardPageSwitch_select_branch_description);
 	}
