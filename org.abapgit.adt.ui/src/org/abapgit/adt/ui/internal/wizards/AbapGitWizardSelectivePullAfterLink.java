@@ -1,8 +1,8 @@
 package org.abapgit.adt.ui.internal.wizards;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.abapgit.adt.backend.IApackManifest;
 import org.abapgit.adt.backend.IApackManifest.IApackDependency;
@@ -13,20 +13,25 @@ import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAbapGitPullModifiedObjects;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.internal.i18n.Messages;
+import org.abapgit.adt.ui.internal.repositories.IRepositoryModifiedObjects;
 import org.abapgit.adt.ui.internal.util.AbapGitUIServiceFactory;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard.CloneData;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.jface.dialogs.DialogPage;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.IMessageProvider;
-import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.wizard.IWizardContainer;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
-import org.eclipse.jface.wizard.WizardPage;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import com.sap.adt.communication.resources.ResourceException;
@@ -75,18 +80,19 @@ public class AbapGitWizardSelectivePullAfterLink extends Wizard {
 	@Override
 	public boolean performFinish() {
 
+		Set<IRepositoryModifiedObjects> pageOverwriteObjects = this.pageOverwriteObjectsSelection.getSelectedObjects();
+		Set<IRepositoryModifiedObjects> pagePackageWarningObjects = this.pagePackageWarningObjectsSelection.getSelectedObjects();
 		try {
-			getContainer().run(true, true, new IRunnableWithProgress() {
+				Job pullJob = new Job("Pull Repository"){ //$NON-NLS-1$
 
 				@Override
-				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+					protected IStatus run(IProgressMonitor monitor) {
 					monitor.beginTask(Messages.AbapGitWizard_task_pulling_repository, IProgressMonitor.UNKNOWN);
 					IRepositories repositories = AbapGitWizardSelectivePullAfterLink.this.repoService.getRepositories(monitor);
 
 					AbapGitWizardSelectivePullAfterLink.this.repoToSelectedObjectsMap = AbapGitUIServiceFactory.createAbapGitPullService()
 							.getSelectedObjectsToPullforRepo(
-									AbapGitWizardSelectivePullAfterLink.this.pageOverwriteObjectsSelection.getSelectedObjects(),
-									AbapGitWizardSelectivePullAfterLink.this.pagePackageWarningObjectsSelection.getSelectedObjects());
+										pageOverwriteObjects, pagePackageWarningObjects);
 
 					IRepository repository = AbapGitWizardSelectivePullAfterLink.this.repoService.getRepositoryByURL(repositories,
 							AbapGitWizardSelectivePullAfterLink.this.cloneData.url);
@@ -100,6 +106,8 @@ public class AbapGitWizardSelectivePullAfterLink extends Wizard {
 					if (AbapGitWizardSelectivePullAfterLink.this.cloneData.hasDependencies()) {
 						pullDependencies(monitor, AbapGitWizardSelectivePullAfterLink.this.repoService);
 					}
+
+						return Status.OK_STATUS;
 				}
 
 				private void pullDependencies(IProgressMonitor monitor, IRepositoryService repoService) {
@@ -119,15 +127,18 @@ public class AbapGitWizardSelectivePullAfterLink extends Wizard {
 						}
 					}
 				}
-			});
+				};
+
+				pullJob.setUser(true);
+				pullJob.schedule();
 
 			return true;
 
-		} catch (InterruptedException e) {
-			return false;
-		} catch (InvocationTargetException e) {
-			((WizardPage) getContainer().getCurrentPage()).setPageComplete(false);
-			((WizardPage) getContainer().getCurrentPage()).setMessage(e.getTargetException().getMessage(), DialogPage.ERROR);
+			} catch (Exception e) {
+				Display.getDefault().asyncExec(() -> {
+					Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+					MessageDialog.openError(shell, "Error", e.getMessage()); //$NON-NLS-1$
+				});
 			return false;
 		}
 	}
