@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.abapgit.adt.backend.IApackManifest;
 import org.abapgit.adt.backend.IApackManifest.IApackDependency;
@@ -14,6 +15,7 @@ import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAbapGitPullModifiedObjects;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.internal.i18n.Messages;
+import org.abapgit.adt.ui.internal.repositories.IRepositoryModifiedObjects;
 import org.abapgit.adt.ui.internal.util.AbapGitUIServiceFactory;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard.CloneData;
 import org.eclipse.core.resources.IProject;
@@ -153,6 +155,12 @@ public class AbapGitWizardPull extends Wizard {
 
 	@Override
 	public boolean performFinish() {
+
+		// Extracting variable earlier to ensure consistency in asynchronous code flow
+		Set<IRepositoryModifiedObjects> pageOverwriteObjects = AbapGitWizardPull.this.pageOverwriteObjectsSelection.getSelectedObjects();
+		Set<IRepositoryModifiedObjects> pacgePackageWarningObjects = AbapGitWizardPull.this.pagePackageWarningObjectsSelection
+				.getSelectedObjects();
+
 		Job pullRepoJob = new Job("Pulling Repository") { //$NON-NLS-1$
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
@@ -164,8 +172,7 @@ public class AbapGitWizardPull extends Wizard {
 
 					// Get the selected objects to be pulled
 					AbapGitWizardPull.this.repoToSelectedObjects = AbapGitUIServiceFactory.createAbapGitPullService()
-							.getSelectedObjectsToPullforRepo(AbapGitWizardPull.this.pageOverwriteObjectsSelection.getSelectedObjects(),
-									AbapGitWizardPull.this.pagePackageWarningObjectsSelection.getSelectedObjects());
+							.getSelectedObjectsToPullforRepo(pageOverwriteObjects, pacgePackageWarningObjects);
 
 					// Pull the selected objects
 					repoService.pullRepository(AbapGitWizardPull.this.selRepoData, AbapGitWizardPull.this.selRepoData.getBranchName(),
