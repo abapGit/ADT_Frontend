@@ -9,21 +9,21 @@ import org.abapgit.adt.backend.RepositoryServiceFactory;
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.internal.i18n.Messages;
+import org.abapgit.adt.ui.internal.repositories.exceptions.PackageRefNotFoundException;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard.CloneData;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.dialogs.IPageChangingListener;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.PageChangingEvent;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.IWizardContainer;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.jface.wizard.WizardPage;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import com.sap.adt.tools.core.model.adtcore.IAdtObjectReference;
@@ -40,14 +40,18 @@ public class AbapGitWizardSwitchBranch extends Wizard {
 	AbapGitWizardPageRepositoryAndCredentials pageCredentials;
 	AbapGitWizardPageSwitchBranchAndPackage pageBranchAndPackage;
 
-	public AbapGitWizardSwitchBranch(IProject project, IRepository selRepo, String destination) {
+	public AbapGitWizardSwitchBranch(IProject project, IRepository selRepo, String destination) throws PackageRefNotFoundException {
 		this.project = project;
 		this.cloneData = new CloneData();
 		this.destination = destination;
 		this.selRepoData = selRepo;
 		this.cloneData.url = selRepo.getUrl();
 		this.cloneData.branch = selRepo.getBranchName();
-		getPackageAndRepoType();
+
+		if (!getPackageAndRepoType() && this.cloneData.packageRef == null) {
+			String error = NLS.bind(Messages.AbapGitWizardSwitch_branch_package_ref_not_found_error, this.selRepoData.getPackage());
+			throw new PackageRefNotFoundException(error);
+		}
 
 		setWindowTitle(Messages.AbapGitWizardSwitch_branch_wizard_title);
 		setNeedsProgressMonitor(true);
@@ -69,34 +73,19 @@ public class AbapGitWizardSwitchBranch extends Wizard {
 			List<IAdtObjectReference> packageRefs = packageServiceUI.find(AbapGitWizardSwitchBranch.this.destination, packageName, monitor);
 			AbapGitWizardSwitchBranch.this.cloneData.packageRef = packageRefs.stream().findFirst().orElse(null);
 		}
+		else {
+			String error = NLS.bind(Messages.AbapGitWizardSwitch_branch_package_ref_not_found_error, this.selRepoData.getPackage());
+			throw new PackageRefNotFoundException(error);
+		}
 	}
 
 	public boolean getPackageAndRepoType() {
-
-		try {
-			String packageName = AbapGitWizardSwitchBranch.this.selRepoData.getPackage();
-			PlatformUI.getWorkbench().getProgressService().run(true, true, new IRunnableWithProgress() {
-
-				@Override
-				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-					monitor.beginTask(Messages.AbapGitWizardPageBranchAndPackage_task_package_validation_message, IProgressMonitor.UNKNOWN);
-
-					// fetches wether the repository is PUBLIC or PRIVATE from external repo info
-					getRepositoryAccessMode();
-
-					// fetches associated package
-					getPackageRef(packageName, monitor);
-
-				}
-			});
-			// returns false in case of missing package reference
-			return this.cloneData.packageRef != null;
-		} catch (InterruptedException | InvocationTargetException e) {
-			Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-			MessageDialog.openError(shell, "Error", e.getMessage()); //$NON-NLS-1$
-			return false;
-		}
-
+		String packageName = AbapGitWizardSwitchBranch.this.selRepoData.getPackage();
+		//get package refs
+		getPackageRef(packageName, new NullProgressMonitor());
+		// fetches repository access mode
+		getRepositoryAccessMode();
+		return true;
 	}
 
 	@Override
