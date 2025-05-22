@@ -10,8 +10,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.wizard.WizardDialog;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import com.sap.adt.communication.resources.ResourceException;
@@ -41,8 +39,8 @@ public class SwitchbranchAction extends Action {
 						new AbapGitWizardSwitchBranch(this.project, this.selRepo, destination));
 				dialog.open();
 			} catch (PackageRefNotFoundException | ResourceException e) {
-				Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-				MessageDialog.openError(shell, "Error", e.getMessage()); //$NON-NLS-1$
+				MessageDialog.openError(this.AbapGitView.getViewSite().getShell(), Messages.AbapGitWizardSwitch_branch_wizard_title,
+						e.getLocalizedMessage());
 			}
 		}
 		this.AbapGitView.refresh();

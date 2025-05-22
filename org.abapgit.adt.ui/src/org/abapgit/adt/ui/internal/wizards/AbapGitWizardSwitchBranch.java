@@ -48,10 +48,7 @@ public class AbapGitWizardSwitchBranch extends Wizard {
 		this.cloneData.url = selRepo.getUrl();
 		this.cloneData.branch = selRepo.getBranchName();
 
-		if (!getPackageAndRepoType() && this.cloneData.packageRef == null) {
-			String error = NLS.bind(Messages.AbapGitWizardSwitch_branch_package_ref_not_found_error, this.selRepoData.getPackage());
-			throw new PackageRefNotFoundException(error);
-		}
+		getPackageAndRepoType();
 
 		setWindowTitle(Messages.AbapGitWizardSwitch_branch_wizard_title);
 		setNeedsProgressMonitor(true);
@@ -67,7 +64,7 @@ public class AbapGitWizardSwitchBranch extends Wizard {
 				.getExternalRepositoryInfo(AbapGitWizardSwitchBranch.this.selRepoData.getUrl(), "", "", null); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-	private void getPackageRef(String packageName, IProgressMonitor monitor) {
+	private void getPackageRef(String packageName, IProgressMonitor monitor) throws PackageRefNotFoundException {
 		IAdtPackageServiceUI packageServiceUI = AdtPackageServiceUIFactory.getOrCreateAdtPackageServiceUI();
 		if (packageServiceUI.packageExists(AbapGitWizardSwitchBranch.this.destination, packageName, monitor)) {
 			List<IAdtObjectReference> packageRefs = packageServiceUI.find(AbapGitWizardSwitchBranch.this.destination, packageName, monitor);
@@ -79,13 +76,12 @@ public class AbapGitWizardSwitchBranch extends Wizard {
 		}
 	}
 
-	public boolean getPackageAndRepoType() {
+	public void getPackageAndRepoType() throws PackageRefNotFoundException {
 		String packageName = AbapGitWizardSwitchBranch.this.selRepoData.getPackage();
 		//get package refs
 		getPackageRef(packageName, new NullProgressMonitor());
 		// fetches repository access mode
 		getRepositoryAccessMode();
-		return true;
 	}
 
 	@Override
