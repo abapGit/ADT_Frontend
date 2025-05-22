@@ -80,10 +80,10 @@ public class AbapGitWizardSelectivePullAfterLink extends Wizard {
 	@Override
 	public boolean performFinish() {
 
-		Set<IRepositoryModifiedObjects> pageOverwriteObjects = this.pageOverwriteObjectsSelection.getSelectedObjects();
-		Set<IRepositoryModifiedObjects> pagePackageWarningObjects = this.pagePackageWarningObjectsSelection.getSelectedObjects();
+		Set<IRepositoryModifiedObjects> overwriteObjects = this.pageOverwriteObjectsSelection.getSelectedObjects();
+		Set<IRepositoryModifiedObjects> packageWarningObjects = this.pagePackageWarningObjectsSelection.getSelectedObjects();
 		try {
-				Job pullJob = new Job("Pull Repository"){ //$NON-NLS-1$
+			Job pullJob = new Job(Messages.AbapGitWizard_task_pulling_repository) {
 
 				@Override
 					protected IStatus run(IProgressMonitor monitor) {
@@ -92,7 +92,7 @@ public class AbapGitWizardSelectivePullAfterLink extends Wizard {
 
 					AbapGitWizardSelectivePullAfterLink.this.repoToSelectedObjectsMap = AbapGitUIServiceFactory.createAbapGitPullService()
 							.getSelectedObjectsToPullforRepo(
-										pageOverwriteObjects, pagePackageWarningObjects);
+										overwriteObjects, packageWarningObjects);
 
 					IRepository repository = AbapGitWizardSelectivePullAfterLink.this.repoService.getRepositoryByURL(repositories,
 							AbapGitWizardSelectivePullAfterLink.this.cloneData.url);
