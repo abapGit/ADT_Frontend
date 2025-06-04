@@ -7,8 +7,8 @@ import static org.junit.Assert.*;
 import java.util.Collections;
 import java.util.List;
 
-import org.abapgit.adt.backend.IExternalRepositoryInfoService; // << IMPORT
-import org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfo; // << IMPORT
+import org.abapgit.adt.backend.IExternalRepositoryInfoService;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfo;
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.repositories.exceptions.PackageRefNotFoundException;
@@ -28,11 +28,11 @@ import org.junit.Test;
 import com.sap.adt.tools.core.model.adtcore.IAdtObjectReference;
 import com.sap.adt.tools.core.ui.packages.IAdtPackageServiceUI;
 
-public class TestPdeAbapGitSwitchBranchWizard { // Consider renaming to TestAbapGitWizardSwitchBranchLogic
+public class TestPdeAbapGitSwitchBranchWizard {
 
     private AbapGitWizardSwitchBranch wizard;
     private IAdtPackageServiceUI mockPackageServiceUI;
-    private IExternalRepositoryInfoService mockExternalRepoInfoService; // << ADD MOCK FIELD
+    private IExternalRepositoryInfoService mockExternalRepoInfoService;
     private IProject mockProject;
     private IRepository mockSelRepo;
     private String testDestination = "TEST_DEST";
@@ -54,17 +54,14 @@ public class TestPdeAbapGitSwitchBranchWizard { // Consider renaming to TestAbap
         mockPackageServiceUI = createMock(IAdtPackageServiceUI.class);
         mockExternalRepoInfoService = createMock(IExternalRepositoryInfoService.class);
 
-        mockWizardContainer = createNiceMock(IWizardContainer.class); // Mock the interface
-        // DO NOT mock WizardDialog here if it's causing the error:
-        // mockWizardDialog = createNiceMock(WizardDialog.class);
+        mockWizardContainer = createNiceMock(IWizardContainer.class);
 
         mockExtRepoInfoFromSetup = createNiceMock(IExternalRepositoryInfo.class);
         mockAdtObjectRefFromSetup = createNiceMock(IAdtObjectReference.class);
 
-        // ... (rest of your expectations for selRepo, packageService, externalRepoInfoService) ...
         expect(mockSelRepo.getPackage()).andReturn(testRepoPackageName).anyTimes();
         expect(mockSelRepo.getUrl()).andReturn(testRepoUrl).anyTimes();
-        expect(mockSelRepo.getBranchName()).andReturn("main").anyTimes(); // Corrected from "main-setup" if "main" is intended
+        expect(mockSelRepo.getBranchName()).andReturn("main").anyTimes();
         expect(mockSelRepo.getKey()).andReturn(testRepoKey).anyTimes();
         expect(mockSelRepo.getFolderLogic()).andReturn("FULL").anyTimes();
         expect(mockSelRepo.getTransportRequest()).andReturn("DK9SETUP").anyTimes();
@@ -76,7 +73,7 @@ public class TestPdeAbapGitSwitchBranchWizard { // Consider renaming to TestAbap
             .andReturn(initialPackageRefsList).times(1);
 
         expect(mockExternalRepoInfoService.getExternalRepositoryInfo(eq(testRepoUrl), eq(""), eq(""), anyObject()))
-            .andReturn(mockExtRepoInfoFromSetup).times(1); // Use the field
+            .andReturn(mockExtRepoInfoFromSetup).times(1);
 
         // Replay mocks used by the constructor
         replay(mockSelRepo, mockPackageServiceUI, mockExternalRepoInfoService, mockProject,
@@ -147,12 +144,12 @@ public class TestPdeAbapGitSwitchBranchWizard { // Consider renaming to TestAbap
     
     @Test
     public void addPages_createsAndAddsWizardPages() {
-        wizard.addPages(); // This creates the actual pages
+        wizard.addPages();
 
         assertNotNull("Credentials page should be created", wizard.pageCredentials);
         assertNotNull("Branch and Package page should be created", wizard.pageBranchAndPackage);
         assertEquals("Should have 2 pages", 2, wizard.getPageCount());
-        // Assuming page order and accessibility for this check
+
         if (wizard.getPages().length == 2) {
             assertSame("First page should be credentials page", wizard.pageCredentials, wizard.getPages()[0]);
             assertSame("Second page should be branch/package page", wizard.pageBranchAndPackage, wizard.getPages()[1]);
