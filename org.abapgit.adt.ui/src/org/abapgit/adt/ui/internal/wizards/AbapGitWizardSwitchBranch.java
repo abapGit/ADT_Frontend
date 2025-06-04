@@ -27,7 +27,6 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import com.sap.adt.tools.core.model.adtcore.IAdtObjectReference;
-import com.sap.adt.tools.core.ui.packages.AdtPackageServiceUIFactory;
 import com.sap.adt.tools.core.ui.packages.IAdtPackageServiceUI;
 
 public class AbapGitWizardSwitchBranch extends Wizard {
@@ -36,17 +35,22 @@ public class AbapGitWizardSwitchBranch extends Wizard {
 	final CloneData cloneData;
 	public IRepository selRepoData;
 	private final String destination;
+	private final IAdtPackageServiceUI packageServiceUI;
+	private final IExternalRepositoryInfoService externalRepoInfoService;
 	private PageChangeListener pageChangeListener;
 	AbapGitWizardPageRepositoryAndCredentials pageCredentials;
 	AbapGitWizardPageSwitchBranchAndPackage pageBranchAndPackage;
 
-	public AbapGitWizardSwitchBranch(IProject project, IRepository selRepo, String destination) throws PackageRefNotFoundException {
+	public AbapGitWizardSwitchBranch(IProject project, IRepository selRepo, String destination, IAdtPackageServiceUI packageServiceUI, IExternalRepositoryInfoService extRepoInfoService)
+			throws PackageRefNotFoundException {
 		this.project = project;
 		this.cloneData = new CloneData();
 		this.destination = destination;
 		this.selRepoData = selRepo;
 		this.cloneData.url = selRepo.getUrl();
 		this.cloneData.branch = selRepo.getBranchName();
+		this.packageServiceUI = packageServiceUI;
+		this.externalRepoInfoService = extRepoInfoService;
 
 		getPackageAndRepoType();
 
@@ -58,16 +62,14 @@ public class AbapGitWizardSwitchBranch extends Wizard {
 
 	private void getRepositoryAccessMode() {
 		//Get external repo info for repository type (public / private)
-		IExternalRepositoryInfoService externalRepoInfoService = RepositoryServiceFactory
-				.createExternalRepositoryInfoService(AbapGitWizardSwitchBranch.this.destination, null);
-		AbapGitWizardSwitchBranch.this.cloneData.externalRepoInfo = externalRepoInfoService
+
+		AbapGitWizardSwitchBranch.this.cloneData.externalRepoInfo = this.externalRepoInfoService
 				.getExternalRepositoryInfo(AbapGitWizardSwitchBranch.this.selRepoData.getUrl(), "", "", null); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-	private void getPackageRef(String packageName, IProgressMonitor monitor) throws PackageRefNotFoundException {
-		IAdtPackageServiceUI packageServiceUI = AdtPackageServiceUIFactory.getOrCreateAdtPackageServiceUI();
-		if (packageServiceUI.packageExists(AbapGitWizardSwitchBranch.this.destination, packageName, monitor)) {
-			List<IAdtObjectReference> packageRefs = packageServiceUI.find(AbapGitWizardSwitchBranch.this.destination, packageName, monitor);
+	public void getPackageRef(String packageName, IProgressMonitor monitor) throws PackageRefNotFoundException {
+		if (this.packageServiceUI.packageExists(AbapGitWizardSwitchBranch.this.destination, packageName, monitor)) {
+			List<IAdtObjectReference> packageRefs = this.packageServiceUI.find(AbapGitWizardSwitchBranch.this.destination, packageName, monitor);
 			AbapGitWizardSwitchBranch.this.cloneData.packageRef = packageRefs.stream().findFirst().orElse(null);
 		}
 		else {
@@ -133,6 +135,10 @@ public class AbapGitWizardSwitchBranch extends Wizard {
 			((WizardPage) getContainer().getCurrentPage()).setMessage(e.getMessage(), DialogPage.ERROR);
 		}
 		return true;
+	}
+
+	public CloneData getCloneData() {
+		return this.cloneData;
 	}
 
 	final class PageChangeListener implements IPageChangingListener {

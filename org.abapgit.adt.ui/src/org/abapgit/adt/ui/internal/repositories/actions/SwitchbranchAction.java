@@ -1,5 +1,7 @@
 package org.abapgit.adt.ui.internal.repositories.actions;
 
+import org.abapgit.adt.backend.IExternalRepositoryInfoService;
+import org.abapgit.adt.backend.RepositoryServiceFactory;
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.internal.i18n.Messages;
@@ -14,6 +16,8 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import com.sap.adt.communication.resources.ResourceException;
 import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
+import com.sap.adt.tools.core.ui.packages.AdtPackageServiceUIFactory;
+import com.sap.adt.tools.core.ui.packages.IAdtPackageServiceUI;
 
 public class SwitchbranchAction extends Action {
 
@@ -35,8 +39,11 @@ public class SwitchbranchAction extends Action {
 		if (this.selRepo != null) {
 			String destination = AdtProjectServiceFactory.createProjectService().getDestinationId(this.project);
 			try {
+				IAdtPackageServiceUI packageServiceUI = AdtPackageServiceUIFactory.getOrCreateAdtPackageServiceUI();
+				IExternalRepositoryInfoService externalRepoInfoService = RepositoryServiceFactory
+						.createExternalRepositoryInfoService(destination, null);
 				WizardDialog dialog = new WizardDialog(this.AbapGitView.getViewSite().getShell(),
-						new AbapGitWizardSwitchBranch(this.project, this.selRepo, destination));
+						new AbapGitWizardSwitchBranch(this.project, this.selRepo, destination, packageServiceUI, externalRepoInfoService));
 				dialog.open();
 			} catch (PackageRefNotFoundException | ResourceException e) {
 				MessageDialog.openError(this.AbapGitView.getViewSite().getShell(), Messages.AbapGitWizardSwitch_branch_wizard_title,
