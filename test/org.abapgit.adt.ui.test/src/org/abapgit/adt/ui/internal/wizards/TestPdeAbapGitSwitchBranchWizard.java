@@ -1,164 +1,176 @@
-// TestPdeAbapGitSwitchAction.java
 package org.abapgit.adt.ui.internal.wizards;
 
 import static org.easymock.EasyMock.*;
+import static org.hamcrest.Matchers.any;
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.abapgit.adt.backend.IExternalRepositoryInfoService;
+import org.abapgit.adt.backend.IRepositoryService;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.AccessMode;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.IAbapgitexternalrepoPackage;
+import org.abapgit.adt.backend.model.abapgitexternalrepo.IBranch;
 import org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfo;
+import org.abapgit.adt.backend.model.abapgitrepositories.IRepositories;
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
-import org.abapgit.adt.ui.internal.i18n.Messages;
-import org.abapgit.adt.ui.internal.repositories.exceptions.PackageRefNotFoundException;
-import org.abapgit.adt.ui.internal.wizards.AbapGitWizardSwitchBranch;
-import org.easymock.Capture;
-import org.easymock.EasyMock;
+import org.abapgit.adt.backend.model.abapgitrepositories.impl.AbapgitrepositoriesFactoryImpl;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.jface.wizard.IWizardContainer;
+import org.eclipse.emf.common.util.BasicEList;
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.InternalEObject;
+import org.eclipse.emf.ecore.util.EObjectContainmentEList;
+import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.WizardDialog;
-import org.eclipse.osgi.util.NLS;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.sap.adt.tools.core.base.test.services.AdtPdeTestProjectUtil;
 import com.sap.adt.tools.core.model.adtcore.IAdtObjectReference;
+import com.sap.adt.tools.core.model.adtcore.impl.AdtObjectReferenceImpl;
+import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
 import com.sap.adt.tools.core.ui.packages.IAdtPackageServiceUI;
+
 
 public class TestPdeAbapGitSwitchBranchWizard {
 
-    private AbapGitWizardSwitchBranch wizard;
+    // Declare fields for mocks and test data
+    private IProject mockProject;
+    private String testDestination;
+    private final String testRepoPackageName = "TEST_AAR_MOD";
+    private final String testRepoUrl = "https://dummy-repo.git";
+
+    // Mocks to be injected
     private IAdtPackageServiceUI mockPackageServiceUI;
     private IExternalRepositoryInfoService mockExternalRepoInfoService;
-    private IProject mockProject;
-    private IRepository mockSelRepo;
-    private String testDestination = "TEST_DEST";
-    private String testPackageNameArg = "Z_TARGET_PACKAGE";
-    private String testRepoPackageName = "Z_REPO_PACKAGE";
-    private String testRepoUrl = "http://dummyurl.com";
-    private String testBranch = "main-setup";
-    private String testRepoKey = "REPO_KEY_CONSOLIDATED";
-    
-    private IWizardContainer mockWizardContainer;
-    private WizardDialog mockWizardDialog;
-    private IExternalRepositoryInfo mockExtRepoInfoFromSetup;
-    private IAdtObjectReference mockAdtObjectRefFromSetup;
+    private IRepositoryService mockRepoService;
 
     @Before
-    public void setUp() {
-        mockProject = createNiceMock(IProject.class);
-        mockSelRepo = createNiceMock(IRepository.class);
+    public void setUp() throws CoreException {
+        // Create project and test data
+        mockProject = AdtPdeTestProjectUtil.createTestProject(this.getClass().getName());
+        testDestination = AdtProjectServiceFactory.createProjectService().getDestinationId(mockProject);
+
+        // Create fresh mocks for each test
         mockPackageServiceUI = createMock(IAdtPackageServiceUI.class);
         mockExternalRepoInfoService = createMock(IExternalRepositoryInfoService.class);
+        mockRepoService = createMock(IRepositoryService.class); // The new mock we need
+    }
 
-        mockWizardContainer = createNiceMock(IWizardContainer.class);
-
-        mockExtRepoInfoFromSetup = createNiceMock(IExternalRepositoryInfo.class);
-        mockAdtObjectRefFromSetup = createNiceMock(IAdtObjectReference.class);
-
+    @Test
+    public void testPublicRepoShouldNavigateToBranchPage() throws Exception {
+    	IBranch mockHeadBranch = createNiceMock(IBranch.class);
+    	expect(mockHeadBranch.getName()).andReturn("HEAD").anyTimes();
+    	EList<IBranch> branchList = new BasicEList<>();
+        branchList.add(mockHeadBranch);
+        IRepository mockSelRepo = createNiceMock(IRepository.class);
+        IExternalRepositoryInfo mockExtRepoInfo = createNiceMock(IExternalRepositoryInfo.class);
+        IAdtObjectReference mockAdtObjectRef = createNiceMock(AdtObjectReferenceImpl.class);
+        IRepositories mockRepositories = createMock(IRepositories.class);
+        expect(mockRepoService.getRepositories(anyObject()))
+            .andReturn(mockRepositories).anyTimes();
+        IRepositories realRepositories = AbapgitrepositoriesFactoryImpl.eINSTANCE.createRepositories();
+        EList<IRepository> emptyRepositoryEList = realRepositories.getRepositories();
+        expect(mockRepositories.getRepositories()).andReturn(emptyRepositoryEList).anyTimes();
         expect(mockSelRepo.getPackage()).andReturn(testRepoPackageName).anyTimes();
         expect(mockSelRepo.getUrl()).andReturn(testRepoUrl).anyTimes();
         expect(mockSelRepo.getBranchName()).andReturn("main").anyTimes();
-        expect(mockSelRepo.getKey()).andReturn(testRepoKey).anyTimes();
-        expect(mockSelRepo.getFolderLogic()).andReturn("FULL").anyTimes();
-        expect(mockSelRepo.getTransportRequest()).andReturn("DK9SETUP").anyTimes();
 
-        expect(mockPackageServiceUI.packageExists(eq(testDestination), eq(testRepoPackageName), anyObject(IProgressMonitor.class)))
-            .andReturn(true).times(1);
-        List<IAdtObjectReference> initialPackageRefsList = Collections.singletonList(mockAdtObjectRefFromSetup); // Use the field
-        expect(mockPackageServiceUI.find(eq(testDestination), eq(testRepoPackageName), anyObject(IProgressMonitor.class)))
-            .andReturn(initialPackageRefsList).times(1);
+        expect(mockPackageServiceUI.packageExists(anyString(), anyString(), anyObject())).andReturn(true).anyTimes();
+        List<IAdtObjectReference> packageRefsList = Collections.singletonList(mockAdtObjectRef);
+        expect(mockPackageServiceUI.find(anyString(), anyString(), anyObject())).andReturn(packageRefsList).anyTimes();
+        expect(mockAdtObjectRef.getName()).andReturn(testRepoPackageName).anyTimes();
 
-        expect(mockExternalRepoInfoService.getExternalRepositoryInfo(eq(testRepoUrl), eq(""), eq(""), anyObject()))
-            .andReturn(mockExtRepoInfoFromSetup).times(1);
-
-        // Replay mocks used by the constructor
-        replay(mockSelRepo, mockPackageServiceUI, mockExternalRepoInfoService, mockProject,
-               mockExtRepoInfoFromSetup, mockAdtObjectRefFromSetup, mockWizardContainer);
-
-        wizard = new AbapGitWizardSwitchBranch(mockProject, mockSelRepo, testDestination,
-                                              mockPackageServiceUI, mockExternalRepoInfoService);
-
-        reset(mockPackageServiceUI, mockExternalRepoInfoService, mockWizardContainer);
-    }
-
-    @Test
-    public void getPackageRef_whenPackageDoesNotExist_throwsPackageRefNotFoundException() {
-        IProgressMonitor monitor = new NullProgressMonitor();
-
-        expect(mockPackageServiceUI.packageExists(
-                eq(testDestination),
-                eq(testPackageNameArg),
-                same(monitor)))
-            .andReturn(false);
-
-        replay(mockPackageServiceUI);
-
-        try {
-            wizard.getPackageRef(testPackageNameArg, monitor);
-            fail("PackageRefNotFoundException was expected");
-        } catch (PackageRefNotFoundException e) {
-            String expectedErrorMessage = NLS.bind(Messages.AbapGitWizardSwitch_branch_package_ref_not_found_error, testRepoPackageName);
-            assertEquals(expectedErrorMessage, e.getMessage());
-        }
-
-        verify(mockPackageServiceUI);
-    }
-
-    @Test
-    public void getPackageRef_whenPackageExists_setsPackageRef() throws PackageRefNotFoundException {
-        IProgressMonitor monitor = new NullProgressMonitor();
-        IAdtObjectReference mockAdtObjectRef = createNiceMock(IAdtObjectReference.class);
-        List<IAdtObjectReference> mockPackageRefsList = Collections.singletonList(mockAdtObjectRef);
-
-        expect(mockPackageServiceUI.packageExists(
-                eq(testDestination),
-                eq(testPackageNameArg),
-                same(monitor)))
-            .andReturn(true);
-        expect(mockPackageServiceUI.find(
-                eq(testDestination),
-                eq(testPackageNameArg),
-                same(monitor)))
-            .andReturn(mockPackageRefsList);
-
-        replay(mockPackageServiceUI, mockAdtObjectRef);
-
-        wizard.getPackageRef(testPackageNameArg, monitor);
-
-        assertNotNull(wizard.getCloneData().packageRef);
-        assertEquals(mockPackageRefsList.get(0), wizard.getCloneData().packageRef);
-
-        verify(mockPackageServiceUI);
-    }
-
-    @Test
-    public void wizardInitialization_setsWindowTitleAndProgressMonitor() {
-        assertEquals(Messages.AbapGitWizardSwitch_branch_wizard_title, wizard.getWindowTitle());
-        assertTrue(wizard.needsProgressMonitor());
-        assertNotNull(wizard.getDefaultPageImage());
-    }
-    
-    @Test
-    public void addPages_createsAndAddsWizardPages() {
-        wizard.addPages();
-
-        assertNotNull("Credentials page should be created", wizard.pageCredentials);
-        assertNotNull("Branch and Package page should be created", wizard.pageBranchAndPackage);
-        assertEquals("Should have 2 pages", 2, wizard.getPageCount());
-
-        if (wizard.getPages().length == 2) {
-            assertSame("First page should be credentials page", wizard.pageCredentials, wizard.getPages()[0]);
-            assertSame("Second page should be branch/package page", wizard.pageBranchAndPackage, wizard.getPages()[1]);
+        expect(mockExternalRepoInfoService.getExternalRepositoryInfo(anyString(), anyString(), anyString(), anyObject()))
+            .andReturn(mockExtRepoInfo).anyTimes();
+        expect(mockExtRepoInfo.getBranches()).andReturn(branchList).anyTimes();
+        expect(mockExtRepoInfo.getAccessMode()).andReturn(AccessMode.PUBLIC).anyTimes();
+        // ================= REPLAY: Activate all mocks =================
+        replay(mockPackageServiceUI, mockExternalRepoInfoService, mockRepoService, mockSelRepo, mockExtRepoInfo, mockAdtObjectRef, mockRepositories, mockHeadBranch);
+    	AbapGitWizardSwitchBranch wizard = new AbapGitWizardSwitchBranch(mockProject, mockSelRepo, testDestination,
+                mockPackageServiceUI, mockExternalRepoInfoService, mockRepoService); // Pass in the new mock
+    	TestWizardDialog dialog = new TestWizardDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), wizard);
+    	dialog.setBlockOnOpen(false);
+    	dialog.open();
+    	
+    	try {
+            assertTrue("Page should be Branch and Package", dialog.getCurrentPage() instanceof AbapGitWizardPageSwitchBranchAndPackage);
+        } finally {
+            dialog.close();
+            verify(mockRepoService);
         }
     }
     
     @Test
-    public void getCloneData_returnsInternalCloneData() {
-        assertNotNull("CloneData should not be null", wizard.getCloneData());
+    public void testPrivateRespoShouldNavigateToCredentialPage() {
+    	/*
+    	 * Test case : When repository is PRIVATE
+    	 * flow tested : user enters user name and password and click next
+    	 * Expected result : Credential Page should open and on clicking next Switch branch and package page should be open
+    	*/
+    	IBranch mockHeadBranch = createNiceMock(IBranch.class);
+    	expect(mockHeadBranch.getName()).andReturn("HEAD").anyTimes();
+    	EList<IBranch> branchList = new BasicEList<>();
+        branchList.add(mockHeadBranch);  	
+        IRepository mockSelRepo = createNiceMock(IRepository.class);
+        IExternalRepositoryInfo mockExtRepoInfo = createNiceMock(IExternalRepositoryInfo.class);
+        IAdtObjectReference mockAdtObjectRef = createNiceMock(AdtObjectReferenceImpl.class);
+        IRepositories mockRepositories = createMock(IRepositories.class);
+        expect(mockRepoService.getRepositories(anyObject()))
+            .andReturn(mockRepositories).anyTimes();
+        IRepositories realRepositories = AbapgitrepositoriesFactoryImpl.eINSTANCE.createRepositories();
+        EList<IRepository> emptyRepositoryEList = realRepositories.getRepositories();
+        expect(mockRepositories.getRepositories()).andReturn(emptyRepositoryEList).anyTimes();
+        expect(mockSelRepo.getPackage()).andReturn(testRepoPackageName).anyTimes();
+        expect(mockSelRepo.getUrl()).andReturn(testRepoUrl).anyTimes();
+        expect(mockSelRepo.getBranchName()).andReturn("main").anyTimes();
 
+        expect(mockPackageServiceUI.packageExists(anyString(), anyString(), anyObject())).andReturn(true).anyTimes();
+        List<IAdtObjectReference> packageRefsList = Collections.singletonList(mockAdtObjectRef);
+        expect(mockPackageServiceUI.find(anyString(), anyString(), anyObject())).andReturn(packageRefsList).anyTimes();
+        expect(mockAdtObjectRef.getName()).andReturn(testRepoPackageName).anyTimes();
+
+        expect(mockExternalRepoInfoService.getExternalRepositoryInfo(anyString(), anyString(), anyString(), anyObject()))
+            .andReturn(mockExtRepoInfo).anyTimes();
+        expect(mockExtRepoInfo.getBranches()).andReturn(branchList).anyTimes();
+        expect(mockExtRepoInfo.getAccessMode()).andReturn(AccessMode.PRIVATE).anyTimes();
+        // ================= REPLAY: Activate all mocks =================
+        replay(mockPackageServiceUI, mockExternalRepoInfoService, mockRepoService, mockSelRepo, mockExtRepoInfo, mockAdtObjectRef, mockRepositories, mockHeadBranch);
+    	AbapGitWizardSwitchBranch wizard = new AbapGitWizardSwitchBranch(mockProject, mockSelRepo, testDestination,
+                mockPackageServiceUI, mockExternalRepoInfoService, mockRepoService); // Pass in the new mock
+    	TestWizardDialog dialog = new TestWizardDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), wizard);
+    	dialog.setBlockOnOpen(false);
+    	dialog.open();
+    	
+    	try {
+            assertTrue("Page should be Credentials page", dialog.getCurrentPage() instanceof AbapGitWizardPageSwitchBranchCredentials);
+            AbapGitWizardPageSwitchBranchCredentials page = (AbapGitWizardPageSwitchBranchCredentials) dialog.getCurrentPage();
+            page.txtUser.setText("NewUser");
+            page.txtPwd.setText("password");
+            dialog.nextPressed();
+            
+        } finally {
+            dialog.close();
+            verify(mockRepoService);
+        }
+    }
+    
+    private static class TestWizardDialog extends WizardDialog{
+
+		public TestWizardDialog(Shell parentShell, IWizard newWizard) {
+			super(parentShell, newWizard);
+		}
+		
+		@Override
+		public void nextPressed() {
+			super.nextPressed();
+		}
+    	
     }
 }

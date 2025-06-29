@@ -14,7 +14,7 @@ import org.abapgit.adt.backend.model.abapgitrepositories.impl.Abapgitrepositorie
 import org.abapgit.adt.ui.internal.util.IAbapGitService;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.swt.SWT;
+import org.eclipse.swt.*;
 import org.eclipse.swt.widgets.Event;
 import org.junit.AfterClass;
 import org.junit.Assert;

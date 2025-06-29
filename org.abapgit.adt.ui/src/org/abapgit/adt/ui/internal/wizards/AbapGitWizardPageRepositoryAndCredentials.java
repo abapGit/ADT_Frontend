@@ -45,13 +45,14 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 
 	private Text txtURL;
 	protected Text txtUser;
-	private Text txtPwd;
+	protected Text txtPwd;
 	private Label lblUser;
 	private Label lblPwd;
 	private Pattern r;
 	private String ptrn;
 	private String newUrl;
-
+	protected IRepositoryService repoService;
+	protected IExternalRepositoryInfoService externalRepoService;
 	private final Boolean pullAction;
 	private boolean wasVisibleBefore;
 	private IExternalRepositoryInfoRequest repositoryCredentials;
@@ -286,10 +287,8 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 					monitor.beginTask(Messages.AbapGitWizardPageRepositoryAndCredentials_task_repo_fetch, IProgressMonitor.UNKNOWN);
-					IRepositoryService repoService = RepositoryServiceFactory.createRepositoryService(AbapGitWizardPageRepositoryAndCredentials.this.destination,
-							monitor);
-
-					AbapGitWizardPageRepositoryAndCredentials.this.cloneData.repositories = repoService.getRepositories(monitor);
+					AbapGitWizardPageRepositoryAndCredentials.this.cloneData.repositories = AbapGitWizardPageRepositoryAndCredentials.this.repoService
+							.getRepositories(monitor);
 				}
 			});
 		} catch (InvocationTargetException e) {
@@ -307,9 +306,8 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 					monitor.beginTask(Messages.AbapGitWizardPageRepositoryAndCredentials_task_fetch_repo_info, IProgressMonitor.UNKNOWN);
-					IExternalRepositoryInfoService externalRepoInfoService = RepositoryServiceFactory
-							.createExternalRepositoryInfoService(AbapGitWizardPageRepositoryAndCredentials.this.destination, monitor);
-					AbapGitWizardPageRepositoryAndCredentials.this.cloneData.externalRepoInfo = externalRepoInfoService.getExternalRepositoryInfo(AbapGitWizardPageRepositoryAndCredentials.this.cloneData.url,
+					AbapGitWizardPageRepositoryAndCredentials.this.cloneData.externalRepoInfo = AbapGitWizardPageRepositoryAndCredentials.this.externalRepoService
+							.getExternalRepositoryInfo(AbapGitWizardPageRepositoryAndCredentials.this.cloneData.url,
 							AbapGitWizardPageRepositoryAndCredentials.this.cloneData.user, AbapGitWizardPageRepositoryAndCredentials.this.cloneData.pass, monitor);
 				}
 			});

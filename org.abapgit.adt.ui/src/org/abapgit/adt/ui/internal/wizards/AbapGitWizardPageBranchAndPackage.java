@@ -71,7 +71,7 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 
 	protected Button checkbox_lnp;
 	private Boolean chboxLinkAndPull;
-	private TextViewer txtPackage;
+	protected TextViewer txtPackage;
 	protected ComboViewer comboBranches;
 
 	private final Boolean pullAction;

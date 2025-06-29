@@ -35,13 +35,15 @@ public class AbapGitWizardSwitchBranch extends Wizard {
 	final CloneData cloneData;
 	public IRepository selRepoData;
 	private final String destination;
-	private final IAdtPackageServiceUI packageServiceUI;
-	private final IExternalRepositoryInfoService externalRepoInfoService;
+	protected final IAdtPackageServiceUI packageServiceUI;
+	private final IRepositoryService repoService;
+	protected final IExternalRepositoryInfoService externalRepoInfoService;
 	private PageChangeListener pageChangeListener;
 	AbapGitWizardPageRepositoryAndCredentials pageCredentials;
 	AbapGitWizardPageSwitchBranchAndPackage pageBranchAndPackage;
 
-	public AbapGitWizardSwitchBranch(IProject project, IRepository selRepo, String destination, IAdtPackageServiceUI packageServiceUI, IExternalRepositoryInfoService extRepoInfoService)
+	public AbapGitWizardSwitchBranch(IProject project, IRepository selRepo, String destination, IAdtPackageServiceUI packageServiceUI,
+			IExternalRepositoryInfoService extRepoInfoService, IRepositoryService repoService)
 			throws PackageRefNotFoundException {
 		this.project = project;
 		this.cloneData = new CloneData();
@@ -51,7 +53,7 @@ public class AbapGitWizardSwitchBranch extends Wizard {
 		this.cloneData.branch = selRepo.getBranchName();
 		this.packageServiceUI = packageServiceUI;
 		this.externalRepoInfoService = extRepoInfoService;
-
+		this.repoService = repoService;
 		getPackageAndRepoType();
 
 		setWindowTitle(Messages.AbapGitWizardSwitch_branch_wizard_title);
@@ -103,6 +105,8 @@ public class AbapGitWizardSwitchBranch extends Wizard {
 	public void addPages() {
 		this.pageCredentials = new AbapGitWizardPageSwitchBranchCredentials(this.project, this.destination, this.cloneData);
 		this.pageBranchAndPackage = new AbapGitWizardPageSwitchBranchAndPackage(this.project, this.destination, this.cloneData);
+		this.pageCredentials.externalRepoService = this.externalRepoInfoService;
+		this.pageCredentials.repoService = this.repoService;
 		addPage(this.pageCredentials);
 		addPage(this.pageBranchAndPackage);
 	}
