@@ -1,17 +1,14 @@
 package org.abapgit.adt.ui.internal.wizards;
 
 import static org.easymock.EasyMock.*;
-import static org.hamcrest.Matchers.any;
 import static org.junit.Assert.*;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.abapgit.adt.backend.IExternalRepositoryInfoService;
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.model.abapgitexternalrepo.AccessMode;
-import org.abapgit.adt.backend.model.abapgitexternalrepo.IAbapgitexternalrepoPackage;
 import org.abapgit.adt.backend.model.abapgitexternalrepo.IBranch;
 import org.abapgit.adt.backend.model.abapgitexternalrepo.IExternalRepositoryInfo;
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepositories;
@@ -19,11 +16,8 @@ import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.abapgit.adt.backend.model.abapgitrepositories.impl.AbapgitrepositoriesFactoryImpl;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.ecore.InternalEObject;
-import org.eclipse.emf.ecore.util.EObjectContainmentEList;
 import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
@@ -33,7 +27,6 @@ import org.junit.Test;
 
 import com.sap.adt.tools.core.base.test.services.AdtPdeTestProjectUtil;
 import com.sap.adt.tools.core.model.adtcore.IAdtObjectReference;
-import com.sap.adt.tools.core.model.adtcore.impl.AdtObjectReferenceImpl;
 import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
 import com.sap.adt.tools.core.ui.packages.IAdtPackageServiceUI;
 
@@ -65,13 +58,23 @@ public class TestPdeAbapGitSwitchBranchWizard {
 
     @Test
     public void testPublicRepoShouldNavigateToBranchPage() throws Exception {
-    	IBranch mockHeadBranch = createNiceMock(IBranch.class);
-    	expect(mockHeadBranch.getName()).andReturn("HEAD").anyTimes();
+    	/*
+    	 * Test case : When repository is PRIVATE
+    	 * flow tested : switch branch in the comboViewer and change package name to check functionality
+    	*/
+    	IBranch mockMainBranch = createNiceMock(IBranch.class);
+    	IBranch mockNewMainBranch = createNiceMock(IBranch.class);
+    	expect(mockMainBranch.getName()).andReturn("main").anyTimes();
+    	expect(mockMainBranch.getIsHead()).andReturn("X").anyTimes();
+    	// for new main branch
+    	expect(mockNewMainBranch.getName()).andReturn("newMain").anyTimes();
+    	expect(mockNewMainBranch.getIsHead()).andReturn("X").anyTimes();
     	EList<IBranch> branchList = new BasicEList<>();
-        branchList.add(mockHeadBranch);
+        branchList.add(mockMainBranch);
+        branchList.add(mockNewMainBranch);
         IRepository mockSelRepo = createNiceMock(IRepository.class);
         IExternalRepositoryInfo mockExtRepoInfo = createNiceMock(IExternalRepositoryInfo.class);
-        IAdtObjectReference mockAdtObjectRef = createNiceMock(AdtObjectReferenceImpl.class);
+        IAdtObjectReference mockAdtObjectRef = createNiceMock(IAdtObjectReference.class);
         IRepositories mockRepositories = createMock(IRepositories.class);
         expect(mockRepoService.getRepositories(anyObject()))
             .andReturn(mockRepositories).anyTimes();
@@ -92,7 +95,7 @@ public class TestPdeAbapGitSwitchBranchWizard {
         expect(mockExtRepoInfo.getBranches()).andReturn(branchList).anyTimes();
         expect(mockExtRepoInfo.getAccessMode()).andReturn(AccessMode.PUBLIC).anyTimes();
         // ================= REPLAY: Activate all mocks =================
-        replay(mockPackageServiceUI, mockExternalRepoInfoService, mockRepoService, mockSelRepo, mockExtRepoInfo, mockAdtObjectRef, mockRepositories, mockHeadBranch);
+        replay(mockPackageServiceUI, mockExternalRepoInfoService, mockRepoService, mockSelRepo, mockExtRepoInfo, mockAdtObjectRef, mockRepositories, mockMainBranch, mockNewMainBranch);
     	AbapGitWizardSwitchBranch wizard = new AbapGitWizardSwitchBranch(mockProject, mockSelRepo, testDestination,
                 mockPackageServiceUI, mockExternalRepoInfoService, mockRepoService); // Pass in the new mock
     	TestWizardDialog dialog = new TestWizardDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), wizard);
@@ -100,7 +103,16 @@ public class TestPdeAbapGitSwitchBranchWizard {
     	dialog.open();
     	
     	try {
-            assertTrue("Page should be Branch and Package", dialog.getCurrentPage() instanceof AbapGitWizardPageSwitchBranchAndPackage);
+            assertTrue("Page should be Branch and Package", dialog.getCurrentPage() instanceof AbapGitWizardPageSwitchBranchAndPackage);            
+            AbapGitWizardPageSwitchBranchAndPackage page = (AbapGitWizardPageSwitchBranchAndPackage) dialog.getCurrentPage();
+            assertEquals("main", page.comboBranches.getCombo().getText());
+            // switch branch from dropDown
+            assertEquals(page.comboBranches.getCombo().getItemCount(),2);
+            page.comboBranches.getCombo().select(1); // select the second branch
+            assertEquals(page.comboBranches.getCombo().getText(), "newMain");
+            assertEquals(testRepoPackageName, page.txtPackage.getTextWidget().getText());
+            // not testing package field as it would be disabled
+            
         } finally {
             dialog.close();
             verify(mockRepoService);
@@ -114,13 +126,18 @@ public class TestPdeAbapGitSwitchBranchWizard {
     	 * flow tested : user enters user name and password and click next
     	 * Expected result : Credential Page should open and on clicking next Switch branch and package page should be open
     	*/
-    	IBranch mockHeadBranch = createNiceMock(IBranch.class);
-    	expect(mockHeadBranch.getName()).andReturn("HEAD").anyTimes();
+    	IBranch mockMainBranch = createNiceMock(IBranch.class);
+    	
+    	// for main branch
+    	expect(mockMainBranch.getName()).andReturn("main").anyTimes();
+    	expect(mockMainBranch.getIsHead()).andReturn("X").anyTimes();
+    	
     	EList<IBranch> branchList = new BasicEList<>();
-        branchList.add(mockHeadBranch);  	
+        branchList.add(mockMainBranch); 
+        
         IRepository mockSelRepo = createNiceMock(IRepository.class);
         IExternalRepositoryInfo mockExtRepoInfo = createNiceMock(IExternalRepositoryInfo.class);
-        IAdtObjectReference mockAdtObjectRef = createNiceMock(AdtObjectReferenceImpl.class);
+        IAdtObjectReference mockAdtObjectRef = createNiceMock(IAdtObjectReference.class);
         IRepositories mockRepositories = createMock(IRepositories.class);
         expect(mockRepoService.getRepositories(anyObject()))
             .andReturn(mockRepositories).anyTimes();
@@ -141,7 +158,7 @@ public class TestPdeAbapGitSwitchBranchWizard {
         expect(mockExtRepoInfo.getBranches()).andReturn(branchList).anyTimes();
         expect(mockExtRepoInfo.getAccessMode()).andReturn(AccessMode.PRIVATE).anyTimes();
         // ================= REPLAY: Activate all mocks =================
-        replay(mockPackageServiceUI, mockExternalRepoInfoService, mockRepoService, mockSelRepo, mockExtRepoInfo, mockAdtObjectRef, mockRepositories, mockHeadBranch);
+        replay(mockPackageServiceUI, mockExternalRepoInfoService, mockRepoService, mockSelRepo, mockExtRepoInfo, mockAdtObjectRef, mockRepositories, mockMainBranch);
     	AbapGitWizardSwitchBranch wizard = new AbapGitWizardSwitchBranch(mockProject, mockSelRepo, testDestination,
                 mockPackageServiceUI, mockExternalRepoInfoService, mockRepoService); // Pass in the new mock
     	TestWizardDialog dialog = new TestWizardDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), wizard);
@@ -151,9 +168,11 @@ public class TestPdeAbapGitSwitchBranchWizard {
     	try {
             assertTrue("Page should be Credentials page", dialog.getCurrentPage() instanceof AbapGitWizardPageSwitchBranchCredentials);
             AbapGitWizardPageSwitchBranchCredentials page = (AbapGitWizardPageSwitchBranchCredentials) dialog.getCurrentPage();
+            page.gitCredentialsService = null; // Set to null to avoid call to open store credentials dialog
             page.txtUser.setText("NewUser");
             page.txtPwd.setText("password");
             dialog.nextPressed();
+            assertTrue("Page should be Branch and Package", dialog.getCurrentPage() instanceof AbapGitWizardPageSwitchBranchAndPackage);            
             
         } finally {
             dialog.close();

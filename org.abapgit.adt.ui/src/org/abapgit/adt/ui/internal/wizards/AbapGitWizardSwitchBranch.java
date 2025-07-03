@@ -39,7 +39,7 @@ public class AbapGitWizardSwitchBranch extends Wizard {
 	private final IRepositoryService repoService;
 	protected final IExternalRepositoryInfoService externalRepoInfoService;
 	private PageChangeListener pageChangeListener;
-	AbapGitWizardPageRepositoryAndCredentials pageCredentials;
+	AbapGitWizardPageSwitchBranchCredentials pageCredentials;
 	AbapGitWizardPageSwitchBranchAndPackage pageBranchAndPackage;
 
 	public AbapGitWizardSwitchBranch(IProject project, IRepository selRepo, String destination, IAdtPackageServiceUI packageServiceUI,

@@ -27,7 +27,7 @@ import com.sap.adt.tools.core.model.adtcore.IAdtObjectReference;
 import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
 import com.sap.adt.tools.core.ui.packages.IAdtPackageServiceUI;
 
-public class TestUnitAbapGitSwitchBranchWizard {
+public class TestPdeAbapGitSwitchBranchWizardPackageValidations {
 
     private AbapGitWizardSwitchBranch wizard;
     private IAdtPackageServiceUI mockPackageServiceUI;
