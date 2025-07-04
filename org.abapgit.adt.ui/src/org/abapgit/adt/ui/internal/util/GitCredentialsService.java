@@ -195,7 +195,7 @@ public class GitCredentialsService {
 	}
 
 	//Open a popup asking if user wants to store the credentials in secure store
-	public static boolean showPopUpAskingToStoreCredentials(Shell shell, String url, String user, String pass) {
+	public boolean showPopUpAskingToStoreCredentials(Shell shell, String url, String user, String pass) {
 		//since the credentials are proper ask if they should be stored in secure store
 		MessageBox messageBox = new MessageBox(shell, SWT.ICON_QUESTION | SWT.YES | SWT.NO);
 		messageBox.setText(Messages.AbapGitWizardPageRepositoryAndCredentials_credentials_manager_popup_title);

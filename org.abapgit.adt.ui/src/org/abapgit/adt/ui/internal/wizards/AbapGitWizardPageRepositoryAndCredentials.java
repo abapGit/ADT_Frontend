@@ -18,6 +18,7 @@ import org.abapgit.adt.ui.internal.wizards.AbapGitWizard.CloneData;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.security.storage.ISecurePreferences;
 import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
@@ -44,14 +45,16 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 	private final CloneData cloneData;
 
 	private Text txtURL;
-	private Text txtUser;
-	private Text txtPwd;
+	protected Text txtUser;
+	protected Text txtPwd;
 	private Label lblUser;
 	private Label lblPwd;
 	private Pattern r;
 	private String ptrn;
 	private String newUrl;
-
+	protected IRepositoryService repoService;
+	protected IExternalRepositoryInfoService externalRepoService;
+	protected GitCredentialsService gitCredentialsService;
 	private final Boolean pullAction;
 	private boolean wasVisibleBefore;
 	private IExternalRepositoryInfoRequest repositoryCredentials;
@@ -62,6 +65,9 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 		this.destination = destination;
 		this.cloneData = cloneData;
 		this.pullAction = pullAction;
+		this.gitCredentialsService = new GitCredentialsService();
+		this.repoService = RepositoryServiceFactory.createRepositoryService(destination, new NullProgressMonitor());
+		this.externalRepoService = RepositoryServiceFactory.createExternalRepositoryInfoService(destination, new NullProgressMonitor());
 		setTitle(Messages.AbapGitWizardPageRepositoryAndCredentials_title);
 		setDescription(Messages.AbapGitWizardPageRepositoryAndCredentials_description);
 
@@ -168,8 +174,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 						monitor.beginTask(Messages.AbapGitWizardPageRepositoryAndCredentials_task_check_compatibility,
 								IProgressMonitor.UNKNOWN);
-						isSupported[0] = RepositoryServiceFactory
-								.createRepositoryService(AbapGitWizardPageRepositoryAndCredentials.this.destination, monitor) != null;
+						isSupported[0] = AbapGitWizardPageRepositoryAndCredentials.this.repoService != null;
 					}
 				});
 				if (!isSupported[0]) {
@@ -189,7 +194,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 
 	}
 
-	private boolean validateClientOnly() {
+	protected boolean validateClientOnly() {
 		setMessage(null);
 		setPageComplete(true);
 
@@ -279,17 +284,15 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 		return true;
 	}
 
-	private void fetchRepositories() {
+	protected void fetchRepositories() {
 		try {
 			getContainer().run(true, true, new IRunnableWithProgress() {
 
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 					monitor.beginTask(Messages.AbapGitWizardPageRepositoryAndCredentials_task_repo_fetch, IProgressMonitor.UNKNOWN);
-					IRepositoryService repoService = RepositoryServiceFactory.createRepositoryService(AbapGitWizardPageRepositoryAndCredentials.this.destination,
-							monitor);
-
-					AbapGitWizardPageRepositoryAndCredentials.this.cloneData.repositories = repoService.getRepositories(monitor);
+					AbapGitWizardPageRepositoryAndCredentials.this.cloneData.repositories = AbapGitWizardPageRepositoryAndCredentials.this.repoService
+							.getRepositories(monitor);
 				}
 			});
 		} catch (InvocationTargetException e) {
@@ -300,16 +303,15 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 		}
 	}
 
-	private boolean fetchExternalRepoInfo() {
+	protected boolean fetchExternalRepoInfo() {
 		try {
 			getContainer().run(true, true, new IRunnableWithProgress() {
 
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 					monitor.beginTask(Messages.AbapGitWizardPageRepositoryAndCredentials_task_fetch_repo_info, IProgressMonitor.UNKNOWN);
-					IExternalRepositoryInfoService externalRepoInfoService = RepositoryServiceFactory
-							.createExternalRepositoryInfoService(AbapGitWizardPageRepositoryAndCredentials.this.destination, monitor);
-					AbapGitWizardPageRepositoryAndCredentials.this.cloneData.externalRepoInfo = externalRepoInfoService.getExternalRepositoryInfo(AbapGitWizardPageRepositoryAndCredentials.this.cloneData.url,
+					AbapGitWizardPageRepositoryAndCredentials.this.cloneData.externalRepoInfo = AbapGitWizardPageRepositoryAndCredentials.this.externalRepoService
+							.getExternalRepositoryInfo(AbapGitWizardPageRepositoryAndCredentials.this.cloneData.url,
 							AbapGitWizardPageRepositoryAndCredentials.this.cloneData.user, AbapGitWizardPageRepositoryAndCredentials.this.cloneData.pass, monitor);
 				}
 			});
@@ -318,11 +320,12 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 
 			//if credentials are provided, ask user if the credentials should be stored in the secure storage
 			if (this.cloneData.user != null && this.cloneData.pass != null) {
-				if (this.repositoryCredentials == null
+				if ((this.repositoryCredentials == null
 						|| (this.repositoryCredentials != null && (!this.cloneData.pass.equals(this.repositoryCredentials.getPassword())
-								|| !this.cloneData.user.equals(this.repositoryCredentials.getUser())))) {
-				GitCredentialsService.showPopUpAskingToStoreCredentials(getShell(), this.cloneData.url, this.cloneData.user,
-						this.cloneData.pass);
+								|| !this.cloneData.user.equals(this.repositoryCredentials.getUser()))))
+						&& (this.gitCredentialsService != null)) {
+					this.gitCredentialsService.showPopUpAskingToStoreCredentials(getShell(), this.cloneData.url, this.cloneData.user,
+							this.cloneData.pass);
 				}
 			}
 			return true;
@@ -337,7 +340,7 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 		}
 	}
 
-	private void setUserAndPassControlsVisible(boolean visible) {
+	protected void setUserAndPassControlsVisible(boolean visible) {
 		this.txtUser.setVisible(visible);
 		this.txtPwd.setVisible(visible);
 		this.lblUser.setVisible(visible);
