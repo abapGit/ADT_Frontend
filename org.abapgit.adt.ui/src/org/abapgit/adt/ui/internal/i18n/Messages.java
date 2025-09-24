@@ -145,6 +145,7 @@ public class Messages extends NLS {
 	public static String AbapGitWizardPageSwitch_credentials_description;
 	public static String AbapGitWizardSwitch_branch_wizard_title;
 	public static String AbapGitWizardSwitch_branch_package_ref_not_found_error;
+	public static String AbapGitWizardPageTransportSelection_transport_check;
 
 	//ABAPGIT STAGING MESSAGES
 	public static String AbapGitStaging_no_repository_selected;

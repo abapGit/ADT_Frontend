@@ -23,12 +23,14 @@ import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.IPageChangingListener;
 import org.eclipse.jface.dialogs.PageChangingEvent;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.IWizardContainer;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.jface.wizard.WizardPage;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
@@ -311,11 +313,31 @@ public class AbapGitWizardPull extends Wizard {
 					IAdtObjectReference packageRef = AbapGitWizardPull.this.cloneData.packageRef;
 					IAdtObjectReference checkRef = IAdtCoreFactory.eINSTANCE.createAdtObjectReference();
 					checkRef.setUri(packageRef.getUri());
-					IAdtTransportCheckData checkData = AbapGitWizardPull.this.transportService.check(checkRef, packageRef.getPackageName(),
-							true);
-					AbapGitWizardPull.this.transportPage.setCheckData(checkData);
+
+					final IAdtTransportCheckData[] checkData = new IAdtTransportCheckData[1];
+
+					Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+
+					new ProgressMonitorDialog(shell).run(true, true, monitor -> {
+						monitor.beginTask(Messages.AbapGitWizardPageTransportSelection_transport_check, IProgressMonitor.UNKNOWN);
+
+						// This call runs on the separate thread.
+						checkData[0] = AbapGitWizardPull.this.transportService.check(checkRef, packageRef.getPackageName(), true);
+
+						monitor.done();
+					});
+
+					// After the dialog closes, this code runs on the UI thread.
+					AbapGitWizardPull.this.transportPage.setCheckData(checkData[0]);
+
+				} catch (InvocationTargetException e) {
+					// Handle exceptions from the background thread.
+					((WizardPage) getContainer().getCurrentPage()).setPageComplete(false);
+					((WizardPage) getContainer().getCurrentPage()).setMessage(e.getTargetException().getMessage(), DialogPage.ERROR);
 				} catch (Exception e) {
-					AbapGitWizardPull.this.pageBranchAndPackage.setMessage(e.getMessage(), DialogPage.ERROR);
+					// Handle a canceled operation and other exceptions.
+					((WizardPage) getContainer().getCurrentPage()).setPageComplete(false);
+					((WizardPage) getContainer().getCurrentPage()).setMessage(e.getMessage(), DialogPage.ERROR);
 				}
 			}
 
