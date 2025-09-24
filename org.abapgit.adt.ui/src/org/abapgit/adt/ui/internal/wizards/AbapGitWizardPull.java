@@ -23,14 +23,12 @@ import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.IPageChangingListener;
 import org.eclipse.jface.dialogs.PageChangingEvent;
-import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.IWizardContainer;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.jface.wizard.WizardPage;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
@@ -316,9 +314,7 @@ public class AbapGitWizardPull extends Wizard {
 
 					final IAdtTransportCheckData[] checkData = new IAdtTransportCheckData[1];
 
-					Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-
-					new ProgressMonitorDialog(shell).run(true, true, monitor -> {
+					getContainer().run(true, true, monitor -> {
 						monitor.beginTask(Messages.AbapGitWizardPageTransportSelection_transport_check, IProgressMonitor.UNKNOWN);
 
 						// This call runs on the separate thread.
