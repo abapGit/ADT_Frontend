@@ -29,6 +29,7 @@ import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.jface.wizard.WizardPage;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
@@ -308,6 +309,7 @@ public class AbapGitWizardPull extends Wizard {
 				IAdtObjectReference packageRef = AbapGitWizardPull.this.cloneData.packageRef;
 				IAdtTransportCheckData transportCheckData = getTransportCheckData(packageRef);
 				AbapGitWizardPull.this.transportPage.setCheckData(transportCheckData);
+			}
 
 
 			//-> APACK page -> Any page
@@ -315,7 +317,6 @@ public class AbapGitWizardPull extends Wizard {
 				if (!AbapGitWizardPull.this.pageApack.validateAll()) {
 					event.doit = false;
 					return;
-				}
 				}
 			}
 		}
@@ -329,25 +330,49 @@ public class AbapGitWizardPull extends Wizard {
 
 			try {
 				getContainer().run(true, true, monitor -> {
-					try {
-						monitor.beginTask(Messages.AbapGitWizardPageTransportSelection_transport_check, IProgressMonitor.UNKNOWN);
-						checkData[0] = AbapGitWizardPull.this.transportService.check(checkRef, packageRef.getPackageName(), true);
-					} finally {
-						monitor.done();
-					}
+					monitor.beginTask(Messages.AbapGitWizardPageTransportSelection_transport_check, IProgressMonitor.UNKNOWN);
+					checkData[0] = AbapGitWizardPull.this.transportService.check(checkRef, packageRef.getPackageName(), true);
 				});
 				return checkData[0];
+
 			} catch (Exception e) {
+				// Catches InterruptedException and other general exceptions
 				WizardPage currentPage = ((WizardPage) getContainer().getCurrentPage());
 				handleException(e, currentPage);
+				return null;
 			}
-			return null;
+		}
+
+		private void handleOutdatedClientException(Exception e) {
+
+			Display.getDefault().asyncExec(() -> {
+				WizardDialog d = (WizardDialog) getContainer();
+
+				if (d != null) {
+					// Check if the dialog is still open before attempting to close
+					if (d.getShell() != null && !d.getShell().isDisposed()) {
+						d.close();
+					}
+				}
+			});
+			AdtUtilUiPlugin.getDefault().getAdtStatusService().handle(e, null);
 		}
 
 		private void handleException(Exception exception, WizardPage page) {
+
 			page.setPageComplete(false);
 			Throwable cause = exception instanceof InvocationTargetException ? exception.getCause() : exception;
 			if (cause != null && cause instanceof OutDatedClientException) {
+				Display.getDefault().asyncExec(() -> {
+					WizardDialog d = (WizardDialog) getContainer();
+
+					if (d != null) {
+						// Check if the dialog is still open before attempting to close
+						if (d.getShell() != null && !d.getShell().isDisposed()) {
+							d.close();
+						}
+					}
+				});
 				AdtUtilUiPlugin.getDefault().getAdtStatusService().handle(cause, null);
 			} else {
 				page.setMessage(cause != null ? cause.getMessage() : exception.getMessage(), DialogPage.ERROR);
