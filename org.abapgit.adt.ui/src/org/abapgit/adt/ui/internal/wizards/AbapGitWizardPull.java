@@ -343,7 +343,7 @@ public class AbapGitWizardPull extends Wizard {
 			}
 		}
 
-		private void handleOutdatedClientException(Exception e) {
+		private void handleOutdatedClientException(Throwable e) {
 
 			Display.getDefault().asyncExec(() -> {
 				WizardDialog d = (WizardDialog) getContainer();
@@ -352,10 +352,11 @@ public class AbapGitWizardPull extends Wizard {
 					// Check if the dialog is still open before attempting to close
 					if (d.getShell() != null && !d.getShell().isDisposed()) {
 						d.close();
+						AdtUtilUiPlugin.getDefault().getAdtStatusService().handle(e, null);
 					}
 				}
 			});
-			AdtUtilUiPlugin.getDefault().getAdtStatusService().handle(e, null);
+
 		}
 
 		private void handleException(Exception exception, WizardPage page) {
@@ -363,17 +364,7 @@ public class AbapGitWizardPull extends Wizard {
 			page.setPageComplete(false);
 			Throwable cause = exception instanceof InvocationTargetException ? exception.getCause() : exception;
 			if (cause != null && cause instanceof OutDatedClientException) {
-				Display.getDefault().asyncExec(() -> {
-					WizardDialog d = (WizardDialog) getContainer();
-
-					if (d != null) {
-						// Check if the dialog is still open before attempting to close
-						if (d.getShell() != null && !d.getShell().isDisposed()) {
-							d.close();
-						}
-					}
-				});
-				AdtUtilUiPlugin.getDefault().getAdtStatusService().handle(cause, null);
+				handleOutdatedClientException(cause);
 			} else {
 				page.setMessage(cause != null ? cause.getMessage() : exception.getMessage(), DialogPage.ERROR);
 			}
