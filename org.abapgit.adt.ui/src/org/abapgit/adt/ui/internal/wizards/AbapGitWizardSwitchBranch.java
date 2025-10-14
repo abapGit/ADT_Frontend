@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.dialogs.IPageChangingListener;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.PageChangingEvent;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.IWizardContainer;
@@ -24,6 +25,7 @@ import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import com.sap.adt.tools.core.model.adtcore.IAdtObjectReference;
@@ -71,10 +73,10 @@ public class AbapGitWizardSwitchBranch extends Wizard {
 
 	public void getPackageRef(String packageName, IProgressMonitor monitor) throws PackageRefNotFoundException {
 		if (this.packageServiceUI.packageExists(AbapGitWizardSwitchBranch.this.destination, packageName, monitor)) {
-			List<IAdtObjectReference> packageRefs = this.packageServiceUI.find(AbapGitWizardSwitchBranch.this.destination, packageName, monitor);
+			List<IAdtObjectReference> packageRefs = this.packageServiceUI.find(AbapGitWizardSwitchBranch.this.destination, packageName,
+					monitor);
 			AbapGitWizardSwitchBranch.this.cloneData.packageRef = packageRefs.stream().findFirst().orElse(null);
-		}
-		else {
+		} else {
 			String error = NLS.bind(Messages.AbapGitWizardSwitch_branch_package_ref_not_found_error, this.selRepoData.getPackage());
 			throw new PackageRefNotFoundException(error);
 		}
@@ -83,9 +85,25 @@ public class AbapGitWizardSwitchBranch extends Wizard {
 	public void getPackageAndRepoType() throws PackageRefNotFoundException {
 		String packageName = AbapGitWizardSwitchBranch.this.selRepoData.getPackage();
 		//get package refs
-		getPackageRef(packageName, new NullProgressMonitor());
-		// fetches repository access mode
-		getRepositoryAccessMode();
+		try {
+			PlatformUI.getWorkbench().getProgressService().run(true, true, new IRunnableWithProgress() {
+
+				@Override
+				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+					try {
+						getPackageRef(packageName, new NullProgressMonitor());
+						// fetches repository access mode
+						getRepositoryAccessMode();
+					} catch (PackageRefNotFoundException e) {
+						throw new InvocationTargetException(e);
+					}
+				}
+			});
+		} catch (InvocationTargetException | InterruptedException e) {
+			MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+					Messages.AbapGitWizardSwitch_branch_wizard_title, e.getCause().getMessage());
+		}
+
 	}
 
 	@Override
