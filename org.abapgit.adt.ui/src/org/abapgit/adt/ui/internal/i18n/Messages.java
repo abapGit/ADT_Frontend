@@ -76,8 +76,8 @@ public class Messages extends NLS {
 	public static String AbapGitWizardPageApack_task_validating_package;
 	public static String AbapGitWizardPageApack_text_no_information_available;
 	public static String AbapGitWizardPageApack_title;
-	public static String AbapGitWizardPageBranchAndPackage_chbox_activate;
-	public static String AbapGitWizardPageBranchAndPackage_chbox_activate_tooltip;
+	public static String AbapGitWizardPageBranchAndPackage_chbox_pull_after_link;
+	public static String AbapGitWizardPageBranchAndPackage_chbox_pull_after_link_tooltip;
 	public static String AbapGitWizardPageBranchAndPackage_btn_browse;
 	public static String AbapGitWizardPageBranchAndPackage_combobox_branch_message;
 	public static String AbapGitWizardPageBranchAndPackage_description;
