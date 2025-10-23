@@ -33,6 +33,7 @@ public class RepositoryService implements IRepositoryService {
 
 	private final String destinationId;
 	private final URI uri;
+	private String result;
 
 	public RepositoryService(String destinationId, URI uri) {
 		this.destinationId = destinationId;
@@ -292,13 +293,17 @@ public class RepositoryService implements IRepositoryService {
 
 	}
 
+	// CHNG: Change it back to original pull relation
 	@Override
 	public IAbapObjects pullRepository(IRepository existingRepository, String branch, String transportRequest, String user, String password,
 			IAbapGitPullModifiedObjects selectedObjectsToPull, IProgressMonitor monitor) {
-		URI uriToRepo = getURIFromAtomLink(existingRepository, IRepositoryService.RELATION_PULL);
-		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory().createResourceWithStatelessSession(uriToRepo,
-				this.destinationId);
-
+		URI uriToRepo = getURIFromAtomLink(existingRepository, IRepositoryService.RELATION_PULL_NEW);
+		URI backgroundUri = AdtBackgroundRunUriDiscoveryFactory.createBackgroundRunUriDiscovery(this.destinationId)
+				.getBackgroundRunUriIfAuthorized(monitor);
+		IRestResource restResource = AdtBackgroundRestResourceFactory.createBackgroundRestResourceFactory()
+				.createResourceWithStatelessSession(backgroundUri, uriToRepo, this.destinationId);
+//		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory().createResourceWithStatelessSession(uriToRepo,
+//				this.destinationId);
 		IContentHandler<IAbapGitPullRequest> requestContentHandlerV1 = new AbapGitPullRequestContentHandler();
 		restResource.addContentHandler(requestContentHandlerV1);
 

@@ -17,6 +17,8 @@ import com.sap.adt.compatibility.exceptions.OutDatedClientException;
 
 public interface IRepositoryService {
 
+	// CHNG: Remove new pull relation
+	String RELATION_PULL_NEW = "http://www.sap.com/adt/abapgit/relations/pullTry"; //$NON-NLS-1$
 	String RELATION_PULL = "http://www.sap.com/adt/abapgit/relations/pull"; //$NON-NLS-1$
 	String RELATION_STATUS = "http://www.sap.com/adt/abapgit/relations/status"; //$NON-NLS-1$
 	String RELATION_LOG = "http://www.sap.com/adt/abapgit/relations/log"; //$NON-NLS-1$
