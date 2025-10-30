@@ -44,7 +44,6 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 	private final Set<IRepositoryModifiedObjects> repoToModifiedObjects;
 	protected CheckboxTreeViewer modifiedObjTreeViewer;
 	private Composite container;
-	private Object[] selectedObjectsForRepository;
 	private TreeColumnLayout treeColumnLayout;
 
 	// Tracks loaded counts per repository for incremental lazy loading
@@ -89,49 +88,49 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 	}
 
 	private void createColumns() {
-		createTreeViewerColumn("Name", 300).setLabelProvider(new ColumnLabelProvider() {
+		createTreeViewerColumn("Name", 300).setLabelProvider(new ColumnLabelProvider() { //$NON-NLS-1$
 			@Override
 			public String getText(Object element) {
 				if (element instanceof IRepositoryModifiedObjects) {
-					return "Repository: " + RepositoryUtil.getRepoNameFromUrl(((IRepositoryModifiedObjects) element).getRepositoryURL());
+					return "Repository: " + RepositoryUtil.getRepoNameFromUrl(((IRepositoryModifiedObjects) element).getRepositoryURL()); //$NON-NLS-1$
 				} else if (element instanceof IOverwriteObject) {
 					return ((IOverwriteObject) element).getName();
 				}
-				return "";
+				return ""; //$NON-NLS-1$
 			}
 		});
 
-		createTreeViewerColumn("Package", 200).setLabelProvider(new ColumnLabelProvider() {
+		createTreeViewerColumn("Package", 200).setLabelProvider(new ColumnLabelProvider() { //$NON-NLS-1$
 			@Override
 			public String getText(Object element) {
 				if (element instanceof IOverwriteObject) {
 					return ((IOverwriteObject) element).getPackageName();
 				}
-				return "";
+				return ""; //$NON-NLS-1$
 			}
 		});
 
-		createTreeViewerColumn("Type", 100).setLabelProvider(new ColumnLabelProvider() {
+		createTreeViewerColumn("Type", 100).setLabelProvider(new ColumnLabelProvider() { //$NON-NLS-1$
 			@Override
 			public String getText(Object element) {
 				if (element instanceof IOverwriteObject) {
 					return ((IOverwriteObject) element).getType();
 				}
-				return "";
+				return ""; //$NON-NLS-1$
 			}
 		});
 
-		createTreeViewerColumn("Action", 150).setLabelProvider(new ColumnLabelProvider() {
+		createTreeViewerColumn("Action", 150).setLabelProvider(new ColumnLabelProvider() { //$NON-NLS-1$
 			@Override
 			public String getText(Object element) {
 				if (element instanceof IOverwriteObject) {
 					String actionDescription = ((IOverwriteObject) element).getActionDescription();
 					if (actionDescription == null || actionDescription.trim().isEmpty()) {
-						return "Modify object locally";
+						return "Modify object locally"; //$NON-NLS-1$
 					}
 					return actionDescription;
 				}
-				return "";
+				return ""; //$NON-NLS-1$
 			}
 		});
 	}
@@ -162,7 +161,6 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 
 	@Override
 	public IWizardPage getNextPage() {
-		this.selectedObjectsForRepository = this.modifiedObjTreeViewer.getCheckedElements();
 		return super.getNextPage();
 	}
 
@@ -277,9 +275,6 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 									.contains(o.getName()));
 					AbapGitWizardPageObjectsSelectionForPull.this.modifiedObjTreeViewer.setChecked(parent, allChecked);
 				}
-
-				AbapGitWizardPageObjectsSelectionForPull.this.selectedObjectsForRepository = AbapGitWizardPageObjectsSelectionForPull.this.modifiedObjTreeViewer
-						.getCheckedElements();
 			}
 
 			private IRepositoryModifiedObjects findParent(IOverwriteObject obj) {
@@ -379,7 +374,7 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 			for (IOverwriteObject obj : nextBatch) {
 				this.modifiedObjTreeViewer.add(repo, obj);
 				String repoUrl = repo.getRepositoryURL();
-				if (this.selectedObjectNamesByRepo.getOrDefault(repoUrl, Set.of()).contains(obj.getName()) || "1".equals(obj.getAction())) {
+				if (this.selectedObjectNamesByRepo.getOrDefault(repoUrl, Set.of()).contains(obj.getName())) {
 					this.modifiedObjTreeViewer.setChecked(obj, true);
 				}
 			}
