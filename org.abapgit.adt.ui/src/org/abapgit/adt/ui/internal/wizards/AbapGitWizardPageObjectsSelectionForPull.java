@@ -1,6 +1,3 @@
-// working loading with parent selection
-// Working scroll loading + persistent selection by object name (optimized)
-
 package org.abapgit.adt.ui.internal.wizards;
 
 import java.util.HashMap;
@@ -343,6 +340,7 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 		}
 
 		int scrollPosition = vBar.getSelection() + vBar.getThumb();
+		// Trigger loading when scrolled to 90% of the maximum for smoother experience
 		int threshold = (int) (vBar.getMaximum() * 0.9);
 
 		if (scrollPosition >= threshold) {
@@ -374,6 +372,7 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 			for (IOverwriteObject obj : nextBatch) {
 				this.modifiedObjTreeViewer.add(repo, obj);
 				String repoUrl = repo.getRepositoryURL();
+				// checking the objects in UI if its selected previously by checking parent.
 				if (this.selectedObjectNamesByRepo.getOrDefault(repoUrl, Set.of()).contains(obj.getName())) {
 					this.modifiedObjTreeViewer.setChecked(obj, true);
 				}
