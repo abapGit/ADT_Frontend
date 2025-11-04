@@ -297,7 +297,7 @@ public class RepositoryService implements IRepositoryService {
 	@Override
 	public IAbapObjects pullRepository(IRepository existingRepository, String branch, String transportRequest, String user, String password,
 			IAbapGitPullModifiedObjects selectedObjectsToPull, IProgressMonitor monitor) {
-		URI uriToRepo = getURIFromAtomLink(existingRepository, IRepositoryService.RELATION_PULL_NEW);
+		URI uriToRepo = getURIFromAtomLink(existingRepository, IRepositoryService.RELATION_PULL_WITHOUT_BG);
 		URI backgroundUri = AdtBackgroundRunUriDiscoveryFactory.createBackgroundRunUriDiscovery(this.destinationId)
 				.getBackgroundRunUriIfAuthorized(monitor);
 		IRestResource restResource = AdtBackgroundRestResourceFactory.createBackgroundRestResourceFactory()
