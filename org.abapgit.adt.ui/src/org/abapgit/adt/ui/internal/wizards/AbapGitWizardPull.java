@@ -27,7 +27,6 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.IPageChangingListener;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.PageChangingEvent;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.IWizardContainer;
@@ -35,8 +34,6 @@ import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.jface.wizard.WizardPage;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
@@ -187,10 +184,6 @@ public class AbapGitWizardPull extends Wizard {
 
 					return Status.OK_STATUS;
 				} catch (ResourceException e) {
-					Display.getDefault().asyncExec(() -> {
-						Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-						MessageDialog.openError(shell, "Error", e.getMessage()); //$NON-NLS-1$
-					});
 					return new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getMessage(), e);
 				}
 					}
