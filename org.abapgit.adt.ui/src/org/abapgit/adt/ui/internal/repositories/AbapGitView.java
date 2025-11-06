@@ -105,6 +105,7 @@ import com.sap.adt.tools.core.ui.userinfo.IAdtUserInfoFormatter;
 public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 
 	public static final String ID = "org.abapgit.adt.ui.views.AbapGitView"; //$NON-NLS-1$
+	private static final int NO_COLUMN_SELECTED = -1;
 
 	protected TableViewer viewer;
 	protected Action actionRefresh, actionWizard, actionCopy, actionOpen, actionShowMyRepos, actionPullWizard, actionOpenRepository,
@@ -285,22 +286,27 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDown(MouseEvent e) {
-				Point pt = new Point(e.x, e.y);
-				TableItem item = table.getItem(pt);
-				if (item == null) {
-					AbapGitView.this.focusedColumnIndex = -1;
-					return;
-				}
-				for (int i = 0; i < table.getColumnCount(); i++) {
-					Rectangle rect = item.getBounds(i);
-					if (rect.contains(pt)) {
-						AbapGitView.this.focusedColumnIndex = i;
-						return; // Found the column
-					}
-				}
-				AbapGitView.this.focusedColumnIndex = -1;
+				Point mousePointer = new Point(e.x, e.y);
+				getSelectedColumn(mousePointer, table);
 			}
 		});
+	}
+
+	private void getSelectedColumn(Point mousePointer, Table table) {
+		// find tableItem from mouse pointer
+		TableItem item = table.getItem(mousePointer);
+		if (item == null) {
+			AbapGitView.this.focusedColumnIndex = NO_COLUMN_SELECTED;
+			return;
+		}
+		for (int i = 0; i < table.getColumnCount(); i++) {
+			Rectangle rect = item.getBounds(i);
+			if (rect.contains(mousePointer)) {
+				AbapGitView.this.focusedColumnIndex = i;
+				return; // Found the column
+			}
+		}
+		AbapGitView.this.focusedColumnIndex = NO_COLUMN_SELECTED;
 	}
 
 	private void createColumns() {
@@ -444,7 +450,7 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 						manager.add(new Separator());
 
 						// Create the sub-menu for Copy
-						MenuManager copySubMenu = new MenuManager("Copy");
+						MenuManager copySubMenu = new MenuManager(Messages.AbapGitView_action_copy);
 
 						// Enable "Copy Cell" only if a cell has focus
 						AbapGitView.this.actionCopyCell.setEnabled(AbapGitView.this.focusedColumnIndex != -1);
@@ -525,14 +531,14 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 		this.actionCopy.setActionDefinitionId(ActionFactory.COPY.getCommandId());
 		this.actionCopy.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_COPY));
 
-		this.actionCopyCell = new Action("Copy Cell") {
+		this.actionCopyCell = new Action(Messages.AbapGitView_copy_action_submenu_copy_cell) {
 			@Override
 			public void run() {
 				copyCell();
 			}
 		};
 
-		this.actionCopyRow = new Action("Copy Row") {
+		this.actionCopyRow = new Action(Messages.AbapGitView_copy_action_submenu_copy_row) {
 			@Override
 			public void run() {
 				copyRow();
@@ -762,18 +768,13 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 	 * Copies only the content of the focused table cell to the clipboard.
 	 */
 	private void copyCell() {
-		final Clipboard clipboard = new Clipboard(this.viewer.getControl().getDisplay());
 		String textToCopy = null;
 
 		TableItem[] selection = this.viewer.getTable().getSelection();
 		if (selection.length > 0 && this.focusedColumnIndex != -1) {
 			textToCopy = selection[0].getText(this.focusedColumnIndex);
 		}
-
-		if (textToCopy != null && !textToCopy.isEmpty()) {
-			clipboard.setContents(new String[] { textToCopy }, new TextTransfer[] { TextTransfer.getInstance() });
-		}
-		clipboard.dispose();
+		copyToClipboard(textToCopy);
 	}
 
 	/**
@@ -781,7 +782,6 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 	 * clipboard.
 	 */
 	private void copyRow() {
-		final Clipboard clipboard = new Clipboard(this.viewer.getControl().getDisplay());
 		String textToCopy = null;
 
 		Object selection = this.viewer.getStructuredSelection().getFirstElement();
@@ -805,10 +805,17 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 
 			textToCopy = data.toString();
 		}
+		copyToClipboard(textToCopy);
+	}
 
-		if (textToCopy != null && !textToCopy.isEmpty()) {
-			clipboard.setContents(new String[] { textToCopy }, new TextTransfer[] { TextTransfer.getInstance() });
+	private void copyToClipboard(String textToCopy) {
+		if (textToCopy == null || textToCopy.isEmpty()) {
+			return;
 		}
+		final Clipboard clipboard = new Clipboard(this.viewer.getControl().getDisplay());
+
+		clipboard.setContents(new String[] { textToCopy }, new TextTransfer[] { TextTransfer.getInstance() });
+
 		clipboard.dispose();
 	}
 
