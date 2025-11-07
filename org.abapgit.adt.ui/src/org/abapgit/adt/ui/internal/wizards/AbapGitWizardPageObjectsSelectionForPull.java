@@ -183,7 +183,7 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 		return checkedObjectsForRepository;
 	}
 
-	private class ModifiedObjectTreeContentProvider implements ITreeContentProvider {
+	protected class ModifiedObjectTreeContentProvider implements ITreeContentProvider {
 		private static final int BATCH_SIZE = 100;
 
 		@Override
@@ -222,6 +222,12 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 		}
 	}
 
+	protected void selectAllObjectsForRepo(IRepositoryModifiedObjects repo, String repoUrl) {
+		Set<IOverwriteObject> allModifiedObjects = new HashSet<>(repo.getModifiedObjects());
+		this.selectedObjectsByRepo.put(repoUrl, allModifiedObjects);
+	}
+
+
 	private void addListeners() {
 		this.modifiedObjTreeViewer.addCheckStateListener(new ICheckStateListener() {
 			@Override
@@ -234,8 +240,7 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 					String repoUrl = modifiedObjectsForRepository.getRepositoryURL();
 
 					if (checked) {
-						Set<IOverwriteObject> allModifiedObjects = new HashSet<>(modifiedObjectsForRepository.getModifiedObjects());
-						AbapGitWizardPageObjectsSelectionForPull.this.selectedObjectsByRepo.put(repoUrl, allModifiedObjects);
+						selectAllObjectsForRepo(modifiedObjectsForRepository, repoUrl);
 					} else {
 						AbapGitWizardPageObjectsSelectionForPull.this.selectedObjectsByRepo.remove(repoUrl);
 					}
@@ -348,7 +353,7 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 		}
 	}
 
-	private void loadNextBatchOfModifiedObjects(IRepositoryModifiedObjects modifiedObjectsForRepository) {
+	protected void loadNextBatchOfModifiedObjects(IRepositoryModifiedObjects modifiedObjectsForRepository) {
 		//guard for null scenario for modified objects
 		if (modifiedObjectsForRepository.getModifiedObjects() == null) {
 			return;
