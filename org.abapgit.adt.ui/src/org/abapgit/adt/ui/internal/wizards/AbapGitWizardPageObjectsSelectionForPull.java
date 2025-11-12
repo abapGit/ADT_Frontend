@@ -37,7 +37,7 @@ import org.eclipse.swt.widgets.ScrollBar;
 public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 
 	private static final String PAGE_NAME = AbapGitWizardPageObjectsSelectionForPull.class.getName();
-	private static final double LAZY_LOAD_THRESHOLD = 0.9;
+	private static final double SCROLL_THRESHOLD_LAZY_LOAD = 0.9;
 	private static boolean isLoading = false;
 
 	private final Set<IRepositoryModifiedObjects> repoToModifiedObjects;
@@ -168,12 +168,12 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 		Set<IRepositoryModifiedObjects> checkedObjectsForRepository = new HashSet<>();
 		Set<IRepositoryModifiedObjects> input = (Set<IRepositoryModifiedObjects>) this.modifiedObjTreeViewer.getInput();
 
-		for (IRepositoryModifiedObjects modifiedObjectsForRepository : input) {
-			String repoURL = modifiedObjectsForRepository.getRepositoryURL();
+		for (IRepositoryModifiedObjects repository : input) {
+			String repoURL = repository.getRepositoryURL();
 			Set<IOverwriteObject> selectedObjsSet = this.selectedObjectsByRepo.getOrDefault(repoURL, Set.of());
 
 			if (!selectedObjsSet.isEmpty()) {
-				List<IOverwriteObject> selectedObjs = modifiedObjectsForRepository.getModifiedObjects().stream()
+				List<IOverwriteObject> selectedObjs = repository.getModifiedObjects().stream()
 						.filter(selectedObjsSet::contains).collect(Collectors.toList());
 				if (!selectedObjs.isEmpty()) {
 					checkedObjectsForRepository.add(new RepositoryModifiedObjects(repoURL, selectedObjs));
@@ -194,16 +194,16 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 		@Override
 		public Object[] getChildren(Object parentElement) {
 			if (parentElement instanceof IRepositoryModifiedObjects) {
-				IRepositoryModifiedObjects modifiedObjectsForRepository = (IRepositoryModifiedObjects) parentElement;
-				List<IOverwriteObject> allObjects = modifiedObjectsForRepository.getModifiedObjects();
+				IRepositoryModifiedObjects repository = (IRepositoryModifiedObjects) parentElement;
+				List<IOverwriteObject> modifiedObjectsForRepository = repository.getModifiedObjects();
 
 				int loadedElementsCount = AbapGitWizardPageObjectsSelectionForPull.this.itemsLoadedPerRepo
-						.getOrDefault(modifiedObjectsForRepository, 0);
+						.getOrDefault(repository, 0);
 				if (loadedElementsCount == 0) {
-					loadedElementsCount = Math.min(BATCH_SIZE, allObjects.size());
-					AbapGitWizardPageObjectsSelectionForPull.this.itemsLoadedPerRepo.put(modifiedObjectsForRepository, loadedElementsCount);
+					loadedElementsCount = Math.min(BATCH_SIZE, modifiedObjectsForRepository.size());
+					AbapGitWizardPageObjectsSelectionForPull.this.itemsLoadedPerRepo.put(repository, loadedElementsCount);
 				}
-				return allObjects.subList(0, loadedElementsCount).toArray();
+				return modifiedObjectsForRepository.subList(0, loadedElementsCount).toArray();
 			}
 			return new Object[0];
 		}
@@ -236,17 +236,17 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 				boolean checked = event.getChecked();
 
 				if (element instanceof IRepositoryModifiedObjects) {
-					IRepositoryModifiedObjects modifiedObjectsForRepository = (IRepositoryModifiedObjects) element;
-					String repoUrl = modifiedObjectsForRepository.getRepositoryURL();
+					IRepositoryModifiedObjects repository = (IRepositoryModifiedObjects) element;
+					String repoUrl = repository.getRepositoryURL();
 
 					if (checked) {
-						selectAllObjectsForRepo(modifiedObjectsForRepository, repoUrl);
+						selectAllObjectsForRepo(repository, repoUrl);
 					} else {
 						AbapGitWizardPageObjectsSelectionForPull.this.selectedObjectsByRepo.remove(repoUrl);
 					}
 
-					for (IOverwriteObject obj : modifiedObjectsForRepository.getModifiedObjects().subList(0,
-							AbapGitWizardPageObjectsSelectionForPull.this.itemsLoadedPerRepo.getOrDefault(modifiedObjectsForRepository,
+					for (IOverwriteObject obj : repository.getModifiedObjects().subList(0,
+							AbapGitWizardPageObjectsSelectionForPull.this.itemsLoadedPerRepo.getOrDefault(repository,
 									0))) {
 						AbapGitWizardPageObjectsSelectionForPull.this.modifiedObjTreeViewer.setChecked(obj, checked);
 					}
@@ -274,7 +274,7 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 				}
 			}
 
-			private IRepositoryModifiedObjects findParent(IOverwriteObject obj) {
+			public IRepositoryModifiedObjects findParent(IOverwriteObject obj) {
 				for (IRepositoryModifiedObjects repo : AbapGitWizardPageObjectsSelectionForPull.this.repoToModifiedObjects) {
 					if (repo.getModifiedObjects().contains(obj)) {
 						return repo;
@@ -325,21 +325,22 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 		});
 
 		var tree = this.modifiedObjTreeViewer.getTree();
-		tree.addListener(SWT.MouseWheel, e -> tryLazyLoad());
-		tree.addListener(SWT.Selection, e -> tryLazyLoad());
-		tree.addListener(SWT.Resize, e -> tryLazyLoad());
-		tree.addListener(SWT.MouseUp, e -> tryLazyLoad());
+		ScrollBar verticalScrollBar = tree.getVerticalBar();
+		tree.addListener(SWT.MouseWheel, e -> tryLazyLoad(verticalScrollBar));
+		tree.addListener(SWT.Resize, e -> tryLazyLoad(verticalScrollBar));
+		tree.addListener(SWT.MouseUp, e -> tryLazyLoad(verticalScrollBar));
+		//add listener for scrollbar to trigger lazy loading if the scroll is in bottom
+		verticalScrollBar.addListener(SWT.Selection, e -> tryLazyLoad(verticalScrollBar));
+
 	}
 
-	private void tryLazyLoad() {
-		var tree = this.modifiedObjTreeViewer.getTree();
-		ScrollBar verticalScrollBar = tree.getVerticalBar();
+	private void tryLazyLoad(ScrollBar verticalScrollBar) {
 		if (verticalScrollBar == null || verticalScrollBar.getMaximum() == 0) {
 			return;
 		}
 
 		int scrollPosition = verticalScrollBar.getSelection() + verticalScrollBar.getThumb();
-		int threshold = (int) (verticalScrollBar.getMaximum() * LAZY_LOAD_THRESHOLD);
+		int threshold = (int) (verticalScrollBar.getMaximum() * SCROLL_THRESHOLD_LAZY_LOAD);
 
 		if (scrollPosition >= threshold) {
 			Object[] expandedElements = this.modifiedObjTreeViewer.getExpandedElements();
@@ -363,9 +364,6 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 			return;
 		}
 		isLoading = true;
-		// fetch repoURL and the already selected objects for that repo
-		String repoUrl = modifiedObjectsForRepository.getRepositoryURL();
-		Set<IOverwriteObject> selectedObjectsForCurrentRepo = this.selectedObjectsByRepo.getOrDefault(repoUrl, Set.of());
 		List<IOverwriteObject> modifiedObjects = modifiedObjectsForRepository.getModifiedObjects();
 		int itemsAlreadyLoaded = this.itemsLoadedPerRepo.getOrDefault(modifiedObjectsForRepository, 0);
 
@@ -384,7 +382,7 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 
 			for (IOverwriteObject obj : nextBatch) {
 				this.modifiedObjTreeViewer.add(modifiedObjectsForRepository, obj);
-				if (selectedObjectsForCurrentRepo.contains(obj)) {
+				if (this.modifiedObjTreeViewer.getChecked(modifiedObjectsForRepository)) {
 					this.modifiedObjTreeViewer.setChecked(obj, true);
 				}
 			}

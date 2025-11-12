@@ -52,9 +52,9 @@ public class TestPdeAbapGitObjectSelectionPage {
         wizardPage.selectAllObjectsForRepo(mockRepo, repoUrl);
         // getSelectedObjects should now return all children
         Set<IRepositoryModifiedObjects> selected = wizardPage.getSelectedObjects();
-        assertEquals(1, selected.size());
+        assertEquals(1, selected.size()); 
         IRepositoryModifiedObjects repo = selected.iterator().next();
-        assertEquals(repoUrl, repo.getRepositoryURL());
+        assertEquals(repoUrl, repo.getRepositoryURL()); 
         assertEquals(150, repo.getModifiedObjects().size());
     }
 
@@ -86,6 +86,28 @@ public class TestPdeAbapGitObjectSelectionPage {
             event.type = org.eclipse.swt.SWT.MouseWheel;
             event.widget = tree;
             tree.notifyListeners(org.eclipse.swt.SWT.MouseWheel, event);
+        }
+        // After lazy load, verify that all objects are loaded
+        Object[] children = ((AbapGitWizardPageObjectsSelectionForPull.ModifiedObjectTreeContentProvider)
+            wizardPage.modifiedObjTreeViewer.getContentProvider()).getChildren(mockRepo);
+        assertEquals(150, children.length);
+    }
+
+    @Test
+    public void testLazyLoadViaScrollBarSelectionListener() {
+        // Expand the parent node so the tree is ready for scrolling
+        wizardPage.modifiedObjTreeViewer.expandToLevel(mockRepo, 1);
+        // Get the tree and its vertical scrollbar
+        org.eclipse.swt.widgets.Tree tree = wizardPage.modifiedObjTreeViewer.getTree();
+        org.eclipse.swt.widgets.ScrollBar verticalScrollBar = tree.getVerticalBar();
+        // Simulate pulling the scroll bar to the bottom
+        if (verticalScrollBar != null) {
+            verticalScrollBar.setSelection(verticalScrollBar.getMaximum());
+            // Fire a selection event to trigger the selection listener
+            org.eclipse.swt.widgets.Event event = new org.eclipse.swt.widgets.Event();
+            event.type = org.eclipse.swt.SWT.Selection;
+            event.widget = verticalScrollBar;
+            verticalScrollBar.notifyListeners(org.eclipse.swt.SWT.Selection, event);
         }
         // After lazy load, verify that all objects are loaded
         Object[] children = ((AbapGitWizardPageObjectsSelectionForPull.ModifiedObjectTreeContentProvider)
