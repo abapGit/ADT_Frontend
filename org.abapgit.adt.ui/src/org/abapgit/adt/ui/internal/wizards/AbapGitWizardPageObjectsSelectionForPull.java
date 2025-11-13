@@ -1,9 +1,9 @@
 package org.abapgit.adt.ui.internal.wizards;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -28,24 +28,27 @@ import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.ScrollBar;
 
 /**
- * A wizard page, which lists all the modified objects for a repository and
- * provides a check box to select the objects which should be pulled from remote
- * repository and overwrite local versions..
- *
- * @author I517012
- *
+ * Wizard page showing modified objects for pull with lazy loading on scroll and
+ * persistent selection by object instance.
  */
 public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 
 	private static final String PAGE_NAME = AbapGitWizardPageObjectsSelectionForPull.class.getName();
+	private static final double SCROLL_THRESHOLD_LAZY_LOAD = 0.9;
+	private static boolean isLoading = false;
 
-	Set<IRepositoryModifiedObjects> repoToModifiedObjects;
+	private final Set<IRepositoryModifiedObjects> repoToModifiedObjects;
 	protected CheckboxTreeViewer modifiedObjTreeViewer;
 	private Composite container;
-	private Object[] selectedObjectsForRepository;
 	private TreeColumnLayout treeColumnLayout;
+
+	// Tracks loaded counts per repository for incremental lazy loading
+	private final Map<IRepositoryModifiedObjects, Integer> itemsLoadedPerRepo = new HashMap<>();
+
+	private final Map<String, Set<IOverwriteObject>> selectedObjectsByRepo = new HashMap<>();
 
 	public AbapGitWizardPageObjectsSelectionForPull(Set<IRepositoryModifiedObjects> repoToModifiedOverwriteObjects, String message,
 			int messageType) {
@@ -73,35 +76,24 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 		this.modifiedObjTreeViewer.setAutoExpandLevel(AbstractTreeViewer.ALL_LEVELS);
 
 		createColumns();
-
 		this.modifiedObjTreeViewer.setInput(this.repoToModifiedObjects);
-
 		setControl(this.container);
 		setPageComplete(true);
-		this.modifiedObjTreeViewer.setAutoExpandLevel(AbstractTreeViewer.ALL_LEVELS);
-
 		addListeners();
 	}
 
 	private void createColumns() {
-
-		// TYPE/OBJECT COLUMN
 		createTreeViewerColumn("Name", 300).setLabelProvider(new ColumnLabelProvider() { //$NON-NLS-1$
 			@Override
 			public String getText(Object element) {
-				String result = ""; //$NON-NLS-1$
-
 				if (element instanceof IRepositoryModifiedObjects) {
-					result = "Repository: " + RepositoryUtil.getRepoNameFromUrl(((IRepositoryModifiedObjects) element).getRepositoryURL()); //$NON-NLS-1$
-
+					return "Repository: " + RepositoryUtil.getRepoNameFromUrl(((IRepositoryModifiedObjects) element).getRepositoryURL()); //$NON-NLS-1$
 				} else if (element instanceof IOverwriteObject) {
-					result = ((IOverwriteObject) element).getName();
+					return ((IOverwriteObject) element).getName();
 				}
-				return result;
+				return ""; //$NON-NLS-1$
 			}
-
 		});
-
 
 		createTreeViewerColumn("Package", 200).setLabelProvider(new ColumnLabelProvider() { //$NON-NLS-1$
 			@Override
@@ -110,12 +102,10 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 					return ((IOverwriteObject) element).getPackageName();
 				}
 				return ""; //$NON-NLS-1$
-
 			}
-
 		});
 
-		createTreeViewerColumn("Type", 20).setLabelProvider(new ColumnLabelProvider() { //$NON-NLS-1$
+		createTreeViewerColumn("Type", 100).setLabelProvider(new ColumnLabelProvider() { //$NON-NLS-1$
 			@Override
 			public String getText(Object element) {
 				if (element instanceof IOverwriteObject) {
@@ -129,12 +119,12 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 		 * TODO: Change this column to Description and add another column with
 		 * Action and add an icon.
 		 */
-		createTreeViewerColumn("Action", 100).setLabelProvider(new ColumnLabelProvider() { //$NON-NLS-1$
+		createTreeViewerColumn("Action", 150).setLabelProvider(new ColumnLabelProvider() { //$NON-NLS-1$
 			@Override
 			public String getText(Object element) {
 				if (element instanceof IOverwriteObject) {
 					String actionDescription = ((IOverwriteObject) element).getActionDescription();
-					if (actionDescription == null || actionDescription.isBlank()) {
+					if (actionDescription == null || actionDescription.trim().isEmpty()) {
 						return "Modify object locally"; //$NON-NLS-1$
 					}
 					return actionDescription;
@@ -142,7 +132,6 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 				return ""; //$NON-NLS-1$
 			}
 		});
-
 	}
 
 	private TreeViewerColumn createTreeViewerColumn(String title, int bound) {
@@ -150,69 +139,52 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 		viewerColumn.getColumn().setText(title);
 		this.treeColumnLayout.setColumnData(viewerColumn.getColumn(), new ColumnWeightData(20, bound, true));
 		return viewerColumn;
-
 	}
 
 	@Override
 	public void setVisible(boolean visible) {
 		super.setVisible(visible);
-
-		// if there are no modified Objects (overwrite/package warning objects), move to next page in the wizard
-		if (this.repoToModifiedObjects.isEmpty()) {
-			getContainer().showPage(getNextPage());
+		if (visible) {
+			this.itemsLoadedPerRepo.clear();
+			this.modifiedObjTreeViewer.refresh();
+			if (this.repoToModifiedObjects.isEmpty()) {
+				getContainer().showPage(getNextPage());
+			}
 		}
-
-		this.modifiedObjTreeViewer.refresh();
 	}
 
 	@Override
 	public boolean canFlipToNextPage() {
-		if (getNextPage() == null) {
-			return false;
-		}
-		return true;
+		return getNextPage() != null;
 	}
 
 	@Override
 	public IWizardPage getNextPage() {
-		//set the selected Objects on clicking next
-		this.selectedObjectsForRepository = this.modifiedObjTreeViewer.getCheckedElements();
 		return super.getNextPage();
 	}
 
-	/**
-	 * Returns the selected objects to be pulled as a set of
-	 * IRepositoryModifiedObjects
-	 *
-	 * @return checkedObjectsForRepository
-	 */
 	@SuppressWarnings("unchecked")
 	public Set<IRepositoryModifiedObjects> getSelectedObjects() {
-		Set<IRepositoryModifiedObjects> checkedObjectsForRepository = new HashSet<IRepositoryModifiedObjects>();
+		Set<IRepositoryModifiedObjects> checkedObjectsForRepository = new HashSet<>();
 		Set<IRepositoryModifiedObjects> input = (Set<IRepositoryModifiedObjects>) this.modifiedObjTreeViewer.getInput();
 
-		// Loop over the input for the checkboxTreeViewer (modifiedobjects)
-		for (IRepositoryModifiedObjects modifiedObjectsForRepository : input) {
-			List<IOverwriteObject> objects = new ArrayList<IOverwriteObject>();
-			String repositoryURL = modifiedObjectsForRepository.getRepositoryURL();
+		for (IRepositoryModifiedObjects repository : input) {
+			String repoURL = repository.getRepositoryURL();
+			Set<IOverwriteObject> selectedObjsSet = this.selectedObjectsByRepo.getOrDefault(repoURL, Set.of());
 
-			for (IOverwriteObject obj : modifiedObjectsForRepository.getModifiedObjects()) {
-				//If the object is in the list of checked/selected objects ,
-				// add it to the list of objects to pull and map it to the corresponding repo
-				if (Arrays.asList(this.selectedObjectsForRepository).contains(obj)) {
-					objects.add(obj);
+			if (!selectedObjsSet.isEmpty()) {
+				List<IOverwriteObject> selectedObjs = repository.getModifiedObjects().stream()
+						.filter(selectedObjsSet::contains).collect(Collectors.toList());
+				if (!selectedObjs.isEmpty()) {
+					checkedObjectsForRepository.add(new RepositoryModifiedObjects(repoURL, selectedObjs));
 				}
-			}
-
-			// map list of objects to pull  to the corresponding repo
-			if (!objects.isEmpty()) {
-				checkedObjectsForRepository.add(new RepositoryModifiedObjects(repositoryURL, objects));
 			}
 		}
 		return checkedObjectsForRepository;
 	}
 
-	private class ModifiedObjectTreeContentProvider implements ITreeContentProvider {
+	protected class ModifiedObjectTreeContentProvider implements ITreeContentProvider {
+		private static final int BATCH_SIZE = 100;
 
 		@Override
 		public Object[] getElements(Object inputElement) {
@@ -222,65 +194,97 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 		@Override
 		public Object[] getChildren(Object parentElement) {
 			if (parentElement instanceof IRepositoryModifiedObjects) {
-				IRepositoryModifiedObjects modifiedObjectsForRepo = (IRepositoryModifiedObjects) parentElement;
-				return modifiedObjectsForRepo.getModifiedObjects().toArray();
+				IRepositoryModifiedObjects repository = (IRepositoryModifiedObjects) parentElement;
+				List<IOverwriteObject> modifiedObjectsForRepository = repository.getModifiedObjects();
+
+				int loadedElementsCount = AbapGitWizardPageObjectsSelectionForPull.this.itemsLoadedPerRepo
+						.getOrDefault(repository, 0);
+				if (loadedElementsCount == 0) {
+					loadedElementsCount = Math.min(BATCH_SIZE, modifiedObjectsForRepository.size());
+					AbapGitWizardPageObjectsSelectionForPull.this.itemsLoadedPerRepo.put(repository, loadedElementsCount);
+				}
+				return modifiedObjectsForRepository.subList(0, loadedElementsCount).toArray();
 			}
-			return null;
+			return new Object[0];
+		}
+
+		@Override
+		public boolean hasChildren(Object element) {
+			if (element instanceof IRepositoryModifiedObjects) {
+				return !((IRepositoryModifiedObjects) element).getModifiedObjects().isEmpty();
+			}
+			return false;
 		}
 
 		@Override
 		public Object getParent(Object element) {
 			return null;
 		}
-
-		@Override
-		public boolean hasChildren(Object element) {
-			if (element instanceof IRepositoryModifiedObjects) {
-				IRepositoryModifiedObjects modifiedObjectsForRepo = (IRepositoryModifiedObjects) element;
-				return modifiedObjectsForRepo.getModifiedObjects().size() == 0 ? false : true;
-			}
-			return false;
-		}
-
 	}
 
-	private void addListeners() {
-		// Check the sub tree if parent is checked
-		this.modifiedObjTreeViewer.addCheckStateListener(new ICheckStateListener() {
+	protected void selectAllObjectsForRepo(IRepositoryModifiedObjects repo, String repoUrl) {
+		Set<IOverwriteObject> allModifiedObjects = new HashSet<>(repo.getModifiedObjects());
+		this.selectedObjectsByRepo.put(repoUrl, allModifiedObjects);
+	}
 
+
+	private void addListeners() {
+		this.modifiedObjTreeViewer.addCheckStateListener(new ICheckStateListener() {
 			@Override
 			public void checkStateChanged(CheckStateChangedEvent event) {
-				if (event.getElement() instanceof IRepositoryModifiedObjects) {
-					if (event.getChecked()) {
-						AbapGitWizardPageObjectsSelectionForPull.this.modifiedObjTreeViewer.setSubtreeChecked(event.getElement(), true);
+				Object element = event.getElement();
+				boolean checked = event.getChecked();
+
+				if (element instanceof IRepositoryModifiedObjects) {
+					IRepositoryModifiedObjects repository = (IRepositoryModifiedObjects) element;
+					String repoUrl = repository.getRepositoryURL();
+
+					if (checked) {
+						selectAllObjectsForRepo(repository, repoUrl);
 					} else {
-						AbapGitWizardPageObjectsSelectionForPull.this.modifiedObjTreeViewer.setSubtreeChecked(event.getElement(), false);
+						AbapGitWizardPageObjectsSelectionForPull.this.selectedObjectsByRepo.remove(repoUrl);
+					}
 
-						//keep the objects to be added locally checked always
-						IRepositoryModifiedObjects modifiedObjects = (IRepositoryModifiedObjects) event.getElement();
-						List<IOverwriteObject> objectsToAddLocally = modifiedObjects.getModifiedObjects().stream()
-								.filter((obj) -> obj.getAction() != null && obj.getAction().equals("1")).collect(Collectors.toList()); //$NON-NLS-1$
-						AbapGitWizardPageObjectsSelectionForPull.this.modifiedObjTreeViewer
-								.setCheckedElements(objectsToAddLocally.toArray());
+					for (IOverwriteObject obj : repository.getModifiedObjects().subList(0,
+							AbapGitWizardPageObjectsSelectionForPull.this.itemsLoadedPerRepo.getOrDefault(repository,
+									0))) {
+						AbapGitWizardPageObjectsSelectionForPull.this.modifiedObjTreeViewer.setChecked(obj, checked);
+					}
+
+				} else if (element instanceof IOverwriteObject) {
+					IOverwriteObject child = (IOverwriteObject) element;
+					IRepositoryModifiedObjects parent = findParent(child);
+					if (parent == null) {
+						return;
+					}
+					String repoUrl = parent.getRepositoryURL();
+					AbapGitWizardPageObjectsSelectionForPull.this.selectedObjectsByRepo.putIfAbsent(repoUrl, new HashSet<>());
+					Set<IOverwriteObject> selectedObjects = AbapGitWizardPageObjectsSelectionForPull.this.selectedObjectsByRepo
+							.get(repoUrl);
+
+					if (checked) {
+						selectedObjects.add(child);
+					} else {
+						selectedObjects.removeIf(o -> o.getName().equals(child.getName()) && o.getType().equals(child.getType()));
+					}
+
+					boolean allChecked = parent.getModifiedObjects().stream()
+							.allMatch(selectedObjects::contains);
+					AbapGitWizardPageObjectsSelectionForPull.this.modifiedObjTreeViewer.setChecked(parent, allChecked);
+				}
+			}
+
+			public IRepositoryModifiedObjects findParent(IOverwriteObject obj) {
+				for (IRepositoryModifiedObjects repo : AbapGitWizardPageObjectsSelectionForPull.this.repoToModifiedObjects) {
+					if (repo.getModifiedObjects().contains(obj)) {
+						return repo;
 					}
 				}
-
-				if (event.getElement() instanceof IOverwriteObject) {
-					IOverwriteObject modifiedObject = (IOverwriteObject) event.getElement();
-					if (modifiedObject.getAction() != null && modifiedObject.getAction().equals("1")) { //$NON-NLS-1$
-						AbapGitWizardPageObjectsSelectionForPull.this.modifiedObjTreeViewer.setChecked(modifiedObject, true);
-					}
-				}
-
-				AbapGitWizardPageObjectsSelectionForPull.this.selectedObjectsForRepository = AbapGitWizardPageObjectsSelectionForPull.this.modifiedObjTreeViewer
-						.getCheckedElements();
-
+				return null;
 			}
 		});
 
-		// Check elements which have action as 1 i.e. Objects to be added
 		this.modifiedObjTreeViewer.setCheckStateProvider(new ICheckStateProvider() {
-
 			@Override
 			public boolean isGrayed(Object element) {
 				return false;
@@ -288,15 +292,103 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 
 			@Override
 			public boolean isChecked(Object element) {
-				if (element instanceof IOverwriteObject) {
-					IOverwriteObject object = (IOverwriteObject) element;
-					if (object.getAction() != null && object.getAction().equals("1")) { //$NON-NLS-1$
-						return true;
+				if (element instanceof IRepositoryModifiedObjects) {
+					IRepositoryModifiedObjects modifiedObjectsForRepository = (IRepositoryModifiedObjects) element;
+					Set<IOverwriteObject> selectedObjects = AbapGitWizardPageObjectsSelectionForPull.this.selectedObjectsByRepo
+							.get(modifiedObjectsForRepository.getRepositoryURL());
+					if (selectedObjects == null) {
+						return false;
 					}
+					return selectedObjects.size() == modifiedObjectsForRepository.getModifiedObjects().size();
+				}
+				if (element instanceof IOverwriteObject) {
+					IOverwriteObject obj = (IOverwriteObject) element;
+					IRepositoryModifiedObjects parent = findParent(obj);
+					if (parent == null) {
+						return false;
+					}
+					Set<IOverwriteObject> selectedObjects = AbapGitWizardPageObjectsSelectionForPull.this.selectedObjectsByRepo
+							.get(parent.getRepositoryURL());
+					return selectedObjects != null && selectedObjects.contains(obj);
 				}
 				return false;
 			}
+
+			private IRepositoryModifiedObjects findParent(IOverwriteObject obj) {
+				for (IRepositoryModifiedObjects repo : AbapGitWizardPageObjectsSelectionForPull.this.repoToModifiedObjects) {
+					if (repo.getModifiedObjects().contains(obj)) {
+						return repo;
+					}
+				}
+				return null;
+			}
 		});
+
+		var tree = this.modifiedObjTreeViewer.getTree();
+		ScrollBar verticalScrollBar = tree.getVerticalBar();
+		tree.addListener(SWT.MouseWheel, e -> tryLazyLoad(verticalScrollBar));
+		tree.addListener(SWT.Resize, e -> tryLazyLoad(verticalScrollBar));
+		tree.addListener(SWT.MouseUp, e -> tryLazyLoad(verticalScrollBar));
+		//add listener for scrollbar to trigger lazy loading if the scroll is in bottom
+		verticalScrollBar.addListener(SWT.Selection, e -> tryLazyLoad(verticalScrollBar));
+
+	}
+
+	private void tryLazyLoad(ScrollBar verticalScrollBar) {
+		if (verticalScrollBar == null || verticalScrollBar.getMaximum() == 0) {
+			return;
+		}
+
+		int scrollPosition = verticalScrollBar.getSelection() + verticalScrollBar.getThumb();
+		int threshold = (int) (verticalScrollBar.getMaximum() * SCROLL_THRESHOLD_LAZY_LOAD);
+
+		if (scrollPosition >= threshold) {
+			Object[] expandedElements = this.modifiedObjTreeViewer.getExpandedElements();
+
+			for (Object parent : expandedElements) {
+				if (parent instanceof IRepositoryModifiedObjects) {
+					IRepositoryModifiedObjects modifiedObjectsForRepository = (IRepositoryModifiedObjects) parent;
+					loadNextBatchOfModifiedObjects(modifiedObjectsForRepository);
+				}
+			}
+		}
+	}
+
+	protected void loadNextBatchOfModifiedObjects(IRepositoryModifiedObjects modifiedObjectsForRepository) {
+		//guard for null scenario for modified objects
+		if (modifiedObjectsForRepository.getModifiedObjects() == null) {
+			return;
+		}
+		// adding debounce logic to avoid multiple simultaneous loads
+		if (isLoading) {
+			return;
+		}
+		isLoading = true;
+		List<IOverwriteObject> modifiedObjects = modifiedObjectsForRepository.getModifiedObjects();
+		int itemsAlreadyLoaded = this.itemsLoadedPerRepo.getOrDefault(modifiedObjectsForRepository, 0);
+
+		if (itemsAlreadyLoaded >= modifiedObjects.size()) {
+			return;
+		}
+
+		int itemsToLoadNext = Math.min(ModifiedObjectTreeContentProvider.BATCH_SIZE, modifiedObjects.size() - itemsAlreadyLoaded);
+
+		List<IOverwriteObject> nextBatch = modifiedObjects.subList(itemsAlreadyLoaded, itemsAlreadyLoaded + itemsToLoadNext);
+
+		this.itemsLoadedPerRepo.put(modifiedObjectsForRepository, itemsToLoadNext + itemsAlreadyLoaded);
+
+		this.modifiedObjTreeViewer.getControl().setRedraw(false);
+		try {
+
+			for (IOverwriteObject obj : nextBatch) {
+				this.modifiedObjTreeViewer.add(modifiedObjectsForRepository, obj);
+				if (this.modifiedObjTreeViewer.getChecked(modifiedObjectsForRepository)) {
+					this.modifiedObjTreeViewer.setChecked(obj, true);
+				}
+			}
+		} finally {
+			this.modifiedObjTreeViewer.getControl().setRedraw(true);
+			isLoading = false;
+		}
 	}
 }
-
