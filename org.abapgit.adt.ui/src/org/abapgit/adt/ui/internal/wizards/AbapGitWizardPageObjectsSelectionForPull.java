@@ -147,6 +147,10 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 		if (visible) {
 			this.itemsLoadedPerRepo.clear();
 			this.modifiedObjTreeViewer.refresh();
+			// Expand all root nodes (repositories) to show initially loaded children
+			for (IRepositoryModifiedObjects repository : this.repoToModifiedObjects) {
+				this.modifiedObjTreeViewer.expandToLevel(repository, 1);
+			}
 			if (this.repoToModifiedObjects.isEmpty()) {
 				getContainer().showPage(getNextPage());
 			}
