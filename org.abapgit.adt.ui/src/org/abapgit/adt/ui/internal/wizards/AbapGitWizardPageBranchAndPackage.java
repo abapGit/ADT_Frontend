@@ -175,8 +175,8 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 		if (!this.pullAction) {
 			// checkbox for executing pull after repository linking
 			this.checkbox_lnp = new Button(container, SWT.CHECK);
-			this.checkbox_lnp.setText(Messages.AbapGitWizardPageBranchAndPackage_chbox_activate);
-			this.checkbox_lnp.setToolTipText(Messages.AbapGitWizardPageBranchAndPackage_chbox_activate_tooltip);
+			this.checkbox_lnp.setText(Messages.AbapGitWizardPageBranchAndPackage_chbox_pull_after_link);
+			this.checkbox_lnp.setToolTipText(Messages.AbapGitWizardPageBranchAndPackage_chbox_pull_after_link_tooltip);
 			GridDataFactory.swtDefaults().applyTo(this.checkbox_lnp);
 
 			this.checkbox_lnp.addSelectionListener(new SelectionAdapter() {
