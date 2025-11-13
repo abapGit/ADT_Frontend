@@ -29,10 +29,12 @@ import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.jface.wizard.WizardPage;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import com.sap.adt.communication.resources.ResourceException;
+import com.sap.adt.compatibility.exceptions.OutDatedClientException;
 import com.sap.adt.tools.core.model.adtcore.IAdtCoreFactory;
 import com.sap.adt.tools.core.model.adtcore.IAdtObjectReference;
 import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
@@ -43,6 +45,7 @@ import com.sap.adt.transport.IAdtTransportCheckData;
 import com.sap.adt.transport.IAdtTransportService;
 import com.sap.adt.transport.ui.wizard.AdtTransportSelectionWizardPageFactory;
 import com.sap.adt.transport.ui.wizard.IAdtTransportSelectionWizardPage;
+import com.sap.adt.util.ui.AdtUtilUiPlugin;
 
 /**
  * This is wizard that handles pull action on a repository. Includes selective
@@ -303,21 +306,11 @@ public class AbapGitWizardPull extends Wizard {
 
 			//-> Prepare transport page
 			if (event.getTargetPage() == AbapGitWizardPull.this.transportPage) {
-				try {
-					// The transport service requires URIs to objects we want to create in the
-					// target package.
-					// However, we do not know these URIs from the client.
-					// Instead, give it the URI of the package in which we clone.
-					IAdtObjectReference packageRef = AbapGitWizardPull.this.cloneData.packageRef;
-					IAdtObjectReference checkRef = IAdtCoreFactory.eINSTANCE.createAdtObjectReference();
-					checkRef.setUri(packageRef.getUri());
-					IAdtTransportCheckData checkData = AbapGitWizardPull.this.transportService.check(checkRef, packageRef.getPackageName(),
-							true);
-					AbapGitWizardPull.this.transportPage.setCheckData(checkData);
-				} catch (Exception e) {
-					AbapGitWizardPull.this.pageBranchAndPackage.setMessage(e.getMessage(), DialogPage.ERROR);
-				}
+				IAdtObjectReference packageRef = AbapGitWizardPull.this.cloneData.packageRef;
+				IAdtTransportCheckData transportCheckData = getTransportCheckData(packageRef);
+				AbapGitWizardPull.this.transportPage.setCheckData(transportCheckData);
 			}
+
 
 			//-> APACK page -> Any page
 			if (event.getCurrentPage() == AbapGitWizardPull.this.pageApack) {
@@ -327,5 +320,55 @@ public class AbapGitWizardPull extends Wizard {
 				}
 			}
 		}
+
+		private IAdtTransportCheckData getTransportCheckData(IAdtObjectReference packageRef) {
+
+			IAdtObjectReference checkRef = IAdtCoreFactory.eINSTANCE.createAdtObjectReference();
+			checkRef.setUri(packageRef.getUri());
+
+			final IAdtTransportCheckData[] checkData = new IAdtTransportCheckData[1];
+
+			try {
+				getContainer().run(true, true, monitor -> {
+					monitor.beginTask(Messages.AbapGitWizardPageTransportSelection_transport_check, IProgressMonitor.UNKNOWN);
+					checkData[0] = AbapGitWizardPull.this.transportService.check(checkRef, packageRef.getPackageName(), true);
+				});
+				return checkData[0];
+
+			} catch (Exception e) {
+				// Catches InterruptedException and other general exceptions
+				WizardPage currentPage = ((WizardPage) getContainer().getCurrentPage());
+				handleException(e, currentPage);
+				return null;
+			}
+		}
+
+		private void handleOutdatedClientException(Throwable e) {
+
+			Display.getDefault().asyncExec(() -> {
+				WizardDialog d = (WizardDialog) getContainer();
+
+				if (d != null) {
+					// Check if the dialog is still open before attempting to close
+					if (d.getShell() != null && !d.getShell().isDisposed()) {
+						d.close();
+						AdtUtilUiPlugin.getDefault().getAdtStatusService().handle(e, null);
+					}
+				}
+			});
+
+		}
+
+		private void handleException(Exception exception, WizardPage page) {
+
+			page.setPageComplete(false);
+			Throwable cause = exception instanceof InvocationTargetException ? exception.getCause() : exception;
+			if (cause != null && cause instanceof OutDatedClientException) {
+				handleOutdatedClientException(cause);
+			} else {
+				page.setMessage(cause != null ? cause.getMessage() : exception.getMessage(), DialogPage.ERROR);
+			}
+		}
+
 	}
 }
