@@ -64,13 +64,18 @@ import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.ISharedImages;
@@ -100,10 +105,13 @@ import com.sap.adt.tools.core.ui.userinfo.IAdtUserInfoFormatter;
 public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 
 	public static final String ID = "org.abapgit.adt.ui.views.AbapGitView"; //$NON-NLS-1$
+	private static final int NO_COLUMN_SELECTED = -1;
 
 	protected TableViewer viewer;
 	protected Action actionRefresh, actionWizard, actionCopy, actionOpen, actionShowMyRepos, actionPullWizard, actionOpenRepository,
 			actionSwitchBranch;
+	private Action actionCopyCell;
+	private Action actionCopyRow;
 	private ISelection lastSelection;
 	protected IProject lastProject;
 	private ViewerFilter searchFilter;
@@ -111,6 +119,7 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 	protected Text searchText;
 	protected IAbapGitService abapGitService;
 	protected IRepositoryService repoService;
+	protected int focusedColumnIndex = -1;
 
 	//key binding for copy text
 	private static final KeyStroke KEY_STROKE_COPY = KeyStroke.getInstance(SWT.MOD1, 'C' | 'c');
@@ -151,7 +160,7 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 	public void init(IViewSite site) throws PartInitException {
 		super.init(site);
 
-// Create a new abapGit service when AbapGit Repositories View is opened.
+		// Create a new abapGit service when AbapGit Repositories View is opened.
 		if (this.abapGitService == null) {
 			this.abapGitService = AbapGitUIServiceFactory.createAbapGitService();
 		}
@@ -272,6 +281,32 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 		createColumns();
 		this.viewer.setContentProvider(ArrayContentProvider.getInstance());
 		addKeyListeners();
+
+		// Add Mouse Listener to track focused cell for copy operation
+		table.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDown(MouseEvent e) {
+				Point mousePointer = new Point(e.x, e.y);
+				getSelectedColumn(mousePointer, table);
+			}
+		});
+	}
+
+	private void getSelectedColumn(Point mousePointer, Table table) {
+		// find tableItem from mouse pointer
+		TableItem item = table.getItem(mousePointer);
+		if (item == null) {
+			AbapGitView.this.focusedColumnIndex = NO_COLUMN_SELECTED;
+			return;
+		}
+		for (int i = 0; i < table.getColumnCount(); i++) {
+			Rectangle rect = item.getBounds(i);
+			if (rect.contains(mousePointer)) {
+				AbapGitView.this.focusedColumnIndex = i;
+				return; // Found the column
+			}
+		}
+		AbapGitView.this.focusedColumnIndex = NO_COLUMN_SELECTED;
 	}
 
 	private void createColumns() {
@@ -413,8 +448,17 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 						manager.add(AbapGitView.this.actionSwitchBranch);
 						//separator
 						manager.add(new Separator());
-						//copy to clip-board action
-						manager.add(AbapGitView.this.actionCopy);
+
+						// Create the sub-menu for Copy
+						MenuManager copySubMenu = new MenuManager(Messages.AbapGitView_action_copy);
+
+						// Enable "Copy Cell" only if a cell has focus
+						AbapGitView.this.actionCopyCell.setEnabled(AbapGitView.this.focusedColumnIndex != -1);
+
+						copySubMenu.add(AbapGitView.this.actionCopyCell);
+						copySubMenu.add(AbapGitView.this.actionCopyRow);
+						manager.add(copySubMenu);
+
 						//unlink action
 						if (AbapGitView.this.repoService.getURIFromAtomLink(repository, IRepositoryService.RELATION_PULL) != null) {
 							manager.add(new Separator());
@@ -487,6 +531,20 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 		this.actionCopy.setActionDefinitionId(ActionFactory.COPY.getCommandId());
 		this.actionCopy.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_COPY));
 
+		this.actionCopyCell = new Action(Messages.AbapGitView_copy_action_submenu_copy_cell) {
+			@Override
+			public void run() {
+				copyCell();
+			}
+		};
+
+		this.actionCopyRow = new Action(Messages.AbapGitView_copy_action_submenu_copy_row) {
+			@Override
+			public void run() {
+				copyRow();
+			}
+		};
+
 		this.actionOpen = new Action() {
 			public void run() {
 				if (!AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(AbapGitView.this.lastProject).isOK()) {
@@ -524,8 +582,7 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 					return;
 				}
 				AbapGitWizard abapGitWizard = new AbapGitWizard(AbapGitView.this.lastProject);
-				WizardDialog wizardDialog = new WizardDialog(AbapGitView.this.viewer.getControl().getShell(),
-						abapGitWizard);
+				WizardDialog wizardDialog = new WizardDialog(AbapGitView.this.viewer.getControl().getShell(), abapGitWizard);
 				wizardDialog.open();
 				updateView(true);
 
@@ -655,7 +712,7 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 			setControlsEnabled(true);
 
 			//TODO: Remove this check once the 2302 back-end is updated
-			if(this.abapGitService.isFolderLogicAvailable(repos)) {
+			if (this.abapGitService.isFolderLogicAvailable(repos)) {
 				setFolderLogicColumnVisible(true);
 			} else {
 				setFolderLogicColumnVisible(false);
@@ -695,15 +752,41 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 	}
 
 	/**
-	 * Copies the current selection to the clipboard.
-	 *
-	 * @param table
-	 *            the data source
+	 * Copies the current selection to the clipboard using smart detection.
+	 * Called by the toolbar and Ctrl+C keybinding.
 	 */
 	protected void copy() {
-		Object selection = AbapGitView.this.viewer.getStructuredSelection().getFirstElement();
-		if (selection != null && selection instanceof IRepository) {
-			IRepository currRepository = ((IRepository) selection);
+		// Check if a specific cell was clicked
+		if (this.focusedColumnIndex != -1) {
+			copyCell();
+		} else {
+			copyRow();
+		}
+	}
+
+	/**
+	 * Copies only the content of the focused table cell to the clipboard.
+	 */
+	private void copyCell() {
+		String textToCopy = null;
+
+		TableItem[] selection = this.viewer.getTable().getSelection();
+		if (selection.length > 0 && this.focusedColumnIndex != -1) {
+			textToCopy = selection[0].getText(this.focusedColumnIndex);
+		}
+		copyToClipboard(textToCopy);
+	}
+
+	/**
+	 * Copies a formatted string representing the entire selected row to the
+	 * clipboard.
+	 */
+	private void copyRow() {
+		String textToCopy = null;
+
+		Object selection = this.viewer.getStructuredSelection().getFirstElement();
+		if (selection instanceof IRepository) {
+			IRepository currRepository = (IRepository) selection;
 
 			String repoStatusString = currRepository.getStatusText() == null ? "" : currRepository.getStatusText(); //$NON-NLS-1$
 			String repoUserString = currRepository.getCreatedEmail() == null ? currRepository.getCreatedBy()
@@ -716,13 +799,24 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 			String repoLastChangedString = getFormattedDate(lastChangedAt);
 
 			final StringBuilder data = new StringBuilder();
-			data.append(currRepository.getPackage() + " " + currRepository.getUrl() + " " + currRepository.getBranchName() + " " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-					+ repoUserString + " " + repoLastChangedString + " " + repoStatusString); //$NON-NLS-1$ //$NON-NLS-2$
+			data.append(currRepository.getPackage()).append("\t").append(currRepository.getUrl()).append("\t") //$NON-NLS-1$ //$NON-NLS-2$
+					.append(currRepository.getBranchName()).append("\t").append(repoUserString).append("\t") //$NON-NLS-1$ //$NON-NLS-2$
+					.append(repoLastChangedString).append("\t").append(repoStatusString); //$NON-NLS-1$
 
-			final Clipboard clipboard = new Clipboard(AbapGitView.this.viewer.getControl().getDisplay());
-			clipboard.setContents(new String[] { data.toString() }, new TextTransfer[] { TextTransfer.getInstance() });
-			clipboard.dispose();
+			textToCopy = data.toString();
 		}
+		copyToClipboard(textToCopy);
+	}
+
+	private void copyToClipboard(String textToCopy) {
+		if (textToCopy == null || textToCopy.isEmpty()) {
+			return;
+		}
+		final Clipboard clipboard = new Clipboard(this.viewer.getControl().getDisplay());
+
+		clipboard.setContents(new String[] { textToCopy }, new TextTransfer[] { TextTransfer.getInstance() });
+
+		clipboard.dispose();
 	}
 
 	private String getFormattedDate(String lastChangedAt) {
@@ -835,8 +929,7 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 					@Override
 					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 						RepositoryServiceFactory
-								.createRepositoryService(AbapGitView.this.abapGitService.getDestination(UnlinkAction.this.project),
-										monitor)
+								.createRepositoryService(AbapGitView.this.abapGitService.getDestination(UnlinkAction.this.project), monitor)
 								.unlinkRepository(UnlinkAction.this.repository.getKey(), monitor);
 					}
 				});
@@ -879,8 +972,8 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 
 						IAbapObjects abapObjects = RepositoryServiceFactory
-								.createRepositoryService(
-										AbapGitView.this.abapGitService.getDestination(GetObjLogAction.this.project), monitor)
+								.createRepositoryService(AbapGitView.this.abapGitService.getDestination(GetObjLogAction.this.project),
+										monitor)
 								.getRepoObjLog(monitor, GetObjLogAction.this.repository);
 
 						objectLogItems.addAll(
