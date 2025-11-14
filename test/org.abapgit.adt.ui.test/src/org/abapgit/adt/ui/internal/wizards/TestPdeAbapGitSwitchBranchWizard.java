@@ -25,7 +25,6 @@ import org.eclipse.ui.PlatformUI;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.sap.adt.tools.core.base.test.services.AdtPdeTestProjectUtil;
 import com.sap.adt.tools.core.model.adtcore.IAdtObjectReference;
 import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
 import com.sap.adt.tools.core.ui.packages.IAdtPackageServiceUI;
@@ -43,11 +42,12 @@ public class TestPdeAbapGitSwitchBranchWizard {
     private IAdtPackageServiceUI mockPackageServiceUI;
     private IExternalRepositoryInfoService mockExternalRepoInfoService;
     private IRepositoryService mockRepoService;
-
+    
     @Before
     public void setUp() throws CoreException {
         // Create project and test data
-        mockProject = AdtPdeTestProjectUtil.createTestProject(this.getClass().getName());
+    	TestPdeAbapGitWizardUtil util = new TestPdeAbapGitWizardUtil();
+        mockProject = util.createDummyAbapProject(this.getClass().getName());
         testDestination = AdtProjectServiceFactory.createProjectService().getDestinationId(mockProject);
 
         // Create fresh mocks for each test

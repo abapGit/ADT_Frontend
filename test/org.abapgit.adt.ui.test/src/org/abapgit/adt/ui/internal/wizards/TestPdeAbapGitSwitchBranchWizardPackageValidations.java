@@ -20,9 +20,10 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.wizard.IWizardContainer;
 import org.eclipse.osgi.util.NLS;
 import org.junit.Before;
+import org.junit.After;
 import org.junit.Test;
 
-import com.sap.adt.tools.core.base.test.services.AdtPdeTestProjectUtil;
+
 import com.sap.adt.tools.core.model.adtcore.IAdtObjectReference;
 import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
 import com.sap.adt.tools.core.ui.packages.IAdtPackageServiceUI;
@@ -44,10 +45,12 @@ public class TestPdeAbapGitSwitchBranchWizardPackageValidations {
     private IWizardContainer mockWizardContainer;
     private IExternalRepositoryInfo mockExtRepoInfoFromSetup;
     private IAdtObjectReference mockAdtObjectRefFromSetup;
+     
 
     @Before
     public void setUp() throws CoreException {
-    	mockProject = AdtPdeTestProjectUtil.createTestProject(this.getClass().getName());
+    	TestPdeAbapGitWizardUtil util = new TestPdeAbapGitWizardUtil();
+    	mockProject = util.createDummyAbapProject(this.getClass().getName());
         testDestination = AdtProjectServiceFactory.createProjectService().getDestinationId(mockProject);
         mockSelRepo = createNiceMock(IRepository.class);
         mockPackageServiceUI = createMock(IAdtPackageServiceUI.class);
@@ -83,6 +86,13 @@ public class TestPdeAbapGitSwitchBranchWizardPackageValidations {
                                               mockPackageServiceUI, mockExternalRepoInfoService, mockRepoService);
 
         reset(mockPackageServiceUI, mockExternalRepoInfoService, mockWizardContainer);
+    }
+    
+    @After
+    public void tearDown() throws Exception {
+        if (mockProject != null && mockProject.exists()) {
+            mockProject.delete(true, true, null);
+        }
     }
 
     @Test
