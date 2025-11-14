@@ -49,7 +49,7 @@
     </profile>
   </profiles>
   <properties>
-    <tycho-version>4.0.0</tycho-version>
+    <tycho-version>4.0.6</tycho-version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
   <build>
