@@ -101,7 +101,8 @@ public class RepositoryService implements IRepositoryService {
 		IContentHandler<IAbapObjects> responseContentHandlerV1 = new AbapObjectContentHandlerV1();
 		restResource.addContentHandler(responseContentHandlerV1);
 
-		IAdtCompatibleRestResourceFilter compatibilityFilter = AdtCompatibleRestResourceFilterFactory.createFilter(responseContentHandlerV1);
+		IAdtCompatibleRestResourceFilter compatibilityFilter = AdtCompatibleRestResourceFilterFactory
+				.createFilter(responseContentHandlerV1);
 		restResource.addRequestFilter(compatibilityFilter);
 
 		return restResource.post(monitor, IAbapObjects.class, repository);
@@ -204,8 +205,7 @@ public class RepositoryService implements IRepositoryService {
 		restResource.addRequestFilter(compatibilityFilter);
 		restResource.addResponseFilter(compatibilityFilter);
 		if (credentials != null) {
-			headers = getHttpHeadersForCredentials(credentials.getUser(),
-					credentials.getPassword());
+			headers = getHttpHeadersForCredentials(credentials.getUser(), credentials.getPassword());
 		}
 		restResource.post(monitor, headers, null);
 	}
@@ -267,8 +267,8 @@ public class RepositoryService implements IRepositoryService {
 	}
 
 	@Override
-	public IAbapGitPullModifiedObjects getModifiedObjects(IProgressMonitor monitor, IRepository currRepository,
-			String user, String password) throws OutDatedClientException {
+	public IAbapGitPullModifiedObjects getModifiedObjects(IProgressMonitor monitor, IRepository currRepository, String user,
+			String password) throws OutDatedClientException {
 		URI uriToModifiedObjects = getURIFromAtomLink(currRepository, IRepositoryService.RELATION_MODIFIED_OBJECTS);
 
 		IHeaders headers = null;
@@ -277,8 +277,7 @@ public class RepositoryService implements IRepositoryService {
 		}
 
 		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory()
-				.createResourceWithStatelessSession(uriToModifiedObjects,
-				this.destinationId);
+				.createResourceWithStatelessSession(uriToModifiedObjects, this.destinationId);
 
 		IContentHandler<IAbapGitPullModifiedObjects> responseContentHandlerV1 = new AbapGitPullModifiedObjectsContentHandlerV1();
 		restResource.addContentHandler(responseContentHandlerV1);
@@ -295,10 +294,22 @@ public class RepositoryService implements IRepositoryService {
 	@Override
 	public IAbapObjects pullRepository(IRepository existingRepository, String branch, String transportRequest, String user, String password,
 			IAbapGitPullModifiedObjects selectedObjectsToPull, IProgressMonitor monitor) {
-		URI uriToRepo = getURIFromAtomLink(existingRepository, IRepositoryService.RELATION_PULL);
-		IRestResource restResource = AdtRestResourceFactory.createRestResourceFactory().createResourceWithStatelessSession(uriToRepo,
-				this.destinationId);
-
+		IRestResource restResource = null;
+		URI uriToRepo = null;
+		if (isBackgroundJobSupported(monitor)) {
+			uriToRepo = getURIFromAtomLink(existingRepository, IRepositoryService.RELATION_PULL_WITH_BG_RUN);
+			if (uriToRepo != null) {
+				restResource = getBackgroundRestResource(uriToRepo.getPath(), this.destinationId, monitor);
+			}
+		}
+		if (restResource == null) {
+			uriToRepo = getURIFromAtomLink(existingRepository, IRepositoryService.RELATION_PULL);
+			restResource = AdtRestResourceFactory.createRestResourceFactory().createResourceWithStatelessSession(uriToRepo,
+					this.destinationId);
+		}
+		if (restResource == null) {
+			throw new IllegalStateException("Unable to create REST resource for pull operation."); //$NON-NLS-1$
+		}
 		IContentHandler<IAbapGitPullRequest> requestContentHandlerV1 = new AbapGitPullRequestContentHandler();
 		restResource.addContentHandler(requestContentHandlerV1);
 
@@ -316,9 +327,9 @@ public class RepositoryService implements IRepositoryService {
 		}
 
 		if (selectedObjectsToPull != null) {
-		abapGitPullReq.setPackageWarningObjects(selectedObjectsToPull.getPackageWarningObjects());
-		abapGitPullReq.setOverwriteObjects(selectedObjectsToPull.getOverwriteObjects());
-	}
+			abapGitPullReq.setPackageWarningObjects(selectedObjectsToPull.getPackageWarningObjects());
+			abapGitPullReq.setOverwriteObjects(selectedObjectsToPull.getOverwriteObjects());
+		}
 
 		IAdtCompatibleRestResourceFilter compatibilityFilter = AdtCompatibleRestResourceFilterFactory.createFilter(new IContentHandler[0]);
 		restResource.addRequestFilter(compatibilityFilter);

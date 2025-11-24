@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.abapgit.adt.backend.IApackManifest;
 import org.abapgit.adt.backend.IApackManifest.IApackDependency;
@@ -14,11 +15,16 @@ import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAbapGitPullModifiedObjects;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.internal.i18n.Messages;
+import org.abapgit.adt.ui.internal.repositories.AbapGitView;
+import org.abapgit.adt.ui.internal.repositories.IRepositoryModifiedObjects;
 import org.abapgit.adt.ui.internal.util.AbapGitUIServiceFactory;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard.CloneData;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.IPageChangingListener;
@@ -66,11 +72,12 @@ public class AbapGitWizardPull extends Wizard {
 	private AbapGitWizardPageObjectsSelectionForPull pageOverwriteObjectsSelection;
 	private AbapGitWizardPageObjectsSelectionForPull pagePackageWarningObjectsSelection;
 	public IAdtTransportService transportService;
+	private final AbapGitView abapGitView;
 	public IAdtTransportSelectionWizardPage transportPage;
 	public IRepository selRepoData;
 	public List<IRepository> allRepositories;
 
-	public AbapGitWizardPull(IProject project, IRepository selRepo, List<IRepository> allRepositories) {
+	public AbapGitWizardPull(IProject project, IRepository selRepo, List<IRepository> allRepositories, AbapGitView view) {
 		this.project = project;
 		this.destination = AdtProjectServiceFactory.createProjectService().getDestinationId(project);
 		this.cloneData = new CloneData();
@@ -79,7 +86,7 @@ public class AbapGitWizardPull extends Wizard {
 		this.cloneData.url = selRepo.getUrl();
 		this.cloneData.branch = selRepo.getBranchName();
 		this.repoToSelectedObjects = new HashMap<String, IAbapGitPullModifiedObjects>();
-
+		this.abapGitView = view;
 		getPackageAndRepoType();
 
 		setWindowTitle(Messages.AbapGitWizardPull_title);
@@ -151,61 +158,67 @@ public class AbapGitWizardPull extends Wizard {
 	@Override
 	public boolean performFinish() {
 
-		try {
-			getContainer().run(true, true, new IRunnableWithProgress() {
+		// Extracting variable earlier to ensure consistency in asynchronous code flow
+		Set<IRepositoryModifiedObjects> overwriteObjects = AbapGitWizardPull.this.pageOverwriteObjectsSelection.getSelectedObjects();
+		Set<IRepositoryModifiedObjects> packageWarningObjects = AbapGitWizardPull.this.pagePackageWarningObjectsSelection
+				.getSelectedObjects();
 
-				@Override
-				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+		Job pullRepoJob = new Job(Messages.AbapGitWizard_task_pulling_repository) {
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				try {
 					monitor.beginTask(Messages.AbapGitWizard_task_pulling_repository, IProgressMonitor.UNKNOWN);
+
 					IRepositoryService repoService = RepositoryServiceFactory.createRepositoryService(AbapGitWizardPull.this.destination,
 							monitor);
 
-					//get the selected objects to be pulled
+					// Get the selected objects to be pulled
 					AbapGitWizardPull.this.repoToSelectedObjects = AbapGitUIServiceFactory.createAbapGitPullService()
-							.getSelectedObjectsToPullforRepo(AbapGitWizardPull.this.pageOverwriteObjectsSelection.getSelectedObjects(),
-									AbapGitWizardPull.this.pagePackageWarningObjectsSelection.getSelectedObjects());
+							.getSelectedObjectsToPullforRepo(overwriteObjects, packageWarningObjects);
 
-					//pull the selected objects
+					// Pull the selected objects
 					repoService.pullRepository(AbapGitWizardPull.this.selRepoData, AbapGitWizardPull.this.selRepoData.getBranchName(),
 							AbapGitWizardPull.this.transportPage.getTransportRequestNumber(), AbapGitWizardPull.this.cloneData.user,
 							AbapGitWizardPull.this.cloneData.pass,
 							AbapGitWizardPull.this.repoToSelectedObjects.get(AbapGitWizardPull.this.selRepoData.getUrl()), monitor);
 
+					// Pull dependencies if any
 					if (AbapGitWizardPull.this.cloneData.hasDependencies()) {
 						pullDependencies(monitor, repoService);
 					}
-				}
 
-				private void pullDependencies(IProgressMonitor monitor, IRepositoryService repoService) {
-					for (IApackDependency apackDependency : AbapGitWizardPull.this.cloneData.apackManifest.getDescriptor()
-							.getDependencies()) {
-						if (apackDependency.requiresSynchronization()) {
-							IRepository dependencyRepository = repoService.getRepositoryByURL(AbapGitWizardPull.this.cloneData.repositories,
-									apackDependency.getGitUrl());
-							if (dependencyRepository != null) {
-								repoService.pullRepository(dependencyRepository, IApackManifest.MASTER_BRANCH,
-										AbapGitWizardPull.this.transportPage.getTransportRequestNumber(),
-										AbapGitWizardPull.this.cloneData.user, AbapGitWizardPull.this.cloneData.pass,
-										AbapGitWizardPull.this.repoToSelectedObjects.get(dependencyRepository.getUrl()), monitor);
+					return Status.OK_STATUS;
+				} catch (ResourceException e) {
+					return new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getMessage(), e);
+				} finally {
+					PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
+						AbapGitWizardPull.this.abapGitView.refresh();
+					});
+				}
+					}
+
+			private void pullDependencies(IProgressMonitor monitor, IRepositoryService repoService) {
+				for (IApackDependency apackDependency : AbapGitWizardPull.this.cloneData.apackManifest.getDescriptor().getDependencies()) {
+					if (apackDependency.requiresSynchronization()) {
+						IRepository dependencyRepository = repoService.getRepositoryByURL(AbapGitWizardPull.this.cloneData.repositories,
+								apackDependency.getGitUrl());
+						if (dependencyRepository != null) {
+							repoService.pullRepository(dependencyRepository, IApackManifest.MASTER_BRANCH,
+									AbapGitWizardPull.this.transportPage.getTransportRequestNumber(), AbapGitWizardPull.this.cloneData.user,
+									AbapGitWizardPull.this.cloneData.pass,
+									AbapGitWizardPull.this.repoToSelectedObjects.get(dependencyRepository.getUrl()), monitor);
+						}
 							}
 						}
 					}
-				}
-			});
 
-			return true;
+		};
 
-		} catch (InterruptedException e) {
-			return false;
-		} catch (InvocationTargetException e) {
-			((WizardPage) getContainer().getCurrentPage()).setPageComplete(false);
-			((WizardPage) getContainer().getCurrentPage()).setMessage(e.getTargetException().getMessage(), DialogPage.ERROR);
-			return false;
-		} catch (ResourceException e) {
-			((WizardPage) getContainer().getCurrentPage()).setPageComplete(false);
-			((WizardPage) getContainer().getCurrentPage()).setMessage(e.getMessage(), DialogPage.ERROR);
-			return false;
-		}
+		pullRepoJob.setUser(true); // Shows the job in progress view
+		pullRepoJob.schedule();
+
+		return true;
+
 	}
 
 	@Override

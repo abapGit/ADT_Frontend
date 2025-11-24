@@ -561,11 +561,10 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 					}
 
 					WizardDialog wizardDialog = new WizardDialog(AbapGitView.this.viewer.getControl().getShell(),
-							new AbapGitWizardPull(AbapGitView.this.lastProject, this.selRepo, allRepositories));
+							new AbapGitWizardPull(AbapGitView.this.lastProject, this.selRepo, allRepositories, AbapGitView.this));
 					wizardDialog.open();
-				}
 
-				updateView(true);
+				}
 			}
 		};
 		this.actionPullWizard.setText(Messages.AbapGitView_context_pull);

@@ -18,6 +18,7 @@ import com.sap.adt.compatibility.exceptions.OutDatedClientException;
 public interface IRepositoryService {
 
 	String RELATION_PULL = "http://www.sap.com/adt/abapgit/relations/pull"; //$NON-NLS-1$
+	String RELATION_PULL_WITH_BG_RUN = "http://www.sap.com/adt/abapgit/relations/pull/v2"; //$NON-NLS-1$
 	String RELATION_STATUS = "http://www.sap.com/adt/abapgit/relations/status"; //$NON-NLS-1$
 	String RELATION_LOG = "http://www.sap.com/adt/abapgit/relations/log"; //$NON-NLS-1$
 	String RELATION_STAGE = "http://www.sap.com/adt/abapgit/relations/stage"; //$NON-NLS-1$
