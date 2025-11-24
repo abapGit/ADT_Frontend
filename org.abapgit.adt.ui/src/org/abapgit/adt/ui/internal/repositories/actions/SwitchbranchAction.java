@@ -7,7 +7,6 @@ import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.repositories.AbapGitView;
-import org.abapgit.adt.ui.internal.repositories.AbapGitViewUtils;
 import org.abapgit.adt.ui.internal.repositories.exceptions.PackageRefNotFoundException;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizardSwitchBranch;
 import org.eclipse.core.resources.IProject;
@@ -55,7 +54,7 @@ public class SwitchbranchAction extends Action {
 						e.getLocalizedMessage());
 			}
 		}
-		AbapGitViewUtils.getInstance().refreshView();
+		this.AbapGitView.refresh();
 
 	}
 

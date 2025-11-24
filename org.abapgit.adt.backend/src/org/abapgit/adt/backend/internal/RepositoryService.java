@@ -33,7 +33,6 @@ public class RepositoryService implements IRepositoryService {
 
 	private final String destinationId;
 	private final URI uri;
-	private String result;
 
 	public RepositoryService(String destinationId, URI uri) {
 		this.destinationId = destinationId;
@@ -292,29 +291,23 @@ public class RepositoryService implements IRepositoryService {
 
 	}
 
-	// CHNG: Change it back to original pull relation
 	@Override
 	public IAbapObjects pullRepository(IRepository existingRepository, String branch, String transportRequest, String user, String password,
 			IAbapGitPullModifiedObjects selectedObjectsToPull, IProgressMonitor monitor) {
 		IRestResource restResource = null;
 		URI uriToRepo = null;
-		// check if background job framework is available and is accessible by the user.
 		if (isBackgroundJobSupported(monitor)) {
-			// get new pull without background resource URI
-			uriToRepo = getURIFromAtomLink(existingRepository, IRepositoryService.RELATION_PULL_WITHOUT_BG);
-			// check whether URI is available in the system (this depends on the back end version)
+			uriToRepo = getURIFromAtomLink(existingRepository, IRepositoryService.RELATION_PULL_WITH_BG_RUN);
 			if (uriToRepo != null) {
 				restResource = getBackgroundRestResource(uriToRepo.getPath(), this.destinationId, monitor);
 			}
 		}
-		// if rest resource is still null, rollback to normal pull URI
 		if (restResource == null) {
 			uriToRepo = getURIFromAtomLink(existingRepository, IRepositoryService.RELATION_PULL);
 			restResource = AdtRestResourceFactory.createRestResourceFactory().createResourceWithStatelessSession(uriToRepo,
 					this.destinationId);
 		}
 		if (restResource == null) {
-			// if rest resource could not be created, throw exception
 			throw new IllegalStateException("Unable to create REST resource for pull operation."); //$NON-NLS-1$
 		}
 		IContentHandler<IAbapGitPullRequest> requestContentHandlerV1 = new AbapGitPullRequestContentHandler();

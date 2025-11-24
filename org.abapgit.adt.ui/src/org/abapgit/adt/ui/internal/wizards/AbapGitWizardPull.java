@@ -15,7 +15,7 @@ import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.abapgit.adt.backend.model.agitpullmodifiedobjects.IAbapGitPullModifiedObjects;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
 import org.abapgit.adt.ui.internal.i18n.Messages;
-import org.abapgit.adt.ui.internal.repositories.AbapGitViewUtils;
+import org.abapgit.adt.ui.internal.repositories.AbapGitView;
 import org.abapgit.adt.ui.internal.repositories.IRepositoryModifiedObjects;
 import org.abapgit.adt.ui.internal.util.AbapGitUIServiceFactory;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard.CloneData;
@@ -69,11 +69,12 @@ public class AbapGitWizardPull extends Wizard {
 	private AbapGitWizardPageObjectsSelectionForPull pageOverwriteObjectsSelection;
 	private AbapGitWizardPageObjectsSelectionForPull pagePackageWarningObjectsSelection;
 	public IAdtTransportService transportService;
+	private final AbapGitView abapGitView;
 	public IAdtTransportSelectionWizardPage transportPage;
 	public IRepository selRepoData;
 	public List<IRepository> allRepositories;
 
-	public AbapGitWizardPull(IProject project, IRepository selRepo, List<IRepository> allRepositories) {
+	public AbapGitWizardPull(IProject project, IRepository selRepo, List<IRepository> allRepositories, AbapGitView view) {
 		this.project = project;
 		this.destination = AdtProjectServiceFactory.createProjectService().getDestinationId(project);
 		this.cloneData = new CloneData();
@@ -82,7 +83,7 @@ public class AbapGitWizardPull extends Wizard {
 		this.cloneData.url = selRepo.getUrl();
 		this.cloneData.branch = selRepo.getBranchName();
 		this.repoToSelectedObjects = new HashMap<String, IAbapGitPullModifiedObjects>();
-
+		this.abapGitView = view;
 		getPackageAndRepoType();
 
 		setWindowTitle(Messages.AbapGitWizardPull_title);
@@ -187,7 +188,9 @@ public class AbapGitWizardPull extends Wizard {
 				} catch (ResourceException e) {
 					return new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getMessage(), e);
 				} finally {
-					AbapGitViewUtils.getInstance().refreshView();
+					PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
+						AbapGitWizardPull.this.abapGitView.refresh();
+					});
 				}
 					}
 
