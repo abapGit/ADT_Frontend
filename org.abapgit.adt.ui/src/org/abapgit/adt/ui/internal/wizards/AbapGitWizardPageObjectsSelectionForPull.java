@@ -12,6 +12,10 @@ import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.repositories.IRepositoryModifiedObjects;
 import org.abapgit.adt.ui.internal.repositories.RepositoryModifiedObjects;
 import org.abapgit.adt.ui.internal.util.RepositoryUtil;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.layout.TreeColumnLayout;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -26,9 +30,13 @@ import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.ScrollBar;
+import org.eclipse.swt.widgets.Text;
 
 /**
  * Wizard page showing modified objects for pull with lazy loading on scroll and
@@ -38,17 +46,24 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 
 	private static final String PAGE_NAME = AbapGitWizardPageObjectsSelectionForPull.class.getName();
 	private static final double SCROLL_THRESHOLD_LAZY_LOAD = 0.9;
+	private static final int SEARCH_DEBOUNCE_DELAY_MS = 300;
 	private static boolean isLoading = false;
 
 	private final Set<IRepositoryModifiedObjects> repoToModifiedObjects;
 	protected CheckboxTreeViewer modifiedObjTreeViewer;
 	private Composite container;
 	private TreeColumnLayout treeColumnLayout;
+	private Text searchField;
+	private String searchText = "";
+	private Job searchJob;
 
 	// Tracks loaded counts per repository for incremental lazy loading
 	private final Map<IRepositoryModifiedObjects, Integer> itemsLoadedPerRepo = new HashMap<>();
 
 	private final Map<String, Set<IOverwriteObject>> selectedObjectsByRepo = new HashMap<>();
+
+	// Store filtered repositories for search
+	private Set<IRepositoryModifiedObjects> filteredRepositories;
 
 	public AbapGitWizardPageObjectsSelectionForPull(Set<IRepositoryModifiedObjects> repoToModifiedOverwriteObjects, String message,
 			int messageType) {
@@ -60,9 +75,22 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 
 	@Override
 	public void createControl(Composite parent) {
-		this.treeColumnLayout = new TreeColumnLayout();
+		// Main container with GridLayout
+		Composite mainContainer = new Composite(parent, SWT.NONE);
+		GridLayout mainLayout = new GridLayout(1, false);
+		mainLayout.marginWidth = 0;
+		mainLayout.marginHeight = 0;
+		mainContainer.setLayout(mainLayout);
+		mainContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-		this.container = new Composite(parent, SWT.NONE);
+		// Search field
+		this.searchField = new Text(mainContainer, SWT.BORDER | SWT.SEARCH | SWT.ICON_SEARCH | SWT.ICON_CANCEL);
+		this.searchField.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		this.searchField.setMessage(Messages.AbapGitWizardPageObjectsSelectionForPull_SearchField_Placeholder);
+
+		// Tree container with TreeColumnLayout
+		this.treeColumnLayout = new TreeColumnLayout();
+		this.container = new Composite(mainContainer, SWT.NONE);
 		this.container.setLayout(this.treeColumnLayout);
 		this.container.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
@@ -76,10 +104,12 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 		this.modifiedObjTreeViewer.setAutoExpandLevel(AbstractTreeViewer.ALL_LEVELS);
 
 		createColumns();
-		this.modifiedObjTreeViewer.setInput(this.repoToModifiedObjects);
-		setControl(this.container);
+		this.filteredRepositories = this.repoToModifiedObjects;
+		this.modifiedObjTreeViewer.setInput(this.filteredRepositories);
+		setControl(mainContainer);
 		setPageComplete(true);
 		addListeners();
+		addSearchListener();
 	}
 
 	private void createColumns() {
@@ -394,5 +424,94 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 			this.modifiedObjTreeViewer.getControl().setRedraw(true);
 			isLoading = false;
 		}
+	}
+
+	/**
+	 * Add search listener with debouncing to prevent UI freeze.
+	 */
+	private void addSearchListener() {
+		this.searchField.addModifyListener(new ModifyListener() {
+			@Override
+			public void modifyText(ModifyEvent e) {
+				if (AbapGitWizardPageObjectsSelectionForPull.this.searchJob != null) {
+					AbapGitWizardPageObjectsSelectionForPull.this.searchJob.cancel();
+				}
+				AbapGitWizardPageObjectsSelectionForPull.this.searchJob = new Job("Search Modified Objects") {
+					@Override
+					protected IStatus run(IProgressMonitor monitor) {
+						final String[] currentSearchText = new String[1];
+						AbapGitWizardPageObjectsSelectionForPull.this.searchField.getDisplay()
+								.syncExec(() -> currentSearchText[0] = AbapGitWizardPageObjectsSelectionForPull.this.searchField.getText());
+
+						AbapGitWizardPageObjectsSelectionForPull.this.searchText = currentSearchText[0] != null ? currentSearchText[0].toLowerCase().trim() : "";
+						// Perform filtering
+						filterRepositories();
+
+						// Update UI in UI thread
+						AbapGitWizardPageObjectsSelectionForPull.this.searchField.getDisplay().asyncExec(() -> {
+							if (!AbapGitWizardPageObjectsSelectionForPull.this.modifiedObjTreeViewer.getControl().isDisposed()) {
+								// Clear loaded counts to force reload with filtered data
+								AbapGitWizardPageObjectsSelectionForPull.this.itemsLoadedPerRepo.clear();
+
+								// Update input with filtered repositories
+								AbapGitWizardPageObjectsSelectionForPull.this.modifiedObjTreeViewer.setInput(
+										AbapGitWizardPageObjectsSelectionForPull.this.filteredRepositories);
+								AbapGitWizardPageObjectsSelectionForPull.this.modifiedObjTreeViewer.refresh();
+
+								// Expand all repositories to show filtered results
+								for (IRepositoryModifiedObjects repository : AbapGitWizardPageObjectsSelectionForPull.this.filteredRepositories) {
+									AbapGitWizardPageObjectsSelectionForPull.this.modifiedObjTreeViewer.expandToLevel(repository, 1);
+								}
+							}
+						});
+
+						return Status.OK_STATUS;
+					}
+				};
+
+				// Schedule the job with debounce delay
+				AbapGitWizardPageObjectsSelectionForPull.this.searchJob.schedule(SEARCH_DEBOUNCE_DELAY_MS);
+			}
+		});
+	}
+
+	/**
+	 * Filter repositories and their objects based on search text.
+	 */
+	private void filterRepositories() {
+		if (this.searchText.isEmpty()) {
+			// No filter - show all repositories
+			this.filteredRepositories = this.repoToModifiedObjects;
+		} else {
+			// Filter repositories and objects based on search text
+			Set<IRepositoryModifiedObjects> filtered = new HashSet<>();
+
+			for (IRepositoryModifiedObjects repository : this.repoToModifiedObjects) {
+				// Filter objects within this repository
+				List<IOverwriteObject> filteredObjects = repository.getModifiedObjects().stream()
+						.filter(obj -> matchesSearch(obj))
+						.collect(Collectors.toList());
+
+				// Only include repository if it has matching objects
+				if (!filteredObjects.isEmpty()) {
+					filtered.add(new RepositoryModifiedObjects(repository.getRepositoryURL(), filteredObjects));
+				}
+			}
+
+			this.filteredRepositories = filtered;
+		}
+	}
+
+	/**
+	 * Check if an object name matches the search text.
+	 */
+	private boolean matchesSearch(IOverwriteObject obj) {
+		if (this.searchText.isEmpty()) {
+			return true;
+		}
+
+		String name = obj.getName() != null ? obj.getName().toLowerCase() : "";
+
+		return name.contains(this.searchText);
 	}
 }

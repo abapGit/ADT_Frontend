@@ -110,6 +110,7 @@ public class Messages extends NLS {
 	public static String AbapGitWizardPageBranchAndPackage_title;
 	public static String AbapGitWizardPageFolderLogic_title;
 	public static String AbapGitWizardPageObjectsSelectionForPull_Title;
+	public static String AbapGitWizardPageObjectsSelectionForPull_SearchField_Placeholder;
 	public static String AbapGitWizardPageRepositoryAndCredentials_credentials_manager_popup_title;
 	public static String AbapGitWizardPageRepositoryAndCredentials_description;
 	public static String AbapGitWizardPageRepositoryAndCredentials_label_password;
