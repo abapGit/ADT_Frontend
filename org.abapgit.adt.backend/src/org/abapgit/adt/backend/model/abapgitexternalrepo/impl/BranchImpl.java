@@ -2,6 +2,7 @@
  */
 package org.abapgit.adt.backend.model.abapgitexternalrepo.impl;
 
+import com.sap.adt.tools.core.model.atom.IAtomLink;
 import java.util.Collection;
 import org.abapgit.adt.backend.model.abapgitexternalrepo.IAbapgitexternalrepoPackage;
 import org.abapgit.adt.backend.model.abapgitexternalrepo.IBranch;
@@ -143,7 +144,7 @@ public class BranchImpl extends MinimalEObjectImpl.Container implements IBranch 
 	 * @generated
 	 * @ordered
 	 */
-	protected EList<com.sap.adt.tools.core.model.atom.IAtomLink> links;
+	protected EList<IAtomLink> links;
 
 	/**
 	 * The default value of the '{@link #getFolderLogic() <em>Folder Logic</em>}' attribute.
@@ -305,9 +306,9 @@ public class BranchImpl extends MinimalEObjectImpl.Container implements IBranch 
 	 * @generated
 	 */
 	@Override
-	public EList<com.sap.adt.tools.core.model.atom.IAtomLink> getLinks() {
+	public EList<IAtomLink> getLinks() {
 		if (links == null) {
-			links = new EObjectContainmentEList<com.sap.adt.tools.core.model.atom.IAtomLink>(com.sap.adt.tools.core.model.atom.IAtomLink.class, this, IAbapgitexternalrepoPackage.BRANCH__LINKS);
+			links = new EObjectContainmentEList<IAtomLink>(IAtomLink.class, this, IAbapgitexternalrepoPackage.BRANCH__LINKS);
 		}
 		return links;
 	}
@@ -401,7 +402,7 @@ public class BranchImpl extends MinimalEObjectImpl.Container implements IBranch 
 				return;
 			case IAbapgitexternalrepoPackage.BRANCH__LINKS:
 				getLinks().clear();
-				getLinks().addAll((Collection<? extends com.sap.adt.tools.core.model.atom.IAtomLink>)newValue);
+				getLinks().addAll((Collection<? extends IAtomLink>)newValue);
 				return;
 			case IAbapgitexternalrepoPackage.BRANCH__FOLDER_LOGIC:
 				setFolderLogic((String)newValue);

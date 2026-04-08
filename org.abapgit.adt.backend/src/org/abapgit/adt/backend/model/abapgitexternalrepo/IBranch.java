@@ -2,6 +2,7 @@
  */
 package org.abapgit.adt.backend.model.abapgitexternalrepo;
 
+import com.sap.adt.tools.core.model.atom.IAtomLink;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 
@@ -154,7 +155,7 @@ public interface IBranch extends EObject {
 	 *        extendedMetaData="kind='element' name='link' namespace='http://www.w3.org/2005/Atom'"
 	 * @generated
 	 */
-	EList<com.sap.adt.tools.core.model.atom.IAtomLink> getLinks();
+	EList<IAtomLink> getLinks();
 
 	/**
 	 * Returns the value of the '<em><b>Folder Logic</b></em>' attribute.

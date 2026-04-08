@@ -2,6 +2,7 @@
  */
 package org.abapgit.adt.backend.model.abapgitexternalrepo.impl;
 
+import com.sap.adt.tools.core.model.atom.IAtomPackage;
 import org.abapgit.adt.backend.model.abapgitexternalrepo.AccessMode;
 import org.abapgit.adt.backend.model.abapgitexternalrepo.IAbapgitexternalrepoFactory;
 import org.abapgit.adt.backend.model.abapgitexternalrepo.IAbapgitexternalrepoPackage;
@@ -110,19 +111,14 @@ public class AbapgitexternalrepoPackageImpl extends EPackageImpl implements IAba
 		isInited = true;
 
 		// Initialize simple dependencies
+		IAtomPackage.eINSTANCE.eClass();
 		XMLTypePackage.eINSTANCE.eClass();
-
-		// Obtain or create and register interdependencies
-		Object registeredPackage = EPackage.Registry.INSTANCE.getEPackage(com.sap.adt.tools.core.model.atom.IAtomPackage.eNS_URI);
-		com.sap.adt.tools.core.model.atom.impl.AtomPackageImpl theAtomPackage = (com.sap.adt.tools.core.model.atom.impl.AtomPackageImpl)(registeredPackage instanceof com.sap.adt.tools.core.model.atom.impl.AtomPackageImpl ? registeredPackage : com.sap.adt.tools.core.model.atom.IAtomPackage.eINSTANCE);
 
 		// Create package meta-data objects
 		theAbapgitexternalrepoPackage.createPackageContents();
-		theAtomPackage.createPackageContents();
 
 		// Initialize created meta-data
 		theAbapgitexternalrepoPackage.initializePackageContents();
-		theAtomPackage.initializePackageContents();
 
 		// Mark meta-data to indicate it can't be changed
 		theAbapgitexternalrepoPackage.freeze();
@@ -457,7 +453,7 @@ public class AbapgitexternalrepoPackageImpl extends EPackageImpl implements IAba
 
 		// Obtain other dependent packages
 		XMLTypePackage theXMLTypePackage = (XMLTypePackage)EPackage.Registry.INSTANCE.getEPackage(XMLTypePackage.eNS_URI);
-		com.sap.adt.tools.core.model.atom.IAtomPackage theAtomPackage = (com.sap.adt.tools.core.model.atom.IAtomPackage)EPackage.Registry.INSTANCE.getEPackage(com.sap.adt.tools.core.model.atom.IAtomPackage.eNS_URI);
+		IAtomPackage theAtomPackage = (IAtomPackage)EPackage.Registry.INSTANCE.getEPackage(IAtomPackage.eNS_URI);
 
 		// Create type parameters
 
