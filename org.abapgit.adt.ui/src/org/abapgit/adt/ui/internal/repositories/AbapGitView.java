@@ -4,7 +4,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,21 +11,19 @@ import java.util.Locale;
 
 import org.abapgit.adt.backend.IRepositoryService;
 import org.abapgit.adt.backend.RepositoryServiceFactory;
-import org.abapgit.adt.backend.model.abapObjects.IAbapObject;
-import org.abapgit.adt.backend.model.abapObjects.IAbapObjects;
 import org.abapgit.adt.backend.model.abapgitrepositories.IRepository;
 import org.abapgit.adt.ui.AbapGitUIPlugin;
-import org.abapgit.adt.ui.internal.dialogs.AbapGitDialogObjLog;
 import org.abapgit.adt.ui.internal.i18n.Messages;
+import org.abapgit.adt.ui.internal.repositories.actions.GetObjLogAction;
+import org.abapgit.adt.ui.internal.repositories.actions.OpenAbapgitWizardAction;
+import org.abapgit.adt.ui.internal.repositories.actions.OpenPackageAction;
+import org.abapgit.adt.ui.internal.repositories.actions.OpenPullWizardAction;
 import org.abapgit.adt.ui.internal.repositories.actions.OpenRepositoryAction;
+import org.abapgit.adt.ui.internal.repositories.actions.OpenStagingViewAction;
 import org.abapgit.adt.ui.internal.repositories.actions.SwitchbranchAction;
-import org.abapgit.adt.ui.internal.staging.AbapGitStagingView;
-import org.abapgit.adt.ui.internal.staging.IAbapGitStagingView;
+import org.abapgit.adt.ui.internal.repositories.actions.UnlinkRepoAction;
 import org.abapgit.adt.ui.internal.util.AbapGitUIServiceFactory;
-import org.abapgit.adt.ui.internal.util.GitCredentialsService;
 import org.abapgit.adt.ui.internal.util.IAbapGitService;
-import org.abapgit.adt.ui.internal.wizards.AbapGitWizard;
-import org.abapgit.adt.ui.internal.wizards.AbapGitWizardPull;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -42,8 +39,6 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.bindings.keys.KeyStroke;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -55,7 +50,6 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
-import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
@@ -86,14 +80,9 @@ import org.eclipse.ui.statushandlers.StatusManager;
 import org.osgi.framework.Bundle;
 
 import com.sap.adt.destinations.model.IDestinationData;
-import com.sap.adt.destinations.ui.logon.AdtLogonServiceUIFactory;
 import com.sap.adt.project.ui.util.ProjectUtil;
-import com.sap.adt.tools.core.model.adtcore.IAdtObjectReference;
 import com.sap.adt.tools.core.project.AdtProjectServiceFactory;
 import com.sap.adt.tools.core.project.IAbapProject;
-import com.sap.adt.tools.core.ui.navigation.AdtNavigationServiceFactory;
-import com.sap.adt.tools.core.ui.packages.AdtPackageServiceUIFactory;
-import com.sap.adt.tools.core.ui.packages.IAdtPackageServiceUI;
 import com.sap.adt.tools.core.ui.userinfo.AdtUserInfoFormatterFactory;
 import com.sap.adt.tools.core.ui.userinfo.IAdtUserInfoFormatter;
 
@@ -397,7 +386,7 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 						}
 						//object log action
 						if (AbapGitView.this.repoService.getURIFromAtomLink(repository, IRepositoryService.RELATION_LOG) != null) {
-							manager.add(new GetObjLogAction(AbapGitView.this.lastProject, repository));
+							manager.add(new GetObjLogAction(repository, AbapGitView.this));
 						}
 						//separator
 						manager.add(new Separator());
@@ -418,7 +407,8 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 						//unlink action
 						if (AbapGitView.this.repoService.getURIFromAtomLink(repository, IRepositoryService.RELATION_PULL) != null) {
 							manager.add(new Separator());
-							manager.add(new UnlinkAction(AbapGitView.this.lastProject, repository));
+							manager.add(new UnlinkRepoAction(repository,
+									AbapGitView.this));
 						}
 					}
 				}
@@ -487,90 +477,14 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 		this.actionCopy.setActionDefinitionId(ActionFactory.COPY.getCommandId());
 		this.actionCopy.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_COPY));
 
-		this.actionOpen = new Action() {
-			public void run() {
-				if (!AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(AbapGitView.this.lastProject).isOK()) {
-					return;
-				}
+		// open package
+		this.actionOpen = new OpenPackageAction(this);
 
-				IRepository currRepository = null;
-				Object firstElement = AbapGitView.this.viewer.getStructuredSelection().getFirstElement();
+		// link new repository
+		this.actionWizard = new OpenAbapgitWizardAction(this);
 
-				if (firstElement instanceof IRepository) {
-					currRepository = ((IRepository) firstElement);
-				}
-
-				if (currRepository != null) {
-					IAdtPackageServiceUI packageServiceUI = AdtPackageServiceUIFactory.getOrCreateAdtPackageServiceUI();
-					String destinationId = AbapGitView.this.abapGitService.getDestination(AbapGitView.this.lastProject);
-					List<IAdtObjectReference> pkgRefs = packageServiceUI.find(destinationId, currRepository.getPackage(), null);
-					IProject currProject = AbapGitView.this.lastProject;
-					if (!pkgRefs.isEmpty()) {
-						IAdtObjectReference gitPackageRef = pkgRefs.stream().findFirst().get();
-						if (gitPackageRef != null) {
-							AdtNavigationServiceFactory.createNavigationService().navigate(currProject, gitPackageRef, true);
-						}
-					}
-				}
-
-			}
-		};
-		this.actionOpen.setText(Messages.AbapGitView_action_open);
-		this.actionOpen.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJ_FOLDER));
-
-		this.actionWizard = new Action() {
-			public void run() {
-				if (!AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(AbapGitView.this.lastProject).isOK()) {
-					return;
-				}
-				AbapGitWizard abapGitWizard = new AbapGitWizard(AbapGitView.this.lastProject);
-				WizardDialog wizardDialog = new WizardDialog(AbapGitView.this.viewer.getControl().getShell(),
-						abapGitWizard);
-				wizardDialog.open();
-				updateView(true);
-
-			}
-		};
-		this.actionWizard.setText(Messages.AbapGitView_action_clone);
-		this.actionWizard.setToolTipText(Messages.AbapGitView_action_clone);
-		this.actionWizard.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJ_ADD));
-
-		this.actionPullWizard = new Action() {
-
-			private IRepository selRepo;
-
-			public void run() {
-				if (!AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(AbapGitView.this.lastProject).isOK()) {
-					return;
-				}
-
-				Object firstElement = AbapGitView.this.viewer.getStructuredSelection().getFirstElement();
-
-				if (firstElement instanceof IRepository) {
-					this.selRepo = ((IRepository) firstElement);
-				}
-
-				if (this.selRepo != null) {
-
-					Object viewerInput = AbapGitView.this.viewer.getInput();
-					List<IRepository> allRepositories = new ArrayList<IRepository>();
-					if (viewerInput != null && viewerInput instanceof List<?>) {
-						@SuppressWarnings("unchecked")
-						List<IRepository> viewerRepositories = (List<IRepository>) viewerInput;
-						allRepositories.addAll(viewerRepositories);
-					}
-
-					WizardDialog wizardDialog = new WizardDialog(AbapGitView.this.viewer.getControl().getShell(),
-							new AbapGitWizardPull(AbapGitView.this.lastProject, this.selRepo, allRepositories));
-					wizardDialog.open();
-				}
-
-				updateView(true);
-			}
-		};
-		this.actionPullWizard.setText(Messages.AbapGitView_context_pull);
-		this.actionPullWizard
-				.setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID, "icons/view/abapgit.png")); //$NON-NLS-1$
+		// pull repository
+		this.actionPullWizard = new OpenPullWizardAction(this);
 
 		//Open repository in external browser
 		this.actionOpenRepository = new OpenRepositoryAction(this);
@@ -808,128 +722,6 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 
 	}
 
-	private class UnlinkAction extends Action {
-
-		private final IProject project;
-		private final IRepository repository;
-
-		public UnlinkAction(IProject project, IRepository repository) {
-			this.project = project;
-			this.repository = repository;
-			setText(Messages.AbapGitView_context_unlink);
-			setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ETOOL_DELETE));
-		}
-
-		@Override
-		public void run() {
-			if (!MessageDialog.openConfirm(getSite().getShell(), Messages.AbapGitView_context_dialog_unlink_title,
-					NLS.bind(Messages.AbapGitView_context_dialog_unlink_message, this.repository.getUrl(), this.repository.getPackage()))) {
-				return;
-			}
-			try {
-				if (!AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(this.project).isOK()) {
-					return;
-				}
-				PlatformUI.getWorkbench().getProgressService().busyCursorWhile(new IRunnableWithProgress() {
-
-					@Override
-					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-						RepositoryServiceFactory
-								.createRepositoryService(AbapGitView.this.abapGitService.getDestination(UnlinkAction.this.project),
-										monitor)
-								.unlinkRepository(UnlinkAction.this.repository.getKey(), monitor);
-					}
-				});
-
-				//Delete credentials from Secure storage
-				GitCredentialsService.deleteCredentialsFromSecureStorage(this.repository.getUrl());
-				updateView(true);
-			} catch (InvocationTargetException e) {
-				StatusManager.getManager().handle(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID,
-						Messages.AbapGitView_context_unlink_error, e.getTargetException()), StatusManager.SHOW);
-			} catch (InterruptedException e) {
-			}
-		}
-
-	}
-
-	private class GetObjLogAction extends Action {
-
-		private final IProject project;
-		private final IRepository repository;
-
-		public GetObjLogAction(IProject project, IRepository repository) {
-			this.project = project;
-			this.repository = repository;
-			setText(Messages.AbapGitView_context_object_log);
-			setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_DEF_VIEW));
-		}
-
-		@Override
-		public void run() {
-			List<IAbapObject> objectLogItems = new LinkedList<>();
-
-			try {
-				if (!AdtLogonServiceUIFactory.createLogonServiceUI().ensureLoggedOn(this.project).isOK()) {
-					return;
-				}
-				PlatformUI.getWorkbench().getProgressService().busyCursorWhile(new IRunnableWithProgress() {
-
-					@Override
-					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-
-						IAbapObjects abapObjects = RepositoryServiceFactory
-								.createRepositoryService(
-										AbapGitView.this.abapGitService.getDestination(GetObjLogAction.this.project), monitor)
-								.getRepoObjLog(monitor, GetObjLogAction.this.repository);
-
-						objectLogItems.addAll(
-								AbapGitUIServiceFactory.createAbapGitObjLogService().renderObjLogInput(abapObjects).getAbapObjects());
-
-					}
-				});
-
-			} catch (InvocationTargetException e) {
-				StatusManager.getManager().handle(
-						new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, "Check status error", e.getTargetException()), //$NON-NLS-1$
-						StatusManager.SHOW);
-			} catch (InterruptedException e) {
-			}
-
-			TitleAreaDialog objLogDialog = new AbapGitDialogObjLog(AbapGitView.this.viewer.getControl().getShell(), objectLogItems,
-					GetObjLogAction.this.repository);
-			objLogDialog.open();
-
-
-		}
-
-	}
-
-	private static class OpenStagingViewAction extends Action {
-
-		private final IProject project;
-		private final IRepository repository;
-
-		public OpenStagingViewAction(IProject project, IRepository repository) {
-			this.project = project;
-			this.repository = repository;
-			setText(Messages.AbapGitView_context_staging);
-			setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(AbapGitUIPlugin.PLUGIN_ID, "icons/view/abapgit_staging.png")); //$NON-NLS-1$
-		}
-
-		@Override
-		public void run() {
-			try {
-				IAbapGitStagingView stagingView = ((IAbapGitStagingView) PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-						.getActivePage().showView(AbapGitStagingView.VIEW_ID));
-				stagingView.openStagingView(this.repository, this.project);
-			} catch (PartInitException e) {
-				AbapGitUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, AbapGitUIPlugin.PLUGIN_ID, e.getMessage(), e));
-			}
-		}
-
-	}
-
 	@Override
 	public IRepository getRepositorySelection() {
 		Object selObject = this.viewer.getStructuredSelection().getFirstElement();
@@ -940,8 +732,16 @@ public class AbapGitView extends ViewPart implements IAbapGitRepositoriesView {
 	}
 
 	@Override
-	public IProject getProject() {
+	public IProject getLastProject() {
 		return this.lastProject;
+	}
+
+	public IAbapGitService getAbapGitService() {
+		return this.abapGitService;
+	}
+
+	public TableViewer getTableViewer() {
+		return this.viewer;
 	}
 
 }
