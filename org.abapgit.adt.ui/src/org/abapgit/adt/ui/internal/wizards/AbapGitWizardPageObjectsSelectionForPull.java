@@ -3,6 +3,7 @@ package org.abapgit.adt.ui.internal.wizards;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -12,6 +13,12 @@ import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.repositories.IRepositoryModifiedObjects;
 import org.abapgit.adt.ui.internal.repositories.RepositoryModifiedObjects;
 import org.abapgit.adt.ui.internal.util.RepositoryUtil;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.layout.TreeColumnLayout;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -26,9 +33,12 @@ import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.ScrollBar;
+import org.eclipse.swt.widgets.Text;
 
 /**
  * Wizard page showing modified objects for pull with lazy loading on scroll and
@@ -37,18 +47,25 @@ import org.eclipse.swt.widgets.ScrollBar;
 public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 
 	private static final String PAGE_NAME = AbapGitWizardPageObjectsSelectionForPull.class.getName();
-	private static final double SCROLL_THRESHOLD_LAZY_LOAD = 0.9;
-	private static boolean isLoading = false;
+	private final double SCROLL_THRESHOLD_LAZY_LOAD = 0.9;
+	private final int SEARCH_DEBOUNCE_DELAY_MS = 300;
+	private boolean isLoading = false;
 
 	private final Set<IRepositoryModifiedObjects> repoToModifiedObjects;
 	protected CheckboxTreeViewer modifiedObjTreeViewer;
-	private Composite container;
+	private Composite treeComposite;
 	private TreeColumnLayout treeColumnLayout;
+	private Text searchField;
+	private String searchText = ""; //$NON-NLS-1$
+	private Job searchJob;
 
 	// Tracks loaded counts per repository for incremental lazy loading
 	private final Map<IRepositoryModifiedObjects, Integer> itemsLoadedPerRepo = new HashMap<>();
 
 	private final Map<String, Set<IOverwriteObject>> selectedObjectsByRepo = new HashMap<>();
+
+	// Store filtered repositories for search
+	private Set<IRepositoryModifiedObjects> filteredRepositoryObjects;
 
 	public AbapGitWizardPageObjectsSelectionForPull(Set<IRepositoryModifiedObjects> repoToModifiedOverwriteObjects, String message,
 			int messageType) {
@@ -60,13 +77,23 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 
 	@Override
 	public void createControl(Composite parent) {
+		// Main container with GridLayout
+		Composite mainContainer = new Composite(parent, SWT.NONE);
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(mainContainer);
+		GridLayoutFactory.fillDefaults().applyTo(mainContainer);
+
+		// Search field
+		this.searchField = new Text(mainContainer, SWT.BORDER | SWT.SEARCH | SWT.ICON_SEARCH | SWT.ICON_CANCEL);
+		this.searchField.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		this.searchField.setMessage(Messages.AbapGitWizardPageObjectsSelectionForPull_filter_Placeholder);
+
+		// Tree container with TreeColumnLayout
 		this.treeColumnLayout = new TreeColumnLayout();
+		this.treeComposite = new Composite(mainContainer, SWT.NONE);
+		this.treeComposite.setLayout(this.treeColumnLayout);
+		this.treeComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-		this.container = new Composite(parent, SWT.NONE);
-		this.container.setLayout(this.treeColumnLayout);
-		this.container.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-
-		this.modifiedObjTreeViewer = new CheckboxTreeViewer(this.container,
+		this.modifiedObjTreeViewer = new CheckboxTreeViewer(this.treeComposite,
 				SWT.MULTI | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FILL);
 
 		this.modifiedObjTreeViewer.setContentProvider(new ModifiedObjectTreeContentProvider());
@@ -76,10 +103,12 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 		this.modifiedObjTreeViewer.setAutoExpandLevel(AbstractTreeViewer.ALL_LEVELS);
 
 		createColumns();
-		this.modifiedObjTreeViewer.setInput(this.repoToModifiedObjects);
-		setControl(this.container);
+		this.filteredRepositoryObjects = this.repoToModifiedObjects;
+		this.modifiedObjTreeViewer.setInput(this.filteredRepositoryObjects);
+		setControl(mainContainer);
 		setPageComplete(true);
 		addListeners();
+		addSearchListener();
 	}
 
 	private void createColumns() {
@@ -344,7 +373,7 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 		}
 
 		int scrollPosition = verticalScrollBar.getSelection() + verticalScrollBar.getThumb();
-		int threshold = (int) (verticalScrollBar.getMaximum() * SCROLL_THRESHOLD_LAZY_LOAD);
+		int threshold = (int) (verticalScrollBar.getMaximum() * this.SCROLL_THRESHOLD_LAZY_LOAD);
 
 		if (scrollPosition >= threshold) {
 			Object[] expandedElements = this.modifiedObjTreeViewer.getExpandedElements();
@@ -364,10 +393,10 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 			return;
 		}
 		// adding debounce logic to avoid multiple simultaneous loads
-		if (isLoading) {
+		if (this.isLoading) {
 			return;
 		}
-		isLoading = true;
+		this.isLoading = true;
 		List<IOverwriteObject> modifiedObjects = modifiedObjectsForRepository.getModifiedObjects();
 		int itemsAlreadyLoaded = this.itemsLoadedPerRepo.getOrDefault(modifiedObjectsForRepository, 0);
 
@@ -392,7 +421,110 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 			}
 		} finally {
 			this.modifiedObjTreeViewer.getControl().setRedraw(true);
-			isLoading = false;
+			this.isLoading = false;
 		}
+	}
+
+	/**
+	 * Add search listener with debouncing to prevent UI freeze.
+	 */
+	private void addSearchListener() {
+		this.searchField.addModifyListener(new ModifyListener() {
+			@Override
+			public void modifyText(ModifyEvent e) {
+				if (AbapGitWizardPageObjectsSelectionForPull.this.searchJob != null) {
+					AbapGitWizardPageObjectsSelectionForPull.this.searchJob.cancel();
+				}
+
+				final String currentSearchText = AbapGitWizardPageObjectsSelectionForPull.this.searchField.getText();
+				AbapGitWizardPageObjectsSelectionForPull.this.searchJob = new Job("Search Modified Objects") { //$NON-NLS-1$
+					@Override
+					protected IStatus run(IProgressMonitor monitor) {
+
+						AbapGitWizardPageObjectsSelectionForPull.this.searchText = currentSearchText != null
+								? currentSearchText.toLowerCase(Locale.ENGLISH).trim()
+								: ""; //$NON-NLS-1$
+						// Perform filtering
+						filterRepositories();
+
+						// Update UI in UI thread
+						AbapGitWizardPageObjectsSelectionForPull.this.searchField.getDisplay().asyncExec(() -> {
+							updateTreeWithFilteredResults();
+						});
+
+						return Status.OK_STATUS;
+					}
+				};
+
+				// Schedule the job with debounce delay
+				AbapGitWizardPageObjectsSelectionForPull.this.searchJob.schedule(AbapGitWizardPageObjectsSelectionForPull.this.SEARCH_DEBOUNCE_DELAY_MS);
+			}
+		});
+	}
+
+	private void updateTreeWithFilteredResults() {
+		if (!AbapGitWizardPageObjectsSelectionForPull.this.modifiedObjTreeViewer.getControl().isDisposed()) {
+			// Clear loaded counts to force reload with filtered data
+			AbapGitWizardPageObjectsSelectionForPull.this.itemsLoadedPerRepo.clear();
+
+			// Update input with filtered repositories
+			AbapGitWizardPageObjectsSelectionForPull.this.modifiedObjTreeViewer
+					.setInput(AbapGitWizardPageObjectsSelectionForPull.this.filteredRepositoryObjects);
+			AbapGitWizardPageObjectsSelectionForPull.this.modifiedObjTreeViewer.refresh();
+
+			// Expand all repositories to show filtered results
+			for (IRepositoryModifiedObjects repository : AbapGitWizardPageObjectsSelectionForPull.this.filteredRepositoryObjects) {
+				AbapGitWizardPageObjectsSelectionForPull.this.modifiedObjTreeViewer.expandToLevel(repository, 1);
+			}
+		}
+	}
+
+	/**
+	 * Filter repositories and their objects based on search text.
+	 */
+	private void filterRepositories() {
+		if (this.searchText.isEmpty()) {
+			// No filter - show all repositories
+			this.filteredRepositoryObjects = this.repoToModifiedObjects;
+			return;
+		}
+
+		// Filter repositories and their modified objects based on search text
+		Set<IRepositoryModifiedObjects> filtered = new HashSet<>();
+
+		for (IRepositoryModifiedObjects repository : this.repoToModifiedObjects) {
+			// Filter objects within this repository
+			List<IOverwriteObject> filteredObjects = repository.getModifiedObjects() != null
+					? repository.getModifiedObjects().stream().filter(obj -> matchesSearch(obj)).collect(Collectors.toList())
+					: List.of();
+
+			// Only include repository if it has matching objects
+			if (!filteredObjects.isEmpty()) {
+				filtered.add(new RepositoryModifiedObjects(repository.getRepositoryURL(), filteredObjects));
+			}
+		}
+
+		this.filteredRepositoryObjects = filtered;
+
+	}
+
+	/**
+	 * Check if an object matches the search text in name, package or type
+	 * fields.
+	 */
+	private boolean matchesSearch(IOverwriteObject obj) {
+		if (this.searchText.isEmpty()) {
+			return true;
+		}
+
+		// null description is mapped to "modify object locally" as it's the default action description shown in the UI
+		String actionDescription = obj.getActionDescription() != null ? obj.getActionDescription().toLowerCase(Locale.ENGLISH)
+				: "modify object locally"; //$NON-NLS-1$
+		String name = obj.getName() != null ? obj.getName().toLowerCase(Locale.ENGLISH) : ""; //$NON-NLS-1$
+		String packageName = obj.getPackageName() != null ? obj.getPackageName().toLowerCase(Locale.ENGLISH) : ""; //$NON-NLS-1$
+		String type = obj.getType() != null ? obj.getType().toLowerCase(Locale.ENGLISH) : ""; //$NON-NLS-1$
+
+		return name.contains(this.searchText) || packageName.contains(this.searchText) || type.contains(this.searchText)
+				|| actionDescription.contains(this.searchText);
 	}
 }
