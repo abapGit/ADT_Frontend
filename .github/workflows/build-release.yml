@@ -1,0 +1,127 @@
+name: Automated Tycho Build and Update Site Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'The tag version to build and release (e.g., v1.6.5)'
+        required: true
+        type: string
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Extract Version Number from the Manual Input and set it as an OUTPUT
+      - name: Extract version
+        id: get_version
+        run: |
+          INPUT_TAG="${{ github.event.inputs.release_tag }}"
+          VERSION="${INPUT_TAG#v}"
+          # Setting a step output is the supported way to pass data between steps safely
+          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
+
+      # Step 2: Checkout the primary code repository matching your requested tag
+      - name: Checkout Code Repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.release_tag }}
+          fetch-depth: 0
+
+      # Step 3: Explicitly set up Java
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      # Step 4: Programmatically update Tycho Versions
+      - name: Update Tycho Project Version
+        run: |
+          mvn tycho-versions:set-version -DnewVersion=${{ steps.get_version.outputs.VERSION }}
+
+      # Step 5: Commit and push the updated pom.xml / MANIFEST.MF files
+      - name: Commit and Push Updated Tycho Versions
+        run: |
+          # Set up git bot signature
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          # Check if tycho-versions actually modified files
+          if [ -n "$(git status --porcelain)" ]; then
+            git add .
+            git commit -m "Bump Tycho project version to ${{ steps.get_version.outputs.VERSION }}"
+            
+            # Extract the raw input branch/tag name (e.g., v1.7.13 or release-1.7)
+            TARGET_REF="${{ github.event.inputs.release_tag }}"
+            
+            echo "Pushing updated version files back to origin tracking reference: ${TARGET_REF}"
+            
+            # Push HEAD directly to the matching branch name on origin
+            git push origin HEAD:${TARGET_REF}
+          else
+            echo "No version changes detected."
+          fi
+
+      # Step 6: Clean verify the artifacts
+      - name: Run Maven Build with UI config
+        run: |
+          xvfb-run --auto-servernum -s "-screen 0 1024x768x24" mvn clean verify
+
+      # Step 7: Package target repository into an archive
+      - name: Zip P2 Update Site Repository
+        run: |
+          cd org.abapgit.adt.updatesite/target/repository
+          zip -r ../../../abapGit_ADT_${{ steps.get_version.outputs.VERSION }}.zip .
+          cd ../../..
+
+      # Step 8: Draft and publish GitHub Release in ADT_Frontend Code repository
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.get_version.outputs.VERSION }}
+          name: v${{ steps.get_version.outputs.VERSION }}
+          draft: false
+          prerelease: false
+          files: abapGit_ADT_${{ steps.get_version.outputs.VERSION }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Step 9: Deploy directly to the secondary Update Site Repository
+      - name: Checkout Update Site Repo
+        uses: actions/checkout@v4
+        with:
+          repository: 'aarnapant-sap/eclipse.abapgit.org'
+          ssh-key: ${{ secrets.SSH_DEPLOY_KEY }}
+          path: 'update-site-repo'
+
+      # Step 10: Sync new release binaries into the update site
+      - name: Copy Files & Push to Update Site
+        run: |
+          # Define absolute paths using the step output reference
+          SRC_ZIP_DIR="$GITHUB_WORKSPACE/org.abapgit.adt.updatesite/target/repository"
+          DEST_DIR="$GITHUB_WORKSPACE/update-site-repo/updatesite"
+          VERSION_NUM="${{ steps.get_version.outputs.VERSION }}"
+          
+          # Force clean copy of build artifacts
+          mkdir -p $DEST_DIR
+          cp -r $SRC_ZIP_DIR/* $DEST_DIR/
+          
+          # Change tracking directory to update site repo context
+          cd $GITHUB_WORKSPACE/update-site-repo
+          
+          # Setup Git signature context for automation tracking
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          # Check for structural updates, create branch, and push changes
+          if [ -n "$(git status --porcelain)" ]; then
+            git checkout -b "new-release-v${VERSION_NUM}"
+            git add .
+            git commit -m "Update site binaries for release v${VERSION_NUM}"
+            git push origin "new-release-v${VERSION_NUM}"
+          else
+            echo "No changes found in the generated build output update site."
+          fi
