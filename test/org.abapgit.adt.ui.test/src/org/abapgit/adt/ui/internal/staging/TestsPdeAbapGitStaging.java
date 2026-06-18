@@ -94,19 +94,19 @@ public class TestsPdeAbapGitStaging {
 	public void initialViewStateCheck() {
 		view.resetStagingView();
 		
-		Assert.assertEquals(view.unstagedTreeViewer.getTree().getItemCount(), 0);
-		Assert.assertEquals(view.stagedTreeViewer.getTree().getItemCount(), 0);
+		Assert.assertEquals(0, view.unstagedTreeViewer.getTree().getItemCount());
+		Assert.assertEquals(0, view.stagedTreeViewer.getTree().getItemCount());
 		
-		Assert.assertEquals(view.mainForm.getText(), Messages.AbapGitStaging_no_repository_selected);
+		Assert.assertEquals(Messages.AbapGitStaging_no_repository_selected, view.mainForm.getText());
 		
 		Assert.assertTrue(view.commitMessageTextViewer.getTextWidget().getText().isEmpty());
 		Assert.assertTrue(view.authorText.getText().isEmpty());
 		Assert.assertTrue(view.committerText.getText().isEmpty());
 		
-		Assert.assertEquals(view.actionRefresh.isEnabled(), false);
-		Assert.assertEquals(view.actionStage.isEnabled(), false);
-		Assert.assertEquals(view.actionUnstage.isEnabled(), false);
-		Assert.assertEquals(view.commitAndPushButton.getEnabled(), false);
+		Assert.assertEquals(false, view.actionRefresh.isEnabled());
+		Assert.assertEquals(false, view.actionStage.isEnabled());
+		Assert.assertEquals(false, view.actionUnstage.isEnabled());
+		Assert.assertEquals(false, view.commitAndPushButton.getEnabled());
 	}
 	
 
@@ -240,7 +240,7 @@ public class TestsPdeAbapGitStaging {
 				//wait till all jobs are done
 				testUtil.waitInUI(3000);
 				//now the view will be loaded with repository2 which is "test_repo_2"
-				Assert.assertEquals(view.mainForm.getText(), "test_repo_2 [master] [ABAPGIT_TEST_PROJECT]");
+				Assert.assertEquals( "test_repo_2 [master] [ABAPGIT_TEST_PROJECT]", view.mainForm.getText());
 			}
 		}
 		//delete projects
@@ -288,27 +288,27 @@ public class TestsPdeAbapGitStaging {
 		view.openStagingView(repository, project);
 		testUtil.waitInUI(3000);
 		
-		Assert.assertEquals(view.mainForm.getText(), "lorem_ipsum [master] [ABAPGIT_TEST_PROJECT]");
+		Assert.assertEquals("lorem_ipsum [master] [ABAPGIT_TEST_PROJECT]", view.mainForm.getText());
 		
 		//check if tree viewers are loaded properly
-		Assert.assertEquals(view.unstagedTreeViewer.getTree().getItemCount(), 4);
-		Assert.assertEquals(view.stagedTreeViewer.getTree().getItemCount(), 0);
+		Assert.assertEquals(4, view.unstagedTreeViewer.getTree().getItemCount());
+		Assert.assertEquals(0, view.stagedTreeViewer.getTree().getItemCount());
 		
-		Assert.assertEquals(view.actionRefresh.isEnabled(), true);
-		Assert.assertEquals(view.actionStage.isEnabled(), true);
-		Assert.assertEquals(view.actionUnstage.isEnabled(), false);
-		Assert.assertEquals(view.commitAndPushButton.getEnabled(), false);
+		Assert.assertEquals(true, view.actionRefresh.isEnabled());
+		Assert.assertEquals(true, view.actionStage.isEnabled());
+		Assert.assertEquals(false, view.actionUnstage.isEnabled());
+		Assert.assertEquals(false, view.commitAndPushButton.getEnabled());
 		
 		//check sort order
-		Assert.assertEquals(((IAbapGitObject)view.unstagedTreeViewer.getTree().getItem(0).getData()), testUtil.getNonCodeMock());
-		Assert.assertEquals(((IAbapGitObject)view.unstagedTreeViewer.getTree().getItem(1).getData()), testUtil.getClassMock());
-		Assert.assertEquals(((IAbapGitObject)view.unstagedTreeViewer.getTree().getItem(2).getData()), testUtil.getTableMock());
-		Assert.assertEquals(((IAbapGitObject)view.unstagedTreeViewer.getTree().getItem(3).getData()), testUtil.getInterfaceMock());
+		Assert.assertEquals(testUtil.getNonCodeMock(), ((IAbapGitObject)view.unstagedTreeViewer.getTree().getItem(0).getData()));
+		Assert.assertEquals(testUtil.getClassMock(), ((IAbapGitObject)view.unstagedTreeViewer.getTree().getItem(1).getData()));
+		Assert.assertEquals(testUtil.getTableMock(), ((IAbapGitObject)view.unstagedTreeViewer.getTree().getItem(2).getData()));
+		Assert.assertEquals(testUtil.getInterfaceMock(), ((IAbapGitObject)view.unstagedTreeViewer.getTree().getItem(3).getData()));
 		
 		//check commit section
 		Assert.assertTrue(view.commitMessageTextViewer.getTextWidget().getText().isEmpty());
-		Assert.assertEquals(view.authorText.getText(), "Lorem Ipsum <lorem.ipsum@xxx.com>");
-		Assert.assertEquals(view.committerText.getText(), "Lorem Ipsum <lorem.ipsum@xxx.com>");
+		Assert.assertEquals("Lorem Ipsum <lorem.ipsum@xxx.com>", view.authorText.getText());
+		Assert.assertEquals("Lorem Ipsum <lorem.ipsum@xxx.com>", view.committerText.getText());
 		
 		//test satge and unstage
 		stageAndUnstage();
@@ -374,27 +374,27 @@ public class TestsPdeAbapGitStaging {
 		testUtil.waitInUI(3000);
 		
 		//check if tree viewers are loaded properly
-		Assert.assertEquals(view.unstagedTreeViewer.getTree().getItemCount(), 3);
-		Assert.assertEquals(view.stagedTreeViewer.getTree().getItemCount(), 0);
+		Assert.assertEquals(3, view.unstagedTreeViewer.getTree().getItemCount());
+		Assert.assertEquals(0, view.stagedTreeViewer.getTree().getItemCount());
 		
-		Assert.assertEquals(view.actionRefresh.isEnabled(), true);
-		Assert.assertEquals(view.actionStage.isEnabled(), true);
-		Assert.assertEquals(view.actionUnstage.isEnabled(), false);
-		Assert.assertEquals(view.commitAndPushButton.getEnabled(), false);
+		Assert.assertEquals(true, view.actionRefresh.isEnabled());
+		Assert.assertEquals(true, view.actionStage.isEnabled());
+		Assert.assertEquals(false, view.actionUnstage.isEnabled());
+		Assert.assertEquals(false, view.commitAndPushButton.getEnabled());
 		
 		//check sort order
-		Assert.assertEquals(((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(0).getData()).getType(), null);
-		Assert.assertEquals(((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(0).getData()).getValue(), "Not assigned to a package");
-		Assert.assertEquals(((IAbapGitObject)((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(0).getData()).getAbapgitobjects().get(0)), testUtil.getNonCodeMock());
+		Assert.assertEquals(null, ((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(0).getData()).getType());
+		Assert.assertEquals("Not assigned to a package", ((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(0).getData()).getValue());
+		Assert.assertEquals(testUtil.getNonCodeMock(), ((IAbapGitObject)((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(0).getData()).getAbapgitobjects().get(0)));
 		
-		Assert.assertEquals(((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(1).getData()).getType(), "package");
-		Assert.assertEquals(((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(1).getData()).getValue(), "PACKAGE1");
-		Assert.assertEquals(((IAbapGitObject)((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(1).getData()).getAbapgitobjects().get(0)), testUtil.getTableMock());
+		Assert.assertEquals("package", ((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(1).getData()).getType());
+		Assert.assertEquals("PACKAGE1", ((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(1).getData()).getValue());
+		Assert.assertEquals(testUtil.getTableMock(), ((IAbapGitObject)((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(1).getData()).getAbapgitobjects().get(0)));
 
-		Assert.assertEquals(((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(2).getData()).getType(), "package");
-		Assert.assertEquals(((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(2).getData()).getValue(), "PACKAGE2");
-		Assert.assertEquals(((IAbapGitObject)((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(2).getData()).getAbapgitobjects().get(0)), testUtil.getClassMock());
-		Assert.assertEquals(((IAbapGitObject)((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(2).getData()).getAbapgitobjects().get(1)), testUtil.getInterfaceMock());
+		Assert.assertEquals("package", ((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(2).getData()).getType());
+		Assert.assertEquals("PACKAGE2", ((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(2).getData()).getValue());
+		Assert.assertEquals(testUtil.getClassMock(), ((IAbapGitObject)((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(2).getData()).getAbapgitobjects().get(0)));
+		Assert.assertEquals(testUtil.getInterfaceMock(), ((IAbapGitObject)((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(2).getData()).getAbapgitobjects().get(1)));
 				
 		
 		//test satge and unstage
@@ -444,10 +444,10 @@ public class TestsPdeAbapGitStaging {
 				ITypedElement right = diffNode.getRight();
 				Assert.assertTrue(left instanceof AbapGitCompareItem);
 				Assert.assertTrue(right instanceof AbapGitCompareItem);
-				Assert.assertEquals(left.getName(), "file1.xml" + " (Local)");
-				Assert.assertEquals(right.getName(), "file1.xml" + " (Remote)");
-				Assert.assertEquals(left.getType(), ITypedElement.TEXT_TYPE);
-				Assert.assertEquals(right.getType(), ITypedElement.TEXT_TYPE);
+				Assert.assertEquals("file1.xml" + " (Local)", left.getName());
+				Assert.assertEquals( "file1.xml" + " (Remote)", right.getName());
+				Assert.assertEquals(ITypedElement.TEXT_TYPE, left.getType());
+				Assert.assertEquals(ITypedElement.TEXT_TYPE, right.getType());
 				editor.getEditorSite().getPage().closeEditor(editor, false);
 			}
 		}
@@ -482,8 +482,8 @@ public class TestsPdeAbapGitStaging {
 				ITypedElement right = diffNode.getRight();
 				Assert.assertTrue(left instanceof AbapGitCompareItem);
 				Assert.assertTrue(right instanceof AbapGitCompareItem);
-				Assert.assertEquals(left.getName(), "file1.abap" + " (Local)");
-				Assert.assertEquals(right.getName(), "file1.abap" + " (Remote)");
+				Assert.assertEquals("file1.abap" + " (Local)", left.getName());
+				Assert.assertEquals("file1.abap" + " (Remote)", right.getName());
 //				Assert.assertEquals(left.getType(), "aclass");
 //				Assert.assertEquals(right.getType(), "aclass");
 				editor.getEditorSite().getPage().closeEditor(editor, false);
@@ -499,12 +499,12 @@ public class TestsPdeAbapGitStaging {
 		view.actionStage.run(); //move class object to staged
 		
 		//check if unstage toolbar action is enabled
-		Assert.assertEquals(view.actionUnstage.isEnabled(), true);
-		Assert.assertEquals(view.commitAndPushButton.getEnabled(), true);
+		Assert.assertEquals(true, view.actionUnstage.isEnabled());
+		Assert.assertEquals(true, view.commitAndPushButton.getEnabled());
 		
 		//check if tree viewers are loaded properly
-		Assert.assertEquals(view.unstagedTreeViewer.getTree().getItemCount(), 3);
-		Assert.assertEquals(view.stagedTreeViewer.getTree().getItemCount(), 1);
+		Assert.assertEquals(3,view.unstagedTreeViewer.getTree().getItemCount());
+		Assert.assertEquals(1,view.stagedTreeViewer.getTree().getItemCount());
 		
 		//set a new selection in unstaged tree viewer
 		view.unstagedTreeViewer.setSelection(new StructuredSelection(testUtil.getInterfaceMock()), true);
@@ -512,8 +512,8 @@ public class TestsPdeAbapGitStaging {
 		view.actionStage.run(); // move interface object to staged 
 		
 		//check if tree viewers are loaded properly
-		Assert.assertEquals(view.unstagedTreeViewer.getTree().getItemCount(), 2);
-		Assert.assertEquals(view.stagedTreeViewer.getTree().getItemCount(), 2);
+		Assert.assertEquals(2, view.unstagedTreeViewer.getTree().getItemCount());
+		Assert.assertEquals(2, view.stagedTreeViewer.getTree().getItemCount());
 		
 		//check sort order
 		Assert.assertEquals(((IAbapGitObject)view.stagedTreeViewer.getTree().getItem(0).getData()), testUtil.getClassMock());
@@ -525,8 +525,8 @@ public class TestsPdeAbapGitStaging {
 		view.actionUnstage.run(); // move interface object to unstaged
 		
 		//check if tree viewers are loaded properly
-		Assert.assertEquals(view.unstagedTreeViewer.getTree().getItemCount(), 3);
-		Assert.assertEquals(view.stagedTreeViewer.getTree().getItemCount(), 1);
+		Assert.assertEquals(3, view.unstagedTreeViewer.getTree().getItemCount());
+		Assert.assertEquals(1, view.stagedTreeViewer.getTree().getItemCount());
 		
 		//set selection on a file under non-code and meta files node in unstaged tree viewer
 		view.unstagedTreeViewer.setSelection(new StructuredSelection(testUtil.getNonCodeMock()), true);
@@ -543,16 +543,16 @@ public class TestsPdeAbapGitStaging {
 		view.actionStage.run();
 		
 		//check if tree viewers are loaded properly
-		Assert.assertEquals(view.unstagedTreeViewer.getTree().getItemCount(), 3);
-		Assert.assertEquals(view.stagedTreeViewer.getTree().getItemCount(), 2);
+		Assert.assertEquals(3, view.unstagedTreeViewer.getTree().getItemCount());
+		Assert.assertEquals(2, view.stagedTreeViewer.getTree().getItemCount());
 		
 		//unstage the file
 		view.stagedTreeViewer.setSelection(new StructuredSelection(file), true);
 		view.actionUnstage.run();
 		
 		//check if tree viewers are loaded properly
-		Assert.assertEquals(view.unstagedTreeViewer.getTree().getItemCount(), 3);
-		Assert.assertEquals(view.stagedTreeViewer.getTree().getItemCount(), 1);
+		Assert.assertEquals(3, view.unstagedTreeViewer.getTree().getItemCount());
+		Assert.assertEquals(1, view.stagedTreeViewer.getTree().getItemCount());
 		
 		
 		//test single file stage and unstage under an object
@@ -568,8 +568,8 @@ public class TestsPdeAbapGitStaging {
 		view.actionStage.run();
 		
 		//check if tree viewers are loaded properly
-		Assert.assertEquals(view.unstagedTreeViewer.getTree().getItemCount(), 3); //existing node is retained with the remaining files
-		Assert.assertEquals(view.stagedTreeViewer.getTree().getItemCount(), 2); //new node created with the file which is moved
+		Assert.assertEquals(3, view.unstagedTreeViewer.getTree().getItemCount()); //existing node is retained with the remaining files
+		Assert.assertEquals(2, view.stagedTreeViewer.getTree().getItemCount()); //new node created with the file which is moved
 		
 		//move the second file under the same object
 		file = IAbapgitstagingFactory.eINSTANCE.createAbapGitFile();
@@ -581,16 +581,16 @@ public class TestsPdeAbapGitStaging {
 		view.actionStage.run();
 		
 		//check if tree viewers are loaded properly
-		Assert.assertEquals(view.unstagedTreeViewer.getTree().getItemCount(), 2); //object is removed as all the files are moved to staged
-		Assert.assertEquals(view.stagedTreeViewer.getTree().getItemCount(), 2); //file is added to the existing node in the staged tree viewer
+		Assert.assertEquals(2, view.unstagedTreeViewer.getTree().getItemCount()); //object is removed as all the files are moved to staged
+		Assert.assertEquals(2, view.stagedTreeViewer.getTree().getItemCount()); //file is added to the existing node in the staged tree viewer
 		
 		//check unstaging for the same steps
 		view.stagedTreeViewer.setSelection(new StructuredSelection(file), true);
 		view.actionUnstage.run();
 		
 		//check if tree viewers are loaded properly
-		Assert.assertEquals(view.unstagedTreeViewer.getTree().getItemCount(), 3);
-		Assert.assertEquals(view.stagedTreeViewer.getTree().getItemCount(), 2);
+		Assert.assertEquals(3, view.unstagedTreeViewer.getTree().getItemCount());
+		Assert.assertEquals(2, view.stagedTreeViewer.getTree().getItemCount());
 		
 		file = IAbapgitstagingFactory.eINSTANCE.createAbapGitFile();
 		file.setName("file2.abap");
@@ -601,8 +601,8 @@ public class TestsPdeAbapGitStaging {
 		view.actionUnstage.run();
 		
 		//check if tree viewers are loaded properly
-		Assert.assertEquals(view.unstagedTreeViewer.getTree().getItemCount(), 3);
-		Assert.assertEquals(view.stagedTreeViewer.getTree().getItemCount(), 1);
+		Assert.assertEquals(3, view.unstagedTreeViewer.getTree().getItemCount());
+		Assert.assertEquals(1, view.stagedTreeViewer.getTree().getItemCount());
 	}
 
 	private void stageAndUnstageGroupedByPackage() {
@@ -622,22 +622,22 @@ public class TestsPdeAbapGitStaging {
 		view.actionStage.run(); // move interface object to staged 
 		
 		//check if tree viewers are loaded properly
-		Assert.assertEquals(view.unstagedTreeViewer.getTree().getItemCount(), 2);
-		Assert.assertEquals(view.stagedTreeViewer.getTree().getItemCount(), 1);
+		Assert.assertEquals(2, view.unstagedTreeViewer.getTree().getItemCount());
+		Assert.assertEquals(1, view.stagedTreeViewer.getTree().getItemCount());
 		
 		//check sort order
-		Assert.assertEquals(((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(0).getData()).getType(), null);
-		Assert.assertEquals(((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(0).getData()).getValue(), "Not assigned to a package");
-		Assert.assertEquals(((IAbapGitObject)((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(0).getData()).getAbapgitobjects().get(0)), testUtil.getNonCodeMock());
+		Assert.assertEquals(null, ((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(0).getData()).getType());
+		Assert.assertEquals("Not assigned to a package", ((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(0).getData()).getValue());
+		Assert.assertEquals(testUtil.getNonCodeMock(), ((IAbapGitObject)((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(0).getData()).getAbapgitobjects().get(0)));
 		
-		Assert.assertEquals(((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(1).getData()).getType(), "package");
-		Assert.assertEquals(((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(1).getData()).getValue(), "PACKAGE1");
-		Assert.assertEquals(((IAbapGitObject)((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(1).getData()).getAbapgitobjects().get(0)), testUtil.getTableMock());
+		Assert.assertEquals("package", ((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(1).getData()).getType());
+		Assert.assertEquals("PACKAGE1", ((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(1).getData()).getValue());
+		Assert.assertEquals(testUtil.getTableMock(), ((IAbapGitObject)((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(1).getData()).getAbapgitobjects().get(0)));
 		
-		Assert.assertEquals(((IAbapGitStagingGroupNode)view.stagedTreeViewer.getTree().getItem(0).getData()).getType(), "package");
-		Assert.assertEquals(((IAbapGitStagingGroupNode)view.stagedTreeViewer.getTree().getItem(0).getData()).getValue(), "PACKAGE2");
-		Assert.assertEquals(((IAbapGitObject)((IAbapGitStagingGroupNode)view.stagedTreeViewer.getTree().getItem(0).getData()).getAbapgitobjects().get(0)), testUtil.getClassMock());
-		Assert.assertEquals(((IAbapGitObject)((IAbapGitStagingGroupNode)view.stagedTreeViewer.getTree().getItem(0).getData()).getAbapgitobjects().get(1)), testUtil.getInterfaceMock());
+		Assert.assertEquals("package", ((IAbapGitStagingGroupNode)view.stagedTreeViewer.getTree().getItem(0).getData()).getType());
+		Assert.assertEquals("PACKAGE2", ((IAbapGitStagingGroupNode)view.stagedTreeViewer.getTree().getItem(0).getData()).getValue());
+		Assert.assertEquals(testUtil.getClassMock(), ((IAbapGitObject)((IAbapGitStagingGroupNode)view.stagedTreeViewer.getTree().getItem(0).getData()).getAbapgitobjects().get(0)));
+		Assert.assertEquals(testUtil.getInterfaceMock(), ((IAbapGitObject)((IAbapGitStagingGroupNode)view.stagedTreeViewer.getTree().getItem(0).getData()).getAbapgitobjects().get(1)));
 		
 		//set a new selection in staged tree viewer
 		view.stagedTreeViewer.setSelection(new StructuredSelection(testUtil.getInterfaceMock()), true);
@@ -645,8 +645,8 @@ public class TestsPdeAbapGitStaging {
 		view.actionUnstage.run(); // move interface object to unstaged
 		
 		//check if tree viewers are loaded properly
-		Assert.assertEquals(view.unstagedTreeViewer.getTree().getItemCount(), 3);
-		Assert.assertEquals(view.stagedTreeViewer.getTree().getItemCount(), 1);
+		Assert.assertEquals(3, view.unstagedTreeViewer.getTree().getItemCount());
+		Assert.assertEquals(1, view.stagedTreeViewer.getTree().getItemCount());
 				
 	}
 	
@@ -658,22 +658,22 @@ public class TestsPdeAbapGitStaging {
 		view.filterText.notifyListeners(SWT.Modify, new Event());
 		
 		//check if tree viewers are loaded properly
-		Assert.assertEquals(view.unstagedTreeViewer.getTree().getItemCount(), 1);
-		Assert.assertEquals(view.stagedTreeViewer.getTree().getItemCount(), 0);
+		Assert.assertEquals(1, view.unstagedTreeViewer.getTree().getItemCount());
+		Assert.assertEquals(0, view.stagedTreeViewer.getTree().getItemCount());
 		
 		view.filterText.setText("CL_DUMMY_CLAS");
 		view.filterText.notifyListeners(SWT.Modify, new Event());
 		
 		//check if tree viewers are loaded properly
-		Assert.assertEquals(view.unstagedTreeViewer.getTree().getItemCount(), 0);
-		Assert.assertEquals(view.stagedTreeViewer.getTree().getItemCount(), 1);
+		Assert.assertEquals(0, view.unstagedTreeViewer.getTree().getItemCount());
+		Assert.assertEquals(1, view.stagedTreeViewer.getTree().getItemCount());
 		
 		view.filterText.setText("");
 		view.filterText.notifyListeners(SWT.Modify, new Event());
 		
 		//check if tree viewers are loaded properly
-		Assert.assertEquals(view.unstagedTreeViewer.getTree().getItemCount(), 3);
-		Assert.assertEquals(view.stagedTreeViewer.getTree().getItemCount(), 1);
+		Assert.assertEquals(3, view.unstagedTreeViewer.getTree().getItemCount());
+		Assert.assertEquals(1, view.stagedTreeViewer.getTree().getItemCount());
 	}
 
 	
@@ -683,47 +683,47 @@ public class TestsPdeAbapGitStaging {
 		view.filterText.notifyListeners(SWT.Modify, new Event());
 		
 		//check if tree viewers are loaded properly
-		Assert.assertEquals(view.unstagedTreeViewer.getTree().getItemCount(), 1);
-		Assert.assertEquals(view.stagedTreeViewer.getTree().getItemCount(), 0);
+		Assert.assertEquals(1, view.unstagedTreeViewer.getTree().getItemCount());
+		Assert.assertEquals(0, view.stagedTreeViewer.getTree().getItemCount());
 		
-		Assert.assertEquals(((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(0).getData()).getType(), "package");
-		Assert.assertEquals(((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(0).getData()).getValue(), "PACKAGE2");
-		Assert.assertEquals(((IAbapGitObject)((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(0).getData()).getAbapgitobjects().get(0)), testUtil.getInterfaceMock());
+		Assert.assertEquals("package", ((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(0).getData()).getType());
+		Assert.assertEquals("PACKAGE2", ((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(0).getData()).getValue());
+		Assert.assertEquals(testUtil.getInterfaceMock(), ((IAbapGitObject)((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(0).getData()).getAbapgitobjects().get(0)));
 		
 		
 		view.filterText.setText("CL_DUMMY_CLAS");
 		view.filterText.notifyListeners(SWT.Modify, new Event());
 		
 		//check if tree viewers are loaded properly
-		Assert.assertEquals(view.unstagedTreeViewer.getTree().getItemCount(), 0);
-		Assert.assertEquals(view.stagedTreeViewer.getTree().getItemCount(), 1);
+		Assert.assertEquals(0, view.unstagedTreeViewer.getTree().getItemCount());
+		Assert.assertEquals(1, view.stagedTreeViewer.getTree().getItemCount());
 
-		Assert.assertEquals(((IAbapGitStagingGroupNode)view.stagedTreeViewer.getTree().getItem(0).getData()).getType(), "package");
-		Assert.assertEquals(((IAbapGitStagingGroupNode)view.stagedTreeViewer.getTree().getItem(0).getData()).getValue(), "PACKAGE2");
-		Assert.assertEquals(((IAbapGitObject)((IAbapGitStagingGroupNode)view.stagedTreeViewer.getTree().getItem(0).getData()).getAbapgitobjects().get(0)), testUtil.getClassMock());
+		Assert.assertEquals("package", ((IAbapGitStagingGroupNode)view.stagedTreeViewer.getTree().getItem(0).getData()).getType());
+		Assert.assertEquals("PACKAGE2", ((IAbapGitStagingGroupNode)view.stagedTreeViewer.getTree().getItem(0).getData()).getValue());
+		Assert.assertEquals(testUtil.getClassMock(), ((IAbapGitObject)((IAbapGitStagingGroupNode)view.stagedTreeViewer.getTree().getItem(0).getData()).getAbapgitobjects().get(0)));
 		
 		view.filterText.setText("");
 		view.filterText.notifyListeners(SWT.Modify, new Event());
 		
 		//check if tree viewers are loaded properly
-		Assert.assertEquals(view.unstagedTreeViewer.getTree().getItemCount(), 3);
-		Assert.assertEquals(view.stagedTreeViewer.getTree().getItemCount(), 1);
+		Assert.assertEquals(3, view.unstagedTreeViewer.getTree().getItemCount());
+		Assert.assertEquals(1, view.stagedTreeViewer.getTree().getItemCount());
 		
 
 		view.filterText.setText("PACKAGE2");
 		view.filterText.notifyListeners(SWT.Modify, new Event());
 
 		//check if tree viewers are loaded properly
-		Assert.assertEquals(view.unstagedTreeViewer.getTree().getItemCount(), 1);
-		Assert.assertEquals(view.stagedTreeViewer.getTree().getItemCount(), 1);
+		Assert.assertEquals(1, view.unstagedTreeViewer.getTree().getItemCount());
+		Assert.assertEquals(1, view.stagedTreeViewer.getTree().getItemCount());
 
-		Assert.assertEquals(((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(0).getData()).getType(), "package");
-		Assert.assertEquals(((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(0).getData()).getValue(), "PACKAGE2");
-		Assert.assertEquals(((IAbapGitObject)((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(0).getData()).getAbapgitobjects().get(0)), testUtil.getInterfaceMock());
+		Assert.assertEquals("package", ((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(0).getData()).getType());
+		Assert.assertEquals("PACKAGE2", ((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(0).getData()).getValue());
+		Assert.assertEquals(testUtil.getInterfaceMock(), ((IAbapGitObject)((IAbapGitStagingGroupNode)view.unstagedTreeViewer.getTree().getItem(0).getData()).getAbapgitobjects().get(0)));
 
-		Assert.assertEquals(((IAbapGitStagingGroupNode)view.stagedTreeViewer.getTree().getItem(0).getData()).getType(), "package");
-		Assert.assertEquals(((IAbapGitStagingGroupNode)view.stagedTreeViewer.getTree().getItem(0).getData()).getValue(), "PACKAGE2");
-		Assert.assertEquals(((IAbapGitObject)((IAbapGitStagingGroupNode)view.stagedTreeViewer.getTree().getItem(0).getData()).getAbapgitobjects().get(0)), testUtil.getClassMock());
+		Assert.assertEquals("package", ((IAbapGitStagingGroupNode)view.stagedTreeViewer.getTree().getItem(0).getData()).getType());
+		Assert.assertEquals("PACKAGE2", ((IAbapGitStagingGroupNode)view.stagedTreeViewer.getTree().getItem(0).getData()).getValue());
+		Assert.assertEquals(testUtil.getClassMock(), ((IAbapGitObject)((IAbapGitStagingGroupNode)view.stagedTreeViewer.getTree().getItem(0).getData()).getAbapgitobjects().get(0)));
 
 	}
 
@@ -737,8 +737,8 @@ public class TestsPdeAbapGitStaging {
 		testUtil.waitInUI(3000);
 		
 		//check if tree viewers are loaded properly
-		Assert.assertEquals(view.unstagedTreeViewer.getTree().getItemCount(), 2);
-		Assert.assertEquals(view.stagedTreeViewer.getTree().getItemCount(), 0);
+		Assert.assertEquals(2, view.unstagedTreeViewer.getTree().getItemCount());
+		Assert.assertEquals(0, view.stagedTreeViewer.getTree().getItemCount());
 	}
 	
 	private void copy() {
@@ -751,11 +751,11 @@ public class TestsPdeAbapGitStaging {
 		e.character = 'C' | 'c';
 		
 		String OS = System.getProperty("os.name").toLowerCase();
-		if(OS.contains("win"))
-		e.stateMask = SWT.CTRL;
-		
 		if(OS.contains("mac"))
 			e.stateMask = SWT.COMMAND;
+		
+		else
+			e.stateMask = SWT.CTRL;
 		
 		e.widget = view.unstagedTreeViewer.getTree();
 		KeyEvent keyEvent = new KeyEvent(e);
@@ -766,7 +766,7 @@ public class TestsPdeAbapGitStaging {
 				keyListener.keyPressed(keyEvent);
 				final Clipboard clipboard = new Clipboard(view.getViewSite().getShell().getDisplay());
 				String content = (String) clipboard.getContents(TextTransfer.getInstance());
-				Assert.assertEquals(content, "CL_DUMMY_CLAS");
+				Assert.assertEquals("CL_DUMMY_CLAS", content);
 			}
 		}
 		
@@ -786,7 +786,7 @@ public class TestsPdeAbapGitStaging {
 				keyListener.keyPressed(keyEvent);
 				final Clipboard clipboard = new Clipboard(view.getViewSite().getShell().getDisplay());
 				String content = (String) clipboard.getContents(TextTransfer.getInstance());
-				Assert.assertEquals(content, "file1.xml");
+				Assert.assertEquals("file1.xml", content);
 			}
 		}
 	}
@@ -823,19 +823,19 @@ public class TestsPdeAbapGitStaging {
 		view.openStagingView(repository, project);
 		testUtil.waitInUI(10000);
 		
-		Assert.assertEquals(view.unstagedTreeViewer.getTree().getItemCount(), 0);
-		Assert.assertEquals(view.stagedTreeViewer.getTree().getItemCount(), 0);
+		Assert.assertEquals(0,view.unstagedTreeViewer.getTree().getItemCount());
+		Assert.assertEquals(0,view.stagedTreeViewer.getTree().getItemCount());
 		
-		Assert.assertEquals(view.mainForm.getText(), "lorem_ipsum [master] [ABAPGIT_TEST_PROJECT]");
+		Assert.assertEquals("lorem_ipsum [master] [ABAPGIT_TEST_PROJECT]", view.mainForm.getText());
 		
 		Assert.assertTrue(view.commitMessageTextViewer.getTextWidget().getText().isEmpty());
-		Assert.assertEquals(view.authorText.getText(), "Lorem Ipsum <lorem.ipsum@xxx.com>");
-		Assert.assertEquals(view.committerText.getText(), "Lorem Ipsum <lorem.ipsum@xxx.com>");
+		Assert.assertEquals("Lorem Ipsum <lorem.ipsum@xxx.com>", view.authorText.getText());
+		Assert.assertEquals("Lorem Ipsum <lorem.ipsum@xxx.com>", view.committerText.getText());
 		
-		Assert.assertEquals(view.actionRefresh.isEnabled(), true);
-		Assert.assertEquals(view.actionStage.isEnabled(), false);
-		Assert.assertEquals(view.actionUnstage.isEnabled(), false);
-		Assert.assertEquals(view.commitAndPushButton.getEnabled(), false);
+		Assert.assertEquals(true, view.actionRefresh.isEnabled());
+		Assert.assertEquals(false, view.actionStage.isEnabled());
+		Assert.assertEquals(false, view.actionUnstage.isEnabled());
+		Assert.assertEquals(false, view.commitAndPushButton.getEnabled());
 	}
 	
 	@Test
@@ -882,13 +882,13 @@ public class TestsPdeAbapGitStaging {
 		//case 3: invalid committer
 		checkCommitter();
 		//case 4: all inputs valid
-		assertEquals(view.validateInputs(), 0);	
+		assertEquals(0,view.validateInputs());	
 	}
 	
 	private void checkCommitMessage() {
 		view.commitMessageTextViewer.getTextWidget().setText("message header\nsecond line content");
 		int errorCode =  view.validateInputs();
-		assertEquals(errorCode, 1);
+		assertEquals(1,errorCode);
 		
 		//reset commit message
 		view.commitMessageTextViewer.getTextWidget().setText("");
@@ -897,31 +897,31 @@ public class TestsPdeAbapGitStaging {
 	private void checkAuthor() {
 		view.authorText.setText("Lorem Ipsum <lorem.ipsum@xxx.com");
 		int errorCode =  view.validateInputs();
-		assertEquals(errorCode, 2);
+		assertEquals(2,errorCode);
 		
 		view.authorText.setText("Lorem Ipsum lorem.ipsum@xxx.com>");
 		errorCode =  view.validateInputs();
-		assertEquals(errorCode, 2);
+		assertEquals(2, errorCode);
 		
 		view.authorText.setText("<lorem.ipsum@xxx.com>");
 		errorCode =  view.validateInputs();
-		assertEquals(errorCode, 2);
+		assertEquals(2, errorCode);
 		
 		view.authorText.setText("Lorem Ipsum<lorem.ipsum@xxx.com>");
 		errorCode =  view.validateInputs();
-		assertEquals(errorCode, 2);
+		assertEquals(2, errorCode);
 		
 		view.authorText.setText("Lorem Ipsum");
 		errorCode =  view.validateInputs();
-		assertEquals(errorCode, 2);
+		assertEquals(2, errorCode);
 		
 		view.authorText.setText("Lorem Ipsum <lorem.ipsum@xxx.com> more characters");
 		errorCode =  view.validateInputs();
-		assertEquals(errorCode, 2);
+		assertEquals(2, errorCode);
 		
 		view.authorText.setText("Lorem Ipsum >lorem.ipsum@xxx.com<");
 		errorCode =  view.validateInputs();
-		assertEquals(errorCode, 2);
+		assertEquals(2, errorCode);
 		
 		//reset author
 		view.authorText.setText("Lorem Ipsum <lorem.ipsum@xxx.com>");
@@ -930,31 +930,31 @@ public class TestsPdeAbapGitStaging {
 	private void checkCommitter() {
 		view.committerText.setText("Lorem Ipsum <lorem.ipsum@xxx.com");
 		int errorCode =  view.validateInputs();
-		assertEquals(errorCode, 3);
+		assertEquals(3, errorCode);
 		
 		view.committerText.setText("Lorem Ipsum lorem.ipsum@xxx.com>");
 		errorCode =  view.validateInputs();
-		assertEquals(errorCode, 3);
+		assertEquals(3, errorCode);
 		
 		view.committerText.setText("<lorem.ipsum@xxx.com>");
 		errorCode =  view.validateInputs();
-		assertEquals(errorCode, 3);
+		assertEquals(3, errorCode);
 		
 		view.committerText.setText("Lorem Ipsum<lorem.ipsum@xxx.com>");
 		errorCode =  view.validateInputs();
-		assertEquals(errorCode, 3);
+		assertEquals(3, errorCode);
 		
 		view.committerText.setText("Lorem Ipsum");
 		errorCode =  view.validateInputs();
-		assertEquals(errorCode, 3);
+		assertEquals(3, errorCode);
 		
 		view.committerText.setText("Lorem Ipsum <lorem.ipsum@xxx.com> more characters");
 		errorCode =  view.validateInputs();
-		assertEquals(errorCode, 3);
+		assertEquals(3, errorCode);
 		
 		view.committerText.setText("Lorem Ipsum >lorem.ipsum@xxx.com<");
 		errorCode =  view.validateInputs();
-		assertEquals(errorCode, 3);
+		assertEquals(3, errorCode);
 		
 		//reset committer
 		view.committerText.setText("Lorem Ipsum <lorem.ipsum@xxx.com>");

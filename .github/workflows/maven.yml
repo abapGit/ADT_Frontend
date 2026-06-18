@@ -1,0 +1,36 @@
+name: Java CI with Maven
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Build and Test with Headless Display
+      run: xvfb-run --auto-servernum -s "-screen 0 1024x768x24" mvn clean verify
+
+    - name: Dump Eclipse Error Log on Failure
+      if: failure()
+      run: |
+        LOG_PATH="test/org.abapgit.adt.ui.test/target/work/data/.metadata/.log"
+        if [ -f "$LOG_PATH" ]; then
+          echo "=== ECLIPSE WORKSPACE LOG ==="
+          cat "$LOG_PATH"
+        else
+          echo "Eclipse log file not found at $LOG_PATH"
+        fi
