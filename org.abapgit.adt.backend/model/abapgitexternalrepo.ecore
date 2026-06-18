@@ -47,7 +47,7 @@
       </eAnnotations>
     </eStructuralFeatures>
     <eStructuralFeatures xsi:type="ecore:EReference" name="links" upperBound="-1"
-        eType="ecore:EClass ../../com.sap.adt.tools.core.base/model/atom.ecore#//AtomLink"
+        eType="ecore:EClass platform:/plugin/com.sap.adt.tools.core.base/model/atom.ecore#//AtomLink"
         containment="true" resolveProxies="false">
       <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
         <details key="kind" value="element"/>
