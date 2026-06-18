@@ -36,6 +36,8 @@ import org.eclipse.swt.widgets.Text;
 
 import com.sap.adt.util.ui.swt.AdtSWTUtilFactory;
 
+import org.eclipse.ui.PlatformUI;
+
 public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 
 	private static final String PAGE_NAME = AbapGitWizardPageRepositoryAndCredentials.class.getName();
@@ -136,6 +138,8 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 		setControl(container);
 		setPageComplete(false);
 
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(container, "org.abapgit.adt.ui.repository_and_credentials"); //$NON-NLS-1$
+
 		if (this.cloneData.url != null) {
 			this.txtURL.setText(this.cloneData.url);
 			this.txtURL.setEnabled(false);
@@ -150,6 +154,11 @@ public class AbapGitWizardPageRepositoryAndCredentials extends WizardPage {
 			validateClientOnly();
 		}
 
+	}
+
+	@Override
+	public void performHelp() {
+		PlatformUI.getWorkbench().getHelpSystem().displayHelp("org.abapgit.adt.ui.repository_and_credentials"); //$NON-NLS-1$
 	}
 
 	@Override

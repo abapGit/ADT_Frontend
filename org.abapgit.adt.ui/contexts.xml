@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.contexts"?>
+<contexts>
+   <context id="repository_and_credentials" title="Repository and Credentials">
+      <description>Specify the URL of the Git repository you want to link. If the repository is private, provide your username and password or personal access token.</description>
+      <topic href="https://docs.abapgit.org/" label="abapGit Documentation"/>
+   </context>
+   <context id="branch_and_package" title="Branch and Package Selection">
+      <description>Select the branch of the repository and the target ABAP package where the repository objects will be placed.</description>
+      <topic href="https://docs.abapgit.org/" label="abapGit Documentation"/>
+   </context>
+   <context id="folder_logic" title="Folder Logic Selection">
+      <description>Select the folder logic to use when linking the repository. PREFIX logic requires sub-package names to contain the parent package name as a prefix. FULL folder logic accepts any package name.</description>
+      <topic href="https://docs.abapgit.org/" label="abapGit Documentation"/>
+   </context>
+   <context id="apack_dependencies" title="Package Dependency Resolution">
+      <description>Verify all APACK dependencies and specify local packages for them. All dependent repositories must have valid package assignments with the same transport layer.</description>
+      <topic href="https://docs.abapgit.org/" label="abapGit Documentation"/>
+   </context>
+   <context id="objects_selection_for_pull" title="Object Selection for Pull">
+      <description>Select the objects that should be pulled from the remote repository. Only selected objects will be overwritten with the remote version.</description>
+      <topic href="https://docs.abapgit.org/" label="abapGit Documentation"/>
+   </context>
+   <context id="switch_branch_credentials" title="Switch Branch - Credentials">
+      <description>If the repository is private, provide your credentials to authenticate before switching branches.</description>
+      <topic href="https://docs.abapgit.org/" label="abapGit Documentation"/>
+   </context>
+   <context id="switch_branch_selection" title="Switch Branch - Branch Selection">
+      <description>Select the target branch to switch to for this repository.</description>
+      <topic href="https://docs.abapgit.org/" label="abapGit Documentation"/>
+   </context>
+</contexts>

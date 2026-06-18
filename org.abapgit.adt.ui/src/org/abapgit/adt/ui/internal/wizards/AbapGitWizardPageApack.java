@@ -37,6 +37,8 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
+import org.eclipse.ui.PlatformUI;
+
 import com.sap.adt.tools.core.model.adtcore.IAdtCoreFactory;
 import com.sap.adt.tools.core.model.adtcore.IAdtObjectReference;
 import com.sap.adt.tools.core.ui.packages.AdtPackageServiceUIFactory;
@@ -134,7 +136,13 @@ public class AbapGitWizardPageApack extends WizardPage {
 		}
 
 		setControl(container);
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(container, "org.abapgit.adt.ui.apack_dependencies"); //$NON-NLS-1$
 
+	}
+
+	@Override
+	public void performHelp() {
+		PlatformUI.getWorkbench().getHelpSystem().displayHelp("org.abapgit.adt.ui.apack_dependencies"); //$NON-NLS-1$
 	}
 
 	@Override

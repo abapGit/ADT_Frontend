@@ -21,6 +21,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 
+import org.eclipse.ui.PlatformUI;
+
 public class AbapGitWizardPageFolderLogic extends WizardPage {
 
 	private static final String PAGE_NAME = AbapGitWizardPageFolderLogic.class.getName();
@@ -98,6 +100,7 @@ public class AbapGitWizardPageFolderLogic extends WizardPage {
 
 		setControl(container);
 		setPageComplete(true);
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(container, "org.abapgit.adt.ui.folder_logic"); //$NON-NLS-1$
 	}
 
 	public void setBackButtonEnabled(boolean enabled) {
@@ -111,6 +114,11 @@ public class AbapGitWizardPageFolderLogic extends WizardPage {
 			return null;
 		}
 		return super.getPreviousPage();
+	}
+
+	@Override
+	public void performHelp() {
+		PlatformUI.getWorkbench().getHelpSystem().displayHelp("org.abapgit.adt.ui.folder_logic"); //$NON-NLS-1$
 	}
 
 	@Override

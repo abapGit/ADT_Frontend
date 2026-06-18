@@ -51,6 +51,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
 
+import org.eclipse.ui.PlatformUI;
+
 import com.sap.adt.communication.exceptions.CommunicationException;
 import com.sap.adt.communication.resources.ResourceException;
 import com.sap.adt.tools.core.model.adtcore.IAdtObjectReference;
@@ -192,6 +194,7 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 		createProgressBarComposite(container);
 
 		setControl(container);
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(container, "org.abapgit.adt.ui.branch_and_package"); //$NON-NLS-1$
 
 		if (this.cloneData.url != null) {
 
@@ -316,6 +319,11 @@ public class AbapGitWizardPageBranchAndPackage extends WizardPage {
 			}
 		}
 		return true;
+	}
+
+	@Override
+	public void performHelp() {
+		PlatformUI.getWorkbench().getHelpSystem().displayHelp("org.abapgit.adt.ui.branch_and_package"); //$NON-NLS-1$
 	}
 
 	@Override

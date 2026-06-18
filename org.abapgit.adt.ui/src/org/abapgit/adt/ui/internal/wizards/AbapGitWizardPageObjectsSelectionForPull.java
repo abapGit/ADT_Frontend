@@ -40,6 +40,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Text;
 
+import org.eclipse.ui.PlatformUI;
+
 /**
  * Wizard page showing modified objects for pull with lazy loading on scroll and
  * persistent selection by object instance.
@@ -107,6 +109,7 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 		this.modifiedObjTreeViewer.setInput(this.filteredRepositoryObjects);
 		setControl(mainContainer);
 		setPageComplete(true);
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(this.container, "org.abapgit.adt.ui.objects_selection_for_pull"); //$NON-NLS-1$
 		addListeners();
 		addSearchListener();
 	}
@@ -168,6 +171,11 @@ public class AbapGitWizardPageObjectsSelectionForPull extends WizardPage {
 		viewerColumn.getColumn().setText(title);
 		this.treeColumnLayout.setColumnData(viewerColumn.getColumn(), new ColumnWeightData(20, bound, true));
 		return viewerColumn;
+	}
+
+	@Override
+	public void performHelp() {
+		PlatformUI.getWorkbench().getHelpSystem().displayHelp("org.abapgit.adt.ui.objects_selection_for_pull"); //$NON-NLS-1$
 	}
 
 	@Override

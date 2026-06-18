@@ -5,6 +5,8 @@ import org.abapgit.adt.ui.internal.i18n.Messages;
 import org.abapgit.adt.ui.internal.wizards.AbapGitWizard.CloneData;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.dialogs.DialogPage;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.PlatformUI;
 
 public class AbapGitWizardPageSwitchBranchCredentials extends AbapGitWizardPageRepositoryAndCredentials {
 
@@ -15,6 +17,17 @@ public class AbapGitWizardPageSwitchBranchCredentials extends AbapGitWizardPageR
 		this.cloneData = cloneData;
 		setTitle(Messages.AbapGitWizardPageSwitch_branch_credentials_title);
 		setDescription(Messages.AbapGitWizardPageSwitch_credentials_description);
+	}
+
+	@Override
+	public void createControl(Composite parent) {
+		super.createControl(parent);
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(getControl(), "org.abapgit.adt.ui.switch_branch_credentials"); //$NON-NLS-1$
+	}
+
+	@Override
+	public void performHelp() {
+		PlatformUI.getWorkbench().getHelpSystem().displayHelp("org.abapgit.adt.ui.switch_branch_credentials"); //$NON-NLS-1$
 	}
 
 	@Override
