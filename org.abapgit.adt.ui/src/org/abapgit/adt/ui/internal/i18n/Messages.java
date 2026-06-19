@@ -50,6 +50,9 @@ public class Messages extends NLS {
 	public static String AbapGitView_ConfDialog_Btn_confirm;
 	public static String AbapGitView_ConfDialog_Btn_cancel;
 	public static String AbapGitView_Type_Filter_Text;
+	public static String AbapGitView_copy_action_text;
+	public static String AbapGitView_copy_action_submenu_copy_cell;
+	public static String AbapGitView_copy_action_submenu_copy_row;
 	public static String AbapGitWizard_errorRetrievingLinkedRepo;
 	public static String AbapGitWizard_task_cloning_repository;
 	public static String AbapGitWizard_task_pulling_repository;
